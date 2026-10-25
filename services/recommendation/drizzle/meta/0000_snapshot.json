@@ -1,0 +1,139 @@
+{
+  "id": "c1c1572a-f093-4e67-8edc-6b8dd2a31275",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "recommendation.recommendation": {
+      "name": "recommendation",
+      "schema": "recommendation",
+      "columns": {
+        "student_id": {
+          "name": "student_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "program_id": {
+          "name": "program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "program_name": {
+          "name": "program_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "eligibility": {
+          "name": "eligibility",
+          "type": "eligibility",
+          "typeSchema": "recommendation",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "offer_chance": {
+          "name": "offer_chance",
+          "type": "offer_chance",
+          "typeSchema": "recommendation",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "offer_margin": {
+          "name": "offer_margin",
+          "type": "numeric(5, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_top_match": {
+          "name": "is_top_match",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_target_based": {
+          "name": "is_target_based",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "reasons": {
+          "name": "reasons",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "missing": {
+          "name": "missing",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "generated_at": {
+          "name": "generated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "recommendation_student_id_program_id_pk": {
+          "name": "recommendation_student_id_program_id_pk",
+          "columns": [
+            "student_id",
+            "program_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "recommendation.eligibility": {
+      "name": "eligibility",
+      "schema": "recommendation",
+      "values": [
+        "eligible",
+        "almost",
+        "not_yet"
+      ]
+    },
+    "recommendation.offer_chance": {
+      "name": "offer_chance",
+      "schema": "recommendation",
+      "values": [
+        "high",
+        "medium",
+        "low",
+        "no_data"
+      ]
+    }
+  },
+  "schemas": {
+    "recommendation": "recommendation"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
