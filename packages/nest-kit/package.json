@@ -1,0 +1,40 @@
+{
+  "name": "@edulaunch/nest-kit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Infrastructure shared by the NestJS services: bootstrap, config, errors, internal auth, database and messaging.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@edulaunch/ddd": "workspace:*",
+    "amqplib": "^2.2.0",
+    "drizzle-orm": "^0.45.4",
+    "postgres": "^3.4.9",
+    "zod": "^4.6.7"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^12.0.1",
+    "@nestjs/core": "^12.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@edulaunch/tsconfig": "workspace:*",
+    "@nestjs/common": "^12.2.0",
+    "@nestjs/core": "^12.2.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^26.6.5",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typescript": "^6.0.2"
+  }
+}
