@@ -1,0 +1,24 @@
+{
+  "name": "@edulaunch/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Messages shared between services: event names, payloads and HTTP DTO schemas.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@edulaunch/tsconfig": "workspace:*",
+    "typescript": "^6.0.2"
+  }
+}
