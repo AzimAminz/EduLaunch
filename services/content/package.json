@@ -1,0 +1,12 @@
+{
+  "name": "@edulaunch/content-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Python service; these scripts let turbo run it alongside the Node services.",
+  "scripts": {
+    "dev": "uv run --env-file .env uvicorn content_service.main:app --app-dir src --port 4200 --reload",
+    "test": "uv run pytest -q",
+    "lint": "uv run ruff check src tests",
+    "db:migrate": "uv run --env-file .env python -m content_service.infrastructure.migrate"
+  }
+}
