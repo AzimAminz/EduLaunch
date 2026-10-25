@@ -1,0 +1,47 @@
+erDiagram
+    ROADMAP {
+        ​PK roadmap_id
+        ​FK student_id
+        ​ roadmap_title
+        ​ version_no
+        ​ is_active
+    }
+    ROADMAP_STEP {
+        ​PK step_id
+        ​FK roadmap_id
+        ​FK parent_step_id
+        ​FK program_id
+        ​FK career_id
+        ​ step_type
+        ​ step_label
+        ​ step_order
+    }
+    CAREER {
+        ​PK career_id
+        ​FK field_id
+        ​FK source_id
+        ​ career_title
+        ​ description
+        ​ min_study_level
+        ​ outlook_note
+    }
+    DATA_SOURCE {
+        ​PK source_id
+    }
+    FIELD {
+        ​PK field_id
+    }
+    PROGRAM {
+        ​PK program_id
+    }
+    STUDENT {
+        ​PK student_id
+    }
+
+    STUDENT ||--o{ ROADMAP : "builds"
+    ROADMAP ||--|{ ROADMAP_STEP : "contains"
+    ROADMAP_STEP |o..o{ ROADMAP_STEP : "branches to"
+    PROGRAM |o..o{ ROADMAP_STEP : "referenced by"
+    DATA_SOURCE |o..o{ CAREER : "source of"
+    FIELD ||--o{ CAREER : "leads to"
+    CAREER |o..o{ ROADMAP_STEP : "career goal"

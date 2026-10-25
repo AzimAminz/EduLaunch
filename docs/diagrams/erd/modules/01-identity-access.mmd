@@ -1,0 +1,26 @@
+erDiagram
+    USER {
+        ​PK user_id
+        ​ full_name
+        ​ email
+        ​ password_hash
+        ​ role
+        ​ account_status
+        ​ created_at
+    }
+    STUDENT {
+        ​PK student_id
+        ​FK user_id
+        ​ education_level
+        ​ form_year
+        ​FK stream_program_id
+        ​ school_name
+        ​ date_of_birth
+        ​ parent_consent_at
+    }
+    PROGRAM {
+        ​PK program_id
+    }
+
+    USER ||--o| STUDENT : "is a"
+    PROGRAM |o..o{ STUDENT : "chosen stream"

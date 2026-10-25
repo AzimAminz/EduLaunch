@@ -1,0 +1,21 @@
+erDiagram
+    RECOMMENDATION {
+        ​PK,FK student_id
+        ​PK,FK program_id
+        ​ eligibility
+        ​ score
+        ​ offer_chance
+        ​ is_top_match
+        ​ is_target_based
+        ​ reasons
+        ​ generated_at
+    }
+    PROGRAM {
+        ​PK program_id
+    }
+    STUDENT {
+        ​PK student_id
+    }
+
+    STUDENT ||--o{ RECOMMENDATION : "receives"
+    PROGRAM ||--o{ RECOMMENDATION : "recommended in"

@@ -1,0 +1,42 @@
+erDiagram
+    SUBJECT {
+        ​PK subject_id
+        ​ subject_name
+        ​ aliases
+        ​ category
+        ​ qualification
+        ​ is_mandatory
+    }
+    ACADEMIC_RECORD {
+        ​PK record_id
+        ​FK student_id
+        ​FK diploma_program_id
+        ​ qualification
+        ​ record_kind
+        ​ exam_year
+        ​ cgpa
+        ​ muet_band
+        ​ entry_source
+        ​ document_file
+        ​ extraction_status
+        ​ record_status
+        ​ confirmed_at
+    }
+    RECORD_SUBJECT {
+        ​PK,FK record_id
+        ​PK,FK subject_id
+        ​ grade
+        ​ read_confidence
+        ​ review_note
+    }
+    PROGRAM {
+        ​PK program_id
+    }
+    STUDENT {
+        ​PK student_id
+    }
+
+    STUDENT ||--o{ ACADEMIC_RECORD : "owns"
+    ACADEMIC_RECORD ||--|{ RECORD_SUBJECT : "contains"
+    SUBJECT ||--o{ RECORD_SUBJECT : "graded in"
+    PROGRAM |o..o{ ACADEMIC_RECORD : "diploma program"

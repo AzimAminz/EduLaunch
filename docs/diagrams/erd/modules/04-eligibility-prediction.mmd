@@ -1,0 +1,65 @@
+erDiagram
+    REQUIREMENT {
+        ​PK requirement_id
+        ​FK program_id
+        ​FK source_id
+        ​FK approved_by
+        ​ entry_route
+        ​ version_no
+        ​ review_status
+        ​ effective_from
+    }
+    REQUIREMENT_RULE {
+        ​PK rule_id
+        ​FK requirement_id
+        ​FK subject_id
+        ​FK related_field_id
+        ​ rule_type
+        ​ min_grade
+        ​ min_value
+        ​ evidence_quote
+    }
+    MERIT_FORMULA {
+        ​PK formula_id
+        ​FK approved_by
+        ​ entry_route
+        ​ academic_weight
+        ​ cocurricular_weight
+        ​ version_no
+        ​ review_status
+    }
+    ADMISSION_STAT {
+        ​PK stat_id
+        ​FK program_id
+        ​FK source_id
+        ​ intake_year
+        ​ lowest_merit
+        ​ average_merit
+        ​ applicants
+        ​ places
+    }
+    DATA_SOURCE {
+        ​PK source_id
+    }
+    FIELD {
+        ​PK field_id
+    }
+    PROGRAM {
+        ​PK program_id
+    }
+    SUBJECT {
+        ​PK subject_id
+    }
+    USER {
+        ​PK user_id
+    }
+
+    PROGRAM ||--o{ REQUIREMENT : "has"
+    REQUIREMENT ||--|{ REQUIREMENT_RULE : "consists of"
+    SUBJECT |o..o{ REQUIREMENT_RULE : "required subject"
+    FIELD |o..o{ REQUIREMENT_RULE : "related field"
+    DATA_SOURCE |o..o{ REQUIREMENT : "evidence for"
+    USER |o..o{ REQUIREMENT : "approves"
+    USER |o..o{ MERIT_FORMULA : "approves"
+    PROGRAM ||--o{ ADMISSION_STAT : "has history"
+    DATA_SOURCE |o..o{ ADMISSION_STAT : "source of"

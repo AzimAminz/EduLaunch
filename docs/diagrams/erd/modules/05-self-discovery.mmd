@@ -1,0 +1,33 @@
+erDiagram
+    ASSESSMENT {
+        ​PK assessment_id
+        ​FK student_id
+        ​ instrument_version
+        ​ answers
+        ​ riasec_scores
+        ​ completed_at
+    }
+    ACTIVITY {
+        ​PK activity_id
+        ​FK field_id
+        ​ activity_title
+        ​ activity_type
+    }
+    ACTIVITY_ATTEMPT {
+        ​PK,FK student_id
+        ​PK,FK activity_id
+        ​ enjoyment_rating
+        ​ reflection
+        ​ completed_at
+    }
+    FIELD {
+        ​PK field_id
+    }
+    STUDENT {
+        ​PK student_id
+    }
+
+    STUDENT ||--o{ ASSESSMENT : "takes"
+    FIELD ||..o{ ACTIVITY : "field activity"
+    STUDENT ||--o{ ACTIVITY_ATTEMPT : "attempts"
+    ACTIVITY ||--o{ ACTIVITY_ATTEMPT : "attempted in"

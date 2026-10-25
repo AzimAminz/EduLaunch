@@ -1,0 +1,56 @@
+erDiagram
+    INSTITUTION {
+        ​PK institution_id
+        ​ institution_name
+        ​ short_name
+        ​ institution_type
+        ​ website_url
+    }
+    PROGRAM {
+        ​PK program_id
+        ​FK institution_id
+        ​ program_name
+        ​ study_level
+        ​ duration_semesters
+        ​ publish_status
+    }
+    FIELD {
+        ​PK field_id
+        ​FK parent_field_id
+        ​ field_name
+        ​ riasec_weights
+    }
+    PROGRAM_FIELD {
+        ​PK,FK program_id
+        ​PK,FK field_id
+    }
+    SAVED_PROGRAM {
+        ​PK,FK student_id
+        ​PK,FK program_id
+        ​ in_comparison
+        ​ note
+        ​ saved_at
+    }
+    PROGRAM_PATHWAY {
+        ​PK,FK from_program_id
+        ​PK,FK to_program_id
+        ​ condition_text
+        ​ min_cgpa
+        ​FK source_id
+    }
+    DATA_SOURCE {
+        ​PK source_id
+    }
+    STUDENT {
+        ​PK student_id
+    }
+
+    INSTITUTION ||--o{ PROGRAM : "offers"
+    PROGRAM ||--|{ PROGRAM_FIELD : "belongs to"
+    FIELD ||--o{ PROGRAM_FIELD : "covers"
+    FIELD |o..o{ FIELD : "sub-field"
+    PROGRAM ||--o{ PROGRAM_PATHWAY : "leads to"
+    PROGRAM ||--o{ PROGRAM_PATHWAY : "reached from"
+    DATA_SOURCE |o..o{ PROGRAM_PATHWAY : "source of"
+    STUDENT ||--o{ SAVED_PROGRAM : "saves"
+    PROGRAM ||--o{ SAVED_PROGRAM : "saved by"

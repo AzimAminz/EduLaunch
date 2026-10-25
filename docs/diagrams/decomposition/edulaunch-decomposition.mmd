@@ -1,0 +1,163 @@
+flowchart TD
+    ROOT["EduLaunch Platform"]
+    subgraph M1["1.0 Identity & Access"]
+        direction TB
+        F1_1["1.1 Create an account"]
+        F1_2["1.2 Log in and reset password"]
+        F1_3["1.3 Choose your education level"]
+        F1_4["1.4 Edit your profile"]
+        F1_5["1.5 Export or delete your data"]
+        F1_1 ~~~ F1_2 ~~~ F1_3 ~~~ F1_4 ~~~ F1_5
+    end
+    subgraph M2["2.0 Academic Profile"]
+        direction TB
+        F2_1["2.1 Upload a result slip"]
+        F2_2["2.2 Fix only the flagged grades"]
+        F2_3["2.3 Add or remove subjects"]
+        F2_4["2.4 Enter results by hand"]
+        F2_5["2.5 Move up a level when results are out"]
+        F2_1 ~~~ F2_2 ~~~ F2_3 ~~~ F2_4 ~~~ F2_5
+    end
+    subgraph M3["3.0 Programme Catalogue"]
+        direction TB
+        F3_1["3.1 Search by university and field"]
+        F3_2["3.2 Filter by study level"]
+        F3_3["3.3 View programme details"]
+        F3_4["3.4 Compare programmes"]
+        F3_5["3.5 Save programmes"]
+        F3_1 ~~~ F3_2 ~~~ F3_3 ~~~ F3_4 ~~~ F3_5
+    end
+    subgraph M4["4.0 Eligibility & Prediction"]
+        direction TB
+        F4_1["4.1 Check entry requirements"]
+        F4_2["4.2 Calculate merit"]
+        F4_3["4.3 Estimate offer chance"]
+        F4_4["4.4 Show what is missing (what-if)"]
+        F4_5["4.5 Suggest alternative pathways"]
+        F4_1 ~~~ F4_2 ~~~ F4_3 ~~~ F4_4 ~~~ F4_5
+    end
+    subgraph M5["5.0 Self Discovery"]
+        direction TB
+        F5_1["5.1 Take the interest test"]
+        F5_2["5.2 Try short field activities"]
+        F5_3["5.3 Rate each activity"]
+        F5_4["5.4 See your interest profile"]
+        F5_5["5.5 Get a Form 4 stream suggestion"]
+        F5_1 ~~~ F5_2 ~~~ F5_3 ~~~ F5_4 ~~~ F5_5
+    end
+    subgraph M6["6.0 Recommendation & AI"]
+        direction TB
+        F6_1["6.1 Rank programmes for you"]
+        F6_2["6.2 Explain each recommendation"]
+        F6_3["6.3 Highlight the top match"]
+        F6_4["6.4 Update when your profile changes"]
+        F6_5["6.5 Answer questions with sources"]
+        F6_1 ~~~ F6_2 ~~~ F6_3 ~~~ F6_4 ~~~ F6_5
+    end
+    subgraph M7["7.0 Study & Career Planning"]
+        direction TB
+        F7_1["7.1 Build a roadmap for your level"]
+        F7_2["7.2 Form 1–3: stream to SPM to field"]
+        F7_3["7.3 Diploma: work now or continue"]
+        F7_4["7.4 Show careers for each field"]
+        F7_5["7.5 Track next actions and versions"]
+        F7_1 ~~~ F7_2 ~~~ F7_3 ~~~ F7_4 ~~~ F7_5
+    end
+    subgraph M8["8.0 Content Pipeline"]
+        direction TB
+        F8_1["8.1 Keep a list of official sources"]
+        F8_2["8.2 Check sources every week"]
+        F8_3["8.3 Detect what changed"]
+        F8_4["8.4 Draft requirements with AI"]
+        F8_5["8.5 Prepare text for search"]
+        F8_1 ~~~ F8_2 ~~~ F8_3 ~~~ F8_4 ~~~ F8_5
+    end
+    subgraph M9["9.0 Notifications & Support"]
+        direction TB
+        F9_1["9.1 Alert on requirement changes"]
+        F9_2["9.2 Remind about result release"]
+        F9_3["9.3 Contact support"]
+        F9_4["9.4 Report wrong data"]
+        F9_5["9.5 Track ticket status"]
+        F9_1 ~~~ F9_2 ~~~ F9_3 ~~~ F9_4 ~~~ F9_5
+    end
+    subgraph M10["10.0 Administration"]
+        direction TB
+        F10_1["10.1 Manage universities and programmes"]
+        F10_2["10.2 Manage requirements and merit"]
+        F10_3["10.3 Review and publish AI drafts"]
+        F10_4["10.4 Manage admin accounts"]
+        F10_5["10.5 View the audit log"]
+        F10_1 ~~~ F10_2 ~~~ F10_3 ~~~ F10_4 ~~~ F10_5
+    end
+    ROOT --- M1
+    ROOT --- M2
+    ROOT --- M3
+    ROOT --- M4
+    ROOT --- M5
+    ROOT --- M6
+    ROOT --- M7
+    ROOT --- M8
+    ROOT --- M9
+    ROOT --- M10
+    style ROOT fill:#142747,color:#ffffff,stroke:#142747
+    style M1 fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px
+    style F1_1 fill:#ffffff,stroke:#6c8ebf
+    style F1_2 fill:#ffffff,stroke:#6c8ebf
+    style F1_3 fill:#ffffff,stroke:#6c8ebf
+    style F1_4 fill:#ffffff,stroke:#6c8ebf
+    style F1_5 fill:#ffffff,stroke:#6c8ebf
+    style M2 fill:#d5e8d4,stroke:#82b366,stroke-width:2px
+    style F2_1 fill:#ffffff,stroke:#82b366
+    style F2_2 fill:#ffffff,stroke:#82b366
+    style F2_3 fill:#ffffff,stroke:#82b366
+    style F2_4 fill:#ffffff,stroke:#82b366
+    style F2_5 fill:#ffffff,stroke:#82b366
+    style M3 fill:#fff2cc,stroke:#d6b656,stroke-width:2px
+    style F3_1 fill:#ffffff,stroke:#d6b656
+    style F3_2 fill:#ffffff,stroke:#d6b656
+    style F3_3 fill:#ffffff,stroke:#d6b656
+    style F3_4 fill:#ffffff,stroke:#d6b656
+    style F3_5 fill:#ffffff,stroke:#d6b656
+    style M4 fill:#f8cecc,stroke:#b85450,stroke-width:2px
+    style F4_1 fill:#ffffff,stroke:#b85450
+    style F4_2 fill:#ffffff,stroke:#b85450
+    style F4_3 fill:#ffffff,stroke:#b85450
+    style F4_4 fill:#ffffff,stroke:#b85450
+    style F4_5 fill:#ffffff,stroke:#b85450
+    style M5 fill:#e1d5e7,stroke:#9673a6,stroke-width:2px
+    style F5_1 fill:#ffffff,stroke:#9673a6
+    style F5_2 fill:#ffffff,stroke:#9673a6
+    style F5_3 fill:#ffffff,stroke:#9673a6
+    style F5_4 fill:#ffffff,stroke:#9673a6
+    style F5_5 fill:#ffffff,stroke:#9673a6
+    style M6 fill:#d0efef,stroke:#4a9e9e,stroke-width:2px
+    style F6_1 fill:#ffffff,stroke:#4a9e9e
+    style F6_2 fill:#ffffff,stroke:#4a9e9e
+    style F6_3 fill:#ffffff,stroke:#4a9e9e
+    style F6_4 fill:#ffffff,stroke:#4a9e9e
+    style F6_5 fill:#ffffff,stroke:#4a9e9e
+    style M7 fill:#ffe6cc,stroke:#d79b00,stroke-width:2px
+    style F7_1 fill:#ffffff,stroke:#d79b00
+    style F7_2 fill:#ffffff,stroke:#d79b00
+    style F7_3 fill:#ffffff,stroke:#d79b00
+    style F7_4 fill:#ffffff,stroke:#d79b00
+    style F7_5 fill:#ffffff,stroke:#d79b00
+    style M8 fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    style F8_1 fill:#ffffff,stroke:#c2185b
+    style F8_2 fill:#ffffff,stroke:#c2185b
+    style F8_3 fill:#ffffff,stroke:#c2185b
+    style F8_4 fill:#ffffff,stroke:#c2185b
+    style F8_5 fill:#ffffff,stroke:#c2185b
+    style M9 fill:#eeeeee,stroke:#777777,stroke-width:2px
+    style F9_1 fill:#ffffff,stroke:#777777
+    style F9_2 fill:#ffffff,stroke:#777777
+    style F9_3 fill:#ffffff,stroke:#777777
+    style F9_4 fill:#ffffff,stroke:#777777
+    style F9_5 fill:#ffffff,stroke:#777777
+    style M10 fill:#e6e6ff,stroke:#6666cc,stroke-width:2px
+    style F10_1 fill:#ffffff,stroke:#6666cc
+    style F10_2 fill:#ffffff,stroke:#6666cc
+    style F10_3 fill:#ffffff,stroke:#6666cc
+    style F10_4 fill:#ffffff,stroke:#6666cc
+    style F10_5 fill:#ffffff,stroke:#6666cc

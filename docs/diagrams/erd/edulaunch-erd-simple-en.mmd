@@ -1,0 +1,246 @@
+erDiagram
+    USER {
+        ​PK user_id
+        ​ full_name
+        ​ email
+        ​ password_hash
+        ​ role
+        ​ account_status
+        ​ created_at
+    }
+    STUDENT {
+        ​PK student_id
+        ​FK user_id
+        ​ education_level
+        ​ form_year
+        ​FK stream_program_id
+        ​ school_name
+        ​ date_of_birth
+        ​ parent_consent_at
+    }
+    SUBJECT {
+        ​PK subject_id
+        ​ subject_name
+        ​ aliases
+        ​ category
+        ​ qualification
+        ​ is_mandatory
+    }
+    ACADEMIC_RECORD {
+        ​PK record_id
+        ​FK student_id
+        ​FK diploma_program_id
+        ​ qualification
+        ​ record_kind
+        ​ exam_year
+        ​ cgpa
+        ​ muet_band
+        ​ entry_source
+        ​ document_file
+        ​ extraction_status
+        ​ record_status
+        ​ confirmed_at
+    }
+    RECORD_SUBJECT {
+        ​PK,FK record_id
+        ​PK,FK subject_id
+        ​ grade
+        ​ read_confidence
+        ​ review_note
+    }
+    INSTITUTION {
+        ​PK institution_id
+        ​ institution_name
+        ​ short_name
+        ​ institution_type
+        ​ website_url
+    }
+    FIELD {
+        ​PK field_id
+        ​FK parent_field_id
+        ​ field_name
+        ​ riasec_weights
+    }
+    PROGRAM {
+        ​PK program_id
+        ​FK institution_id
+        ​ program_name
+        ​ study_level
+        ​ duration_semesters
+        ​ publish_status
+    }
+    PROGRAM_FIELD {
+        ​PK,FK program_id
+        ​PK,FK field_id
+    }
+    PROGRAM_PATHWAY {
+        ​PK,FK from_program_id
+        ​PK,FK to_program_id
+        ​ condition_text
+        ​ min_cgpa
+        ​FK source_id
+    }
+    SAVED_PROGRAM {
+        ​PK,FK student_id
+        ​PK,FK program_id
+        ​ in_comparison
+        ​ note
+        ​ saved_at
+    }
+    REQUIREMENT {
+        ​PK requirement_id
+        ​FK program_id
+        ​FK source_id
+        ​FK approved_by
+        ​ entry_route
+        ​ version_no
+        ​ review_status
+        ​ effective_from
+    }
+    REQUIREMENT_RULE {
+        ​PK rule_id
+        ​FK requirement_id
+        ​FK subject_id
+        ​FK related_field_id
+        ​ rule_type
+        ​ min_grade
+        ​ min_value
+        ​ evidence_quote
+    }
+    MERIT_FORMULA {
+        ​PK formula_id
+        ​FK approved_by
+        ​ entry_route
+        ​ academic_weight
+        ​ cocurricular_weight
+        ​ version_no
+        ​ review_status
+    }
+    ADMISSION_STAT {
+        ​PK stat_id
+        ​FK program_id
+        ​FK source_id
+        ​ intake_year
+        ​ lowest_merit
+        ​ average_merit
+        ​ applicants
+        ​ places
+    }
+    ASSESSMENT {
+        ​PK assessment_id
+        ​FK student_id
+        ​ instrument_version
+        ​ answers
+        ​ riasec_scores
+        ​ completed_at
+    }
+    ACTIVITY {
+        ​PK activity_id
+        ​FK field_id
+        ​ activity_title
+        ​ activity_type
+    }
+    ACTIVITY_ATTEMPT {
+        ​PK,FK student_id
+        ​PK,FK activity_id
+        ​ enjoyment_rating
+        ​ reflection
+        ​ completed_at
+    }
+    RECOMMENDATION {
+        ​PK,FK student_id
+        ​PK,FK program_id
+        ​ eligibility
+        ​ score
+        ​ offer_chance
+        ​ is_top_match
+        ​ is_target_based
+        ​ reasons
+        ​ generated_at
+    }
+    ROADMAP {
+        ​PK roadmap_id
+        ​FK student_id
+        ​ roadmap_title
+        ​ version_no
+        ​ is_active
+    }
+    ROADMAP_STEP {
+        ​PK step_id
+        ​FK roadmap_id
+        ​FK parent_step_id
+        ​FK program_id
+        ​FK career_id
+        ​ step_type
+        ​ step_label
+        ​ step_order
+    }
+    CAREER {
+        ​PK career_id
+        ​FK field_id
+        ​FK source_id
+        ​ career_title
+        ​ description
+        ​ min_study_level
+        ​ outlook_note
+    }
+    DATA_SOURCE {
+        ​PK source_id
+        ​FK institution_id
+        ​ source_url
+        ​ source_type
+        ​ content_checksum
+        ​ last_checked_at
+        ​ crawl_status
+    }
+    SUPPORT_TICKET {
+        ​PK ticket_id
+        ​FK user_id
+        ​FK assigned_admin_id
+        ​FK program_id
+        ​ category
+        ​ message
+        ​ ticket_status
+    }
+
+    USER ||--o| STUDENT : "is a"
+    STUDENT ||--o{ ACADEMIC_RECORD : "owns"
+    ACADEMIC_RECORD ||--|{ RECORD_SUBJECT : "contains"
+    SUBJECT ||--o{ RECORD_SUBJECT : "graded in"
+    PROGRAM |o..o{ ACADEMIC_RECORD : "diploma program"
+    INSTITUTION ||--o{ PROGRAM : "offers"
+    PROGRAM ||--|{ PROGRAM_FIELD : "belongs to"
+    FIELD ||--o{ PROGRAM_FIELD : "covers"
+    FIELD |o..o{ FIELD : "sub-field"
+    PROGRAM ||--o{ PROGRAM_PATHWAY : "leads to"
+    PROGRAM ||--o{ PROGRAM_PATHWAY : "reached from"
+    DATA_SOURCE |o..o{ PROGRAM_PATHWAY : "source of"
+    STUDENT ||--o{ SAVED_PROGRAM : "saves"
+    PROGRAM ||--o{ SAVED_PROGRAM : "saved by"
+    PROGRAM ||--o{ REQUIREMENT : "has"
+    REQUIREMENT ||--|{ REQUIREMENT_RULE : "consists of"
+    SUBJECT |o..o{ REQUIREMENT_RULE : "required subject"
+    FIELD |o..o{ REQUIREMENT_RULE : "related field"
+    DATA_SOURCE |o..o{ REQUIREMENT : "evidence for"
+    USER |o..o{ REQUIREMENT : "approves"
+    USER |o..o{ MERIT_FORMULA : "approves"
+    PROGRAM ||--o{ ADMISSION_STAT : "has history"
+    DATA_SOURCE |o..o{ ADMISSION_STAT : "source of"
+    STUDENT ||--o{ ASSESSMENT : "takes"
+    FIELD ||..o{ ACTIVITY : "field activity"
+    STUDENT ||--o{ ACTIVITY_ATTEMPT : "attempts"
+    ACTIVITY ||--o{ ACTIVITY_ATTEMPT : "attempted in"
+    STUDENT ||--o{ RECOMMENDATION : "receives"
+    PROGRAM ||--o{ RECOMMENDATION : "recommended in"
+    STUDENT ||--o{ ROADMAP : "builds"
+    ROADMAP ||--|{ ROADMAP_STEP : "contains"
+    ROADMAP_STEP |o..o{ ROADMAP_STEP : "branches to"
+    PROGRAM |o..o{ ROADMAP_STEP : "referenced by"
+    DATA_SOURCE |o..o{ CAREER : "source of"
+    FIELD ||--o{ CAREER : "leads to"
+    PROGRAM |o..o{ STUDENT : "chosen stream"
+    CAREER |o..o{ ROADMAP_STEP : "career goal"
+    INSTITUTION ||--o{ DATA_SOURCE : "publishes"
+    USER |o..o{ SUPPORT_TICKET : "opens"
+    USER |o..o{ SUPPORT_TICKET : "handles"
+    PROGRAM |o..o{ SUPPORT_TICKET : "reported in"

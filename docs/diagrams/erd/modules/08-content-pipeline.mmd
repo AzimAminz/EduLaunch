@@ -1,0 +1,15 @@
+erDiagram
+    DATA_SOURCE {
+        ​PK source_id
+        ​FK institution_id
+        ​ source_url
+        ​ source_type
+        ​ content_checksum
+        ​ last_checked_at
+        ​ crawl_status
+    }
+    INSTITUTION {
+        ​PK institution_id
+    }
+
+    INSTITUTION ||--o{ DATA_SOURCE : "publishes"

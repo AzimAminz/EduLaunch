@@ -1,0 +1,20 @@
+erDiagram
+    SUPPORT_TICKET {
+        ​PK ticket_id
+        ​FK user_id
+        ​FK assigned_admin_id
+        ​FK program_id
+        ​ category
+        ​ message
+        ​ ticket_status
+    }
+    PROGRAM {
+        ​PK program_id
+    }
+    USER {
+        ​PK user_id
+    }
+
+    USER |o..o{ SUPPORT_TICKET : "opens"
+    USER |o..o{ SUPPORT_TICKET : "handles"
+    PROGRAM |o..o{ SUPPORT_TICKET : "reported in"
