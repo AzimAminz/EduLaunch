@@ -115,7 +115,15 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         }
       />
 
-      <ProgrammeWorkflowPanel locale={locale} programmeId={programme.id} workflow={workflow} message={message} t={t} />
+      <ProgrammeWorkflowPanel
+        locale={locale}
+        programmeId={programme.id}
+        workflow={workflow}
+        message={message}
+        requirementCount={programme.requirements.length}
+        backHref={programme.institutionId ? `/${locale}/admin/institusi/${programme.institutionId}?tab=program` : `/${locale}/admin/program`}
+        t={t}
+      />
 
       <nav aria-label={programme.name} className="flex flex-wrap gap-1 self-start rounded-[12px] bg-white p-1">
         {TABS.map((key) => (

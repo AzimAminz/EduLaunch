@@ -17,6 +17,8 @@ export abstract class ProgramRepository {
   abstract findById(id: string): Promise<Program | null>;
   abstract search(criteria: ProgramSearch): Promise<Page<Program>>;
   abstract save(program: Program): Promise<void>;
+  /** Removes the programme; its requirements, fields, pathways and admission figures go with it (cascading keys). */
+  abstract delete(id: string): Promise<void>;
   abstract institutionExists(id: string): Promise<boolean>;
   abstract necCodeExists(code: string): Promise<boolean>;
   /** Whether another programme already uses this JPT / UPU code. */

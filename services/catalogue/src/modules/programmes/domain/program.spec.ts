@@ -133,4 +133,15 @@ describe('Program', () => {
       expect(() => p.approve('admin-c')).toThrow('not waiting');
     });
   });
+
+  it('can be deleted as a draft or once archived, never while students see it or in review', () => {
+    expect(() => draft().assertDeletable()).not.toThrow();
+    const p = published();
+    expect(() => p.assertDeletable()).toThrow('Archive');
+    p.archive();
+    expect(() => p.assertDeletable()).not.toThrow();
+    const sent = draft();
+    sent.submitForReview('admin-a');
+    expect(() => sent.assertDeletable()).toThrow('Withdraw');
+  });
 });

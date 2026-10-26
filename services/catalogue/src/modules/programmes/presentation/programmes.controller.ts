@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { CurrentCaller, Public, Roles, ZodPipe, type Caller } from '@edulaunch/nest-kit';
 import { StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { SearchProgrammes } from '../application/search-programmes.use-case.js';
 import { GetProgramme } from '../application/get-programme.use-case.js';
-import { CreateProgramme, ReviewProgramme, UpdateProgramme } from '../application/manage-programme.use-cases.js';
+import { CreateProgramme, DeleteProgramme, ReviewProgramme, UpdateProgramme } from '../application/manage-programme.use-cases.js';
 
 const SearchQuery = z.object({
   q: z.string().trim().max(100).optional(),
@@ -48,6 +48,7 @@ export class ProgrammesController {
     private readonly createProgramme: CreateProgramme,
     private readonly updateProgramme: UpdateProgramme,
     private readonly reviewProgramme: ReviewProgramme,
+    private readonly deleteProgramme: DeleteProgramme,
   ) {}
 
   @Public()
@@ -88,5 +89,13 @@ export class ProgrammesController {
   @Post(':id/review')
   review(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(ReviewBody)) body: z.infer<typeof ReviewBody>, @CurrentCaller() caller: Caller) {
     return this.reviewProgramme.execute({ id, adminId: caller.userId, ...body });
+  }
+
+  /** Deletes a draft or archived programme, with its requirements. */
+  @Roles('admin')
+  @Delete(':id')
+  @HttpCode(204)
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.deleteProgramme.execute({ id });
   }
 }

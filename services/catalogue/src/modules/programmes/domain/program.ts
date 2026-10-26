@@ -198,6 +198,15 @@ export class Program extends AggregateRoot<string, ProgramProps> {
     this.props = { ...this.props, publishStatus: 'archived', pending: null };
   }
 
+  /**
+   * Checks the programme may be deleted (the repository removes it with its requirements). Students must never lose
+   * a programme they can see: a published one is archived first, and one in review is withdrawn first.
+   */
+  assertDeletable(): void {
+    if (this.props.publishStatus === 'published') throw new DomainError('conflict', 'Archive this programme before deleting it');
+    if (this.props.publishStatus === 'in_review') throw new DomainError('conflict', 'Withdraw this programme from review before deleting it');
+  }
+
   /** Brings an archived programme back as a draft, to be reviewed again before students see it. */
   reopen(by: string): void {
     if (this.props.publishStatus !== 'archived') throw new DomainError('conflict', 'Only an archived programme can be reopened');

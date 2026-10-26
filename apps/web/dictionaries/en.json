@@ -516,12 +516,12 @@
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
         "draftOther": "Another admin prepared this draft. You may edit or send it; if you edit it, you become its preparer and another admin must approve it.",
         "returned": "Returned by another admin: {reason}",
-        "reviewMine": "Waiting for another admin to review. To change something, withdraw it first.",
+        "reviewMine": "Sent. Every other admin sees it in their task inbox (For me), and any of them can approve or return it. To change something, withdraw it first.",
         "reviewOther": "Another admin sent this programme. Check the details below, then approve it or return it with a reason.",
-        "published": "Students can see this programme. Edits are saved as a change and only apply after another admin approves them.",
+        "published": "Students can see this programme. Edits are saved as a change and only apply after another admin approves them. To delete it, archive it first.",
         "changeDraft": "There is a change not yet sent. Students still see the current version.",
         "changeReturned": "The change was returned: {reason}. Students still see the current version.",
-        "changeReviewMine": "Your change is waiting for another admin. Students still see the current version.",
+        "changeReviewMine": "Change sent. Every other admin sees it in their task inbox, and any of them can approve it. Students still see the current version.",
         "changeReviewOther": "Another admin proposed a change. Compare below, then approve or return it.",
         "archived": "This programme is hidden from students. Reopen it as a draft to edit and publish it again."
       },
@@ -552,7 +552,10 @@
         "discardYes": "Yes, discard",
         "archive": "Archive",
         "reopen": "Reopen as a draft",
-        "review": "Review"
+        "review": "Review",
+        "delete": "Delete programme",
+        "deleteConfirm": "Delete this programme with its {count} requirement version(s)? This cannot be undone.",
+        "deleteYes": "Yes, delete"
       },
       "tabs": {
         "details": "Details",

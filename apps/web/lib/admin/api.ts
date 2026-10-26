@@ -223,6 +223,7 @@ export const updateProgramme = (token: string, id: string, body: ProgrammeBody &
 
 export type ReviewAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
 
+export const deleteProgramme = (token: string, id: string) => call(token, `/programmes/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
 export const reviewProgramme = (token: string, id: string, body: ReviewAction) => call(token, `/programmes/${encodeURIComponent(id)}/review`, Status, send(body));
 
 export const createRequirementDraft = (token: string, body: { programId: string; entryRoute: string }) =>

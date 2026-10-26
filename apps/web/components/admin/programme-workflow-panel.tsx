@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { decideProgramme, type AdminFormState } from '@/lib/admin/actions';
 import type { Workflow, WorkflowAction } from '@/lib/admin/programme-workflow';
-import type { Dictionary, Locale } from '@/lib/i18n/locale';
+import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
 import { useFormAction } from '@/components/ui/use-form-action';
 
@@ -14,6 +14,10 @@ interface PanelProps {
   workflow: Workflow;
   /** The message for this state, already filled in (for example with the return reason). */
   message: string;
+  /** How many requirement versions a delete would remove with the programme. */
+  requirementCount: number;
+  /** Where to go after a delete: the programme's institution, or the programme list. */
+  backHref: string;
   t: Dictionary['admin'];
 }
 
@@ -36,10 +40,10 @@ const TONE: Record<Workflow['message'], string> = {
  * programme change → review → applied), one sentence, and the actions with the main one first. "Return" asks for a
  * reason and "Discard" asks to confirm before anything is sent.
  */
-export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message, t }: PanelProps) {
+export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message, requirementCount, backHref, t }: PanelProps) {
   const a = t.programme.act;
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(decideProgramme, {});
-  const [asking, setAsking] = useState<'return' | 'discard' | 'archive' | null>(null);
+  const [asking, setAsking] = useState<'return' | 'discard' | 'archive' | 'delete' | null>(null);
   // After an action succeeds the programme moves on, so any open question box closes.
   const [seenSave, setSeenSave] = useState(state.savedAt);
   if (state.savedAt !== seenSave) {
@@ -87,6 +91,7 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name="id" value={programmeId} />
+        <input type="hidden" name="back" value={backHref} />
         {asking && <input type="hidden" name="action" value={asking} />}
 
         {asking === 'return' ? (
@@ -114,11 +119,13 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
               </button>
             </div>
           </div>
-        ) : asking === 'discard' || asking === 'archive' ? (
+        ) : asking ? (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm">{asking === 'discard' ? a.discardConfirm : t.programme.actions.archiveHint}</span>
+            <span className="text-sm">
+              {asking === 'discard' ? a.discardConfirm : asking === 'delete' ? format(a.deleteConfirm, { count: requirementCount }) : t.programme.actions.archiveHint}
+            </span>
             <button type="submit" disabled={pending} className={style(false, true)}>
-              {asking === 'discard' ? a.discardYes : t.programme.actions.confirmArchive}
+              {asking === 'discard' ? a.discardYes : asking === 'delete' ? a.deleteYes : t.programme.actions.confirmArchive}
             </button>
             <button type="button" onClick={() => setAsking(null)} className={style(false)}>
               {t.programme.actions.cancel}
@@ -135,8 +142,8 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
                   </Link>
                 );
               }
-              // These ask first: a reason to return, or a confirmation before discarding or hiding from students.
-              if (action === 'return' || action === 'discard' || action === 'archive') {
+              // These ask first: a reason to return, or a confirmation before discarding, hiding or deleting.
+              if (action === 'return' || action === 'discard' || action === 'archive' || action === 'delete') {
                 return (
                   <button key={action} type="button" onClick={() => setAsking(action)} className={style(primary, action !== 'return')}>
                     {label(action)}

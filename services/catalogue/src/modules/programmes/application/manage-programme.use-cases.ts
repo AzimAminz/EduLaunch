@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { DomainError, NotFoundError, type UseCase } from '@edulaunch/ddd';
+import { Inject, Injectable } from '@nestjs/common';
+import { DomainError, NotFoundError, createEvent, type UseCase } from '@edulaunch/ddd';
+import { EventBus } from '@edulaunch/nest-kit';
+import { Events } from '@edulaunch/contracts';
 import { randomUUID } from 'node:crypto';
 import { Program, type ProgramDetails } from '../domain/program.js';
 import { ProgramRepository } from '../domain/program.repository.js';
@@ -78,5 +80,22 @@ export class ReviewProgramme implements UseCase<{ id: string; adminId: string } 
     }
     await this.programs.save(program);
     return { status: program.status };
+  }
+}
+
+/** Deletes a draft or archived programme with its requirements. Published ones are archived first. */
+@Injectable()
+export class DeleteProgramme implements UseCase<{ id: string }, void> {
+  constructor(
+    private readonly programs: ProgramRepository,
+    @Inject(EventBus) private readonly events: EventBus,
+  ) {}
+
+  async execute({ id }: { id: string }) {
+    const program = await this.programs.findById(id);
+    if (!program) throw new NotFoundError('Programme', id);
+    program.assertDeletable();
+    await this.programs.delete(id);
+    await this.events.publish([createEvent(Events.ProgrammeDeleted, { programId: id })]);
   }
 }

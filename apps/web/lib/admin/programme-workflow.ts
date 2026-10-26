@@ -6,7 +6,7 @@
 export type ProgrammeStatus = 'draft' | 'in_review' | 'returned' | 'published' | 'archived';
 export type ChangeStatus = 'draft' | 'in_review' | 'returned';
 
-export type WorkflowAction = 'edit' | 'submit' | 'withdraw' | 'approve' | 'return' | 'discard' | 'archive' | 'reopen';
+export type WorkflowAction = 'edit' | 'submit' | 'withdraw' | 'approve' | 'return' | 'discard' | 'archive' | 'reopen' | 'delete';
 
 export type WorkflowMessage =
   | 'draftMine'
@@ -42,15 +42,15 @@ interface ProgrammeState {
 export function programmeWorkflow(p: ProgrammeState, me: string): Workflow {
   switch (p.status) {
     case 'draft':
-      return { track: 'new', step: 0, message: !p.preparedBy || p.preparedBy === me ? 'draftMine' : 'draftOther', actions: ['submit', 'edit'], canEdit: true };
+      return { track: 'new', step: 0, message: !p.preparedBy || p.preparedBy === me ? 'draftMine' : 'draftOther', actions: ['submit', 'edit', 'delete'], canEdit: true };
     case 'returned':
-      return { track: 'new', step: 0, message: 'returned', actions: ['edit', 'submit'], canEdit: true };
+      return { track: 'new', step: 0, message: 'returned', actions: ['edit', 'submit', 'delete'], canEdit: true };
     case 'in_review':
       return p.preparedBy === me
         ? { track: 'new', step: 1, message: 'reviewMine', actions: ['withdraw'], canEdit: false }
         : { track: 'new', step: 1, message: 'reviewOther', actions: ['approve', 'return'], canEdit: false };
     case 'archived':
-      return { track: 'none', step: 0, message: 'archived', actions: ['reopen'], canEdit: false };
+      return { track: 'none', step: 0, message: 'archived', actions: ['reopen', 'delete'], canEdit: false };
     case 'published':
       switch (p.pendingStatus) {
         case 'draft':

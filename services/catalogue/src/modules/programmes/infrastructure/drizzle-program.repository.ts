@@ -106,6 +106,10 @@ export class DrizzleProgramRepository extends ProgramRepository {
     });
   }
 
+  async delete(id: string): Promise<void> {
+    await this.db.delete(programs).where(eq(programs.id, id));
+  }
+
   async institutionExists(id: string): Promise<boolean> {
     const [row] = await this.db.select({ id: institutions.id }).from(institutions).where(eq(institutions.id, id)).limit(1);
     return !!row;

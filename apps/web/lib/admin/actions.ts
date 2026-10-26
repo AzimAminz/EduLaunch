@@ -224,7 +224,7 @@ export async function updateProgramme(_prev: AdminFormState, form: FormData): Pr
   redirect(`/${locale}/admin/program/${id}`);
 }
 
-/** Send for review, approve, return with a reason, archive or reopen a programme. */
+/** Send for review, approve, return with a reason, withdraw, discard a change, archive, reopen or delete a programme. */
 export async function decideProgramme(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
   const action = text(form, 'action');
@@ -232,8 +232,19 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
   if (action === 'return' && reason.length < 5) return { error: 'reason_required' };
   const simple = ['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen'] as const;
   const plain = simple.find((a) => a === action);
-  if (action !== 'return' && !plain) return { error: 'generic' };
+  if (action !== 'return' && action !== 'delete' && !plain) return { error: 'generic' };
   const token = await adminToken(locale);
+  if (action === 'delete') {
+    // A draft or archived programme goes with its requirements; the admin returns to where it was listed.
+    try {
+      await api.deleteProgramme(token, text(form, 'id'));
+    } catch (err) {
+      return { error: errorKey(err) };
+    }
+    refresh();
+    const back = text(form, 'back');
+    redirect(back.startsWith(`/${locale}/admin/`) ? back : `/${locale}/admin/program`);
+  }
   try {
     await api.reviewProgramme(token, text(form, 'id'), action === 'return' ? { action, reason } : { action: plain! });
   } catch (err) {

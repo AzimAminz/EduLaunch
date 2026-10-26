@@ -516,12 +516,12 @@
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
         "draftOther": "Draf ini disediakan oleh admin lain. Anda boleh menyunting atau menghantarnya. Jika anda menyunting, anda menjadi penyedianya dan admin lain perlu meluluskannya.",
         "returned": "Dipulangkan oleh admin lain: {reason}",
-        "reviewMine": "Menunggu admin lain menyemak. Untuk mengubah sesuatu, tarik balik dahulu.",
+        "reviewMine": "Dihantar. Semua admin lain nampak program ini dalam Peti tugasan mereka (Untuk saya), dan sesiapa antara mereka boleh meluluskan atau memulangkannya. Untuk mengubah sesuatu, tarik balik dahulu.",
         "reviewOther": "Admin lain menghantar program ini. Semak maklumat di bawah, kemudian luluskan atau pulangkan dengan sebab.",
-        "published": "Pelajar nampak program ini. Suntingan disimpan sebagai perubahan dan hanya digunakan selepas admin lain meluluskannya.",
+        "published": "Pelajar nampak program ini. Suntingan disimpan sebagai perubahan dan hanya digunakan selepas admin lain meluluskannya. Untuk memadam, arkibkan dahulu.",
         "changeDraft": "Ada perubahan yang belum dihantar. Pelajar masih nampak versi semasa.",
         "changeReturned": "Perubahan dipulangkan: {reason}. Pelajar masih nampak versi semasa.",
-        "changeReviewMine": "Perubahan anda menunggu semakan admin lain. Pelajar masih nampak versi semasa.",
+        "changeReviewMine": "Perubahan dihantar. Semua admin lain nampak dalam Peti tugasan mereka, dan sesiapa antara mereka boleh meluluskannya. Pelajar masih nampak versi semasa.",
         "changeReviewOther": "Admin lain mencadangkan perubahan. Bandingkan di bawah, kemudian luluskan atau pulangkan.",
         "archived": "Program ini disembunyikan daripada pelajar. Buka semula sebagai draf untuk menyunting dan menerbitkannya semula."
       },
@@ -552,7 +552,10 @@
         "discardYes": "Ya, buang",
         "archive": "Arkibkan",
         "reopen": "Buka semula sebagai draf",
-        "review": "Semak"
+        "review": "Semak",
+        "delete": "Padam program",
+        "deleteConfirm": "Padam program ini bersama {count} versi syaratnya? Tindakan ini tidak boleh dibuat asal.",
+        "deleteYes": "Ya, padam"
       },
       "tabs": {
         "details": "Maklumat",

@@ -7,13 +7,13 @@ const state = (over: Partial<Parameters<typeof programmeWorkflow>[0]> = {}) => (
 
 describe('programmeWorkflow', () => {
   it('lets anyone send or edit a draft, mentioning when someone else prepared it', () => {
-    expect(programmeWorkflow(state(), me)).toEqual({ track: 'new', step: 0, message: 'draftMine', actions: ['submit', 'edit'], canEdit: true });
+    expect(programmeWorkflow(state(), me)).toEqual({ track: 'new', step: 0, message: 'draftMine', actions: ['submit', 'edit', 'delete'], canEdit: true });
     expect(programmeWorkflow(state({ preparedBy: other }), me).message).toBe('draftOther');
     expect(programmeWorkflow(state({ preparedBy: null }), me).message).toBe('draftMine');
   });
 
   it('puts editing first when a draft came back', () => {
-    expect(programmeWorkflow(state({ status: 'returned' }), me).actions).toEqual(['edit', 'submit']);
+    expect(programmeWorkflow(state({ status: 'returned' }), me).actions).toEqual(['edit', 'submit', 'delete']);
   });
 
   it('lets the preparer withdraw a draft in review, and another admin approve or return it', () => {
@@ -30,8 +30,9 @@ describe('programmeWorkflow', () => {
     expect(programmeWorkflow({ ...live, pendingStatus: 'in_review', pendingPreparedBy: other }, me)).toMatchObject({ message: 'changeReviewOther', actions: ['approve', 'return'], canEdit: false });
   });
 
-  it('only reopens an archived programme', () => {
-    expect(programmeWorkflow(state({ status: 'archived' }), me)).toMatchObject({ actions: ['reopen'], canEdit: false });
+  it('reopens or deletes an archived programme; a published one is never deleted directly', () => {
+    expect(programmeWorkflow(state({ status: 'archived' }), me)).toMatchObject({ actions: ['reopen', 'delete'], canEdit: false });
+    expect(programmeWorkflow(state({ status: 'published' }), me).actions).not.toContain('delete');
   });
 });
 

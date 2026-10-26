@@ -307,7 +307,9 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] **Hantar perubahan untuk semakan** → the other admin sees "Perubahan pada program diterbitkan" in **Peti tugasan** and **Luluskan perubahan**; after approval the new values show. **Buang perubahan** (asks first) drops an unsent change and keeps the current version.
 - [ ] A second programme with the same Kod program is refused: "Kod program ini sudah digunakan oleh program lain."
 - [ ] **Program** in the sidebar: filter by institution, by status and by **Belum ada syarat diterbitkan**; programmes with a change show **Ada perubahan**.
-- [ ] **Arkibkan** asks to confirm, hides the programme from students, and leaves only **Buka semula sebagai draf**.
+- [ ] **Arkibkan** asks to confirm, hides the programme from students, and leaves **Buka semula sebagai draf** and **Padam program**.
+- [ ] **Padam program** is offered for drafts (never published) and archived programmes only. It asks first ("Padam program ini bersama N versi syaratnya?"), then returns to the institution's programme list. A published programme has no delete: its panel says to archive it first.
+- [ ] After **Hantar untuk semakan** the panel says every other admin sees it in **Peti tugasan → Untuk saya** and any of them can approve it; the other admin's sidebar shows the count.
 
 ### D. Requirement wizard
 
