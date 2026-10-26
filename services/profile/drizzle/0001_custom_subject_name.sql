@@ -1,0 +1,1 @@
+ALTER TABLE "profile"."record_subject" ADD COLUMN "custom_name" text;

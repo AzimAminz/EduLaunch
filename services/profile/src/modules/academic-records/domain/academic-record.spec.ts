@@ -8,7 +8,7 @@ describe('AcademicRecord', () => {
   it('accepts SPM grades and normalises case', () => {
     const r = spm();
     r.setGrade('math', 'a+');
-    expect(r.subjects).toEqual([{ subjectId: 'math', grade: 'A+', readConfidence: null }]);
+    expect(r.subjects).toEqual([{ subjectId: 'math', grade: 'A+', customName: null, readConfidence: null }]);
   });
 
   it('rejects grades that are not on the scale', () => {
@@ -41,6 +41,22 @@ describe('AcademicRecord', () => {
     ]);
     expect(r.subjects.map((s) => `${s.subjectId}:${s.grade}`)).toEqual(['math:A', 'bm:B+']);
     expect(() => r.replaceSubjects([{ subjectId: 'math', grade: 'F' }])).toThrow(/not a SPM grade/);
+  });
+
+  it('keeps subjects that are not in the catalogue under the name the student typed', () => {
+    const r = spm();
+    r.replaceSubjects([
+      { subjectId: 'math', grade: 'A' },
+      { subjectId: 'x1', grade: 'B', customName: '  Tasawwur   Islam ' },
+    ]);
+    expect(r.subjects[1]).toEqual({ subjectId: 'x1', grade: 'B', customName: 'Tasawwur Islam', readConfidence: null });
+    expect(() =>
+      spm().replaceSubjects([
+        { subjectId: 'x1', grade: 'B', customName: 'Tasawwuf' },
+        { subjectId: 'x2', grade: 'A', customName: 'tasawwuf' },
+      ]),
+    ).toThrow(/only be listed once/);
+    expect(() => spm().replaceSubjects([{ subjectId: 'x1', grade: 'B', customName: 'x'.repeat(81) }])).toThrow(/at most 80/);
   });
 
   it('does not accept the same subject twice', () => {

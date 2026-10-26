@@ -72,8 +72,8 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     const found = (await records.findById(r.id))!.toSnapshot();
     const bySubject = [...found.subjects].sort((a, b) => a.subjectId.localeCompare(b.subjectId));
     const expected = [
-      { subjectId: subject.math, grade: 'A', readConfidence: null },
-      { subjectId: subject.bm, grade: 'A+', readConfidence: 0.92 },
+      { subjectId: subject.math, grade: 'A', customName: null, readConfidence: null },
+      { subjectId: subject.bm, grade: 'A+', customName: null, readConfidence: 0.92 },
     ].sort((a, b) => a.subjectId.localeCompare(b.subjectId));
     expect(bySubject).toEqual(expected);
   });
@@ -110,7 +110,33 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     await records.save(school);
 
     expect((await records.findCurrent(s.id, 'spm', 'target'))?.id).toBe(target.id);
-    expect((await records.findCurrent(s.id, 'school', 'school'))?.subjects).toEqual([{ subjectId: subject.math, grade: 'B', readConfidence: null }]);
+    expect((await records.findCurrent(s.id, 'school', 'school', 2025))?.subjects).toEqual([{ subjectId: subject.math, grade: 'B', customName: null, readConfidence: null }]);
     expect(await records.findCurrent(s.id, 'spm', 'actual')).toBeNull();
+  });
+
+  it('keeps school results per year, and lists the whole history newest first', async () => {
+    const s = await newStudent();
+    for (const year of [2024, 2025]) {
+      const r = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'school', kind: 'school', examYear: year });
+      r.replaceSubjects([{ subjectId: subject.math, grade: year === 2024 ? 'C' : 'A' }]);
+      await records.save(r);
+    }
+    const spmTarget = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'spm', kind: 'target', examYear: 2027 });
+    spmTarget.replaceSubjects([{ subjectId: subject.bm, grade: 'A' }]);
+    await records.save(spmTarget);
+
+    expect((await records.findCurrent(s.id, 'school', 'school', 2024))?.subjects[0]?.grade).toBe('C');
+    expect((await records.findCurrent(s.id, 'school', 'school', 2025))?.subjects[0]?.grade).toBe('A');
+    expect(await records.findCurrent(s.id, 'school', 'school', 2023)).toBeNull();
+    expect((await records.listByStudent(s.id)).map((r) => r.toSnapshot().examYear)).toEqual([2027, 2025, 2024]);
+  });
+
+  it('stores the name of a subject that is not in the catalogue', async () => {
+    const s = await newStudent();
+    const custom = randomUUID();
+    const r = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'spm', kind: 'actual', examYear: 2026 });
+    r.replaceSubjects([{ subjectId: custom, grade: 'A', customName: 'Tasawwuf' }]);
+    await records.save(r);
+    expect((await records.findById(r.id))?.subjects).toEqual([{ subjectId: custom, grade: 'A', customName: 'Tasawwuf', readConfidence: null }]);
   });
 });

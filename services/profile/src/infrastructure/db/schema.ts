@@ -56,6 +56,8 @@ export const recordSubjects = profile.table(
     recordId: uuid('record_id').notNull().references(() => academicRecords.id, { onDelete: 'cascade' }),
     subjectId: uuid('subject_id').notNull(),
     grade: text('grade').notNull(),
+    /** Set for a subject that is not in the catalogue (typed by the student, e.g. "Tasawwuf"); subject_id is then a random id. */
+    customName: text('custom_name'),
     readConfidence: numeric('read_confidence', { precision: 3, scale: 2 }),
     reviewNote: text('review_note'),
   },

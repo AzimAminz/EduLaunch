@@ -68,7 +68,8 @@ export class GetStudentSnapshot implements UseCase<{ studentId: string }, Studen
       educationLevel: student.educationLevel ?? 'after_spm',
       isTargetBased: r?.kind === 'target',
       gradeScale: r?.qualification ?? 'spm',
-      grades: (r?.subjects ?? []).map((s) => ({ subjectId: s.subjectId, grade: s.grade })),
+      // Subjects typed by the student are not in the catalogue, so no programme requirement can refer to them.
+      grades: (r?.subjects ?? []).filter((s) => s.customName === null).map((s) => ({ subjectId: s.subjectId, grade: s.grade })),
       cgpa: r?.cgpa ?? null,
       muetBand: r?.muetBand ?? null,
       riasec,

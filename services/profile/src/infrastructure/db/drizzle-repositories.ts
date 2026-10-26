@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
 import type { Qualification } from '@edulaunch/contracts';
-import { and, desc, eq, isNotNull, sql } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import * as schema from './schema.js';
 import { Student } from '../../modules/students/domain/student.js';
 import { StudentRepository } from '../../modules/students/domain/student.repository.js';
@@ -84,14 +84,25 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
     return row ? this.toDomain(row) : null;
   }
 
-  async findCurrent(studentId: string, qualification: Qualification, kind: RecordKind) {
+  async findCurrent(studentId: string, qualification: Qualification, kind: RecordKind, examYear: number | null = null) {
+    const conditions = [eq(academicRecords.studentId, studentId), eq(academicRecords.qualification, qualification), eq(academicRecords.recordKind, kind)];
+    if (kind === 'school') conditions.push(examYear === null ? isNull(academicRecords.examYear) : eq(academicRecords.examYear, examYear));
     const [row] = await this.db
       .select()
       .from(academicRecords)
-      .where(and(eq(academicRecords.studentId, studentId), eq(academicRecords.qualification, qualification), eq(academicRecords.recordKind, kind)))
+      .where(and(...conditions))
       .orderBy(sql`${academicRecords.confirmedAt} desc nulls first`, academicRecords.id)
       .limit(1);
     return row ? this.toDomain(row) : null;
+  }
+
+  async listByStudent(studentId: string) {
+    const rows = await this.db
+      .select()
+      .from(academicRecords)
+      .where(eq(academicRecords.studentId, studentId))
+      .orderBy(sql`${academicRecords.examYear} desc nulls last`, academicRecords.recordKind, academicRecords.id);
+    return Promise.all(rows.map((row) => this.toDomain(row)));
   }
 
   async save(record: AcademicRecord): Promise<void> {
@@ -112,7 +123,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       await tx.delete(recordSubjects).where(eq(recordSubjects.recordId, s.id));
       if (s.subjects.length) {
         await tx.insert(recordSubjects).values(
-          s.subjects.map((x) => ({ recordId: s.id, subjectId: x.subjectId, grade: x.grade, readConfidence: x.readConfidence === null ? null : String(x.readConfidence) })),
+          s.subjects.map((x) => ({ recordId: s.id, subjectId: x.subjectId, grade: x.grade, customName: x.customName, readConfidence: x.readConfidence === null ? null : String(x.readConfidence) })),
         );
       }
     });
@@ -127,7 +138,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       examYear: row.examYear,
       cgpa: num(row.cgpa),
       muetBand: num(row.muetBand),
-      subjects: subjects.map((x) => ({ subjectId: x.subjectId, grade: x.grade, readConfidence: num(x.readConfidence) })),
+      subjects: subjects.map((x) => ({ subjectId: x.subjectId, grade: x.grade, customName: x.customName, readConfidence: num(x.readConfidence) })),
       status: row.recordStatus,
       confirmedAt: row.confirmedAt,
     });

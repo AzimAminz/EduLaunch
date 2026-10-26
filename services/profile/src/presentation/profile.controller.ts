@@ -14,10 +14,17 @@ const StartRecordBody = z.object({
   examYear: z.number().int().min(2000).max(2100).nullable().default(null),
 });
 const GradeBody = z.object({ grade: z.string().min(1).max(3) });
-const RecordKey = z.object({ qualification: z.enum(['spm', 'school', 'stpm']), kind: z.enum(['actual', 'target', 'school']) });
+const RecordKey = z.object({
+  qualification: z.enum(['spm', 'school', 'stpm']),
+  kind: z.enum(['actual', 'target', 'school']),
+  examYear: z.coerce.number().int().min(2000).max(2100).nullable().default(null),
+});
 const SaveRecordBody = RecordKey.extend({
   examYear: z.number().int().min(2000).max(2100).nullable().default(null),
-  subjects: z.array(z.object({ subjectId: z.uuid(), grade: z.string().min(1).max(3) })).min(1).max(20),
+  subjects: z
+    .array(z.object({ subjectId: z.uuid(), grade: z.string().min(1).max(3), customName: z.string().trim().min(1).max(80).nullable().default(null) }))
+    .min(1)
+    .max(25),
 });
 
 @Controller()
@@ -50,10 +57,24 @@ export class ProfileController {
     return { record: await this.records.current(caller, query) };
   }
 
+  /** The caller's academic history: every saved record, newest exam year first. */
+  @Roles('student')
+  @Get('me/records')
+  listRecords(@CurrentCaller() caller: Caller) {
+    return this.records.list(caller);
+  }
+
   @Roles('student')
   @Put('me/records/current')
   saveCurrentRecord(@CurrentCaller() caller: Caller, @Body(new ZodPipe(SaveRecordBody)) body: z.infer<typeof SaveRecordBody>) {
     return this.records.saveCurrent(caller, body);
+  }
+
+  // Declared after "current" so that path is not read as a record id.
+  @Roles('student')
+  @Get('me/records/:recordId')
+  getRecord(@CurrentCaller() caller: Caller, @Param('recordId', ParseUUIDPipe) recordId: string) {
+    return this.records.get(caller, recordId);
   }
 
   @Roles('student')

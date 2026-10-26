@@ -6,8 +6,12 @@ export type RecordKind = 'actual' | 'target' | 'school';
 export interface SubjectGrade {
   subjectId: string;
   grade: string;
+  /** Name typed by the student for a subject that is not in the catalogue; null for catalogue subjects. */
+  customName: string | null;
   readConfidence: number | null;
 }
+
+export const MAX_CUSTOM_NAME = 80;
 
 interface AcademicRecordProps {
   studentId: string;
@@ -52,19 +56,26 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
       existing.grade = normalised;
       existing.readConfidence = readConfidence;
     } else {
-      this.props.subjects.push({ subjectId, grade: normalised, readConfidence });
+      this.props.subjects.push({ subjectId, grade: normalised, customName: null, readConfidence });
     }
     this.reopen();
   }
 
   /** Replaces the whole subject list at once (the results form saves every row together). */
-  replaceSubjects(subjects: ReadonlyArray<{ subjectId: string; grade: string }>): void {
+  replaceSubjects(subjects: ReadonlyArray<{ subjectId: string; grade: string; customName?: string | null }>): void {
     const seen = new Set<string>();
+    const names = new Set<string>();
     const next: SubjectGrade[] = [];
-    for (const { subjectId, grade } of subjects) {
+    for (const { subjectId, grade, customName } of subjects) {
       if (seen.has(subjectId)) throw new DomainError('duplicate_subject', 'Each subject can only be listed once');
       seen.add(subjectId);
-      next.push({ subjectId, grade: this.validGrade(grade), readConfidence: null });
+      const name = customName?.trim().replace(/\s+/g, ' ') || null;
+      if (name !== null) {
+        if (name.length > MAX_CUSTOM_NAME) throw new DomainError('invalid_subject', `A subject name can have at most ${MAX_CUSTOM_NAME} characters`);
+        if (names.has(name.toLocaleLowerCase())) throw new DomainError('duplicate_subject', 'Each subject can only be listed once');
+        names.add(name.toLocaleLowerCase());
+      }
+      next.push({ subjectId, grade: this.validGrade(grade), customName: name, readConfidence: null });
     }
     this.props.subjects = next;
     this.reopen();
