@@ -49,6 +49,8 @@ const Task = z.object({
   preparedBy: z.string().nullable(),
   returnReason: z.string().nullable(),
   updatedAt: z.coerce.date(),
+  /** A change to a published programme, not a new one. */
+  isChange: z.boolean().default(false),
 });
 export type AdminTask = z.infer<typeof Task>;
 
@@ -69,6 +71,7 @@ const ProgrammeRow = z.object({
   studyLevel: StudyLevel,
   institutionName: z.string().nullable(),
   status: ReviewStatus,
+  pendingStatus: z.enum(['draft', 'in_review', 'returned']).nullable().default(null),
   updatedAt: z.coerce.date(),
   publishedRoutes: z.array(z.string()),
   openDrafts: z.number(),
@@ -121,7 +124,21 @@ const ProgrammeFacts = z.object({
 });
 export type ProgrammeFacts = z.infer<typeof ProgrammeFacts>;
 
+/** The whole proposed version of a published programme, waiting for another admin. */
+const PendingDetails = ProgrammeFacts.extend({
+  institutionId: z.uuid().nullable(),
+  name: z.string(),
+  studyLevel: StudyLevel,
+  durationSemesters: z.number().nullable(),
+  fieldIds: z.array(z.uuid()),
+});
+export type PendingDetails = z.infer<typeof PendingDetails>;
+
 const ProgrammeDetail = ProgrammeFacts.extend({
+  pendingChanges: PendingDetails.nullable(),
+  pendingStatus: z.enum(['draft', 'in_review', 'returned']).nullable(),
+  pendingPreparedBy: z.uuid().nullable(),
+  pendingReturnReason: z.string().nullable(),
   id: z.uuid(),
   name: z.string(),
   studyLevel: StudyLevel,
@@ -200,9 +217,11 @@ export type ProgrammeBody = ProgrammeFacts & {
 
 export const createProgramme = (token: string, body: ProgrammeBody & { institutionId: string | null; studyLevel: z.infer<typeof StudyLevel> }) =>
   call(token, '/programmes', Saved, send(body));
-export const updateProgramme = (token: string, id: string, body: ProgrammeBody) => call(token, `/programmes/${encodeURIComponent(id)}`, Status, send(body, 'PATCH'));
+/** Institution and level only change while the programme has never been published. */
+export const updateProgramme = (token: string, id: string, body: ProgrammeBody & { institutionId?: string | null; studyLevel?: z.infer<typeof StudyLevel> }) =>
+  call(token, `/programmes/${encodeURIComponent(id)}`, Status, send(body, 'PATCH'));
 
-export type ReviewAction = { action: 'submit' | 'approve' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
+export type ReviewAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
 
 export const reviewProgramme = (token: string, id: string, body: ReviewAction) => call(token, `/programmes/${encodeURIComponent(id)}/review`, Status, send(body));
 
@@ -210,7 +229,7 @@ export const createRequirementDraft = (token: string, body: { programId: string;
   call(token, '/requirements', z.object({ id: z.uuid(), versionNo: z.number() }), send(body));
 export const saveRequirementDraft = (token: string, id: string, body: { sourceUrl: string | null; rules: Array<Omit<AdminRule, 'evidenceQuote'> & { evidenceQuote: string }> }) =>
   call(token, `/requirements/${encodeURIComponent(id)}`, Status, send(body, 'PUT'));
-export const reviewRequirement = (token: string, id: string, body: Exclude<ReviewAction, { action: 'archive' | 'reopen' }>) =>
+export const reviewRequirement = (token: string, id: string, body: Exclude<ReviewAction, { action: 'archive' | 'reopen' | 'withdraw' | 'discard' }>) =>
   call(token, `/requirements/${encodeURIComponent(id)}/review`, Status, send(body));
 export const discardRequirementDraft = (token: string, id: string) => call(token, `/requirements/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
 

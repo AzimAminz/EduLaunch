@@ -348,7 +348,8 @@
         "myDrafts": "You have no unsent drafts.",
         "waiting": "None of your drafts are waiting."
       },
-      "institution": "Request to delete an institution (with all its programmes)"
+      "institution": "Request to delete an institution (with all its programmes)",
+      "change": "Change to a published programme"
     },
     "programmes": {
       "title": "Programmes",
@@ -378,7 +379,8 @@
       "missingRequirements": "No published requirements",
       "institutionFilter": "Institution: {name}",
       "clearFilter": "Clear",
-      "allInstitutions": "All institutions"
+      "allInstitutions": "All institutions",
+      "changeBadge": "Has a change"
     },
     "programmeForm": {
       "newTitle": "Add a new programme",
@@ -438,7 +440,25 @@
       "flagsHint": "Shown to students with the programme's requirements.",
       "sourceUrl": "Source link",
       "sourcePlaceholder": "https://… (ePanduan or prospectus)",
-      "sourceHint": "The official page or document these details come from."
+      "sourceHint": "The official page or document these details come from.",
+      "editTitle": "Edit programme",
+      "editIntroDraft": "Changes are saved straight to this draft. Students cannot see it yet.",
+      "editIntroPublished": "Students can see this programme. Your edits are saved as a proposed change and only apply after another admin approves them.",
+      "locked": "This programme cannot be edited now. Go back to the programme page to see why.",
+      "required": "Fields marked * are required.",
+      "saveChange": "Save as a change",
+      "cancel": "Cancel",
+      "yearsHint": "± {years} years",
+      "durationPlaceholders": {
+        "certificate": "4",
+        "skills": "2",
+        "foundation": "2",
+        "matriculation": "2",
+        "stpm": "3",
+        "diploma": "6",
+        "degree": "8",
+        "form4_stream": "4"
+      }
     },
     "programme": {
       "back": "← All programmes",
@@ -478,8 +498,73 @@
         "openDraft": "Open draft",
         "draftBy": "{status} · version {version} · by {who}",
         "history": "Older versions",
-        "view": "View"
-      }
+        "view": "View",
+        "addTitle": "Add requirements for a route",
+        "addButton": "Start",
+        "routePlaceholder": "Choose a route",
+        "suggestedSuffix": "(usual for this level)",
+        "empty": "No requirements yet. Choose a route below to start."
+      },
+      "workflow": {
+        "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
+        "draftOther": "Another admin prepared this draft. You may edit or send it; if you edit it, you become its preparer and another admin must approve it.",
+        "returned": "Returned by another admin: {reason}",
+        "reviewMine": "Waiting for another admin to review. To change something, withdraw it first.",
+        "reviewOther": "Another admin sent this programme. Check the details below, then approve it or return it with a reason.",
+        "published": "Students can see this programme. Edits are saved as a change and only apply after another admin approves them.",
+        "changeDraft": "There is a change not yet sent. Students still see the current version.",
+        "changeReturned": "The change was returned: {reason}. Students still see the current version.",
+        "changeReviewMine": "Your change is waiting for another admin. Students still see the current version.",
+        "changeReviewOther": "Another admin proposed a change. Compare below, then approve or return it.",
+        "archived": "This programme is hidden from students. Reopen it as a draft to edit and publish it again."
+      },
+      "steps": {
+        "new": [
+          "Draft",
+          "Review by another admin",
+          "Published"
+        ],
+        "change": [
+          "Change",
+          "Review by another admin",
+          "Applied"
+        ]
+      },
+      "act": {
+        "edit": "Edit",
+        "editChange": "Edit the change",
+        "submit": "Send for review",
+        "submitChange": "Send the change for review",
+        "resubmit": "Send again",
+        "withdraw": "Withdraw",
+        "approve": "Approve & publish",
+        "approveChange": "Approve the change",
+        "return": "Return with a reason",
+        "discard": "Discard the change",
+        "discardConfirm": "Discard this change? The current version stays.",
+        "discardYes": "Yes, discard",
+        "archive": "Archive",
+        "reopen": "Reopen as a draft"
+      },
+      "tabs": {
+        "details": "Details",
+        "requirements": "Entry requirements"
+      },
+      "changes": {
+        "title": "Proposed change",
+        "field": "Field",
+        "now": "Now",
+        "proposed": "Proposed",
+        "none": "No difference from the current version.",
+        "by": "Proposed by {who}"
+      },
+      "values": {
+        "yes": "Yes",
+        "no": "No",
+        "none": "—",
+        "duration": "{n} semesters (± {years} years)"
+      },
+      "flags": "Admission features"
     },
     "institutions": {
       "title": "Institutions",

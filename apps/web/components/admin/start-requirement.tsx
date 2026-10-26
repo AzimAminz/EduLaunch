@@ -30,15 +30,27 @@ export function StartRequirement({ locale, programId, entryRoute, label, primary
   );
 }
 
-/** Pick another entry route (not usual for this level) and start its requirements. */
-export function OtherRoute({ locale, programId, routes, t, noMatches }: { locale: Locale; programId: string; routes: Array<{ value: string; label: string }>; t: Dictionary['admin']; noMatches: string }) {
+/**
+ * One control to start requirements for any route not used yet: routes usual for the programme's level come first
+ * and are marked, so the page has a single "add" action instead of one button per route.
+ */
+export function RouteStarter({ locale, programId, routes, label, placeholder, button, noMatches, errors }: {
+  locale: Locale;
+  programId: string;
+  routes: Array<{ value: string; label: string }>;
+  label: string;
+  placeholder: string;
+  button: string;
+  noMatches: string;
+  errors: Dictionary['admin']['errors'];
+}) {
   const [route, setRoute] = useState('');
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
       <div className="min-w-0 flex-1">
-        <Dropdown label={t.programme.requirements.other} value={route} onChange={setRoute} options={routes} placeholder={t.programme.requirements.other} noMatchesLabel={noMatches} searchable={false} />
+        <Dropdown label={label} value={route} onChange={setRoute} options={routes} placeholder={placeholder} noMatchesLabel={noMatches} searchable={false} />
       </div>
-      {route && <StartRequirement locale={locale} programId={programId} entryRoute={route} label={t.programme.requirements.add} errors={t.errors} />}
+      {route && <StartRequirement locale={locale} programId={programId} entryRoute={route} label={button} primary errors={errors} />}
     </div>
   );
 }

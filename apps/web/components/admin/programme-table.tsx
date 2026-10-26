@@ -35,7 +35,10 @@ export function ProgrammeTable({ rows, locale, dict, showInstitution = true }: {
                 {p.openDrafts > 0 && <span className="ml-2 rounded-full bg-cream px-2 py-0.5 text-xs font-semibold">{format(t.programmes.openDrafts, { count: p.openDrafts })}</span>}
               </td>
               <td className="px-4 py-3">
-                <StatusChip status={p.status} t={t} />
+                <span className="flex flex-wrap items-center gap-1.5">
+                  <StatusChip status={p.status} t={t} />
+                  {p.pendingStatus && <span className="whitespace-nowrap rounded-full bg-yellow px-2 py-0.5 text-xs font-semibold">{t.programmes.changeBadge}</span>}
+                </span>
               </td>
             </tr>
           ))}

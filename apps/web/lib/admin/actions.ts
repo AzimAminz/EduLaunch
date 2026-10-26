@@ -203,18 +203,25 @@ export async function createProgramme(_prev: AdminFormState, form: FormData): Pr
   redirect(`/${locale}/admin/program/${id}`);
 }
 
+/** Saves the edit page and returns to the programme, which then shows what happens next. */
 export async function updateProgramme(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
+  const id = text(form, 'id');
   const { details, fieldErrors } = programmeDetails(form);
+  // A draft that was never published may still move to another institution or level.
+  const level = StudyLevel.safeParse(text(form, 'studyLevel'));
+  const institutionId = text(form, 'institutionId');
+  const placement = form.has('studyLevel') && level.success ? { studyLevel: level.data, institutionId: level.data === 'form4_stream' ? null : institutionId || null } : {};
+  if (form.has('studyLevel') && level.success && level.data !== 'form4_stream' && !institutionId) fieldErrors.institutionId = 'institutionRequired';
   if (Object.keys(fieldErrors).length) return { fieldErrors };
   const token = await adminToken(locale);
   try {
-    await api.updateProgramme(token, text(form, 'id'), details);
+    await api.updateProgramme(token, id, { ...details, ...placement });
   } catch (err) {
     return { error: errorKey(err) };
   }
   refresh();
-  return { savedAt: Date.now() };
+  redirect(`/${locale}/admin/program/${id}`);
 }
 
 /** Send for review, approve, return with a reason, archive or reopen a programme. */
@@ -223,10 +230,12 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
   const action = text(form, 'action');
   const reason = text(form, 'reason');
   if (action === 'return' && reason.length < 5) return { error: 'reason_required' };
-  if (!['submit', 'approve', 'return', 'archive', 'reopen'].includes(action)) return { error: 'generic' };
+  const simple = ['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen'] as const;
+  const plain = simple.find((a) => a === action);
+  if (action !== 'return' && !plain) return { error: 'generic' };
   const token = await adminToken(locale);
   try {
-    await api.reviewProgramme(token, text(form, 'id'), action === 'return' ? { action, reason } : { action: action as 'submit' | 'approve' | 'archive' | 'reopen' });
+    await api.reviewProgramme(token, text(form, 'id'), action === 'return' ? { action, reason } : { action: plain! });
   } catch (err) {
     return { error: errorKey(err) };
   }

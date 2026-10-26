@@ -348,7 +348,8 @@
         "myDrafts": "Anda tiada draf yang belum dihantar.",
         "waiting": "Tiada draf anda yang sedang menunggu."
       },
-      "institution": "Permintaan padam institusi (bersama semua programnya)"
+      "institution": "Permintaan padam institusi (bersama semua programnya)",
+      "change": "Perubahan pada program diterbitkan"
     },
     "programmes": {
       "title": "Program",
@@ -378,7 +379,8 @@
       "missingRequirements": "Belum ada syarat diterbitkan",
       "institutionFilter": "Institusi: {name}",
       "clearFilter": "Kosongkan",
-      "allInstitutions": "Semua institusi"
+      "allInstitutions": "Semua institusi",
+      "changeBadge": "Ada perubahan"
     },
     "programmeForm": {
       "newTitle": "Tambah program baharu",
@@ -438,7 +440,25 @@
       "flagsHint": "Ditunjukkan kepada pelajar bersama syarat program.",
       "sourceUrl": "Pautan sumber",
       "sourcePlaceholder": "https://… (ePanduan atau prospektus)",
-      "sourceHint": "Halaman atau dokumen rasmi tempat maklumat ini diambil."
+      "sourceHint": "Halaman atau dokumen rasmi tempat maklumat ini diambil.",
+      "editTitle": "Sunting program",
+      "editIntroDraft": "Perubahan disimpan terus pada draf ini. Pelajar belum nampak program ini.",
+      "editIntroPublished": "Pelajar nampak program ini. Perubahan anda disimpan sebagai cadangan dan hanya digunakan selepas admin lain meluluskannya.",
+      "locked": "Program ini tidak boleh disunting sekarang. Kembali ke halaman program untuk melihat sebabnya.",
+      "required": "Medan bertanda * wajib diisi.",
+      "saveChange": "Simpan sebagai perubahan",
+      "cancel": "Batal",
+      "yearsHint": "± {years} tahun",
+      "durationPlaceholders": {
+        "certificate": "4",
+        "skills": "2",
+        "foundation": "2",
+        "matriculation": "2",
+        "stpm": "3",
+        "diploma": "6",
+        "degree": "8",
+        "form4_stream": "4"
+      }
     },
     "programme": {
       "back": "← Semua program",
@@ -478,8 +498,73 @@
         "openDraft": "Buka draf",
         "draftBy": "{status} · versi {version} · oleh {who}",
         "history": "Versi lama",
-        "view": "Lihat"
-      }
+        "view": "Lihat",
+        "addTitle": "Tambah syarat untuk laluan",
+        "addButton": "Mula",
+        "routePlaceholder": "Pilih laluan",
+        "suggestedSuffix": "(biasa untuk peringkat ini)",
+        "empty": "Belum ada syarat. Pilih laluan di bawah untuk bermula."
+      },
+      "workflow": {
+        "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
+        "draftOther": "Draf ini disediakan oleh admin lain. Anda boleh menyunting atau menghantarnya. Jika anda menyunting, anda menjadi penyedianya dan admin lain perlu meluluskannya.",
+        "returned": "Dipulangkan oleh admin lain: {reason}",
+        "reviewMine": "Menunggu admin lain menyemak. Untuk mengubah sesuatu, tarik balik dahulu.",
+        "reviewOther": "Admin lain menghantar program ini. Semak maklumat di bawah, kemudian luluskan atau pulangkan dengan sebab.",
+        "published": "Pelajar nampak program ini. Suntingan disimpan sebagai perubahan dan hanya digunakan selepas admin lain meluluskannya.",
+        "changeDraft": "Ada perubahan yang belum dihantar. Pelajar masih nampak versi semasa.",
+        "changeReturned": "Perubahan dipulangkan: {reason}. Pelajar masih nampak versi semasa.",
+        "changeReviewMine": "Perubahan anda menunggu semakan admin lain. Pelajar masih nampak versi semasa.",
+        "changeReviewOther": "Admin lain mencadangkan perubahan. Bandingkan di bawah, kemudian luluskan atau pulangkan.",
+        "archived": "Program ini disembunyikan daripada pelajar. Buka semula sebagai draf untuk menyunting dan menerbitkannya semula."
+      },
+      "steps": {
+        "new": [
+          "Draf",
+          "Semakan admin lain",
+          "Diterbitkan"
+        ],
+        "change": [
+          "Perubahan",
+          "Semakan admin lain",
+          "Digunakan"
+        ]
+      },
+      "act": {
+        "edit": "Sunting",
+        "editChange": "Sunting perubahan",
+        "submit": "Hantar untuk semakan",
+        "submitChange": "Hantar perubahan untuk semakan",
+        "resubmit": "Hantar semula",
+        "withdraw": "Tarik balik",
+        "approve": "Luluskan & terbitkan",
+        "approveChange": "Luluskan perubahan",
+        "return": "Pulangkan dengan sebab",
+        "discard": "Buang perubahan",
+        "discardConfirm": "Buang perubahan ini? Versi semasa kekal.",
+        "discardYes": "Ya, buang",
+        "archive": "Arkibkan",
+        "reopen": "Buka semula sebagai draf"
+      },
+      "tabs": {
+        "details": "Maklumat",
+        "requirements": "Syarat kemasukan"
+      },
+      "changes": {
+        "title": "Perubahan yang dicadangkan",
+        "field": "Medan",
+        "now": "Sekarang",
+        "proposed": "Cadangan",
+        "none": "Tiada beza dengan versi semasa.",
+        "by": "Dicadangkan oleh {who}"
+      },
+      "values": {
+        "yes": "Ya",
+        "no": "Tidak",
+        "none": "—",
+        "duration": "{n} semester (± {years} tahun)"
+      },
+      "flags": "Ciri kemasukan"
     },
     "institutions": {
       "title": "Institusi",

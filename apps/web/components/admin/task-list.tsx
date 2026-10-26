@@ -25,7 +25,9 @@ export function TaskList({ tasks, locale, dict, now, action, empty }: { tasks: A
               {task.kind === 'institution'
                 ? t.tasks.institution
                 : task.kind === 'programme'
-                  ? t.tasks.programme
+                  ? task.isChange
+                    ? t.tasks.change
+                    : t.tasks.programme
                   : format(t.tasks.requirement, { route: routes[task.entryRoute ?? ''] ?? task.entryRoute ?? '', version: task.versionNo ?? 1 })}
             </p>
             {task.returnReason && task.status === 'returned' && <p className="text-[13px] text-[#b33a35]">{format(t.tasks.reason, { reason: task.returnReason })}</p>}

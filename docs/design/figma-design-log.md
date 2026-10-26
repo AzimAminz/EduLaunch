@@ -618,3 +618,12 @@ Belum dibina (langkah kemudian): mod latihan, lawatan berpandu, carian bantuan, 
 - **Padam institusi:** modal menyenaraikan semua yang turut dipadam, dan butang hanya aktif selepas admin menaip singkatan institusi. Tanpa program diterbitkan, terus dipadam (semua data di bawahnya dipadam bersama dalam satu transaksi). Jika pelajar sedang nampak programnya, permintaan masuk ke Peti tugasan dan admin lain meluluskan atau membatalkan.
 - **Borang program mengikut standard ePanduan JPT dan prospektus universiti:** Identiti (nama, kod program JPT/UPU, kod universiti, fakulti), Akademik (bidang NEC 157 kod, tempoh, mod pengajian, kampus, bidang cadangan diisi sendiri daripada kod NEC), Kemasukan (temu duga/ujian, Bumiputera sahaja, STEM, TVET), Sumber (pautan).
 - Figma Admin v2 perlu diselaraskan dengan skrin ini.
+
+### 25.2 Aliran program disusun semula (27 Okt 2026)
+- Kajian: CMS seperti Contentful (status "Changed": versi diterbitkan kekal sehingga perubahan diterbitkan) dan prinsip maker-checker / four eyes (pembuat dan pelulus orang berbeza).
+- **Halaman program kini mod Lihat**: panel status dengan tiga langkah (Draf → Semakan admin lain → Diterbitkan, atau Perubahan → Semakan → Digunakan), satu ayat apa seterusnya, dan tindakan utama dahulu. Tab Maklumat (baca sahaja, ikut kumpulan borang) dan Syarat kemasukan.
+- **Mod Sunting di halaman sendiri** (`/sunting`) dengan Batal. Mana-mana admin boleh menyunting draf dan menjadi penyedianya; pelulus mesti admin lain. Draf dalam semakan boleh ditarik balik.
+- **Program diterbitkan disunting sebagai "perubahan"**: pelajar terus nampak versi semasa; jadual Sekarang / Cadangan untuk penyemak; Buang perubahan.
+- **Borang**: medan wajib bertanda *, kod program dan pautan disemak apabila keluar dari medan, tempoh menunjukkan ± tahun, medan tidak berkaitan disembunyikan untuk aliran Tingkatan 4, institusi dan peringkat boleh ditukar sebelum diterbitkan.
+- **Syarat kemasukan**: satu kawalan "Tambah syarat untuk laluan" (laluan biasa untuk peringkat itu di atas) menggantikan banyak butang kuning.
+- Arkibkan dan Buang perubahan meminta pengesahan dahulu.

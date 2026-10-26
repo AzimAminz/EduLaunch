@@ -293,18 +293,23 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] An institution with no published programmes is deleted at once, with everything under it, and you return to the list.
 - [ ] Universiti Contoh A (students see its programmes): typing `UCA` gives **Hantar untuk kelulusan**. Nothing is deleted; Admin B sees "Permintaan padam institusi" in **Peti tugasan** and, on the institution's Tetapan tab, can **Luluskan & padam semua** or **Batalkan permintaan**. (Use **Batalkan** unless you want to lose the sample data.)
 
-### C. A new programme needs another admin
+### C. Programmes: view, edit and the two-admin rule
 
-- [ ] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen. Fill in Peringkat, name, **Kod program** (for example `uc6522001`, saved as `UC6522001`), Kod universiti, Fakulti, **Bidang NEC** (type `0712`; the recommendation field **Kejuruteraan** is added by itself), 8 semesters, Mod pengajian, Kampus, the four ticks under Kemasukan and the source link, then **Simpan draf**. The programme page opens with the status **Draf** and every value kept; its back link leads to the institution.
-- [ ] A second programme with the same Kod program is refused: "Kod program ini sudah digunakan oleh program lain." A code like `BELG` in that field shows "Kod program mesti seperti UC6522001."
-- [ ] Admin A: **Hantar untuk semakan**. The status becomes **Menunggu semakan**, the details are locked, and there is no approve button for Admin A.
-- [ ] Admin B: **Peti tugasan** shows the programme under **Untuk saya** (with a number on the sidebar). Open it, press **Pulangkan dengan sebab**, write a reason and send. Admin A sees **Dipulangkan** with that reason, corrects the details, and sends it again.
-- [ ] Admin B: **Luluskan & terbitkan**. The status becomes **Diterbitkan**; students now find the programme in **Teroka program** (allow up to a minute).
-- [ ] **Program** in the sidebar: filter by institution (KCC, PCB, UCA…), by status, and by **Belum ada syarat diterbitkan**. The home card **Kemas kini syarat program** opens that last filter when such programmes exist.
+- [ ] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen and fields marked * are required. Fill in Peringkat, name, Kod program (typing `belg` and leaving the field shows "Kod program mesti seperti UC6522001."; `uc6522001` becomes `UC6522001`), Bidang NEC (`0712` adds **Kejuruteraan** by itself), Tempoh 6 (shows "± 3 tahun"), Mod, Kampus, ticks and source link, then **Simpan draf**.
+- [ ] The programme page opens **read only**: a panel with three steps (**Draf → Semakan admin lain → Diterbitkan**), one sentence about what happens next, and the main action first (**Hantar untuk semakan**, then **Sunting**). Tabs **Maklumat** and **Syarat kemasukan**.
+- [ ] **Sunting** opens its own page with the same form and **Batal**. While the programme has never been published, Institusi and Peringkat can still be changed.
+- [ ] Admin B opens Admin A's draft: the panel says another admin prepared it and B **can** edit it. B edits and saves: B becomes the preparer, so B cannot approve it.
+- [ ] After **Hantar untuk semakan** the preparer sees only **Tarik balik** (to edit again); the other admin sees **Luluskan & terbitkan** and **Pulangkan dengan sebab** (asks for the reason). A returned draft shows the reason and **Sunting** first.
+- [ ] Once published, students find it in **Teroka program** (allow up to a minute).
+- [ ] **Sunting** a published programme: the edit page says your changes are a proposal; **Simpan sebagai perubahan**. The programme shows **Ada perubahan**, the steps **Perubahan → Semakan admin lain → Digunakan**, and a table **Perubahan yang dicadangkan** (Sekarang / Cadangan). Students still see the old details.
+- [ ] **Hantar perubahan untuk semakan** → the other admin sees "Perubahan pada program diterbitkan" in **Peti tugasan** and **Luluskan perubahan**; after approval the new values show. **Buang perubahan** (asks first) drops an unsent change and keeps the current version.
+- [ ] A second programme with the same Kod program is refused: "Kod program ini sudah digunakan oleh program lain."
+- [ ] **Program** in the sidebar: filter by institution, by status and by **Belum ada syarat diterbitkan**; programmes with a change show **Ada perubahan**.
+- [ ] **Arkibkan** asks to confirm, hides the programme from students, and leaves only **Buka semula sebagai draf**.
 
 ### D. Requirement wizard
 
-- [ ] On the programme page, **Syarat kemasukan ikut laluan** lists the usual routes for the level (a diploma: Lepasan SPM, Sijil, SVM, SKM, STPM). Admin A presses **Tambah syarat** on Lepasan SPM: the wizard opens.
+- [ ] On the programme's **Syarat kemasukan** tab, routes that have requirements are listed; **Tambah syarat untuk laluan** offers the other routes, the usual ones for the level first ("(biasa untuk peringkat ini)"). Admin A chooses Lepasan SPM and presses **Mula**: the wizard opens.
 - [ ] Press **Hantar untuk semakan** with nothing filled in: the missing parts turn red and a message says how many to fix.
 - [ ] Fill in the source link, then write:
   - "Pelajar perlu **Gred subjek** minimum **C** dalam **Bahasa Melayu**", with its source sentence;
