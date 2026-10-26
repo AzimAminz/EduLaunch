@@ -27,7 +27,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 4 | Student portal layout, programme directory and programme page, in BM and EN | **Done** (checked by hand) |
 | 5 | Accounts: sign up, log in, forgot password, onboarding (education level), log out; every portal page now needs an account; sidebar works on phones and can be collapsed; admins and students kept to their own pages; e-mails in the EduLaunch design | **Done** (checked by hand) |
 | 6 | Academic profile: results form per level (school grades, SPM targets, actual SPM), add/remove subjects, save & confirm; profile page with level change | **Done** (manual check waiting) |
-| 6b | Pre-university and Diploma details: CGPA, MUET, STPM grades, diploma programme | **Next** |
+| 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (manual check waiting, together with Step 6) |
 | 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
 | 8 | Admin: edit programmes and review requirements (two-admin rule) | Planned; **M1 demo** after this step |
 | 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
@@ -37,7 +37,9 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Change | Why |
 |---|---|
 | Results form and profile page done | Step 6 |
-| New **Step 6b** for CGPA, MUET, STPM grades and diploma programme | They need new fields in the profile service; split out to keep Step 6 small |
+| **Step 6b** done: diploma and pre-university students record what degree programmes actually check (CGPA, MUET, diploma field, STPM/A-Level grades) plus basic SPM | Researched from public university entry requirements |
+| Subjects: searchable system dropdown, 83 official subjects, students can add an unlisted subject by name | Students take subjects such as Bahasa Arab or Tasawwuf |
+| Records kept per year and listed as history | A Form 1 student's results stay when they move to Form 4 |
 | Slip upload button from Figma not shown yet | OCR is a later item (Slip upload + OCR); no button that does nothing |
 
 ### Changes since v3 (Step 5)

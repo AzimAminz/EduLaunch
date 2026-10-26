@@ -12,7 +12,7 @@ Tip: in Chrome or Edge, tick **Pretty-print** at the top of a JSON page to make 
 
 ### A. Loading the sample data
 
-- [x] In a second terminal, run `pnpm db:seed`. It ends with a table: institutions **3**, fields **9**, subjects **20**, programmes **14**, requirements **14**, rules **37**, pathways **5**, careers **10**, activities **5**, admissionStats **5**.
+- [x] In a second terminal, run `pnpm db:seed`. It ends with a table: institutions **3**, fields **9**, subjects **83**, programmes **14**, requirements **14**, rules **37**, pathways **5**, careers **10**, activities **5**, admissionStats **5**.
 - [x] Run `pnpm db:seed` again. The numbers are the same, and nothing is duplicated (check B1 still says 14).
 
 ### B. Programmes through the website address
@@ -32,7 +32,7 @@ Tip: in Chrome or Edge, tick **Pretty-print** at the top of a JSON page to make 
 
 | # | Open this address | You should see |
 |---|---|---|
-| C1 | http://localhost:3000/api/catalogue/subjects | 20 subjects, including "Matematik" and "Sains (sekolah)" |
+| C1 | http://localhost:3000/api/catalogue/subjects | 83 subjects (SPM, school, STPM, A-Level), including "Matematik" and "Sains (sekolah)" |
 | C2 | http://localhost:3000/api/catalogue/fields | 9 fields, each with interest weights (`riasecWeights`) |
 | C3 | http://localhost:3000/api/catalogue/institutions | 3 institutions, every name contains **Contoh** |
 
@@ -172,38 +172,50 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 ## Step 6 · Academic results and profile
 
-**Before you start:** `pnpm dev` is running. Use a student account (not an admin).
+**Before you start:** `pnpm dev` is running, and `pnpm db:migrate` and `pnpm db:seed` have been run after pulling. Use a student account (not an admin).
 
 ### A. Results form follows the education level
 
 - [ ] Open **Dokumen akademik** in the sidebar. The form matches your level:
-  - Tingkatan 1–3: **Prestasi sekolah anda**, grades A–F.
+  - Tingkatan 1–3: **Prestasi sekolah anda**, grades A–F, with a tab for each year (Form 1, 2, 3).
   - Tingkatan 4–5: **Subjek SPM & sasaran**, yellow grade boxes and the note that targets are not official results.
   - Lepasan SPM: **Keputusan SPM sebenar**.
-  - Lepasan pra-universiti or Diploma: **Keputusan SPM asas**, with a note that CGPA, MUET and STPM come later.
-- [ ] A new form starts with the compulsory subjects (Bahasa Melayu, Bahasa Inggeris, Matematik, Sejarah) and no grades. The status says **Belum diisi**.
+  - Lepasan pra-universiti or Diploma: two tabs, **Kelayakan** and **SPM asas** (see D).
+- [ ] A new form starts with the compulsory subjects and no grades. The label at the top says **Belum diisi**.
 
-### B. Editing
+### B. Subjects and grades (all dropdowns use the EduLaunch design)
 
-- [ ] Press **Simpan & sahkan** without choosing grades: "Pilih gred untuk setiap subjek." and the empty grade boxes turn red.
-- [ ] **+ Tambah subjek** lists only subjects not already in the table; choosing one adds a row. × removes a row.
-- [ ] The grey line under the table counts subjects and those still without a grade; it turns green when all are graded.
-- [ ] Choose the year, give every subject a grade and save: "Disimpan dan disahkan…".
-- [ ] Without reloading, the label at the top of the form changes to **Disahkan**. Change any grade: it says **Ada perubahan belum disimpan** until you save again.
-- [ ] Click your name in the sidebar (no reload): Profil saya already shows the new number of subjects.
-- [ ] Reload the page: the same subjects, grades and year are there, and the status says **Disahkan**.
-- [ ] Switch to **EN**: subject names, headings and messages are in English.
+- [ ] Grade boxes and the year open the EduLaunch dropdown (not the browser's own list) and work with the keyboard (arrows, Enter, Escape).
+- [ ] In **Cari subjek…** type `arab`: Bahasa Arab appears. Type `add maths`: only Matematik Tambahan appears.
+- [ ] Type `Tasawwuf`: the list offers **+ Tambah “Tasawwuf” sebagai subjek lain**. Choose it: a row with the yellow label **Subjek lain** appears, and a short note explains it is not used in eligibility checks yet.
+- [ ] × removes a row. Under the table it only says how many subjects still need a grade (nothing when all are graded).
+- [ ] Press **Simpan & sahkan** with a missing grade: "Pilih gred untuk setiap subjek." and the empty boxes turn red.
+- [ ] Give every subject a grade and save: "✓ Disimpan dan disahkan." appears next to the button and the label at the top says **Disahkan**, without reloading. Change a grade: the label says **Ada perubahan belum disimpan**.
+- [ ] Reload: the same subjects (including Tasawwuf), grades and year are there.
 
-### C. Profile (click your name at the bottom of the sidebar)
+### C. Saved records (history)
 
-- [ ] **Profil saya** shows your name and email, your level and "Disahkan · N subjek".
-- [ ] **Urus keputusan akademik** opens Dokumen akademik.
-- [ ] Open **Tukar tahap pendidikan**, choose another level and press **Simpan tahap**: you stay on the profile page with the new level.
-- [ ] Dokumen akademik now shows the form for the new level. Change back: your earlier results are still there (nothing is deleted).
+- [ ] **Rekod tersimpan** on the right lists every saved record, e.g. "Prestasi sekolah 2025", "Sasaran SPM 2026", "Diploma 2025 · PNGK 3.42 · MUET 3.5". The one in the form says **Sedang dibuka**.
+- [ ] **Lihat** opens an older record read only (subjects and grades, or CGPA and MUET).
+- [ ] Tingkatan 1–3: save results for two different year tabs; both appear in the list and each tab shows its own grades.
 
-### D. Phone
+### D. After pre-university or Diploma
 
-- [ ] On a narrow window the results table fits without sideways scrolling (the Kategori column is hidden).
+- [ ] **Lepasan Diploma**, tab **Kelayakan**: Bidang diploma (searchable), Nama program, PNGK, MUET and Tahun tamat. There is no subject table.
+- [ ] Save without a year: "Pilih tahun keputusan." With PNGK `4.5`: "PNGK ialah nombor antara 0.00 dan 4.00…". With `3,42` (comma): it saves.
+- [ ] **Lepasan pra-universiti**: choose STPM, Matrikulasi, Asasi or A-Level. Matrikulasi and Asasi ask for PNGK and MUET only; STPM also has a subject table starting with Pengajian Am; A-Level has subjects (A*–E) but no PNGK.
+- [ ] The blue box "Apa yang universiti semak" summarises the usual requirements.
+- [ ] Tab **SPM asas**: the SPM form, with a note on why SPM still matters.
+
+### E. Profile (click your name at the bottom of the sidebar)
+
+- [ ] **Profil saya** shows your name, email, level and a summary: "Disahkan · N subjek", or for diploma and pre-university "Diploma · PNGK 3.42 · MUET 3.5".
+- [ ] Open **Tukar tahap pendidikan**, choose another level, press **Simpan tahap**: "Tahap pendidikan dikemas kini." appears and you stay on the page.
+- [ ] Dokumen akademik now shows the form for the new level, and your earlier records are still in Rekod tersimpan.
+
+### F. Phone
+
+- [ ] On a narrow window the forms fit without sideways scrolling (the Kategori column is hidden, fields stack).
 
 **Result:** ☐ All passed ☐ Problems found (describe below)
 
