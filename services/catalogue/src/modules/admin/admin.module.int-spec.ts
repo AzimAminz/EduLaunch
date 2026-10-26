@@ -40,4 +40,14 @@ describe('AdminQueries (integration)', () => {
     const page = await queries.programmes({ institutionId, missingRequirements: true, page: 1, pageSize: 50 });
     expect(page.items.map((p) => p.id)).toEqual([withoutRules]);
   });
+
+  it('sorts by a column in either direction, and pages the result', async () => {
+    const byName = await queries.programmes({ institutionId, sort: 'name', direction: 'desc', page: 1, pageSize: 2 });
+    expect(byName.total).toBe(3);
+    expect(byName.items.map((p) => p.id)).toEqual([withoutRules, draft]);
+    const second = await queries.programmes({ institutionId, sort: 'name', direction: 'desc', page: 2, pageSize: 2 });
+    expect(second.items.map((p) => p.id)).toEqual([withRules]);
+    const byStatus = await queries.programmes({ institutionId, sort: 'status', direction: 'asc', page: 1, pageSize: 50 });
+    expect(byStatus.items[0]!.status).toBe('draft');
+  });
 });

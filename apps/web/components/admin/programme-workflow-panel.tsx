@@ -7,6 +7,8 @@ import type { Workflow, WorkflowAction } from '@/lib/admin/programme-workflow';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { AdminIcon, type AdminIconName } from './icons';
+import { IconText, buttonClass } from './ui';
 
 interface PanelProps {
   locale: Locale;
@@ -20,6 +22,20 @@ interface PanelProps {
   backHref: string;
   t: Dictionary['admin'];
 }
+
+const ICON: Record<WorkflowAction, AdminIconName> = {
+  edit: 'pencil',
+  submit: 'send',
+  withdraw: 'undo',
+  approve: 'checkCircle',
+  return: 'undo',
+  discard: 'x',
+  archive: 'archive',
+  reopen: 'rotate',
+  delete: 'trash',
+};
+
+const DANGER = new Set<WorkflowAction>(['discard', 'archive', 'delete']);
 
 const TONE: Record<Workflow['message'], string> = {
   draftMine: 'bg-white',
@@ -65,10 +81,9 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
         return a[action];
     }
   };
-  const style = (primary: boolean, danger = false) =>
-    `rounded-[10px] px-4 py-2.5 text-sm font-semibold disabled:cursor-wait disabled:opacity-70 ${
-      primary ? 'bg-navy text-white hover:bg-navy/90' : danger ? 'border border-red/50 bg-white text-[#b33a35] hover:bg-red/10' : 'border border-line bg-white hover:bg-bg'
-    }`;
+  const style = (primary: boolean, danger = false) => buttonClass(primary ? 'primary' : danger ? 'danger' : 'secondary');
+  // Which button was pressed, so only that one shows the spinner.
+  const [pressed, setPressed] = useState<string | null>(null);
 
   return (
     <section className={`flex flex-col gap-4 rounded-[18px] border border-line p-5 lg:p-6 ${TONE[workflow.message]}`}>
@@ -77,7 +92,7 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
           {steps.map((name, i) => (
             <li key={name} aria-current={i === workflow.step ? 'step' : undefined} className="flex items-center gap-2">
               <span className={`flex size-6 items-center justify-center rounded-full text-xs ${i < workflow.step ? 'bg-[#1f6b47] text-white' : i === workflow.step ? 'bg-navy text-white' : 'bg-white text-muted'}`}>
-                {i < workflow.step ? '✓' : i + 1}
+                {i < workflow.step ? <AdminIcon name="check" size={13} /> : i + 1}
               </span>
               <span className={i === workflow.step ? '' : 'text-muted'}>{name}</span>
               {i < steps.length - 1 && <span aria-hidden className="mx-1 hidden h-px w-6 bg-navy/20 sm:block" />}
@@ -112,7 +127,9 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
             />
             <div className="flex gap-2">
               <button type="submit" disabled={pending} className={style(true)}>
-                {t.requirement.review.send}
+                <IconText icon="send" busy={pending}>
+                  {t.requirement.review.send}
+                </IconText>
               </button>
               <button type="button" onClick={() => setAsking(null)} className={style(false)}>
                 {t.programme.actions.cancel}
@@ -120,12 +137,15 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
             </div>
           </div>
         ) : asking ? (
-          <div className="flex flex-wrap items-center gap-2">
+          <div role="alertdialog" aria-label={label(asking)} className="flex flex-wrap items-center gap-2 rounded-[12px] border border-red/30 bg-white px-4 py-3">
+            <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
             <span className="text-sm">
               {asking === 'discard' ? a.discardConfirm : asking === 'delete' ? format(a.deleteConfirm, { count: requirementCount }) : t.programme.actions.archiveHint}
             </span>
-            <button type="submit" disabled={pending} className={style(false, true)}>
-              {asking === 'discard' ? a.discardYes : asking === 'delete' ? a.deleteYes : t.programme.actions.confirmArchive}
+            <button type="submit" disabled={pending} className={buttonClass(asking === 'delete' ? 'dangerSolid' : 'danger')}>
+              <IconText icon={ICON[asking]} busy={pending}>
+                {asking === 'discard' ? a.discardYes : asking === 'delete' ? a.deleteYes : t.programme.actions.confirmArchive}
+              </IconText>
             </button>
             <button type="button" onClick={() => setAsking(null)} className={style(false)}>
               {t.programme.actions.cancel}
@@ -138,21 +158,23 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
               if (action === 'edit') {
                 return (
                   <Link key={action} href={`/${locale}/admin/program/${programmeId}/sunting`} className={style(primary)}>
-                    {label(action)}
+                    <IconText icon={ICON[action]}>{label(action)}</IconText>
                   </Link>
                 );
               }
               // These ask first: a reason to return, or a confirmation before discarding, hiding or deleting.
               if (action === 'return' || action === 'discard' || action === 'archive' || action === 'delete') {
                 return (
-                  <button key={action} type="button" onClick={() => setAsking(action)} className={style(primary, action !== 'return')}>
-                    {label(action)}
+                  <button key={action} type="button" onClick={() => setAsking(action)} className={style(primary, DANGER.has(action))}>
+                    <IconText icon={ICON[action]}>{label(action)}</IconText>
                   </button>
                 );
               }
               return (
-                <button key={action} type="submit" name="action" value={action} disabled={pending} className={style(primary)}>
-                  {label(action)}
+                <button key={action} type="submit" name="action" value={action} disabled={pending} onClick={() => setPressed(action)} className={style(primary)}>
+                  <IconText icon={ICON[action]} busy={pending && pressed === action}>
+                    {label(action)}
+                  </IconText>
                 </button>
               );
             })}

@@ -78,13 +78,19 @@ const ProgrammeRow = z.object({
 });
 export type ProgrammeRow = z.infer<typeof ProgrammeRow>;
 
+export const ProgrammeSorts = ['name', 'institution', 'level', 'status', 'updated'] as const;
+export type ProgrammeSort = (typeof ProgrammeSorts)[number];
+
 export interface ProgrammeQuery {
   query?: string;
   status?: ReviewStatus;
   institutionId?: string;
   /** Published programmes without any published requirement. */
   missingRequirements?: boolean;
+  sort?: ProgrammeSort;
+  direction?: 'asc' | 'desc';
   page?: number;
+  pageSize?: number;
 }
 
 export function listProgrammes(token: string, q: ProgrammeQuery) {
@@ -93,8 +99,10 @@ export function listProgrammes(token: string, q: ProgrammeQuery) {
   if (q.status) params.set('status', q.status);
   if (q.institutionId) params.set('institutionId', q.institutionId);
   if (q.missingRequirements) params.set('missingRequirements', 'true');
+  if (q.sort) params.set('sort', q.sort);
+  if (q.direction) params.set('direction', q.direction);
   params.set('page', String(q.page ?? 1));
-  params.set('pageSize', '50');
+  params.set('pageSize', String(q.pageSize ?? 20));
   return call(token, `/admin/programmes?${params}`, z.object({ items: z.array(ProgrammeRow), total: z.number(), page: z.number(), pageSize: z.number() }));
 }
 

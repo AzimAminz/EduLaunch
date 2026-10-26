@@ -627,3 +627,11 @@ Belum dibina (langkah kemudian): mod latihan, lawatan berpandu, carian bantuan, 
 - **Borang**: medan wajib bertanda *, kod program dan pautan disemak apabila keluar dari medan, tempoh menunjukkan ± tahun, medan tidak berkaitan disembunyikan untuk aliran Tingkatan 4, institusi dan peringkat boleh ditukar sebelum diterbitkan.
 - **Syarat kemasukan**: satu kawalan "Tambah syarat untuk laluan" (laluan biasa untuk peringkat itu di atas) menggantikan banyak butang kuning.
 - Arkibkan dan Buang perubahan meminta pengesahan dahulu.
+
+### 25.3 Ikon, interaksi, susunan dan halaman (27 Okt 2026)
+- Panduan dari skill ui-ux-pro-max: satu keluarga ikon garis (geometri Lucide, ISC) dalam `components/admin/icons.tsx`; ikon di sebelah teks disembunyikan daripada pembaca skrin; status tidak bergantung pada warna sahaja.
+- **Butang**: satu gaya (`buttonClass`) untuk utama, aksen, sekunder, bahaya dan hantu, dengan hover, cincin fokus papan kekunci, tekan kecil dan spinner semasa menghantar. Gerakan dimatikan untuk pengguna yang memilih kurang gerakan.
+- **Tab dengan ikon dan bilangan** pada profil institusi, halaman program dan peti tugasan; kad statistik dengan ikon dan anak panah; keadaan kosong dengan ikon dan ayat.
+- **Jadual program**: kepala lajur boleh disusun (`aria-sort`), lajur baharu Dikemas kini, 20 baris setiap halaman dengan pautan halaman. Susunan dan halaman disimpan dalam alamat (`?susun=&arah=&halaman=`).
+- **Senarai institusi**: carian, susun ikut Nama / Bilangan program / Negeri, 15 setiap halaman.
+- Figma belum dikemas kini untuk skrin ini.

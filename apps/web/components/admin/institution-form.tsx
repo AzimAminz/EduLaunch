@@ -8,6 +8,7 @@ import { FormAlert, TextField } from '@/components/auth/fields';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { IconText, buttonClass } from './ui';
 
 export interface InstitutionValues {
   id: string;
@@ -60,12 +61,14 @@ export function InstitutionForm({ locale, t, noMatches, values, onCancel }: { lo
       </div>
       <TextField name="websiteUrl" label={i.website} placeholder={i.websitePlaceholder} defaultValue={values?.websiteUrl ?? ''} inputMode="url" error={fieldError('websiteUrl')} />
       <div className="flex flex-wrap items-center gap-3">
-        <button type="submit" disabled={pending} className="rounded-[10px] bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy/90 disabled:cursor-wait disabled:opacity-70">
-          {i.save}
+        <button type="submit" disabled={pending} className={buttonClass('primary')}>
+          <IconText icon="save" busy={pending}>
+            {i.save}
+          </IconText>
         </button>
         {onCancel && (
-          <button type="button" onClick={onCancel} className="rounded-[10px] border border-line px-5 py-2.5 text-sm font-semibold hover:bg-bg">
-            {i.cancel}
+          <button type="button" onClick={onCancel} className={buttonClass('secondary')}>
+            <IconText icon="x">{i.cancel}</IconText>
           </button>
         )}
         <Notice showKey={result.savedAt}>{i.saved}</Notice>

@@ -364,7 +364,8 @@
         "level": "Level",
         "requirements": "Published requirements",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Actions",
+        "updated": "Updated"
       },
       "noRequirements": "None yet",
       "openDrafts": "{count} draft(s)",
@@ -381,7 +382,8 @@
       "institutionFilter": "Institution: {name}",
       "clearFilter": "Clear",
       "allInstitutions": "All institutions",
-      "changeBadge": "Has a change"
+      "changeBadge": "Has a change",
+      "clearFilters": "Clear filters"
     },
     "programmeForm": {
       "newTitle": "Add a new programme",
@@ -701,6 +703,14 @@
         "cancelRequest": "Cancel the request",
         "requested": "Delete request sent.",
         "cancelled": "Request cancelled."
+      },
+      "search": "Search name, short name or state",
+      "empty": "No institutions yet. Add the first one.",
+      "noResults": "No institution matches \"{query}\".",
+      "sorts": {
+        "name": "Name",
+        "programmes": "Programmes",
+        "state": "State"
       }
     },
     "requirement": {
@@ -826,6 +836,18 @@
       "noRules": "Add at least one requirement.",
       "confirmation_mismatch": "The confirmation text does not match. Type it exactly as shown.",
       "upu_code_taken": "Another programme already uses this programme code."
+    },
+    "pagination": {
+      "label": "List pages",
+      "range": "{from}–{to} of {total}",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {page}"
+    },
+    "sort": {
+      "label": "Sort",
+      "ascending": "ascending",
+      "descending": "descending"
     }
   },
   "footer": {

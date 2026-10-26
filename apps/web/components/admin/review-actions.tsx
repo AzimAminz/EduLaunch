@@ -5,8 +5,12 @@ import { decideProgramme, decideRequirement, type AdminFormState } from '@/lib/a
 import type { Dictionary, Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
 import { useFormAction } from '@/components/ui/use-form-action';
+import type { AdminIconName } from './icons';
+import { IconText, buttonClass } from './ui';
 
 type Action = 'submit' | 'approve' | 'return' | 'archive' | 'reopen';
+
+const ICON: Record<Action, AdminIconName> = { submit: 'send', approve: 'checkCircle', return: 'undo', archive: 'archive', reopen: 'rotate' };
 
 interface ReviewActionsProps {
   locale: Locale;
@@ -26,6 +30,7 @@ interface ReviewActionsProps {
 export function ReviewActions({ locale, kind, id, allowed, t, effect }: ReviewActionsProps) {
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(kind === 'programme' ? decideProgramme : decideRequirement, {});
   const [asking, setAsking] = useState<'return' | 'archive' | null>(null);
+  const [pressed, setPressed] = useState<Action | null>(null);
   const a = t.programme.actions;
   const r = t.requirement.review;
   if (allowed.length === 0) return null;
@@ -44,10 +49,12 @@ export function ReviewActions({ locale, kind, id, allowed, t, effect }: ReviewAc
       name="action"
       value={action}
       disabled={pending}
-      onClick={() => (action === 'return' || action === 'archive') && setAsking(action)}
-      className={`rounded-[10px] px-4 py-2.5 text-sm font-semibold disabled:cursor-wait disabled:opacity-70 ${primary ? 'bg-yellow hover:bg-yellow/85' : 'border border-line bg-white hover:bg-bg'}`}
+      onClick={() => (action === 'return' || action === 'archive' ? setAsking(action) : setPressed(action))}
+      className={buttonClass(primary ? 'accent' : action === 'archive' ? 'danger' : 'secondary')}
     >
-      {label[action]}
+      <IconText icon={ICON[action]} busy={pending && pressed === action}>
+        {label[action]}
+      </IconText>
     </button>
   );
 
@@ -76,10 +83,12 @@ export function ReviewActions({ locale, kind, id, allowed, t, effect }: ReviewAc
             className="rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
           />
           <div className="flex gap-2">
-            <button type="submit" disabled={pending} className="rounded-[10px] bg-navy px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-70">
-              {r.send}
+            <button type="submit" disabled={pending} className={buttonClass('primary')}>
+              <IconText icon="send" busy={pending}>
+                {r.send}
+              </IconText>
             </button>
-            <button type="button" onClick={() => setAsking(null)} className="rounded-[10px] border border-line px-4 py-2.5 text-sm font-semibold hover:bg-bg">
+            <button type="button" onClick={() => setAsking(null)} className={buttonClass('secondary')}>
               {r.cancel}
             </button>
           </div>
@@ -88,10 +97,12 @@ export function ReviewActions({ locale, kind, id, allowed, t, effect }: ReviewAc
         <div className="flex flex-col gap-2 rounded-[12px] border border-red/40 bg-red/10 p-4">
           <p className="text-sm">{a.archiveHint}</p>
           <div className="flex gap-2">
-            <button type="submit" disabled={pending} className="rounded-[10px] bg-navy px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-70">
-              {a.confirmArchive}
+            <button type="submit" disabled={pending} className={buttonClass('danger')}>
+              <IconText icon="archive" busy={pending}>
+                {a.confirmArchive}
+              </IconText>
             </button>
-            <button type="button" onClick={() => setAsking(null)} className="rounded-[10px] border border-line bg-white px-4 py-2.5 text-sm font-semibold hover:bg-bg">
+            <button type="button" onClick={() => setAsking(null)} className={buttonClass('secondary')}>
               {a.cancel}
             </button>
           </div>

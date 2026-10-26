@@ -7,6 +7,8 @@ import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
 import { Notice } from '@/components/ui/notice';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { AdminIcon } from './icons';
+import { IconText, buttonClass } from './ui';
 
 interface DangerZoneProps {
   locale: Locale;
@@ -63,7 +65,10 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
   return (
     <section className="flex flex-col gap-3 rounded-[18px] border border-red/40 bg-white p-5 lg:p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-[#b33a35]">{d.title}</h2>
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#b33a35]">
+          <AdminIcon name="alert" size={20} />
+          {d.title}
+        </h2>
         <Notice showKey={state.savedAt}>{state.status === 'requested' ? d.requested : d.cancelled}</Notice>
       </div>
 
@@ -77,15 +82,17 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
             {requester !== me && (
               <form onSubmit={onSubmit}>
                 {hidden('approve')}
-                <button type="submit" disabled={pending} className="rounded-[10px] bg-red px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-70">
-                  {d.approve}
+                <button type="submit" disabled={pending} className={buttonClass('dangerSolid')}>
+                  <IconText icon="trash" busy={pending}>
+                    {d.approve}
+                  </IconText>
                 </button>
               </form>
             )}
             <form onSubmit={onSubmit}>
               {hidden('cancel')}
-              <button type="submit" disabled={pending} className="rounded-[10px] border border-line bg-white px-4 py-2.5 text-sm font-semibold hover:bg-bg disabled:opacity-70">
-                {d.cancelRequest}
+              <button type="submit" disabled={pending} className={buttonClass('secondary')}>
+                <IconText icon="x">{d.cancelRequest}</IconText>
               </button>
             </form>
           </div>
@@ -99,9 +106,9 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
               setTyped('');
               setOpen(true);
             }}
-            className="self-start rounded-[10px] border border-red/60 px-4 py-2.5 text-sm font-semibold text-[#b33a35] hover:bg-red/10"
+            className={`${buttonClass('danger')} self-start`}
           >
-            {d.button}
+            <IconText icon="trash">{d.button}</IconText>
           </button>
         </>
       )}
@@ -118,9 +125,14 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
         {open && (
           <form onSubmit={onSubmit} className="flex flex-col gap-4 p-6">
             {hidden('request')}
-            <h2 id="delete-institution-title" className="text-xl font-semibold">
-              {format(d.modalTitle, { name: institution.name })}
-            </h2>
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-red/10 text-[#b33a35]">
+                <AdminIcon name="trash" size={20} />
+              </span>
+              <h2 id="delete-institution-title" className="pt-1.5 text-xl font-semibold">
+                {format(d.modalTitle, { name: institution.name })}
+              </h2>
+            </div>
             <div className="flex flex-col gap-2 rounded-[12px] border border-red/40 bg-red/10 p-4">
               <p className="text-sm font-semibold">{d.willRemove}</p>
               {impactList}
@@ -139,16 +151,18 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
             </label>
             <FormAlert>{error}</FormAlert>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-              <button type="button" onClick={() => setOpen(false)} className="rounded-[10px] border border-line px-5 py-3 font-semibold hover:bg-bg">
+              <button type="button" onClick={() => setOpen(false)} className={buttonClass('secondary')}>
                 {d.cancel}
               </button>
               <button
                 type="submit"
                 // The button wakes up only when the name is typed exactly (letter case aside), as the server checks too.
                 disabled={pending || typed.trim().toLocaleLowerCase() !== confirmationText.toLocaleLowerCase()}
-                className="rounded-[10px] bg-red px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className={buttonClass('dangerSolid')}
               >
-                {needsApproval ? d.sendForApproval : d.deleteNow}
+                <IconText icon={needsApproval ? 'send' : 'trash'} busy={pending}>
+                  {needsApproval ? d.sendForApproval : d.deleteNow}
+                </IconText>
               </button>
             </div>
           </form>

@@ -10,6 +10,8 @@ import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, TextField } from '@/components/auth/fields';
 import { Dropdown, type DropdownOption } from '@/components/ui/dropdown';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { AdminIcon } from './icons';
+import { IconText, buttonClass } from './ui';
 
 /** An NEC field as a dropdown option, with the broad EduLaunch field it suggests. */
 export type NecOption = DropdownOption & { fieldId: string | null };
@@ -138,10 +140,10 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
               type="button"
               onClick={() => goTo(i)}
               aria-current={i === step ? 'step' : undefined}
-              className={`flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm font-semibold ${i === step ? 'bg-navy text-white' : 'hover:bg-bg'}`}
+              className={`flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${i === step ? 'bg-navy text-white' : 'hover:bg-bg'}`}
             >
               <span className={`flex size-7 items-center justify-center rounded-full text-xs ${i === step ? 'bg-white text-navy' : i < step ? 'bg-[#1f6b47] text-white' : 'bg-bg text-muted'}`}>
-                {i < step ? '✓' : i + 1}
+                {i < step ? <AdminIcon name="check" size={14} /> : i + 1}
               </span>
               <span className={i === step || i < step ? '' : 'text-muted'}>{label}</span>
             </button>
@@ -304,8 +306,8 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
 
       <div className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
         {step > 0 && (
-          <button type="button" onClick={() => goTo(step - 1)} className="rounded-[10px] border border-line px-5 py-3 font-semibold hover:bg-bg">
-            {f.steps.back}
+          <button type="button" onClick={() => goTo(step - 1)} className={buttonClass('secondary')}>
+            <IconText icon="arrowLeft">{f.steps.back}</IconText>
           </button>
         )}
         {last ? (
@@ -321,18 +323,21 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
                 setStep(first);
               }
             }}
-            className="rounded-[10px] bg-navy px-5 py-3 font-semibold text-white hover:bg-navy/90 disabled:cursor-wait disabled:opacity-70"
+            className={buttonClass('primary')}
           >
-            {mode === 'new' ? f.create : mode === 'change' ? f.saveChange : f.save}
+            <IconText icon={mode === 'new' ? 'plus' : 'save'} busy={pending}>
+              {mode === 'new' ? f.create : mode === 'change' ? f.saveChange : f.save}
+            </IconText>
           </button>
         ) : (
-          <button type="button" onClick={() => goTo(step + 1)} className="rounded-[10px] bg-navy px-5 py-3 font-semibold text-white hover:bg-navy/90">
-            {f.steps.next}
+          <button type="button" onClick={() => goTo(step + 1)} className={`${buttonClass('primary')} group`}>
+            <span>{f.steps.next}</span>
+            <AdminIcon name="arrowRight" size={16} className="transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
           </button>
         )}
         <span className="text-[13px] text-muted">{format(f.steps.of, { n: step + 1, total: steps.length })}</span>
-        <Link href={cancelHref} className="ml-auto rounded-[10px] px-4 py-3 text-sm font-semibold hover:bg-bg">
-          {f.cancel}
+        <Link href={cancelHref} className={`${buttonClass('ghost')} ml-auto`}>
+          <IconText icon="x">{f.cancel}</IconText>
         </Link>
       </div>
     </form>

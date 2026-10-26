@@ -4,7 +4,8 @@ import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
 import { RequirementEditor } from '@/components/admin/requirement-editor';
 import { ReviewActions } from '@/components/admin/review-actions';
-import { AdminHeading, Card, LoadError, StatusChip, who } from '@/components/admin/ui';
+import { AdminIcon } from '@/components/admin/icons';
+import { AdminHeading, Card, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getRequirementDetail, type AdminRule, type RequirementDetail } from '@/lib/admin/api';
 import { groupsFromRules } from '@/lib/admin/requirement-form';
 import { getReferenceData, localName } from '@/lib/catalogue/api';
@@ -99,8 +100,11 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
         <h2 className="text-lg font-semibold">{t.requirement.review.source}</h2>
         <p className="text-sm text-muted">{t.requirement.review.sourceBody}</p>
         {req.sourceUrl ? (
-          <a href={req.sourceUrl} target="_blank" rel="noreferrer" className="self-start break-all rounded-[10px] border border-line px-4 py-2.5 text-sm font-semibold hover:bg-bg">
-            {t.requirement.source.open} {req.sourceUrl.replace(/^https?:\/\//, '')}
+          <a href={req.sourceUrl} target="_blank" rel="noreferrer" className={`${buttonClass('secondary')} self-start whitespace-normal break-all text-left`}>
+            <AdminIcon name="external" size={16} />
+            <span>
+              {t.requirement.source.open} {req.sourceUrl.replace(/^https?:\/\//, '')}
+            </span>
           </a>
         ) : (
           <p className="text-sm text-[#b33a35]">{t.requirement.source.missing}</p>

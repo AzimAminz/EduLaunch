@@ -10,6 +10,8 @@ import { FormAlert } from '@/components/auth/fields';
 import { Dropdown, type DropdownOption } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { AdminIcon } from './icons';
+import { IconText, buttonClass } from './ui';
 
 export interface EditorSubject {
   id: string;
@@ -134,8 +136,8 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
                 className={`min-w-0 flex-1 rounded-[10px] border bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15 ${attempted && sourceUrl && !sourceDone ? 'border-red' : 'border-[#9aa3b2]'}`}
               />
               {sourceDone && (
-                <a href={sourceUrl.trim()} target="_blank" rel="noreferrer" className="rounded-[10px] border border-line px-4 py-3 text-center text-sm font-semibold hover:bg-bg">
-                  {t.source.open}
+                <a href={sourceUrl.trim()} target="_blank" rel="noreferrer" className={buttonClass('secondary')}>
+                  <IconText icon="external">{t.source.open}</IconText>
                 </a>
               )}
             </div>
@@ -194,8 +196,8 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
               );
             })}
 
-            <button type="button" onClick={() => setGroups((list) => [...list, { quote: '', rules: [newRule()] }])} className="self-start rounded-[10px] border border-line bg-white px-4 py-2.5 text-sm font-semibold hover:bg-bg">
-              {t.addRule}
+            <button type="button" onClick={() => setGroups((list) => [...list, { quote: '', rules: [newRule()] }])} className={`${buttonClass('secondary')} self-start`}>
+              <IconText icon="plus">{t.addRule}</IconText>
             </button>
           </section>
         </form>
@@ -232,11 +234,13 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             {dirty && <span className="ml-2 font-semibold text-navy">· {t.unsaved}</span>}
           </p>
           <Notice showKey={state.savedAt}>{t.saved}</Notice>
-          <button type="submit" form="requirement-form" name="intent" value="save" disabled={pending} className="rounded-[10px] border border-line px-4 py-2.5 text-sm font-semibold hover:bg-bg disabled:cursor-wait disabled:opacity-70">
-            {t.save}
+          <button type="submit" form="requirement-form" name="intent" value="save" disabled={pending} className={buttonClass('secondary')}>
+            <IconText icon="save">{t.save}</IconText>
           </button>
-          <button type="submit" form="requirement-form" name="intent" value="submit" disabled={pending} className="rounded-[10px] bg-yellow px-4 py-2.5 text-sm font-semibold hover:bg-yellow/85 disabled:cursor-wait disabled:opacity-70">
-            {t.submit} →
+          <button type="submit" form="requirement-form" name="intent" value="submit" disabled={pending} className={buttonClass('accent')}>
+            <IconText icon="send" busy={pending}>
+              {t.submit}
+            </IconText>
           </button>
         </div>
         <p className="text-[13px] text-muted">{t.submitHint}</p>
@@ -247,17 +251,20 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
           {!discarding && discardState.error && <p className="text-[13px] text-red">{errors[discardState.error]}</p>}
           {confirmDiscard ? (
             <>
+              <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
               <span className="text-sm">{t.discardConfirm}</span>
-              <button type="submit" disabled={discarding} className="rounded-[10px] bg-red px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-70">
-                {t.discardYes}
+              <button type="submit" disabled={discarding} className={buttonClass('dangerSolid', 'sm')}>
+                <IconText icon="trash" busy={discarding}>
+                  {t.discardYes}
+                </IconText>
               </button>
-              <button type="button" onClick={() => setConfirmDiscard(false)} className="rounded-[10px] border border-line px-3.5 py-2 text-sm font-semibold hover:bg-bg">
+              <button type="button" onClick={() => setConfirmDiscard(false)} className={buttonClass('secondary', 'sm')}>
                 {dict.admin.programme.actions.cancel}
               </button>
             </>
           ) : (
-            <button type="button" onClick={() => setConfirmDiscard(true)} className="text-sm font-semibold text-[#b33a35] hover:underline">
-              {t.discard}
+            <button type="button" onClick={() => setConfirmDiscard(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
+              <IconText icon="trash">{t.discard}</IconText>
             </button>
           )}
         </form>

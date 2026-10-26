@@ -330,7 +330,16 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] Admin B: **Luluskan & terbitkan**. A student opening the programme sees the new requirements and the "Boleh ke saya masuk?" check uses them.
 - [ ] Admin A: **Kemas kini syarat** on the same route starts **versi 2** with the published rules already filled in. Admin B's review shows the changed line marked **Baharu** and the old one **Dibuang**. **Buang draf** (by Admin A) removes the draft and version 1 stays published.
 
-### F. Language and phone
+### F. Icons, sorting and pages
+
+- [ ] Every button in the admin has an icon next to its words (Sunting, Hantar, Luluskan, Padam…); a status chip shows an icon as well as a colour. Pressing Hantar or Simpan shows a spinner on that button until it finishes.
+- [ ] **Program**: click a column heading (Program, Institusi, Peringkat, Status, Dikemas kini). The list sorts by it, the heading shows ▲ or ▼, and clicking again flips the order. The address keeps it (`?susun=…&arah=…`), so the back button and a copied link show the same order.
+- [ ] With more than 20 programmes, page links appear under the table ("1–20 daripada N", ←, 1 2 3, →). Changing a filter or the sort goes back to page 1. A link to a page past the end opens the last page.
+- [ ] **Institusi**: search by name, short name or state; sort by Nama, Bilangan program or Negeri. A search with no match says so.
+- [ ] The institution profile's **Program** tab sorts and pages the same way; **Peti tugasan** pages a long tab.
+- [ ] With the keyboard (Tab), every button, tab and heading link shows a visible focus ring.
+
+### G. Language and phone
 
 - [ ] Switch to **EN**: every admin page is in English.
 - [ ] On a narrow window the pages need no sideways scrolling (the programme table scrolls inside its box).

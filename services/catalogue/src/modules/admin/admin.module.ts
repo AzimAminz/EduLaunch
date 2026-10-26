@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Injectable, Module, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { NotFoundError } from '@edulaunch/ddd';
 import { CurrentCaller, DRIZZLE, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
-import { and, count, desc, eq, ilike, inArray, isNotNull, ne, notExists, or, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNotNull, ne, notExists, or, type SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import * as schema from '../../infrastructure/db/schema.js';
 
@@ -135,7 +135,16 @@ export class AdminQueries {
     };
   }
 
-  async programmes(q: { query?: string; status?: Status; institutionId?: string; missingRequirements?: boolean; page: number; pageSize: number }) {
+  async programmes(q: {
+    query?: string;
+    status?: Status;
+    institutionId?: string;
+    missingRequirements?: boolean;
+    sort?: ProgrammeSort;
+    direction?: 'asc' | 'desc';
+    page: number;
+    pageSize: number;
+  }) {
     const filters: SQL[] = [];
     if (q.query) filters.push(or(ilike(programs.name, `%${q.query}%`), ilike(institutions.name, `%${q.query}%`))!);
     if (q.status) filters.push(eq(programs.publishStatus, q.status));
@@ -161,7 +170,8 @@ export class AdminQueries {
         .from(programs)
         .leftJoin(institutions, eq(institutions.id, programs.institutionId))
         .where(where)
-        .orderBy(programs.name)
+        // The chosen column first, then the name, so equal values keep a stable order across pages.
+        .orderBy(...sortOrder(q.sort ?? 'name', q.direction ?? 'asc'))
         .limit(q.pageSize)
         .offset((q.page - 1) * q.pageSize),
       this.db.select({ value: count() }).from(programs).leftJoin(institutions, eq(institutions.id, programs.institutionId)).where(where),
@@ -372,11 +382,22 @@ export class AdminQueries {
   }
 }
 
+export const ProgrammeSorts = ['name', 'institution', 'level', 'status', 'updated'] as const;
+export type ProgrammeSort = (typeof ProgrammeSorts)[number];
+
+function sortOrder(sort: ProgrammeSort, direction: 'asc' | 'desc'): SQL[] {
+  const dir = direction === 'desc' ? desc : asc;
+  const column = { name: programs.name, institution: institutions.name, level: programs.studyLevel, status: programs.publishStatus, updated: programs.updatedAt }[sort];
+  return sort === 'name' ? [dir(column)] : [dir(column), asc(programs.name)];
+}
+
 const ProgrammesQuery = z.object({
   q: z.string().trim().max(100).optional(),
   status: z.enum(schema.reviewStatus.enumValues).optional(),
   institutionId: z.uuid().optional(),
   missingRequirements: z.enum(['true', 'false']).transform((v) => v === 'true').optional(),
+  sort: z.enum(ProgrammeSorts).optional(),
+  direction: z.enum(['asc', 'desc']).optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(50),
 });
@@ -393,7 +414,16 @@ export class AdminController {
 
   @Get('programmes')
   programmes(@Query(new ZodPipe(ProgrammesQuery)) q: z.infer<typeof ProgrammesQuery>) {
-    return this.queries.programmes({ query: q.q, status: q.status, institutionId: q.institutionId, missingRequirements: q.missingRequirements, page: q.page, pageSize: q.pageSize });
+    return this.queries.programmes({
+      query: q.q,
+      status: q.status,
+      institutionId: q.institutionId,
+      missingRequirements: q.missingRequirements,
+      sort: q.sort,
+      direction: q.direction,
+      page: q.page,
+      pageSize: q.pageSize,
+    });
   }
 
   @Get('institutions')

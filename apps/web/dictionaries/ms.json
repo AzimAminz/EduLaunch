@@ -364,7 +364,8 @@
         "level": "Peringkat",
         "requirements": "Syarat diterbitkan",
         "status": "Status",
-        "actions": "Tindakan"
+        "actions": "Tindakan",
+        "updated": "Dikemas kini"
       },
       "noRequirements": "Belum ada",
       "openDrafts": "{count} draf",
@@ -381,7 +382,8 @@
       "institutionFilter": "Institusi: {name}",
       "clearFilter": "Kosongkan",
       "allInstitutions": "Semua institusi",
-      "changeBadge": "Ada perubahan"
+      "changeBadge": "Ada perubahan",
+      "clearFilters": "Kosongkan tapisan"
     },
     "programmeForm": {
       "newTitle": "Tambah program baharu",
@@ -701,6 +703,14 @@
         "cancelRequest": "Batalkan permintaan",
         "requested": "Permintaan padam dihantar.",
         "cancelled": "Permintaan dibatalkan."
+      },
+      "search": "Cari nama, singkatan atau negeri",
+      "empty": "Belum ada institusi. Tambah yang pertama.",
+      "noResults": "Tiada institusi sepadan dengan \"{query}\".",
+      "sorts": {
+        "name": "Nama",
+        "programmes": "Bilangan program",
+        "state": "Negeri"
       }
     },
     "requirement": {
@@ -826,6 +836,18 @@
       "noRules": "Tambah sekurang-kurangnya satu syarat.",
       "confirmation_mismatch": "Teks pengesahan tidak sama. Taip tepat seperti yang ditunjukkan.",
       "upu_code_taken": "Kod program ini sudah digunakan oleh program lain."
+    },
+    "pagination": {
+      "label": "Halaman senarai",
+      "range": "{from}–{to} daripada {total}",
+      "previous": "Halaman sebelumnya",
+      "next": "Halaman seterusnya",
+      "page": "Halaman {page}"
+    },
+    "sort": {
+      "label": "Susun",
+      "ascending": "menaik",
+      "descending": "menurun"
     }
   },
   "footer": {

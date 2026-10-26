@@ -5,6 +5,7 @@ import { startRequirement, type AdminFormState } from '@/lib/admin/actions';
 import type { Dictionary, Locale } from '@/lib/i18n/locale';
 import { Dropdown } from '@/components/ui/dropdown';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { IconText, buttonClass } from './ui';
 
 /** "Add / update requirements" for one route: starts a draft (from the published rules) and opens the editor. */
 export function StartRequirement({ locale, programId, entryRoute, label, primary, errors }: { locale: Locale; programId: string; entryRoute: string; label: string; primary?: boolean; errors: Dictionary['admin']['errors'] }) {
@@ -17,9 +18,11 @@ export function StartRequirement({ locale, programId, entryRoute, label, primary
       <button
         type="submit"
         disabled={pending}
-        className={`whitespace-nowrap rounded-[10px] px-3.5 py-2 text-sm font-semibold disabled:cursor-wait disabled:opacity-70 ${primary ? 'bg-yellow hover:bg-yellow/85' : 'border border-line bg-white hover:bg-bg'}`}
+        className={buttonClass(primary ? 'accent' : 'secondary', 'sm')}
       >
-        {label}
+        <IconText icon={primary ? 'plus' : 'pencil'} busy={pending}>
+          {label}
+        </IconText>
       </button>
       {!pending && state.error && (
         <p role="alert" className="text-[13px] text-red">

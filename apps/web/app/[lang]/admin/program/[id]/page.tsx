@@ -7,7 +7,8 @@ import { EntryRoutes, EntryRoutesByLevel } from '@edulaunch/contracts';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
 import { RouteStarter, StartRequirement } from '@/components/admin/start-requirement';
-import { AdminHeading, Card, LoadError, StatusChip, who } from '@/components/admin/ui';
+import { AdminIcon } from '@/components/admin/icons';
+import { AdminHeading, AdminTabs, Card, EmptyState, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listInstitutions, listNecFields, type PendingDetails, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
 import { programmeWorkflow } from '@/lib/admin/programme-workflow';
 import { fieldName, getReferenceData } from '@/lib/catalogue/api';
@@ -125,18 +126,13 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         t={t}
       />
 
-      <nav aria-label={programme.name} className="flex flex-wrap gap-1 self-start rounded-[12px] bg-white p-1">
-        {TABS.map((key) => (
-          <Link
-            key={key}
-            href={key === 'maklumat' ? base : `${base}?tab=${key}`}
-            aria-current={key === tab ? 'page' : undefined}
-            className={`rounded-[9px] px-4 py-2 text-sm font-semibold ${key === tab ? 'bg-navy text-white' : 'hover:bg-bg'}`}
-          >
-            {key === 'maklumat' ? t.programme.tabs.details : `${t.programme.tabs.requirements} (${routeCount})`}
-          </Link>
-        ))}
-      </nav>
+      <AdminTabs
+        label={programme.name}
+        items={[
+          { href: base, label: t.programme.tabs.details, icon: 'info', current: tab === 'maklumat' },
+          { href: `${base}?tab=syarat`, label: t.programme.tabs.requirements, icon: 'listChecks', current: tab === 'syarat', count: routeCount },
+        ]}
+      />
 
       {tab === 'maklumat' ? (
         <>
@@ -145,7 +141,10 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
           )}
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-lg font-semibold">{t.programme.details}</h2>
+              <h2 className="flex items-center gap-2 text-lg font-semibold">
+                <AdminIcon name="info" size={20} />
+                {t.programme.details}
+              </h2>
               {programme.preparedBy && <span className="text-[13px] text-muted">{format(t.programme.preparedBy, { who: who(programme.preparedBy, me, t) })}</span>}
             </div>
             <ProgrammeDetails details={live} dict={dict} names={names} />
@@ -176,7 +175,7 @@ function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: D
         <p className="text-sm text-muted">{r.intro}</p>
       </div>
       {used.length === 0 ? (
-        <p className="rounded-[12px] bg-bg px-4 py-3 text-sm text-muted">{r.empty}</p>
+        <EmptyState icon="listChecks" text={r.empty} />
       ) : (
         <ul className="flex flex-col gap-3">
           {used.map((route) => {
@@ -185,22 +184,25 @@ function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: D
             const open = versions.find((v) => OPEN.has(v.status));
             const older = versions.filter((v) => v !== published && v !== open);
             return (
-              <li key={route} className="flex flex-col gap-2 rounded-[14px] border border-line p-4">
+              <li key={route} className="flex flex-col gap-2 rounded-[14px] border border-line p-4 transition-colors duration-150 hover:border-navy/30">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <p className="font-semibold">{routes[route] ?? route}</p>
-                    <p className={`text-[13px] ${published ? 'text-muted' : 'text-[#b33a35]'}`}>{published ? format(r.published, { version: published.versionNo }) : r.none}</p>
+                    <p className={`inline-flex items-center gap-1.5 text-[13px] ${published ? 'text-[#1f6b47]' : 'text-[#b33a35]'}`}>
+                      <AdminIcon name={published ? 'checkCircle' : 'alert'} size={14} />
+                      {published ? format(r.published, { version: published.versionNo }) : r.none}
+                    </p>
                     {open && <p className="text-[13px]">{format(r.draftBy, { status: t.status[open.status], version: open.versionNo, who: who(open.preparedBy, me, t) })}</p>}
                   </div>
                   <div className="flex flex-wrap items-start gap-2">
                     {published && (
-                      <Link href={`/${locale}/admin/syarat/${published.id}`} className="rounded-[10px] px-3 py-2 text-sm font-semibold hover:bg-bg">
-                        {r.view}
+                      <Link href={`/${locale}/admin/syarat/${published.id}`} className={buttonClass('ghost', 'sm')}>
+                        <IconText icon="eye">{r.view}</IconText>
                       </Link>
                     )}
                     {open ? (
-                      <Link href={`/${locale}/admin/syarat/${open.id}`} className="rounded-[10px] bg-navy px-3.5 py-2 text-sm font-semibold text-white hover:bg-navy/90">
-                        {r.openDraft}
+                      <Link href={`/${locale}/admin/syarat/${open.id}`} className={buttonClass('primary', 'sm')}>
+                        <IconText icon="pencil">{r.openDraft}</IconText>
                       </Link>
                     ) : (
                       <StartRequirement locale={locale} programId={programme.id} entryRoute={route} label={r.update} errors={t.errors} />
