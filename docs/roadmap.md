@@ -1,6 +1,6 @@
 # EduLaunch — Roadmap
 
-Version 3 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 built, M1 demo after its manual check)
+Version 3.1 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 built, M1 demo after its manual check; next: JPT import)
 
 **Assumptions:** final-year project over two semesters (about 28 weeks), one to three developers, two-week sprints. Capacity split: about 70% features, 20% testing and clean-up, 10% buffer for surprises.
 
@@ -10,10 +10,10 @@ Version 3 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 built,
 
 ## Status overview
 
-- **Done:** 8 of 28 items. Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 waiting for its check).
+- **Done:** 8 of 31 items. Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 waiting for its check).
 - **In Progress:** 7 items. Back-end services exist with unit and integration tests; their screens and real programme data do not yet.
-- **Not Started:** 13 items.
-- **At risk:** real catalogue data (the sample data is enough for demos, not for real decisions) and historical admission data (blocks real offer chances).
+- **Not Started:** 16 items.
+- **At risk:** real catalogue data and historical admission data. Both are planned through the JPT import (Steps 9 and 11), which first needs the ePanduan terms of use checked.
 
 ### Work steps so far
 
@@ -30,7 +30,22 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (checked by hand) |
 | 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (checked by hand) |
 | 8 | Admin console: home with today's tasks, task inbox, institutions, programmes (draft → another admin approves → published), requirement wizard by entry route (including SVM, SKM, DVM and DKM routes) with a second-admin review | **Done** (manual check waiting); **M1 demo** after the check |
-| 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
+| 9 | **JPT import, part 1 (programme list):** read the public ePanduan programme pages (code, name, institution, NEC field, duration, year, merit average) → draft programmes for admin review, merit averages into `ADMISSION_STAT`, the 157 NEC field codes as the field list. Starts only after the site's terms of use are checked | Planned (next) |
+| 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | Planned |
+| 11 | **JPT import, part 2 (requirements):** read each programme's Syarat Am and Syarat Khas with a headless browser, parse with rules first and Claude for what rules cannot read, validate (exact quotes, known subjects, valid grades), create requirement drafts that an admin approves | Planned |
+| 12 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
+
+### Changes since v3 (JPT import planned, 27 Oct 2026)
+
+| Change | Why |
+|---|---|
+| **Programme data from the JPT ePanduan site** becomes the next work (Steps 9 and 11), before the public website (now Step 12) | Typing real requirements by hand for many programmes is too slow; real catalogue data was the biggest risk |
+| Step 9 imports the programme list and **merit averages** first; requirements follow in Step 11 | The list pages are plain server pages and easy to read; merit averages unblock offer-chance prediction (`ADMISSION_STAT`) |
+| **Requirement model v2** (Step 10) comes before importing requirements | Real requirement documents use general requirements per university, alternative sets (A or B), "2 credits from this list", diploma fields by NEC code and conditions the system cannot check; the importer needs a place to store them |
+| Claude (Anthropic API) is allowed for extracting **public** requirement text | Owner's decision. Personal data still never goes to an AI provider without no-training terms |
+| Nothing imported is published automatically: the importer prepares drafts as a "Pembantu JPT" account and an admin approves them | Same two-admin rule as Step 8 |
+| **Gate:** the importer runs only after the ePanduan terms of use are checked (and, ideally, JPT agrees). If not allowed: university prospectus PDFs with AI extraction, and manual entry | We do not bypass logins, CAPTCHAs, rate limits or terms |
+| Interest test and activities move one sprint later | Capacity goes to real data first |
 
 ### Changes since v3 (Step 8, 27 Oct 2026)
 
@@ -108,7 +123,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | CI on GitHub | Build, type-check and tests on every pull request | **Done** | — |
 | Bahasa Melayu / English | Every screen and catalogue name in both languages, `/ms` and `/en` addresses, remembered choice | **Done** | Keep adding both languages for each new screen |
 | Data model | Tables from the ERD in each service's schema, migrations | **In Progress** | Storage bucket for slips |
-| Seed catalogue | 5 universities, 30–50 programmes, Form 4 streams, a few certificate and skills programmes; requirements entered by hand and checked | **In Progress** | Real data from official sources (seed script and 14 sample programmes are done) |
+| Seed catalogue | 5 universities, 30–50 programmes, Form 4 streams, a few certificate and skills programmes; requirements entered by hand and checked | **In Progress** | Real data from official sources through the JPT import (Steps 9 and 11); seed script and 14 sample programmes are done |
 | Accounts | Sign up, log in, reset password, choose education level | **Done** | — |
 | Academic profile (manual) | Subjects from the catalogue, add/remove, grade validation | **Done** | — |
 | Programme search | University + field comboboxes, programme details | **Done** | — |
@@ -120,11 +135,14 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 ### Next — intelligence (Weeks 9–18)
 | Item | Outcome | Status | What is left |
 |---|---|---|---|
+| JPT import (programme list) | Weekly read of ePanduan list pages: programmes, NEC fields, merit averages → drafts and `ADMISSION_STAT` | Not Started | Terms check; parser with saved pages as test fixtures; staging tables; import report (Step 9) |
+| Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | Not Started | Step 10 |
+| JPT import (requirements) | Requirement text parsed by rules, Claude for the rest, validated, drafts for admin approval | Not Started | Step 11; needs Steps 9–10 and an Anthropic API key |
 | Interest test + activities | RIASEC result, activity ratings | Not Started | Questions, scoring, screens (tables exist) |
 | Recommendation v1 | Score, rank, template reasons, top-match card | **In Progress** | Dashboard card; interest and preference data feeding the score |
 | Merit calculator | Formula per entry route, target vs actual labels | Not Started | |
 | Slip upload + OCR | Upload, local OCR, review screen with flagged rows | Not Started | |
-| Prediction v1 | Margin bands from `ADMISSION_STAT`, "No data" state | **In Progress** | Admission statistics data and endpoint (estimator logic is done) |
+| Prediction v1 | Margin bands from `ADMISSION_STAT`, "No data" state | **In Progress** | Merit averages from the JPT import (Step 9); endpoint (estimator logic is done) |
 | Alternative pathways | Certificate/skills programmes, stepping-stone pathways, what-if "improve a result", supportive wording | Not Started | Pathway table exists |
 | Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma "work now or continue" with careers | Not Started | Tables exist |
 | Notifications | Requirement change alerts, result-release prompts | **In Progress** | Result-release prompts; screens (change alerts are done) |
@@ -136,8 +154,8 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 ### Later — automation and polish (Weeks 19–28)
 | Item | Outcome | Status | What is left |
 |---|---|---|---|
-| Content pipeline | Source list, weekly crawl, checksum change detection | **In Progress** | Weekly schedule; PDF reading (source registration and change detection are done) |
-| AI extraction | Drafts with quotes, validation, admin diff review | Not Started | |
+| Content pipeline | Source list, weekly crawl, checksum change detection | **In Progress** | ePanduan adapter moved to Next (Steps 9 and 11); weekly schedule; PDF reading for university prospectuses (source registration and change detection are done) |
+| AI extraction | Drafts with quotes, validation, admin diff review | Not Started | First used for JPT requirement text (Step 11); then prospectus PDFs. Admin review screen is done (Step 8) |
 | Ask AI (RAG) | Embedded chunks, cited answers, no visible quota (silent fair-use guard) | Not Started | Chunk table exists |
 | PWA | Installable mobile app from the same codebase | Not Started | |
 | Prediction v2 | Logistic regression if 3+ years of data exist | Not Started | |
@@ -157,13 +175,13 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 2 | 3–4 | **Seed catalogue**; CI; programme search and detail screens; BM/EN | **Done** except real catalogue data (still at risk) |
 | 3 | 5–6 | Sign-in screens; academic profile screens with subject picker | **Done** (Steps 5–6) |
 | 4 | 7–8 | Eligibility on screen with real data; admin programme editing; requirement review screens; **M1 demo** | **Done** (Steps 7–8); M1 demo after the Step 8 check |
-| 5 | 9–10 | Interest test and activities | Next |
-| 6 | 11–12 | Recommendation dashboard card; merit calculator | |
-| 7 | 13–14 | Slip upload, OCR, review screen | |
-| 8 | 15–16 | Prediction v1 with admission data; alternative pathways + what-if; all education levels | |
-| 9 | 17–18 | Roadmap and notifications screens; staging deployment; **M2 demo** | |
-| 10 | 19–20 | Content pipeline: weekly schedule, PDF reading | |
-| 11 | 21–22 | AI extraction drafts + admin diff review | |
+| 5 | 9–10 | **JPT import part 1** (programme list, NEC fields, merit averages); requirement model v2 | Next |
+| 6 | 11–12 | **JPT import part 2** (requirements, Claude extraction); recommendation dashboard card | |
+| 7 | 13–14 | Interest test and activities; merit calculator | |
+| 8 | 15–16 | Prediction v1 with JPT merit data; slip upload and OCR; alternative pathways + what-if | |
+| 9 | 17–18 | All education levels; roadmap and notifications screens; staging deployment; public website; **M2 demo** | |
+| 10 | 19–20 | Content pipeline: prospectus PDFs, weekly schedule for every source | |
+| 11 | 21–22 | AI extraction for PDFs; golden-set accuracy check | |
 | 12 | 23–24 | Ask AI (RAG); PWA; **M3 feature freeze** | |
 | 13 | 25–26 | Evaluation, user test, fixes | |
 | 14 | 27–28 | Report, demo, buffer; **M4 final** | |
@@ -191,12 +209,13 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 
 | Item | Depends on | Risk if late |
 |---|---|---|
-| Real decisions by students | Real catalogue data from official sources | Sample data must stay clearly marked "Contoh" |
+| Real decisions by students | Real catalogue data from official sources (JPT import, Steps 9 and 11) | Sample data must stay clearly marked "Contoh" |
+| JPT import | ePanduan terms of use allow automated reading (or JPT agrees); the site's page layout | Fall back to prospectus PDFs with AI extraction and manual entry |
 | Recommendation | Eligibility engine (done), interest test, seed catalogue | No core demo |
 | Alternative pathways | Certificate/skills programmes and pathways in the catalogue | Students with weak results see only "almost eligible" options |
-| Prediction | Historical cut-off data (`ADMISSION_STAT`) | Show "No data"; do not block the release |
+| Prediction | Merit averages from ePanduan (`ADMISSION_STAT`) | Show "No data"; do not block the release |
 | Slip OCR | Sample slips for testing (with consent, personal details removed) | Manual entry stays available |
-| AI extraction | Content pipeline; access to a free LLM tier or local model | Admin keeps entering data by hand |
+| AI extraction | Content pipeline; an Anthropic API key (public text only) | Admin keeps entering data by hand |
 | Ask AI | Published content chunks and embeddings | Feature hidden until ready |
 | Staging deployment | Hosting decision (free VM vs free platform tiers) | Demo only on a laptop |
 
@@ -213,6 +232,8 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Teammates' machines differ (Windows/Mac) | Medium | `pnpm doctor` checks tools; setup guide covers both |
 | Free AI tier changes | Medium | Provider-agnostic AI client; local model fallback |
 | Wrong requirement data | Medium | Admin approval, quotes as evidence, golden-set checks |
+| ePanduan terms do not allow automated reading | Medium | Check before Step 9; ask JPT through the supervisor; fall back to prospectus PDFs |
+| ePanduan changes its page layout | Medium | Parser reads labels, not positions; a run that finds no programmes stops and alerts instead of wiping data; saved pages as test fixtures |
 | A screen ships in one language only | Low | Tests check both dictionaries have the same keys; guideline in CONTRIBUTING |
 | Team availability around exams | Medium | 10% buffer; milestones before exam weeks |
 

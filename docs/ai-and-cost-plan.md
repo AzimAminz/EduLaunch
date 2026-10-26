@@ -170,6 +170,34 @@ Side-by-side view: the old published version, the new draft, and the source quot
 ### 5.7 Measuring accuracy
 Keep a golden set of about 30 programme pages checked by hand. After each change to the extractor, run it on the golden set and record field accuracy. Target: at least 90% of fields right in the draft.
 
+### 5.8 First source: the JPT ePanduan site (planned, Steps 9 and 11)
+
+ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-university programmes. It is the first source we automate because it covers many programmes in one consistent layout. **Gate:** the importer runs only after its terms of use are checked (and, ideally, JPT agrees through the supervisor). We never bypass logins, CAPTCHAs, rate limits or terms; if automated reading is not allowed, we fall back to prospectus PDFs and manual entry.
+
+**What the site looks like (checked 27 Oct 2026 on one saved page):**
+- Programme lists by candidate category (for example `…/ProgramPengajian/kategoriCalon/S` for STPM), 10 programmes per page, plain server HTML with `?page=N` (the STPM category had 1,002 programmes).
+- Each programme card has labelled values: programme name, institution, `KOD PROGRAM` (for example `UP6481003`), `TAHUN`, `PURATA MARKAH MERIT`, study level, duration, NEC field, interview yes/no.
+- The field filter lists **157 NEC field codes** (for example `0311 Ekonomi`, `0714 Mechanics and metal trades`); university requirement documents use the same codes for "diploma in a related field".
+- Syarat Am and Syarat Khas are loaded by the page's JavaScript when the **Syarat** button is pressed, so they need a headless browser.
+
+**Pipeline (in the content service):**
+
+| Stage | What happens | Kept |
+|---|---|---|
+| 1. Fetch | Weekly, at night, one request every 3–5 seconds, user agent `EduLaunchBot` with a contact address; list pages with plain HTTP, requirement panels with Playwright pressing **Syarat** like a visitor | Raw page in storage with URL, time and checksum |
+| 2. Parse | `cheerio` reads each card **by its label text**, not by position or CSS classes | Staging rows, never the catalogue directly |
+| 3. Clean | Strip scripts, styles and tags; decode entities; Unicode NFC; one kind of space and dash; title case for names ("BACELOR … DENGAN KEPUJIAN" → "Bacelor … dengan Kepujian"); `99.43%` → `99.43`, `-`/`Tiada` → null; `07 Semester` → 7; `0311 Ekonomi` → code + name; programme codes must match `^[A-Z]{2}\d{7}$`; de-duplicate by (code, route, year) | Plain text only: scraped HTML is never shown again (no XSS) |
+| 4. Match and check | Institutions and subjects through alias lists ("BAHASA MELAYU / BAHASA MELAYU (KERTAS JULAI)" → Bahasa Melayu; "Kepujian" → C, "Lulus" → E for SPM); requirement text parsed by rules first, **Claude** only for lines rules cannot read; every value must carry an exact quote found in the cleaned text; grades must be valid for the subject; numbers in range | Lines that fail are quarantined and marked "needs review", never dropped silently |
+| 5. Hand over | Only **changes** become drafts, prepared by a "Pembantu JPT" account in the admin task inbox; an admin approves them on the Step 8 review screen; merit averages go to `ADMISSION_STAT` with year and source link | A report per run: found, matched, changed, needs review |
+
+**Safety rules:**
+- The checksum is taken on the **cleaned** text, so cosmetic changes (CSRF tokens, `?v=` on stylesheets) do not count as changes.
+- A run that finds no programmes, or misses the expected labels, **stops and alerts** instead of overwriting data.
+- Scraped text is data, never instructions, also when it is sent to the model (prompt-injection safe); the model's answer must match the JSON schema or it is rejected.
+- Tests use saved pages as fixtures, so development does not load the JPT site.
+
+**Model for requirement text and PDFs:** Claude through the Anthropic API (allowed by the project owner for **public** text, 27 Oct 2026): Claude Sonnet 5.5 (`claude-sonnet-5-5`) for the bulk, Claude Opus 5.5 (`claude-opus-5-5`) for hard tables or a second check, with the Batch API and prompt caching (the catalogue subject list is the cached part). The key lives only in the content service's `.env`. Cost is measured on about 20 programmes and the sample prospectus PDFs before a full run.
+
 ---
 
 ## 6. "Ask AI" with sources (RAG)
@@ -232,6 +260,7 @@ Expected cost: **RM0 per month during development.** Optional: a domain name (ab
 |---|---|---|
 | No historical cut-off data for many programmes | Weak predictions | Show "No data"; start with programmes that publish data; Phase A works with one year |
 | Free tier limits or terms change | Features stop working | Provider-agnostic client layer; local fallback; small paid budget as last resort |
-| Sites change layout or block the crawler | Stale data | Checksums alert the admin; manual entry is always possible |
+| Sites change layout or block the crawler | Stale data | Checksums alert the admin; parser reads labels; a run that finds nothing stops instead of wiping data; manual entry is always possible |
+| ePanduan terms do not allow automated reading | No JPT import | Checked before Step 9; ask JPT; prospectus PDFs with AI extraction instead |
 | LLM extracts a wrong value | Wrong advice | Quote required for every value, validation, mandatory admin review |
 | OCR misreads a grade | Wrong eligibility | Confidence flags, student confirmation, nothing saved unconfirmed |
