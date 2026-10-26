@@ -21,9 +21,10 @@ export type AdminErrorKey =
   | 'invalid_institution'
   | 'reason_required'
   | 'not_found'
+  | 'institution_in_use'
   | 'noRules';
 
-const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found'];
+const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'institution_in_use'];
 
 export interface AdminFormState {
   /** A new time on every successful save, to show "Saved". */
@@ -83,6 +84,20 @@ export async function saveInstitution(_prev: AdminFormState, form: FormData): Pr
     return { error: errorKey(err) };
   }
   // The directory filters list institutions from a cached copy; this refreshes it.
+  updateTag('catalogue-reference');
+  refresh();
+  return { savedAt: Date.now() };
+}
+
+/** Deletes an institution that has no programmes (the catalogue service refuses otherwise). */
+export async function deleteInstitution(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const token = await adminToken(locale);
+  try {
+    await api.deleteInstitution(token, text(form, 'id'));
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
   updateTag('catalogue-reference');
   refresh();
   return { savedAt: Date.now() };

@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
 import type { InstitutionType } from '@edulaunch/contracts';
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
 import { Institution } from '../domain/institution.js';
 import { InstitutionRepository } from '../domain/institution.repository.js';
 
-const { institutions } = schema;
+const { institutions, programs } = schema;
 
 @Injectable()
 export class DrizzleInstitutionRepository extends InstitutionRepository {
@@ -26,5 +26,14 @@ export class DrizzleInstitutionRepository extends InstitutionRepository {
       .insert(institutions)
       .values({ id: s.id, ...values })
       .onConflictDoUpdate({ target: institutions.id, set: { ...values, updatedAt: new Date() } });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.db.delete(institutions).where(eq(institutions.id, id));
+  }
+
+  async countProgrammes(id: string): Promise<number> {
+    const [row] = await this.db.select({ n: count() }).from(programs).where(eq(programs.institutionId, id));
+    return row?.n ?? 0;
   }
 }

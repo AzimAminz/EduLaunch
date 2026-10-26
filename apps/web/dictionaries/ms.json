@@ -475,7 +475,11 @@
         "nameRequired": "Tulis nama institusi (3 hingga 160 aksara).",
         "typeRequired": "Pilih jenis institusi.",
         "websiteInvalid": "Laman web mesti bermula dengan https://"
-      }
+      },
+      "delete": "Padam",
+      "deleteConfirm": "Padam {name}? Tindakan ini tidak boleh dibuat asal.",
+      "deleteYes": "Ya, padam",
+      "deleted": "Dipadam."
     },
     "requirement": {
       "titleEdit": "Kemas kini syarat: {programme}",
@@ -597,7 +601,8 @@
       "invalid_institution": "Semak maklumat institusi.",
       "reason_required": "Terangkan apa yang perlu dibetulkan (sekurang-kurangnya 5 aksara).",
       "not_found": "Rekod ini tidak dijumpai. Mungkin sudah dibuang.",
-      "noRules": "Tambah sekurang-kurangnya satu syarat."
+      "noRules": "Tambah sekurang-kurangnya satu syarat.",
+      "institution_in_use": "Institusi ini masih ada program, termasuk yang diarkib. Pindahkan atau buang program itu dahulu."
     }
   },
   "footer": {

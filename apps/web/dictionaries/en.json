@@ -475,7 +475,11 @@
         "nameRequired": "Write the institution name (3 to 160 characters).",
         "typeRequired": "Choose the institution type.",
         "websiteInvalid": "The website must start with https://"
-      }
+      },
+      "delete": "Delete",
+      "deleteConfirm": "Delete {name}? This cannot be undone.",
+      "deleteYes": "Yes, delete",
+      "deleted": "Deleted."
     },
     "requirement": {
       "titleEdit": "Update requirements: {programme}",
@@ -597,7 +601,8 @@
       "invalid_institution": "Check the institution details.",
       "reason_required": "Explain what needs fixing (at least 5 characters).",
       "not_found": "This record was not found. It may have been removed.",
-      "noRules": "Add at least one requirement."
+      "noRules": "Add at least one requirement.",
+      "institution_in_use": "This institution still has programmes, archived ones included. Move or remove them first."
     }
   },
   "footer": {

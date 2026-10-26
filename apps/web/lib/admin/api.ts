@@ -153,6 +153,7 @@ export interface InstitutionBody {
 }
 
 export const createInstitution = (token: string, body: InstitutionBody) => call(token, '/institutions', Saved, send(body));
+export const deleteInstitution = (token: string, id: string) => call(token, `/institutions/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
 export const updateInstitution = (token: string, id: string, body: InstitutionBody) => call(token, `/institutions/${encodeURIComponent(id)}`, Saved, send(body, 'PATCH'));
 
 export interface ProgrammeBody {

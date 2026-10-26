@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { InstitutionTypes } from '@edulaunch/contracts';
-import { saveInstitution, type AdminFormState } from '@/lib/admin/actions';
-import type { Dictionary, Locale } from '@/lib/i18n/locale';
+import { deleteInstitution, saveInstitution, type AdminFormState } from '@/lib/admin/actions';
+import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, TextField } from '@/components/auth/fields';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
@@ -25,6 +25,7 @@ export function InstitutionManager({ locale, rows, t, noMatches }: { locale: Loc
   // null = no form open, '' = adding, an id = editing that row.
   const [editing, setEditing] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number>();
+  const [deletedAt, setDeletedAt] = useState<number>();
   const types: Record<string, string> = i.types;
   const close = (saved?: number) => {
     setEditing(null);
@@ -40,6 +41,7 @@ export function InstitutionManager({ locale, rows, t, noMatches }: { locale: Loc
           </button>
         )}
         <Notice showKey={savedAt}>{i.saved}</Notice>
+        <Notice showKey={deletedAt}>{i.deleted}</Notice>
       </div>
       {editing === '' && <InstitutionForm key="new" locale={locale} t={t} noMatches={noMatches} onDone={close} />}
 
@@ -68,9 +70,12 @@ export function InstitutionManager({ locale, rows, t, noMatches }: { locale: Loc
                   )}
                 </p>
               </div>
-              <button type="button" onClick={() => setEditing(row.id)} className="self-start rounded-[10px] border border-line px-3.5 py-2 text-sm font-semibold hover:bg-bg sm:self-auto">
-                {i.edit}
-              </button>
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                <button type="button" onClick={() => setEditing(row.id)} className="rounded-[10px] border border-line px-3.5 py-2 text-sm font-semibold hover:bg-bg">
+                  {i.edit}
+                </button>
+                <DeleteInstitution locale={locale} row={row} t={t} onDeleted={setDeletedAt} />
+              </div>
             </li>
           ),
         )}
@@ -122,6 +127,40 @@ function InstitutionForm({ locale, t, noMatches, row, onDone }: { locale: Locale
           {i.save}
         </button>
         <button type="button" onClick={() => onDone()} className="rounded-[10px] border border-line px-5 py-2.5 text-sm font-semibold hover:bg-bg">
+          {i.cancel}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/** "Delete" asks to confirm first; an institution that still has programmes is refused with a reason. */
+function DeleteInstitution({ locale, row, t, onDeleted }: { locale: Locale; row: InstitutionRow; t: T; onDeleted: (at: number) => void }) {
+  const i = t.institutions;
+  const [asking, setAsking] = useState(false);
+  const [state, onSubmit, pending] = useFormAction<AdminFormState>(async (prev, data) => {
+    const next = await deleteInstitution(prev, data);
+    if (next.savedAt) onDeleted(next.savedAt);
+    return next;
+  }, {});
+  if (!asking) {
+    return (
+      <button type="button" onClick={() => setAsking(true)} className="rounded-[10px] px-3 py-2 text-sm font-semibold text-[#b33a35] hover:bg-red/10">
+        {i.delete}
+      </button>
+    );
+  }
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col gap-2 rounded-[12px] border border-red/40 bg-red/10 p-3 sm:max-w-[360px]">
+      <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="id" value={row.id} />
+      <p className="text-sm">{format(i.deleteConfirm, { name: row.name })}</p>
+      {!pending && state.error && <p role="alert" className="text-[13px] font-medium text-[#b33a35]">{t.errors[state.error]}</p>}
+      <div className="flex gap-2">
+        <button type="submit" disabled={pending} className="rounded-[10px] bg-red px-3.5 py-2 text-sm font-semibold text-white disabled:opacity-70">
+          {i.deleteYes}
+        </button>
+        <button type="button" onClick={() => setAsking(false)} className="rounded-[10px] border border-line bg-white px-3.5 py-2 text-sm font-semibold hover:bg-bg">
           {i.cancel}
         </button>
       </div>

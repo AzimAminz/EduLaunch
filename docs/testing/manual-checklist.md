@@ -287,6 +287,8 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] **Institusi** → **Tambah institusi**: fill in the name, short name, type and website (`https://…`), then **Simpan**. "Disimpan." shows and the institution appears in the list.
 - [ ] A website without `https://` shows "Laman web mesti bermula dengan https://".
 - [ ] **Sunting** on a row changes it in place.
+- [ ] **Padam** on the institution you added asks to confirm (**Ya, padam**), then it disappears and "Dipadam." shows. Any admin may add, edit or delete institutions; there is no second-admin review for them.
+- [ ] **Padam** on Universiti Contoh A is refused: "Institusi ini masih ada program…". An institution with programmes (archived ones included) cannot be deleted.
 
 ### C. A new programme needs another admin
 
