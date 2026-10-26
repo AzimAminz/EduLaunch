@@ -289,10 +289,13 @@
       "business": "Perniagaan",
       "arts": "Seni",
       "technical": "Teknikal",
+      "religion": "Agama & moral",
+      "language": "Bahasa",
+      "humanities": "Kemanusiaan",
+      "custom": "Subjek lain",
       "other": "Elektif"
     },
     "check": "Semakan: {count} subjek",
-    "checkAllGraded": "semua bergred",
     "checkMissing": "{count} belum bergred",
     "notes": {
       "school": "Gred sekolah tidak ditukar kepada gred SPM. Ia digunakan untuk mengesan kekuatan subjek bagi cadangan aliran.",
@@ -301,7 +304,7 @@
       "basic": "Semak setiap gred dengan slip keputusan anda sebelum menyimpan."
     },
     "submit": "Simpan & sahkan",
-    "saved": "Disimpan dan disahkan. Semakan kelayakan akan menggunakan keputusan ini.",
+    "saved": "Disimpan dan disahkan.",
     "status": {
       "none": "Belum diisi",
       "draft": "Draf, belum disahkan",
@@ -311,7 +314,8 @@
     "errors": {
       "noSubjects": "Tambah sekurang-kurangnya satu subjek.",
       "missingGrade": "Pilih gred untuk setiap subjek.",
-      "generic": "Tidak dapat disimpan. Cuba lagi sebentar lagi."
+      "generic": "Tidak dapat disimpan. Cuba lagi sebentar lagi.",
+      "yearRequired": "Pilih tahun keputusan."
     },
     "sideTitle": {
       "school": "Yang dibuka untuk anda",
@@ -331,7 +335,30 @@
       "action": "Pilih tahap"
     },
     "loading": "Memuatkan keputusan anda…",
-    "loadError": "Keputusan anda tidak dapat dimuatkan buat sementara. Cuba lagi sebentar lagi."
+    "loadError": "Keputusan anda tidak dapat dimuatkan buat sementara. Cuba lagi sebentar lagi.",
+    "addPlaceholder": "Cari subjek, contoh: Bahasa Arab",
+    "addCreate": "+ Tambah “{name}” sebagai subjek lain",
+    "noMatches": "Tiada padanan",
+    "customHint": "Subjek lain disimpan dengan nama yang anda taip. Ia belum digunakan dalam semakan kelayakan kerana tiada program yang menyenaraikannya.",
+    "yearTabs": "Tahun keputusan",
+    "history": {
+      "title": "Rekod tersimpan",
+      "intro": "Rekod lama kekal sebagai sejarah apabila anda naik tingkatan atau menukar tahap. Tiada yang dipadam.",
+      "empty": "Belum ada rekod disimpan.",
+      "labels": {
+        "school": "Prestasi sekolah {year}",
+        "target": "Sasaran SPM {year}",
+        "actual": "Keputusan SPM {year}"
+      },
+      "noYear": "(tahun belum dipilih)",
+      "open": "Lihat",
+      "current": "Sedang dibuka",
+      "subjects": "{count} subjek"
+    },
+    "view": {
+      "back": "Kembali ke dokumen akademik",
+      "readOnly": "Rekod ini dipaparkan untuk rujukan. Untuk menyuntingnya, buka tahap pendidikan yang berkaitan di Profil."
+    }
   },
   "profile": {
     "eyebrow": "RUANG PERIBADI",
@@ -348,6 +375,7 @@
     "manageAcademic": "Urus keputusan akademik",
     "sideTitle": "Sambung pada mana-mana peranti.",
     "sideBody": "Data dan kemajuan dipautkan kepada akaun yang sama.",
-    "openProfile": "Buka profil saya"
+    "openProfile": "Buka profil saya",
+    "levelSaved": "Tahap pendidikan dikemas kini."
   }
 }

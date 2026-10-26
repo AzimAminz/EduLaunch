@@ -37,16 +37,28 @@ const AcademicRecord = z.object({
   qualification: Qualification,
   kind: RecordKind,
   examYear: z.number().nullable(),
-  subjects: z.array(z.object({ subjectId: z.uuid(), grade: z.string() })),
+  subjects: z.array(z.object({ subjectId: z.uuid(), grade: z.string(), customName: z.string().nullable() })),
   status: z.enum(['draft', 'confirmed']),
 });
 export type AcademicRecord = z.infer<typeof AcademicRecord>;
 
 /** The student's record of one kind (school grades, SPM targets or actual SPM), or null before the first save. */
-export async function getCurrentRecord(token: string, qualification: Qualification, kind: RecordKind) {
-  const { record } = await call(token, `/me/records/current?qualification=${qualification}&kind=${kind}`, z.object({ record: AcademicRecord.nullable() }));
+export async function getCurrentRecord(token: string, qualification: Qualification, kind: RecordKind, examYear: number | null = null) {
+  const year = examYear ? `&examYear=${examYear}` : '';
+  const { record } = await call(token, `/me/records/current?qualification=${qualification}&kind=${kind}${year}`, z.object({ record: AcademicRecord.nullable() }));
   return record;
 }
 
-export const saveCurrentRecord = (token: string, body: { qualification: Qualification; kind: RecordKind; examYear: number | null; subjects: Array<{ subjectId: string; grade: string }> }) =>
-  call(token, '/me/records/current', AcademicRecord, { method: 'PUT', body: JSON.stringify(body) });
+export interface SaveRecordBody {
+  qualification: Qualification;
+  kind: RecordKind;
+  examYear: number | null;
+  subjects: Array<{ subjectId: string; grade: string; customName: string | null }>;
+}
+
+export const saveCurrentRecord = (token: string, body: SaveRecordBody) => call(token, '/me/records/current', AcademicRecord, { method: 'PUT', body: JSON.stringify(body) });
+
+/** Every saved record: the student's academic history across levels, newest exam year first. */
+export const listRecords = (token: string) => call(token, '/me/records', z.array(AcademicRecord));
+
+export const getRecord = (token: string, id: string) => call(token, `/me/records/${encodeURIComponent(id)}`, AcademicRecord);

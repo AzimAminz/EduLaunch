@@ -289,10 +289,13 @@
       "business": "Business",
       "arts": "Arts",
       "technical": "Technical",
+      "religion": "Religion & moral",
+      "language": "Language",
+      "humanities": "Humanities",
+      "custom": "Other subject",
       "other": "Elective"
     },
     "check": "Check: {count} subjects",
-    "checkAllGraded": "all graded",
     "checkMissing": "{count} without a grade",
     "notes": {
       "school": "School grades are not converted to SPM grades. They show which subjects are your strengths for stream suggestions.",
@@ -301,7 +304,7 @@
       "basic": "Check every grade against your results slip before saving."
     },
     "submit": "Save & confirm",
-    "saved": "Saved and confirmed. Eligibility checks will use these results.",
+    "saved": "Saved and confirmed.",
     "status": {
       "none": "Not filled in",
       "draft": "Draft, not confirmed",
@@ -311,7 +314,8 @@
     "errors": {
       "noSubjects": "Add at least one subject.",
       "missingGrade": "Choose a grade for every subject.",
-      "generic": "Could not save. Please try again shortly."
+      "generic": "Could not save. Please try again shortly.",
+      "yearRequired": "Choose the results year."
     },
     "sideTitle": {
       "school": "What opens up for you",
@@ -331,7 +335,30 @@
       "action": "Choose level"
     },
     "loading": "Loading your results…",
-    "loadError": "Your results cannot be loaded right now. Please try again shortly."
+    "loadError": "Your results cannot be loaded right now. Please try again shortly.",
+    "addPlaceholder": "Search subjects, e.g. Arabic",
+    "addCreate": "+ Add “{name}” as another subject",
+    "noMatches": "No matches",
+    "customHint": "Other subjects are saved under the name you typed. They are not used in eligibility checks yet, because no programme lists them.",
+    "yearTabs": "Results year",
+    "history": {
+      "title": "Saved records",
+      "intro": "Older records stay as history when you move up a form or change level. Nothing is deleted.",
+      "empty": "No records saved yet.",
+      "labels": {
+        "school": "School results {year}",
+        "target": "SPM targets {year}",
+        "actual": "SPM results {year}"
+      },
+      "noYear": "(year not chosen)",
+      "open": "View",
+      "current": "Open now",
+      "subjects": "{count} subjects"
+    },
+    "view": {
+      "back": "Back to academic documents",
+      "readOnly": "This record is shown for reference. To edit it, choose the matching education level in your Profile."
+    }
   },
   "profile": {
     "eyebrow": "PERSONAL SPACE",
@@ -348,6 +375,7 @@
     "manageAcademic": "Manage academic results",
     "sideTitle": "Continue on any device.",
     "sideBody": "Your data and progress are linked to the same account.",
-    "openProfile": "Open my profile"
+    "openProfile": "Open my profile",
+    "levelSaved": "Education level updated."
   }
 }

@@ -88,7 +88,7 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
           {t.changeLevel} <span className="text-muted group-open:hidden">+</span>
         </summary>
         <p className="mb-4 mt-1 text-sm text-muted">{t.changeLevelHint}</p>
-        <LevelPicker locale={lang} t={dict.onboarding} errors={dict.auth.errors} initial={{ level: me.educationLevel, formYear: me.formYear }} returnTo={`/${lang}/profil`} submitLabel={t.saveLevel} />
+        <LevelPicker locale={lang} t={dict.onboarding} errors={dict.auth.errors} initial={{ level: me.educationLevel, formYear: me.formYear }} savedLabel={t.levelSaved} submitLabel={t.saveLevel} />
       </details>
     </div>
   );

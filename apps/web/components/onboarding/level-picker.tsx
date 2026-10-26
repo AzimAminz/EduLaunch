@@ -14,12 +14,13 @@ interface LevelPickerProps {
   errors: Dictionary['auth']['errors'];
   /** The profile page shows the current choice and returns to itself; onboarding starts empty and goes on to the portal. */
   initial?: { level: Level | null; formYear: number | null };
-  returnTo?: string;
+  /** Stay on this page after saving and show `savedLabel` (the profile page). */
+  savedLabel?: string;
   submitLabel?: string;
 }
 
 /** "What is your education level now?" — one card per level; Form 1–3 and 4–5 also ask which form. */
-export function LevelPicker({ locale, t, errors, initial, returnTo, submitLabel }: LevelPickerProps) {
+export function LevelPicker({ locale, t, errors, initial, savedLabel, submitLabel }: LevelPickerProps) {
   const [state, action] = useActionState(chooseEducationLevel, {});
   const [level, setLevel] = useState<Level | null>((state.values?.level as Level) || initial?.level || null);
   const [form, setForm] = useState<number | null>(Number(state.values?.formYear) || initial?.formYear || null);
@@ -30,7 +31,7 @@ export function LevelPicker({ locale, t, errors, initial, returnTo, submitLabel 
   return (
     <form action={action} className="flex flex-col gap-5">
       <input type="hidden" name="locale" value={locale} />
-      {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
+      {savedLabel && <input type="hidden" name="stay" value="1" />}
       <fieldset className="flex flex-col gap-4">
         <legend className="mb-1 text-xl font-semibold">{t.question}</legend>
         <p className="text-sm text-muted">{t.questionHint}</p>
@@ -74,6 +75,11 @@ export function LevelPicker({ locale, t, errors, initial, returnTo, submitLabel 
           })}
         </div>
       </fieldset>
+      {state.saved && savedLabel && (
+        <p role="status" className="rounded-[10px] bg-mint px-4 py-3 text-sm font-medium">
+          {savedLabel}
+        </p>
+      )}
       <SubmitButton icon="/icons/arrow-right-white.svg">{submitLabel ?? (short ? format(t.continueTo, { level: short }) : t.continue)}</SubmitButton>
     </form>
   );

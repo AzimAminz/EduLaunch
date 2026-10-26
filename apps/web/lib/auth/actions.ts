@@ -8,11 +8,13 @@ import { getMe, setEducationLevel } from '../profile/api';
 import { parseLevelChoice } from '../profile/levels';
 import { createClient, getAccessToken } from '../supabase/server';
 import { authErrorKey } from './errors';
-import { AUTH_PAGES, homeFor, nextFor, safeNext, type Role } from './routes';
+import { AUTH_PAGES, homeFor, nextFor, type Role } from './routes';
 import { NewPasswordForm, ResetRequestForm, SignInForm, SignUpForm, parseForm, type AuthErrorKey } from './schemas';
 
 /** What a form shows after a failed submit. Typed values come back so the form keeps them (never the password). */
 export interface FormState {
+  /** Saved without leaving the page (changing the level on the profile page). */
+  saved?: boolean;
   error?: AuthErrorKey;
   fieldErrors?: Partial<Record<string, AuthErrorKey>>;
   values?: Record<string, string>;
@@ -132,6 +134,7 @@ export async function chooseEducationLevel(_prev: FormState, form: FormData): Pr
   }
   // Every page that depends on the level (results form, profile) shows the new one straight away.
   revalidatePath('/[lang]', 'layout');
-  // Onboarding continues to the portal; the profile page sends people back to itself.
-  redirect(safeNext(String(form.get('returnTo') ?? ''), homeFor(locale, 'student')));
+  // The profile page stays put and says it is saved; onboarding continues to the portal.
+  if (form.get('stay') === '1') return { saved: true, values };
+  redirect(homeFor(locale, 'student'));
 }

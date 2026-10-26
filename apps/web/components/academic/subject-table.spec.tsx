@@ -8,9 +8,10 @@ const { SubjectTable } = await import('./subject-table');
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
 const subjects = [
-  { id: id(1), name: 'Bahasa Melayu', category: 'core', isMandatory: true },
-  { id: id(2), name: 'Matematik', category: 'core', isMandatory: true },
-  { id: id(3), name: 'Fizik', category: 'science', isMandatory: false },
+  { id: id(1), name: 'Bahasa Melayu', category: 'core', isMandatory: true, keywords: [] },
+  { id: id(2), name: 'Matematik', category: 'core', isMandatory: true, keywords: [] },
+  { id: id(3), name: 'Fizik', category: 'science', isMandatory: false, keywords: ['Physics'] },
+  { id: id(4), name: 'Matematik Tambahan', category: 'science', isMandatory: false, keywords: ['Add Maths'] },
 ];
 
 function setup(variant: 'target' | 'actual' = 'actual', status: 'none' | 'confirmed' = 'none') {
@@ -32,46 +33,62 @@ function setup(variant: 'target' | 'actual' = 'actual', status: 'none' | 'confir
   );
 }
 
-const hidden = () => JSON.parse((document.querySelector('input[name=subjects]') as HTMLInputElement).value);
+const rows = () => JSON.parse((document.querySelector('input[name=subjects]') as HTMLInputElement).value) as Array<{ subjectId: string; grade: string; customName?: string }>;
+const pick = async (field: string, option: string) => {
+  await userEvent.click(screen.getByRole('combobox', { name: field }));
+  await userEvent.click(screen.getByRole('option', { name: option }));
+};
+const addField = () => screen.getByRole('combobox', { name: '+ Tambah subjek' });
 
 describe('SubjectTable', () => {
-  it('shows one row per subject with its grade', () => {
+  it('shows one row per subject with its grade, and how many still need one', () => {
     setup();
-    const rows = screen.getAllByRole('row').slice(1);
-    expect(rows.map((r) => within(r).getByRole('rowheader').textContent)).toEqual(['Bahasa Melayu', 'Matematik']);
-    expect(screen.getByRole('combobox', { name: 'Gred Bahasa Melayu' })).toHaveValue('A');
+    const bodyRows = screen.getAllByRole('row').slice(1);
+    expect(bodyRows.map((r) => within(r).getByRole('rowheader').textContent)).toEqual(['Bahasa Melayu', 'Matematik']);
+    expect(screen.getByRole('combobox', { name: 'Gred Bahasa Melayu' })).toHaveTextContent('A');
     expect(screen.getByText('Semakan: 2 subjek · 1 belum bergred')).toBeInTheDocument();
   });
 
-  it('adds a subject from the official list, and removes one with ×', async () => {
+  it('picks grades with the system dropdown and sends them with the form', async () => {
     setup();
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: '+ Tambah subjek' }), 'Fizik');
-    expect(hidden().map((r: { subjectId: string }) => r.subjectId)).toEqual([id(1), id(2), id(3)]);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Buang Bahasa Melayu' }));
-    expect(hidden().map((r: { subjectId: string }) => r.subjectId)).toEqual([id(2), id(3)]);
-  });
-
-  it('hides "Add subject" once every subject is listed', async () => {
-    setup();
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: '+ Tambah subjek' }), 'Fizik');
-    expect(screen.queryByRole('combobox', { name: '+ Tambah subjek' })).not.toBeInTheDocument();
-  });
-
-  it('sends every grade with the form', async () => {
-    setup();
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Gred Matematik' }), 'B');
-    expect(hidden()).toEqual([
+    await pick('Gred Matematik', 'B');
+    expect(rows()).toEqual([
       { subjectId: id(1), grade: 'A' },
       { subjectId: id(2), grade: 'B' },
     ]);
-    expect(screen.getByText('Semakan: 2 subjek · semua bergred')).toBeInTheDocument();
+    expect(screen.queryByText(/belum bergred/)).not.toBeInTheDocument();
+  });
+
+  it('finds official subjects by another name and adds them; × removes a row', async () => {
+    setup();
+    await userEvent.type(addField(), 'add maths');
+    await userEvent.click(screen.getByRole('option', { name: 'Matematik Tambahan' }));
+    expect(rows().map((r) => r.subjectId)).toEqual([id(1), id(2), id(4)]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Buang Bahasa Melayu' }));
+    expect(rows().map((r) => r.subjectId)).toEqual([id(2), id(4)]);
+  });
+
+  it('keeps a subject that is not in the official list under the typed name', async () => {
+    setup();
+    await userEvent.type(addField(), 'Tasawwuf');
+    await userEvent.click(screen.getByRole('option', { name: '+ Tambah “Tasawwuf” sebagai subjek lain' }));
+    expect(rows().at(-1)).toMatchObject({ grade: '', customName: 'Tasawwuf' });
+    expect(screen.getByRole('rowheader', { name: 'Tasawwuf' })).toBeInTheDocument();
+    expect(screen.getByText('Subjek lain')).toBeInTheDocument();
+  });
+
+  it('adds the official subject when the typed name matches one', async () => {
+    setup();
+    await userEvent.type(addField(), 'physics{Enter}');
+    expect(rows().map((r) => r.subjectId)).toContain(id(3));
+    expect(rows().some((r) => r.customName)).toBe(false);
   });
 
   it('says when what is on screen differs from what is saved', async () => {
     setup('actual', 'confirmed');
     expect(screen.getByText('Disahkan')).toBeInTheDocument();
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Gred Matematik' }), 'B');
+    await pick('Gred Matematik', 'B');
     expect(screen.getByText('Ada perubahan belum disimpan')).toBeInTheDocument();
   });
 

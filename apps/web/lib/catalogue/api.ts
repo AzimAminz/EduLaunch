@@ -21,6 +21,7 @@ const Subject = z.object({
   id: z.uuid(),
   name: z.string(),
   nameEn: z.string().nullable(),
+  aliases: z.array(z.string()).default([]),
   qualification: z.string(),
   category: z.string().nullable(),
   isMandatory: z.boolean(),

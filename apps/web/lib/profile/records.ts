@@ -13,7 +13,7 @@ export interface RecordForm {
 }
 
 /**
- * Form 1–3: school grades (never converted to SPM). Form 4–5: SPM targets.
+ * Form 1–3: school grades (never converted to SPM), one record per year. Form 4–5: SPM targets.
  * After SPM: actual SPM. After pre-university or Diploma: their basic SPM results for now
  * (CGPA, MUET and STPM grades come in Step 6b).
  */
@@ -30,12 +30,16 @@ export function recordFormFor(level: EducationLevel): RecordForm {
   }
 }
 
+/** How a saved record is named in the history list. */
+export const historyKind = (record: { qualification: string; kind: string }): 'school' | 'target' | 'actual' =>
+  record.kind === 'school' ? 'school' : record.kind === 'target' ? 'target' : 'actual';
+
 export const gradesFor = (qualification: RecordForm['qualification']): readonly string[] => GradeScales[qualification];
 
-/** Exam years to choose from, newest first. School results and actual SPM are in the past; targets are ahead. */
+/** Exam years to choose from, newest first. School results cover Form 1–3 (three years back); targets are ahead. */
 export function examYearsFor(form: RecordForm, thisYear: number): number[] {
   if (form.kind === 'target') return [thisYear, thisYear + 1, thisYear + 2];
-  if (form.kind === 'school') return [thisYear, thisYear - 1];
+  if (form.kind === 'school') return [thisYear, thisYear - 1, thisYear - 2];
   return Array.from({ length: 6 }, (_, i) => thisYear - i);
 }
 
@@ -44,22 +48,23 @@ export interface SubjectOption {
   name: string;
   category: string | null;
   isMandatory: boolean;
+  /** Other names that find this subject when searching (English name, aliases such as "Add Maths"). */
+  keywords: string[];
 }
 
 export interface SubjectRow {
   subjectId: string;
   grade: string;
+  /** Set for a subject the student typed because it is not in the official list. */
+  customName?: string | null;
 }
 
-/** Compulsory subjects first, then by name, so the table reads like a results slip. */
+/** Compulsory subjects first, then by name, so the table reads like a results slip. Typed subjects go last. */
 export function sortRows(rows: SubjectRow[], subjects: SubjectOption[], locale: string): SubjectRow[] {
   const byId = new Map(subjects.map((s) => [s.id, s]));
-  return [...rows].sort((a, b) => {
-    const sa = byId.get(a.subjectId);
-    const sb = byId.get(b.subjectId);
-    if (!!sa?.isMandatory !== !!sb?.isMandatory) return sa?.isMandatory ? -1 : 1;
-    return (sa?.name ?? '').localeCompare(sb?.name ?? '', locale);
-  });
+  const rank = (r: SubjectRow) => (r.customName ? 2 : byId.get(r.subjectId)?.isMandatory ? 0 : 1);
+  const name = (r: SubjectRow) => r.customName ?? byId.get(r.subjectId)?.name ?? '';
+  return [...rows].sort((a, b) => rank(a) - rank(b) || name(a).localeCompare(name(b), locale));
 }
 
 /** A new form starts with the compulsory subjects, without grades. */
@@ -70,22 +75,40 @@ export const startingRows = (subjects: SubjectOption[], locale: string): Subject
     locale,
   );
 
-export type RecordFormError = 'noSubjects' | 'missingGrade' | 'generic';
+/** Tidies a typed subject name: "  tasawwuf   islam " → "tasawwuf islam". */
+export const cleanSubjectName = (name: string) => name.trim().replace(/\s+/g, ' ').slice(0, 80);
 
-const Rows = z.array(z.object({ subjectId: z.uuid(), grade: z.string() }));
+/**
+ * A typed name that matches an official subject (its name or another name, any case) becomes that subject,
+ * so "add maths" is saved as Matematik Tambahan rather than as a new subject.
+ */
+export function matchOfficialSubject(name: string, subjects: SubjectOption[]): SubjectOption | undefined {
+  const wanted = cleanSubjectName(name).toLocaleLowerCase();
+  return subjects.find((s) => [s.name, ...s.keywords].some((w) => w.toLocaleLowerCase() === wanted));
+}
+
+export type RecordFormError = 'noSubjects' | 'missingGrade' | 'yearRequired' | 'generic';
+
+const Rows = z.array(z.object({ subjectId: z.uuid(), grade: z.string(), customName: z.string().nullish() }));
 
 /** Reads the submitted form: the rows travel as JSON in one hidden field. */
-export function parseRecordSubmission(form: FormData, grades: readonly string[]): { examYear: number | null; subjects: SubjectRow[] } | { error: RecordFormError } {
-  let rows: SubjectRow[];
+export function parseRecordSubmission(
+  form: FormData,
+  grades: readonly string[],
+  options: { yearRequired?: boolean } = {},
+): { examYear: number | null; subjects: Array<{ subjectId: string; grade: string; customName: string | null }> } | { error: RecordFormError } {
+  let rows: z.infer<typeof Rows>;
   try {
     rows = Rows.parse(JSON.parse(String(form.get('subjects') ?? '[]')));
   } catch {
     return { error: 'generic' };
   }
+  const year = Number(form.get('examYear'));
+  const examYear = Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : null;
+  if (options.yearRequired && examYear === null) return { error: 'yearRequired' };
   if (rows.length === 0) return { error: 'noSubjects' };
   if (rows.some((r) => !grades.includes(r.grade))) return { error: 'missingGrade' };
   if (new Set(rows.map((r) => r.subjectId)).size !== rows.length) return { error: 'generic' };
 
-  const year = Number(form.get('examYear'));
-  return { examYear: Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : null, subjects: rows };
+  return { examYear, subjects: rows.map((r) => ({ subjectId: r.subjectId, grade: r.grade, customName: r.customName ? cleanSubjectName(r.customName) : null })) };
 }

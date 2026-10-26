@@ -21,7 +21,8 @@ export async function saveAcademicRecord(_prev: RecordFormState, form: FormData)
   if (!(variant in LEVEL_OF_VARIANT)) return { error: 'generic' };
   const record = recordFormFor(LEVEL_OF_VARIANT[variant]);
 
-  const parsed = parseRecordSubmission(form, gradesFor(record.qualification));
+  // School results are kept per year, so they need one.
+  const parsed = parseRecordSubmission(form, gradesFor(record.qualification), { yearRequired: record.kind === 'school' });
   if ('error' in parsed) return { error: parsed.error };
 
   const token = await getAccessToken();
