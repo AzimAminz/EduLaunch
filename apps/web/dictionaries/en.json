@@ -292,7 +292,9 @@
       "actual": "SPM grade",
       "basic": "SPM grade",
       "stpm": "STPM grade",
-      "a_level": "A-Level grade"
+      "a_level": "A-Level grade",
+      "matriculation": "Grade",
+      "foundation": "Grade"
     },
     "chooseGrade": "Choose",
     "gradeFor": "Grade for {subject}",
@@ -414,7 +416,7 @@
       "after_certificate": "Certificate qualification"
     },
     "intros": {
-      "after_preu": "For a bachelor's degree, universities look at your qualification, CGPA, field (for a diploma), MUET and basic SPM results. Subject grades are only needed for STPM and A-Level.",
+      "after_preu": "For a bachelor's degree, universities look at your qualification, CGPA, MUET, field or stream, and basic SPM results. Some programmes also check STPM, A-Level and matriculation subject grades (e.g. B in Biology).",
       "after_certificate": "For a diploma, polytechnics and universities look at your certificate in a related field, its CGPA (or SKM level) and your basic SPM results."
     },
     "sectionsLabel": "Results sections",
@@ -448,11 +450,15 @@
     "programmePlaceholder": "e.g. Diploma in Computer Science / Certificate in Electrical Technology",
     "subjectsTitle": {
       "stpm": "STPM subject grades",
-      "a_level": "A-Level subject grades"
+      "a_level": "A-Level subject grades",
+      "matriculation": "Matriculation subject grades",
+      "foundation": "Foundation subject grades (optional)"
     },
     "subjectsHint": {
       "stpm": "Enter every subject you took, including General Studies.",
-      "a_level": "Enter every A-Level subject you took."
+      "a_level": "Enter every A-Level subject you took.",
+      "matriculation": "Some degree programmes check particular grades, such as B in Biology. Subjects without a grade are not saved.",
+      "foundation": "Enter the grades of your main foundation subjects if a degree programme needs them, such as Biology or Chemistry."
     },
     "sideTitle": "What universities check",
     "sideBody": {
@@ -463,7 +469,8 @@
     "errors": {
       "cgpaRequired": "Enter your CGPA.",
       "cgpaInvalid": "CGPA is a number from 0.00 to 4.00, e.g. 3.42.",
-      "levelRequired": "Choose the level of your qualification."
+      "levelRequired": "Choose the level of your qualification.",
+      "streamRequired": "Choose your matriculation stream."
     },
     "changeQualification": "Change qualification in your Profile",
     "chooseQualification": {
@@ -479,7 +486,18 @@
       "4": "DKM (level 4)",
       "5": "DLKM (level 5)"
     },
-    "levelPlaceholder": "Choose a level"
+    "levelPlaceholder": "Choose a level",
+    "stream": "Stream",
+    "streamPlaceholder": "Choose a stream",
+    "streams": {
+      "science_1": "Science · Module I (Biology, Physics)",
+      "science_2": "Science · Module II (Physics, Computer Science)",
+      "science_3": "Science · Module III (Biology, Computer Science)",
+      "engineering": "Engineering",
+      "accounting": "Accounting",
+      "professional_accounting": "Professional Accounting"
+    },
+    "streamHint": "The stream's subjects are filled in for you. Just add the grades."
   },
   "eligibility": {
     "title": "Can I get in?",

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
-import { GradeScales, hasSubjectGrades } from '@edulaunch/contracts';
+import { GradeScales, hasSubjectGrades, type MatriculationStream } from '@edulaunch/contracts';
 import { HigherResultsForm } from '@/components/academic/higher-results-form';
 import { RecordHistory } from '@/components/academic/record-history';
 import { SubjectTable } from '@/components/academic/subject-table';
@@ -11,7 +11,7 @@ import { fieldName, getReferenceData, localName } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getCurrentRecord, getMe, listRecords, type AcademicRecord } from '@/lib/profile/api';
-import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, formTabsFor, sortRows, startingRows, type HigherQualification, type RecordVariant, type SubjectOption } from '@/lib/profile/records';
+import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, formTabsFor, rowsForStream, sortRows, startingRows, type HigherQualification, type RecordVariant, type SubjectOption } from '@/lib/profile/records';
 import { getAccessToken } from '@/lib/supabase/server';
 
 const SIDE_IMAGE: Record<RecordVariant, string> = {
@@ -115,7 +115,8 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
     const loaded = await loadRecord(token, qualification, 'actual');
     if (!loaded.ok) return <LoadError text={t.loadError} />;
     const record = loaded.record;
-    const subjects = hasSubjectGrades(qualification) ? subjectOptions(reference, qualification, lang) : [];
+    // Foundation courses use the matriculation subject list (Biologi, Kimia…); others their own.
+    const subjects = hasSubjectGrades(qualification) ? subjectOptions(reference, qualification === 'foundation' ? 'matriculation' : qualification, lang) : [];
 
     return (
       <>
@@ -149,7 +150,13 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
                 fieldId: record?.fieldId ?? null,
                 programmeName: record?.programmeName ?? null,
                 qualificationLevel: record?.qualificationLevel ?? null,
-                rows: hasSubjectGrades(qualification) ? toRows(record, subjects, lang) : [],
+                stream: record?.stream ?? null,
+                // A saved matriculation stream lists its subjects again, with the grades already saved.
+                rows: !hasSubjectGrades(qualification)
+                  ? []
+                  : record?.stream && qualification === 'matriculation'
+                    ? rowsForStream(record.stream as MatriculationStream, subjects, toRows(record, subjects, lang))
+                    : toRows(record, subjects, lang),
               }}
               status={record?.status ?? 'none'}
             />

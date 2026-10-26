@@ -55,6 +55,7 @@ async function SavedRecord({ lang, dict, params }: { lang: Locale; dict: Diction
   const details: Array<[string, string]> = [
     ...(record.cgpa !== null ? [[h.cgpa, record.cgpa.toFixed(2)] as [string, string]] : []),
     ...(record.muetBand !== null ? [[h.muet, `Band ${record.muetBand === 5.5 ? '5+' : record.muetBand.toFixed(1)}`] as [string, string]] : []),
+    ...(record.stream && record.stream in h.streams ? [[h.stream, h.streams[record.stream as keyof typeof h.streams]] as [string, string]] : []),
     ...(fieldLabel ? [[h.field, fieldName(fieldLabel, lang)] as [string, string]] : []),
     ...(record.programmeName ? [[h.programme, record.programmeName] as [string, string]] : []),
   ];

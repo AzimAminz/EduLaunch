@@ -292,7 +292,9 @@
       "actual": "Gred SPM",
       "basic": "Gred SPM",
       "stpm": "Gred STPM",
-      "a_level": "Gred A-Level"
+      "a_level": "Gred A-Level",
+      "matriculation": "Gred",
+      "foundation": "Gred"
     },
     "chooseGrade": "Pilih",
     "gradeFor": "Gred {subject}",
@@ -414,7 +416,7 @@
       "after_certificate": "Kelayakan Sijil"
     },
     "intros": {
-      "after_preu": "Untuk ijazah sarjana muda, universiti menilai kelayakan anda, PNGK, bidang (untuk diploma), MUET dan keputusan SPM asas. Gred subjek hanya diperlukan untuk STPM dan A-Level.",
+      "after_preu": "Untuk ijazah sarjana muda, universiti menilai kelayakan anda, PNGK, MUET, bidang atau jurusan, dan keputusan SPM asas. Gred subjek STPM, A-Level dan Matrikulasi juga disemak oleh sesetengah program (contohnya B dalam Biologi).",
       "after_certificate": "Untuk Diploma, politeknik dan universiti menilai sijil anda dalam bidang berkaitan, PNGK (atau tahap SKM) dan keputusan SPM asas."
     },
     "sectionsLabel": "Bahagian keputusan",
@@ -448,11 +450,15 @@
     "programmePlaceholder": "contoh: Diploma Sains Komputer / Sijil Teknologi Elektrik",
     "subjectsTitle": {
       "stpm": "Gred subjek STPM",
-      "a_level": "Gred subjek A-Level"
+      "a_level": "Gred subjek A-Level",
+      "matriculation": "Gred subjek Matrikulasi",
+      "foundation": "Gred subjek Asasi (pilihan)"
     },
     "subjectsHint": {
       "stpm": "Masukkan semua subjek yang diambil, termasuk Pengajian Am.",
-      "a_level": "Masukkan semua subjek A-Level yang diambil."
+      "a_level": "Masukkan semua subjek A-Level yang diambil.",
+      "matriculation": "Ada program ijazah yang menyemak gred tertentu, contohnya B dalam Biologi. Subjek tanpa gred tidak disimpan.",
+      "foundation": "Masukkan gred subjek utama Asasi anda jika ada program ijazah yang memerlukannya, contohnya Biologi atau Kimia."
     },
     "sideTitle": "Apa yang universiti semak",
     "sideBody": {
@@ -463,7 +469,8 @@
     "errors": {
       "cgpaRequired": "Masukkan PNGK anda.",
       "cgpaInvalid": "PNGK ialah nombor antara 0.00 dan 4.00, contoh 3.42.",
-      "levelRequired": "Pilih tahap kelayakan anda."
+      "levelRequired": "Pilih tahap kelayakan anda.",
+      "streamRequired": "Pilih jurusan Matrikulasi anda."
     },
     "changeQualification": "Tukar kelayakan di Profil",
     "chooseQualification": {
@@ -479,7 +486,18 @@
       "4": "DKM (Tahap 4)",
       "5": "DLKM (Tahap 5)"
     },
-    "levelPlaceholder": "Pilih tahap"
+    "levelPlaceholder": "Pilih tahap",
+    "stream": "Jurusan",
+    "streamPlaceholder": "Pilih jurusan",
+    "streams": {
+      "science_1": "Sains · Modul I (Biologi, Fizik)",
+      "science_2": "Sains · Modul II (Fizik, Sains Komputer)",
+      "science_3": "Sains · Modul III (Biologi, Sains Komputer)",
+      "engineering": "Kejuruteraan",
+      "accounting": "Perakaunan",
+      "professional_accounting": "Perakaunan Profesional"
+    },
+    "streamHint": "Subjek jurusan diisi sendiri. Anda hanya perlu isi gred."
   },
   "eligibility": {
     "title": "Boleh ke saya masuk?",

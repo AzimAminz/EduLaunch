@@ -1,4 +1,4 @@
-import { GradeScales, MAX_SUBJECTS_PER_RECORD, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, qualificationLevelsFor, type HigherQualification, type StudentSnapshot } from '@edulaunch/contracts';
+import { GradeScales, MAX_SUBJECTS_PER_RECORD, MatriculationStreams, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, qualificationLevelsFor, requiresSubjects, type HigherQualification, type MatriculationStream, type StudentSnapshot } from '@edulaunch/contracts';
 import { QUALIFICATION_CHOICES } from './levels';
 import { z } from 'zod';
 
@@ -147,7 +147,7 @@ export function parseCgpa(text: string): number | null | 'invalid' {
   return value <= 4 ? value : 'invalid';
 }
 
-export type HigherFormError = RecordFormError | 'cgpaRequired' | 'cgpaInvalid' | 'levelRequired';
+export type HigherFormError = RecordFormError | 'cgpaRequired' | 'cgpaInvalid' | 'levelRequired' | 'streamRequired';
 
 export interface HigherSubmission {
   examYear: number;
@@ -156,6 +156,7 @@ export interface HigherSubmission {
   fieldId: string | null;
   programmeName: string | null;
   qualificationLevel: number | null;
+  stream: MatriculationStream | null;
   subjects: Array<{ subjectId: string; grade: string; customName: string | null }>;
 }
 
@@ -174,11 +175,26 @@ export function parseHigherSubmission(form: FormData, qualification: HigherQuali
   const muet = Number(form.get('muetBand'));
   const muetBand = (MuetBands as readonly number[]).includes(muet) ? muet : null;
 
+  const stream = qualification === 'matriculation' ? (MatriculationStreams.find((x) => x === form.get('stream')) ?? null) : null;
+  if (qualification === 'matriculation' && !stream) return { error: 'streamRequired' };
+
   let subjects: HigherSubmission['subjects'] = [];
   if (hasSubjectGrades(qualification)) {
-    const parsed = parseRecordSubmission(form, GradeScales[qualification]);
-    if ('error' in parsed) return { error: parsed.error };
-    subjects = parsed.subjects;
+    // Matriculation and foundation grades are optional: rows left without a grade are not saved.
+    let data = form;
+    if (!requiresSubjects(qualification)) {
+      data = new FormData();
+      let rows: unknown;
+      try {
+        rows = JSON.parse(String(form.get('subjects') ?? '[]'));
+      } catch {
+        return { error: 'generic' };
+      }
+      data.set('subjects', JSON.stringify(Array.isArray(rows) ? rows.filter((row: { grade?: string } | null) => row?.grade) : []));
+    }
+    const parsed = parseRecordSubmission(data, GradeScales[qualification]);
+    if ('error' in parsed && !(parsed.error === 'noSubjects' && !requiresSubjects(qualification))) return { error: parsed.error };
+    subjects = 'error' in parsed ? [] : parsed.subjects;
   }
 
   const levels = qualificationLevelsFor(qualification);
@@ -187,5 +203,25 @@ export function parseHigherSubmission(form: FormData, qualification: HigherQuali
 
   const fieldId = hasProgramme(qualification) ? (z.uuid().safeParse(form.get('fieldId')).data ?? null) : null;
   const programme = hasProgramme(qualification) ? cleanSubjectName(String(form.get('programmeName') ?? '')).slice(0, 120) : '';
-  return { examYear: year, cgpa, muetBand, fieldId, programmeName: programme || null, qualificationLevel: levels ? level : null, subjects };
+  return { examYear: year, cgpa, muetBand, fieldId, programmeName: programme || null, qualificationLevel: levels ? level : null, stream, subjects };
+}
+
+/** The subjects of each matriculation stream (KPM), by their official catalogue names. */
+const STREAM_SUBJECTS: Record<MatriculationStream, string[]> = {
+  science_1: ['Matematik (Matrikulasi)', 'Kimia (Matrikulasi)', 'Fizik (Matrikulasi)', 'Biologi (Matrikulasi)'],
+  science_2: ['Matematik (Matrikulasi)', 'Kimia (Matrikulasi)', 'Fizik (Matrikulasi)', 'Sains Komputer (Matrikulasi)'],
+  science_3: ['Matematik (Matrikulasi)', 'Kimia (Matrikulasi)', 'Biologi (Matrikulasi)', 'Sains Komputer (Matrikulasi)'],
+  engineering: ['Matematik (Matrikulasi)', 'Kimia (Matrikulasi)', 'Fizik (Matrikulasi)', 'Asas Kejuruteraan (Matrikulasi)'],
+  accounting: ['Matematik (Matrikulasi)', 'Perakaunan (Matrikulasi)', 'Ekonomi (Matrikulasi)', 'Pengurusan Perniagaan (Matrikulasi)'],
+  professional_accounting: ['Matematik (Matrikulasi)', 'Perakaunan Kewangan (Matrikulasi)', 'Perakaunan Pengurusan (Matrikulasi)', 'Perakaunan Perniagaan (Matrikulasi)'],
+};
+
+/**
+ * Rows for a matriculation stream: its subjects (found by official name among the options), keeping
+ * grades already entered, plus any extra subjects the student added.
+ */
+export function rowsForStream(stream: MatriculationStream, subjects: SubjectOption[], current: SubjectRow[]): SubjectRow[] {
+  const ids = STREAM_SUBJECTS[stream].map((name) => subjects.find((s) => s.keywords.includes(name))?.id).filter((id): id is string => !!id);
+  const graded = new Map(current.map((r) => [r.subjectId, r]));
+  return [...ids.map((id) => graded.get(id) ?? { subjectId: id, grade: '' }), ...current.filter((r) => !ids.includes(r.subjectId) && r.grade)];
 }

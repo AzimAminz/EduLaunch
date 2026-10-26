@@ -1,22 +1,27 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ms from '../../dictionaries/ms.json';
 
 vi.mock('@/lib/profile/actions', () => ({ saveHigherResults: vi.fn(async () => ({})) }));
 const { HigherResultsForm } = await import('./higher-results-form');
 
 type Initial = Parameters<typeof HigherResultsForm>[0]['initial'];
-const empty: Initial = { examYear: null, cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: null, rows: [] };
+const empty: Initial = { examYear: null, cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: null, stream: null, rows: [] };
 const subjects = [{ id: '00000000-0000-4000-8000-000000000001', name: 'Pengajian Am', category: 'core', isMandatory: true, keywords: [] }];
+const matriculationSubjects = ['Matematik', 'Kimia', 'Fizik', 'Biologi', 'Sains Komputer'].map((n, i) => {
+  const name = `${n} (Matrikulasi)`;
+  return { id: `00000000-0000-4000-8000-00000000010${i}`, name, category: 'science', isMandatory: false, keywords: [name] };
+});
 
-function setup(qualification: 'diploma' | 'stpm' | 'a_level' | 'matriculation' | 'skm' | 'certificate', initial: Initial = empty) {
+function setup(qualification: 'diploma' | 'stpm' | 'a_level' | 'matriculation' | 'skm' | 'certificate' | 'foundation', initial: Initial = empty) {
   render(
     <HigherResultsForm
       locale="ms"
       qualification={qualification}
       t={ms.higher}
       academic={ms.academic}
-      subjects={qualification === 'stpm' || qualification === 'a_level' ? subjects : []}
+      subjects={qualification === 'stpm' || qualification === 'a_level' ? subjects : qualification === 'matriculation' || qualification === 'foundation' ? matriculationSubjects : []}
       grades={['A', 'B', 'C']}
       fields={[{ value: '00000000-0000-4000-8000-000000000009', label: 'Komputer & Teknologi Maklumat' }]}
       years={[2026, 2025]}
@@ -37,11 +42,19 @@ describe('HigherResultsForm', () => {
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('asks matriculation for CGPA and MUET only', () => {
+  it('asks matriculation for its stream, then fills in the stream subjects', async () => {
     setup('matriculation');
     expect(screen.getByLabelText('PNGK / CGPA')).toBeInTheDocument();
     expect(screen.queryByRole('combobox', { name: 'Bidang' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('combobox', { name: 'Jurusan' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Sains · Modul I (Biologi, Fizik)' }));
+    expect(screen.getAllByRole('rowheader').map((h) => h.textContent)).toEqual(['Matematik (Matrikulasi)', 'Kimia (Matrikulasi)', 'Fizik (Matrikulasi)', 'Biologi (Matrikulasi)']);
+  });
+
+  it('lets foundation students add subject grades if they want, with field and programme', () => {
+    setup('foundation');
+    expect(screen.getByRole('combobox', { name: 'Bidang' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Gred subjek Asasi (pilihan)' })).toBeInTheDocument();
   });
 
   it('adds STPM subject grades, starting with Pengajian Am', () => {

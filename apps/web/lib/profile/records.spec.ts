@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { examYearsFor, formTabsFor, higherChoicesFor, matchOfficialSubject, parseCgpa, parseHigherSubmission, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
+import { examYearsFor, formTabsFor, rowsForStream, higherChoicesFor, matchOfficialSubject, parseCgpa, parseHigherSubmission, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
 const subjects = [
@@ -125,6 +125,7 @@ describe('results after SPM', () => {
       fieldId: field,
       programmeName: 'Diploma Sains Komputer',
       qualificationLevel: null,
+      stream: null,
       subjects: [],
     });
   });
@@ -144,7 +145,7 @@ describe('results after SPM', () => {
   });
 
   it('ignores a MUET band that does not exist', () => {
-    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', muetBand: '2.2' }), 'matriculation')).toMatchObject({ muetBand: null });
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', muetBand: '2.2' }), 'foundation')).toMatchObject({ muetBand: null });
   });
 });
 
@@ -166,5 +167,33 @@ describe('formTabsFor', () => {
       { form: 5, year: 2026 },
       { form: 4, year: 2025 },
     ]);
+  });
+});
+
+describe('matriculation', () => {
+  const options = ['Matematik', 'Kimia', 'Fizik', 'Biologi', 'Sains Komputer'].map((n, i) => {
+    const name = `${n} (Matrikulasi)`;
+    return { id: id(i + 1), name, category: 'science', isMandatory: false, keywords: [name] };
+  });
+
+  it('fills in the subjects of a stream, keeping grades already entered', () => {
+    const rows = rowsForStream('science_2', options, [{ subjectId: id(1), grade: 'A' }, { subjectId: id(4), grade: 'B' }]);
+    expect(rows).toEqual([
+      { subjectId: id(1), grade: 'A' },
+      { subjectId: id(2), grade: '' },
+      { subjectId: id(3), grade: '' },
+      { subjectId: id(5), grade: '' },
+      { subjectId: id(4), grade: 'B' },
+    ]);
+  });
+
+  it('needs the stream, and saves only subjects with a grade', () => {
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3.5' }), 'matriculation')).toEqual({ error: 'streamRequired' });
+    const rows = JSON.stringify([{ subjectId: id(1), grade: 'A-' }, { subjectId: id(2), grade: '' }]);
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3.5', stream: 'science_1', subjects: rows }), 'matriculation')).toMatchObject({
+      stream: 'science_1',
+      subjects: [{ subjectId: id(1), grade: 'A-' }],
+    });
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3.2', subjects: '[]' }), 'foundation')).toMatchObject({ subjects: [], stream: null });
   });
 });
