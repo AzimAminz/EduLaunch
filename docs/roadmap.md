@@ -26,10 +26,19 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 3 | Sample catalogue (3 institutions, 14 programmes, marked "Contoh") and `pnpm db:seed` | **Done** (checked by hand) |
 | 4 | Student portal layout, programme directory and programme page, in BM and EN | **Done** (checked by hand) |
 | 5 | Accounts: sign up, log in, forgot password, onboarding (education level), log out; every portal page now needs an account; sidebar works on phones and can be collapsed; admins and students kept to their own pages; e-mails in the EduLaunch design | **Done** (checked by hand) |
-| 6 | Academic profile screens: education level, subjects and grades | **Next** |
+| 6 | Academic profile: results form per level (school grades, SPM targets, actual SPM), add/remove subjects, save & confirm; profile page with level change | **Done** (manual check waiting) |
+| 6b | Pre-university and Diploma details: CGPA, MUET, STPM grades, diploma programme | **Next** |
 | 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
 | 8 | Admin: edit programmes and review requirements (two-admin rule) | Planned; **M1 demo** after this step |
 | 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
+
+### Changes since v3 (Step 6)
+
+| Change | Why |
+|---|---|
+| Results form and profile page done | Step 6 |
+| New **Step 6b** for CGPA, MUET, STPM grades and diploma programme | They need new fields in the profile service; split out to keep Step 6 small |
+| Slip upload button from Figma not shown yet | OCR is a later item (Slip upload + OCR); no button that does nothing |
 
 ### Changes since v3 (Step 5)
 

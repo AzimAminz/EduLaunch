@@ -167,3 +167,42 @@ Tested by: AzimAminz Date: 26 Oct 2026
 **Result:** ☑ All passed ☐ Problems found (describe below)
 
 Tested by: AzimAminz Date: 26 Oct 2026
+
+---
+
+## Step 6 · Academic results and profile
+
+**Before you start:** `pnpm dev` is running. Use a student account (not an admin).
+
+### A. Results form follows the education level
+
+- [ ] Open **Dokumen akademik** in the sidebar. The form matches your level:
+  - Tingkatan 1–3: **Prestasi sekolah anda**, grades A–F.
+  - Tingkatan 4–5: **Subjek SPM & sasaran**, yellow grade boxes and the note that targets are not official results.
+  - Lepasan SPM: **Keputusan SPM sebenar**.
+  - Lepasan pra-universiti or Diploma: **Keputusan SPM asas**, with a note that CGPA, MUET and STPM come later.
+- [ ] A new form starts with the compulsory subjects (Bahasa Melayu, Bahasa Inggeris, Matematik, Sejarah) and no grades. The status says **Belum diisi**.
+
+### B. Editing
+
+- [ ] Press **Simpan & sahkan** without choosing grades: "Pilih gred untuk setiap subjek." and the empty grade boxes turn red.
+- [ ] **+ Tambah subjek** lists only subjects not already in the table; choosing one adds a row. × removes a row.
+- [ ] The grey line under the table counts subjects and those still without a grade; it turns green when all are graded.
+- [ ] Choose the year, give every subject a grade and save: "Disimpan dan disahkan…".
+- [ ] Reload the page: the same subjects, grades and year are there, and the status says **Disahkan**.
+- [ ] Switch to **EN**: subject names, headings and messages are in English.
+
+### C. Profile (click your name at the bottom of the sidebar)
+
+- [ ] **Profil saya** shows your name and email, your level and "Disahkan · N subjek".
+- [ ] **Urus keputusan akademik** opens Dokumen akademik.
+- [ ] Open **Tukar tahap pendidikan**, choose another level and press **Simpan tahap**: you stay on the profile page with the new level.
+- [ ] Dokumen akademik now shows the form for the new level. Change back: your earlier results are still there (nothing is deleted).
+
+### D. Phone
+
+- [ ] On a narrow window the results table fits without sideways scrolling (the Kategori column is hidden).
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________
