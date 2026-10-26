@@ -4,7 +4,8 @@
 
 - `main` always runs. Do not push to it directly.
 - One branch per task: `feature/<short-name>`, `fix/<short-name>`, `docs/<short-name>`.
-- Before opening a pull request, run `pnpm test && pnpm typecheck` and make sure both pass.
+- Before opening a pull request, run `pnpm test && pnpm typecheck` and make sure both pass. If you changed database code, also run `pnpm test:integration`.
+- GitHub runs the same checks on every pull request (see `.github/workflows/ci.yml`).
 - Ask a teammate to review. Merge after one approval.
 
 ## Where new code goes
@@ -19,6 +20,15 @@
 | A page or UI component | `apps/web` |
 
 Keep business rules out of controllers and repositories, so they can be tested without a database.
+
+## Tests
+
+| Kind | File name | Needs the database? | Command |
+|---|---|---|---|
+| Unit test | `*.spec.ts` (Python: `tests/test_*.py`) | No | `pnpm test` |
+| Integration test | `*.int-spec.ts` (Python: marked `integration`) | Yes, local Supabase | `pnpm test:integration` |
+
+Integration tests create their own rows with new IDs and delete them at the end, so they never change anyone's data.
 
 ## Commit messages
 

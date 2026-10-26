@@ -74,7 +74,8 @@ Next time, you only need: open Docker Desktop → `pnpm db:start` → `pnpm infr
 | Command | What it does |
 |---|---|
 | `pnpm dev` | Start everything, and reload when you save a file |
-| `pnpm test` | Run all the automatic checks |
+| `pnpm test` | Run the quick automatic checks (no database needed) |
+| `pnpm test:integration` | Run the checks that use your local database (Supabase must be running) |
 | `pnpm typecheck` | Look for mistakes in the code without running it |
 | `pnpm build` | Prepare everything as it would run online |
 | `pnpm doctor` | Check that your tools are installed |
