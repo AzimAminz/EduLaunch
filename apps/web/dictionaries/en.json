@@ -247,5 +247,106 @@
   "footer": {
     "disclaimer": "Disclaimer: EduLaunch is an independent platform. Programme information refers to official sources from institutions and related agencies; please confirm with them before applying. EduLaunch does not guarantee an offer of admission.",
     "copyright": "© 2026 EduLaunch. All rights reserved."
+  },
+  "academic": {
+    "eyebrow": "ACADEMIC PROFILE",
+    "titles": {
+      "school": "Your school results",
+      "target": "SPM subjects & targets",
+      "actual": "Actual SPM results",
+      "basic": "Basic SPM results"
+    },
+    "intros": {
+      "school": "Optional. School grades help suggest a Form 4 stream — they are not public exam results.",
+      "target": "Target grades are used for Merit Lab simulations and eligibility checks labelled as targets.",
+      "actual": "Enter the grades as they appear on your results slip. Remove subjects you did not take, add any that are missing.",
+      "basic": "Most degree programmes still check minimum SPM requirements. CGPA, MUET and STPM grades come in the next step."
+    },
+    "examYear": {
+      "school": "Final-year exam",
+      "spm": "SPM year"
+    },
+    "noYear": "Choose a year",
+    "scale": "Grade scale: {scale}.",
+    "subjectsTitle": "Subjects taken",
+    "subjectsHint": "Compulsory subjects are listed first. Remove those that do not apply, add any that are missing.",
+    "colSubject": "Subject",
+    "colCategory": "Category",
+    "colGrade": {
+      "school": "Grade",
+      "target": "Target",
+      "actual": "SPM grade",
+      "basic": "SPM grade"
+    },
+    "chooseGrade": "Choose",
+    "gradeFor": "Grade for {subject}",
+    "remove": "Remove {subject}",
+    "addSubject": "+ Add subject",
+    "addHint": "Choose from the official subject list. Remove subjects you did not take with ×.",
+    "categories": {
+      "core": "Core",
+      "science": "Science & Maths",
+      "business": "Business",
+      "arts": "Arts",
+      "technical": "Technical",
+      "other": "Elective"
+    },
+    "check": "Check: {count} subjects",
+    "checkAllGraded": "all graded",
+    "checkMissing": "{count} without a grade",
+    "notes": {
+      "school": "School grades are not converted to SPM grades. They show which subjects are your strengths for stream suggestions.",
+      "target": "Targets are not official results. Eligibility checks are labelled \"based on targets\" until you enter your actual SPM results.",
+      "actual": "Check every grade against your results slip before saving.",
+      "basic": "Check every grade against your results slip before saving."
+    },
+    "submit": "Save & confirm",
+    "saved": "Saved and confirmed. Eligibility checks will use these results.",
+    "status": {
+      "none": "Not filled in",
+      "draft": "Draft, not confirmed",
+      "confirmed": "Confirmed"
+    },
+    "errors": {
+      "noSubjects": "Add at least one subject.",
+      "missingGrade": "Choose a grade for every subject.",
+      "generic": "Could not save. Please try again shortly."
+    },
+    "sideTitle": {
+      "school": "What opens up for you",
+      "target": "When SPM results are announced",
+      "actual": "After saving",
+      "basic": "Coming next"
+    },
+    "sideBody": {
+      "school": "The interest quiz, field exploration and the Form 4 stream picker use your subject strengths.",
+      "target": "We will ask for your actual results. Targets are kept as history so you can compare them, not deleted.",
+      "actual": "Eligibility checks and programme suggestions will use these confirmed results.",
+      "basic": "CGPA, MUET, STPM grades and your diploma programme will be added in the next step."
+    },
+    "noLevel": {
+      "title": "Choose your education level first",
+      "body": "The results form depends on your level.",
+      "action": "Choose level"
+    },
+    "loading": "Loading your results…",
+    "loadError": "Your results cannot be loaded right now. Please try again shortly."
+  },
+  "profile": {
+    "eyebrow": "PERSONAL SPACE",
+    "title": "My profile",
+    "intro": "Your education level and results are kept in the same account.",
+    "account": "Account",
+    "levelTitle": "Education level",
+    "levelNone": "Not chosen",
+    "changeLevel": "Change education level",
+    "changeLevelHint": "Older results are not deleted when you change your level.",
+    "saveLevel": "Save level",
+    "academicTitle": "Academic results",
+    "subjectsCount": "{count} subjects",
+    "manageAcademic": "Manage academic results",
+    "sideTitle": "Continue on any device.",
+    "sideBody": "Your data and progress are linked to the same account.",
+    "openProfile": "Open my profile"
   }
 }

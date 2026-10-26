@@ -17,7 +17,14 @@ async function get<T extends z.ZodType>(path: string, schema: T): Promise<z.infe
 }
 
 const Field = z.object({ id: z.uuid(), name: z.string(), nameEn: z.string().nullable() });
-const Subject = z.object({ id: z.uuid(), name: z.string(), nameEn: z.string().nullable() });
+const Subject = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  nameEn: z.string().nullable(),
+  qualification: z.string(),
+  category: z.string().nullable(),
+  isMandatory: z.boolean(),
+});
 const Institution = z.object({ id: z.uuid(), name: z.string(), shortName: z.string().nullable(), type: z.string() });
 
 export type Field = z.infer<typeof Field>;

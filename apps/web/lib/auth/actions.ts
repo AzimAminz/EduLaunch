@@ -5,9 +5,9 @@ import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '../i18n/locale';
 import { getMe, setEducationLevel } from '../profile/api';
 import { parseLevelChoice } from '../profile/levels';
-import { createClient } from '../supabase/server';
+import { createClient, getAccessToken } from '../supabase/server';
 import { authErrorKey } from './errors';
-import { AUTH_PAGES, homeFor, nextFor, type Role } from './routes';
+import { AUTH_PAGES, homeFor, nextFor, safeNext, type Role } from './routes';
 import { NewPasswordForm, ResetRequestForm, SignInForm, SignUpForm, parseForm, type AuthErrorKey } from './schemas';
 
 /** What a form shows after a failed submit. Typed values come back so the form keeps them (never the password). */
@@ -122,13 +122,13 @@ export async function chooseEducationLevel(_prev: FormState, form: FormData): Pr
   const choice = parseLevelChoice(form);
   if ('error' in choice) return { error: choice.error, values };
 
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getSession();
-  if (!data.session) redirect(`/${locale}/${AUTH_PAGES.signIn}?next=/${locale}/${AUTH_PAGES.onboarding}`);
+  const token = await getAccessToken();
+  if (!token) redirect(`/${locale}/${AUTH_PAGES.signIn}?next=/${locale}/${AUTH_PAGES.onboarding}`);
   try {
-    await setEducationLevel(data.session.access_token, choice.level, choice.formYear);
+    await setEducationLevel(token, choice.level, choice.formYear);
   } catch {
     return { error: 'generic', values };
   }
-  redirect(homeFor(locale, 'student'));
+  // Onboarding continues to the portal; the profile page sends people back to itself.
+  redirect(safeNext(String(form.get('returnTo') ?? ''), homeFor(locale, 'student')));
 }

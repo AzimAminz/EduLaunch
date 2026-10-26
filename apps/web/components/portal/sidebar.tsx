@@ -188,12 +188,12 @@ export function Sidebar({ locale, nav, language, auth, account }: SidebarProps) 
         {account && (
           <form action={signOut} className={`mt-2 flex flex-col gap-2 border-t border-line pt-3 ${narrow ? 'lg:items-center' : ''}`}>
             <input type="hidden" name="locale" value={locale} />
-            <div className={`min-w-0 px-3 ${narrow ? 'lg:hidden' : ''}`}>
+            <Link href={`/${locale}/profil`} aria-current={pathname === `/${locale}/profil` ? 'page' : undefined} className={`min-w-0 rounded-[10px] px-3 py-1.5 hover:bg-bg ${narrow ? 'lg:hidden' : ''} ${pathname === `/${locale}/profil` ? 'bg-blue' : ''}`}>
               <p className="text-xs text-muted">{auth.signedInAs}</p>
               <p className="truncate text-sm font-semibold" title={account.email}>
-                {account.name ?? account.email}
+                {account.name ?? account.email} ›
               </p>
-            </div>
+            </Link>
             <button type="submit" title={narrow ? auth.signOut : undefined} className={`flex w-full items-center gap-3 rounded-[10px] py-[7px] pl-3 pr-2.5 text-[15px] font-medium hover:bg-bg ${narrow ? 'lg:justify-center lg:px-0' : ''}`}>
               <Icon src="/icons/log-out.svg" size={20} className="shrink-0" />
               <span className={narrow ? 'lg:sr-only' : ''}>{auth.signOut}</span>

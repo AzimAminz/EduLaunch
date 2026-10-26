@@ -247,5 +247,106 @@
   "footer": {
     "disclaimer": "Penafian: EduLaunch ialah platform bebas. Maklumat program dirujuk kepada sumber rasmi institusi dan agensi berkaitan; sila sahkan dengan pihak berkenaan sebelum membuat permohonan. EduLaunch tidak menjamin tawaran kemasukan.",
     "copyright": "© 2026 EduLaunch. Hak cipta terpelihara."
+  },
+  "academic": {
+    "eyebrow": "PROFIL AKADEMIK",
+    "titles": {
+      "school": "Prestasi sekolah anda",
+      "target": "Subjek SPM & sasaran",
+      "actual": "Keputusan SPM sebenar",
+      "basic": "Keputusan SPM asas"
+    },
+    "intros": {
+      "school": "Pilihan sahaja. Gred sekolah membantu cadangan aliran Tingkatan 4 — bukan keputusan peperiksaan awam.",
+      "target": "Gred sasaran digunakan untuk simulasi Merit Lab dan semakan kelayakan berlabel sasaran.",
+      "actual": "Masukkan gred seperti dalam slip keputusan. Buang subjek yang tidak diambil, tambah yang belum ada.",
+      "basic": "Kebanyakan program ijazah masih menyemak syarat minimum SPM. PNGK, MUET dan gred STPM akan ditambah dalam langkah seterusnya."
+    },
+    "examYear": {
+      "school": "Peperiksaan akhir tahun",
+      "spm": "Tahun SPM"
+    },
+    "noYear": "Pilih tahun",
+    "scale": "Skala gred: {scale}.",
+    "subjectsTitle": "Subjek yang diambil",
+    "subjectsHint": "Subjek wajib disenaraikan dahulu. Buang yang tidak berkenaan, tambah yang belum ada.",
+    "colSubject": "Subjek",
+    "colCategory": "Kategori",
+    "colGrade": {
+      "school": "Gred",
+      "target": "Sasaran",
+      "actual": "Gred SPM",
+      "basic": "Gred SPM"
+    },
+    "chooseGrade": "Pilih",
+    "gradeFor": "Gred {subject}",
+    "remove": "Buang {subject}",
+    "addSubject": "+ Tambah subjek",
+    "addHint": "Pilih daripada senarai subjek rasmi. Buang subjek yang anda tidak ambil dengan ×.",
+    "categories": {
+      "core": "Teras",
+      "science": "Sains & Matematik",
+      "business": "Perniagaan",
+      "arts": "Seni",
+      "technical": "Teknikal",
+      "other": "Elektif"
+    },
+    "check": "Semakan: {count} subjek",
+    "checkAllGraded": "semua bergred",
+    "checkMissing": "{count} belum bergred",
+    "notes": {
+      "school": "Gred sekolah tidak ditukar kepada gred SPM. Ia digunakan untuk mengesan kekuatan subjek bagi cadangan aliran.",
+      "target": "Sasaran bukan keputusan rasmi. Semakan kelayakan berlabel \"berdasarkan sasaran\" sehingga keputusan SPM sebenar dimasukkan.",
+      "actual": "Semak setiap gred dengan slip keputusan anda sebelum menyimpan.",
+      "basic": "Semak setiap gred dengan slip keputusan anda sebelum menyimpan."
+    },
+    "submit": "Simpan & sahkan",
+    "saved": "Disimpan dan disahkan. Semakan kelayakan akan menggunakan keputusan ini.",
+    "status": {
+      "none": "Belum diisi",
+      "draft": "Draf, belum disahkan",
+      "confirmed": "Disahkan"
+    },
+    "errors": {
+      "noSubjects": "Tambah sekurang-kurangnya satu subjek.",
+      "missingGrade": "Pilih gred untuk setiap subjek.",
+      "generic": "Tidak dapat disimpan. Cuba lagi sebentar lagi."
+    },
+    "sideTitle": {
+      "school": "Yang dibuka untuk anda",
+      "target": "Selepas keputusan SPM diumumkan",
+      "actual": "Selepas menyimpan",
+      "basic": "Akan datang"
+    },
+    "sideBody": {
+      "school": "Ujian minat, teroka bidang dan pemilih aliran Tingkatan 4 menggunakan kekuatan subjek anda.",
+      "target": "Kami akan minta keputusan sebenar anda. Sasaran disimpan sebagai sejarah supaya anda boleh bandingkan, bukan dipadam.",
+      "actual": "Semakan kelayakan dan cadangan program akan menggunakan keputusan yang telah disahkan ini.",
+      "basic": "Medan PNGK, MUET, gred STPM dan program diploma akan ditambah dalam langkah seterusnya."
+    },
+    "noLevel": {
+      "title": "Pilih tahap pendidikan dahulu",
+      "body": "Borang keputusan bergantung pada tahap anda.",
+      "action": "Pilih tahap"
+    },
+    "loading": "Memuatkan keputusan anda…",
+    "loadError": "Keputusan anda tidak dapat dimuatkan buat sementara. Cuba lagi sebentar lagi."
+  },
+  "profile": {
+    "eyebrow": "RUANG PERIBADI",
+    "title": "Profil saya",
+    "intro": "Tahap pendidikan dan keputusan anda disimpan dalam akaun yang sama.",
+    "account": "Akaun",
+    "levelTitle": "Tahap pendidikan",
+    "levelNone": "Belum dipilih",
+    "changeLevel": "Tukar tahap pendidikan",
+    "changeLevelHint": "Keputusan lama tidak dipadam apabila anda menukar tahap.",
+    "saveLevel": "Simpan tahap",
+    "academicTitle": "Keputusan akademik",
+    "subjectsCount": "{count} subjek",
+    "manageAcademic": "Urus keputusan akademik",
+    "sideTitle": "Sambung pada mana-mana peranti.",
+    "sideBody": "Data dan kemajuan dipautkan kepada akaun yang sama.",
+    "openProfile": "Buka profil saya"
   }
 }

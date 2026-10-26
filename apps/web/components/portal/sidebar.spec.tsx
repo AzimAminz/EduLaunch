@@ -26,9 +26,9 @@ describe('Sidebar', () => {
     expect(screen.getByRole('link', { name: 'Teroka program' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('shows who is logged in, with a log out button', () => {
+  it('shows who is logged in, linking to their profile, with a log out button', () => {
     render(<Sidebar {...props} account={{ name: 'Aina', email: 'aina@contoh.com' }} />);
-    expect(screen.getByText('Aina')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Aina/ })).toHaveAttribute('href', '/ms/profil');
     expect(screen.getByRole('button', { name: 'Log keluar' })).toBeInTheDocument();
   });
 
