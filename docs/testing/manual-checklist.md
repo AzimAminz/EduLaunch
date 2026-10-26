@@ -249,23 +249,23 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 ### A. Without results
 
-- [ ] A new student (no confirmed results) sees **Boleh ke saya masuk?** with "Isi dan sahkan keputusan anda dahulu…" and a button **Isi keputusan saya** that opens Dokumen akademik.
+- [x] A new student (no confirmed results) sees **Boleh ke saya masuk?** with "Isi dan sahkan keputusan anda dahulu…" and a button **Isi keputusan saya** that opens Dokumen akademik.
 
 ### B. After SPM
 
-- [ ] Level Lepasan SPM, with actual SPM results saved (Bahasa Melayu B, Matematik C+, Fizik B, …). The card says **Hampir layak** or **Belum memenuhi syarat** for laluan Lepasan SPM, and lists every requirement:
+- [x] Level Lepasan SPM, with actual SPM results saved (Bahasa Melayu B, Matematik C+, Fizik B, …). The card says **Hampir layak** or **Belum memenuhi syarat** for laluan Lepasan SPM, and lists every requirement:
   - ✓ "Bahasa Melayu: perlu C, anda B"
   - ✗ "Matematik: perlu B, anda C+"
   - an either/or requirement as **Salah satu daripada:** with each subject.
-- [ ] Change Matematik to B in Dokumen akademik, come back: the card says **Anda memenuhi syarat** and the "Kemas kini keputusan" button is gone.
+- [x] Change Matematik to B in Dokumen akademik, come back: the card says **Anda memenuhi syarat** and the "Kemas kini keputusan" button is gone.
 
 ### C. Targets and other routes
 
-- [ ] Level Tingkatan 4–5 with SPM targets saved: the card adds "Berdasarkan gred sasaran anda, bukan keputusan sebenar."
-- [ ] Level Lepasan pra-U / Diploma with STPM: on a programme that only lists the SPM route, the card says the programme has no requirements for your route yet and names the routes it lists.
-- [ ] On a programme without verified requirements: "Syarat program ini belum disahkan…" (no guess).
-- [ ] Switch to **EN**: the card is in English ("Can I get in?", "Mathematics: B needed, you have C+").
+- [x] Level Tingkatan 4–5 with SPM targets saved: the card adds "Berdasarkan gred sasaran anda, bukan keputusan sebenar."
+- [x] Level Lepasan pra-U / Diploma with STPM: on a programme that only lists the SPM route, the card says the programme has no requirements for your route yet and names the routes it lists.
+- [x] On a programme without verified requirements: "Syarat program ini belum disahkan…" (no guess).
+- [x] Switch to **EN**: the card is in English ("Can I get in?", "Mathematics: B needed, you have C+").
 
-**Result:** ☐ All passed ☐ Problems found (describe below)
+**Result:** ☑ All passed ☐ Problems found (describe below)
 
-Tested by: ____________ Date: ____________
+Tested by: AzimAminz Date: 26 Oct 2026

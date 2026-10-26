@@ -10,7 +10,7 @@ Version 3 · 26 Oct 2026 · current position: **middle of Sprint 2**
 
 ## Status overview
 
-- **Done:** 5 of 28 items (Steps 1–6 checked by hand). Project setup, CI on GitHub, the eligibility engine, programme search screens, and Bahasa Melayu / English.
+- **Done:** 5 of 28 items (Steps 1–7 checked by hand). Project setup, CI on GitHub, the eligibility engine, programme search screens, and Bahasa Melayu / English.
 - **In Progress:** 10 items. Back-end services exist with unit and integration tests; most screens and real programme data do not yet.
 - **Not Started:** 13 items.
 - **At risk:** real catalogue data (the sample data is enough for demos, not for real decisions) and historical admission data (blocks real offer chances).
@@ -28,7 +28,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 5 | Accounts: sign up, log in, forgot password, onboarding (education level), log out; every portal page now needs an account; sidebar works on phones and can be collapsed; admins and students kept to their own pages; e-mails in the EduLaunch design | **Done** (checked by hand) |
 | 6 | Academic profile: results form per level (school grades, SPM targets, actual SPM), add/remove subjects, save & confirm; profile page with level change | **Done** (checked by hand) |
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (checked by hand) |
-| 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (manual check waiting) |
+| 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (checked by hand) |
 | 8 | Admin: edit programmes and review requirements (two-admin rule), including entry routes for certificate, SVM, SKM, DVM and DKM holders | Planned; **M1 demo** after this step |
 | 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
 
