@@ -295,6 +295,8 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 ### C. Programmes: view, edit and the two-admin rule
 
+- [ ] The form has three steps with a step line at the top: **1 Identiti → 2 Akademik → 3 Kemasukan & sumber**. **Seterusnya →** with an empty name or level marks them red and stays on the step; **← Kembali** and the step line go back; the last step has the save button. Every value is kept between steps.
+- [ ] In an institution's **Program** tab (and the **Program** list) each row has **Buka** and a main action: **Sunting** for drafts and published programmes, **Semak** when it waits for review.
 - [ ] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen and fields marked * are required. Fill in Peringkat, name, Kod program (typing `belg` and leaving the field shows "Kod program mesti seperti UC6522001."; `uc6522001` becomes `UC6522001`), Bidang NEC (`0712` adds **Kejuruteraan** by itself), Tempoh 6 (shows "± 3 tahun"), Mod, Kampus, ticks and source link, then **Simpan draf**.
 - [ ] The programme page opens **read only**: a panel with three steps (**Draf → Semakan admin lain → Diterbitkan**), one sentence about what happens next, and the main action first (**Hantar untuk semakan**, then **Sunting**). Tabs **Maklumat** and **Syarat kemasukan**.
 - [ ] **Sunting** opens its own page with the same form and **Batal**. While the programme has never been published, Institusi and Peringkat can still be changed.

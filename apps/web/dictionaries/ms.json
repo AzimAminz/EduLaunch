@@ -363,7 +363,8 @@
         "institution": "Institusi",
         "level": "Peringkat",
         "requirements": "Syarat diterbitkan",
-        "status": "Status"
+        "status": "Status",
+        "actions": "Tindakan"
       },
       "noRequirements": "Belum ada",
       "openDrafts": "{count} draf",
@@ -458,6 +459,12 @@
         "diploma": "6",
         "degree": "8",
         "form4_stream": "4"
+      },
+      "steps": {
+        "admission": "Kemasukan & sumber",
+        "next": "Seterusnya →",
+        "back": "← Kembali",
+        "of": "Langkah {n} daripada {total}"
       }
     },
     "programme": {
@@ -544,7 +551,8 @@
         "discardConfirm": "Buang perubahan ini? Versi semasa kekal.",
         "discardYes": "Ya, buang",
         "archive": "Arkibkan",
-        "reopen": "Buka semula sebagai draf"
+        "reopen": "Buka semula sebagai draf",
+        "review": "Semak"
       },
       "tabs": {
         "details": "Maklumat",

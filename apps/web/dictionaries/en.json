@@ -363,7 +363,8 @@
         "institution": "Institution",
         "level": "Level",
         "requirements": "Published requirements",
-        "status": "Status"
+        "status": "Status",
+        "actions": "Actions"
       },
       "noRequirements": "None yet",
       "openDrafts": "{count} draft(s)",
@@ -458,6 +459,12 @@
         "diploma": "6",
         "degree": "8",
         "form4_stream": "4"
+      },
+      "steps": {
+        "admission": "Admission & source",
+        "next": "Next →",
+        "back": "← Back",
+        "of": "Step {n} of {total}"
       }
     },
     "programme": {
@@ -544,7 +551,8 @@
         "discardConfirm": "Discard this change? The current version stays.",
         "discardYes": "Yes, discard",
         "archive": "Archive",
-        "reopen": "Reopen as a draft"
+        "reopen": "Reopen as a draft",
+        "review": "Review"
       },
       "tabs": {
         "details": "Details",
