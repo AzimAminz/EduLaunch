@@ -176,70 +176,70 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 ### A. Results form follows the education level
 
-- [ ] Open **Dokumen akademik** in the sidebar. The form matches your level:
+- [x] Open **Dokumen akademik** in the sidebar. The form matches your level:
   - Tingkatan 1–3: **Prestasi sekolah anda**, grades A–F, with a tab for each year (Form 1, 2, 3).
   - Tingkatan 4–5: **Subjek SPM & sasaran**, white grade boxes like the other forms, and the note that targets are not official results. Form 4 shows one tab (**Tingkatan 4 · this year**); Form 5 shows **Tingkatan 5 · this year** and **Tingkatan 4 · last year**, with a note that the Form 4 tab is optional. Grades saved in Form 4 are still there after moving to Form 5.
   - Lepasan SPM: **Keputusan SPM sebenar**.
   - Lepasan Sijil / SVM / SKM, or Lepasan pra-U / Diploma: two tabs, **Kelayakan** and **SPM asas** (see D).
-- [ ] A new form starts with the compulsory subjects and no grades. The label at the top says **Belum diisi**.
+- [x] A new form starts with the compulsory subjects and no grades. The label at the top says **Belum diisi**.
 
 ### B. Subjects and grades (all dropdowns use the EduLaunch design)
 
-- [ ] Grade boxes and the year open the EduLaunch dropdown (not the browser's own list) and work with the keyboard (arrows, Enter, Escape).
-- [ ] In **Cari subjek…** type `arab`: Bahasa Arab appears. Type `add maths`: only Matematik Tambahan appears.
-- [ ] Type `Tasawwuf`: the list offers **+ Tambah “Tasawwuf” sebagai subjek lain**. Choose it: a row with the yellow label **Subjek lain** appears, and a short note explains it is not used in eligibility checks yet.
-- [ ] × removes a row. Under the table it only says how many subjects still need a grade (nothing when all are graded).
-- [ ] Press **Simpan & sahkan** with a missing grade: "Pilih gred untuk setiap subjek." and the empty boxes turn red.
-- [ ] Give every subject a grade and save: "✓ Disimpan dan disahkan." appears next to the button and the label at the top says **Disahkan**, without reloading. Change a grade: the label says **Ada perubahan belum disimpan**.
-- [ ] The "✓ Disimpan dan disahkan." message fades in, then fades out by itself after a few seconds. Press save again: it shows again.
-- [ ] Reload: the same subjects (including Tasawwuf), grades and year are there.
+- [x] Grade boxes and the year open the EduLaunch dropdown (not the browser's own list) and work with the keyboard (arrows, Enter, Escape).
+- [x] In **Cari subjek…** type `arab`: Bahasa Arab appears. Type `add maths`: only Matematik Tambahan appears.
+- [x] Type `Tasawwuf`: the list offers **+ Tambah “Tasawwuf” sebagai subjek lain**. Choose it: a row with the yellow label **Subjek lain** appears, and a short note explains it is not used in eligibility checks yet.
+- [x] × removes a row. Under the table it only says how many subjects still need a grade (nothing when all are graded).
+- [x] Press **Simpan & sahkan** with a missing grade: "Pilih gred untuk setiap subjek." and the empty boxes turn red.
+- [x] Give every subject a grade and save: "✓ Disimpan dan disahkan." appears next to the button and the label at the top says **Disahkan**, without reloading. Change a grade: the label says **Ada perubahan belum disimpan**.
+- [x] The "✓ Disimpan dan disahkan." message fades in, then fades out by itself after a few seconds. Press save again: it shows again.
+- [x] Reload: the same subjects (including Tasawwuf), grades and year are there.
 
 ### C. Saved records (history)
 
-- [ ] **Rekod tersimpan** on the right lists every saved record, e.g. "Prestasi sekolah 2025", "Sasaran SPM 2026", "Diploma 2025 · PNGK 3.42 · MUET 3.5". The one in the form says **Sedang dibuka**.
-- [ ] **Lihat** opens an older record read only (subjects and grades, or CGPA and MUET).
-- [ ] Tingkatan 1–3: save results for two different year tabs; both appear in the list and each tab shows its own grades.
+- [x] **Rekod tersimpan** on the right lists every saved record, e.g. "Prestasi sekolah 2025", "Sasaran SPM 2026", "Diploma 2025 · PNGK 3.42 · MUET 3.5". The one in the form says **Sedang dibuka**.
+- [x] **Lihat** opens an older record read only (subjects and grades, or CGPA and MUET).
+- [x] Tingkatan 1–3: save results for two different year tabs; both appear in the list and each tab shows its own grades.
 
 ### D. After a certificate, pre-university or diploma
 
-- [ ] Onboarding lists five levels: Tingkatan 1–3, Tingkatan 4–5, Lepasan SPM, **Lepasan Sijil / SVM / SKM**, **Lepasan STPM / Matrikulasi / Asasi / A-Level / Diploma**.
-- [ ] Choosing one of the last two opens a dialog asking which qualification: Sijil Politeknik / Kolej Komuniti, SVM or SKM; or STPM, Matrikulasi, Asasi, A-Level, Diploma, DVM or DKM/DLKM.
-- [ ] Dokumen akademik shows only the chosen qualification ("Jenis kelayakan: …") with a link to change it in Profil.
-- [ ] **SKM**: Bidang, Nama program, Tahap (SKM Tahap 1–3), MUET, Tahun tamat; no PNGK. **Sijil** and **SVM**: Bidang, Nama program, PNGK, MUET, Tahun tamat.
-- [ ] **Diploma / DVM / DKM**: Bidang, Nama program, PNGK, MUET, Tahun tamat (DKM also asks DKM Tahap 4 or DLKM Tahap 5). No subject table.
-- [ ] Save without a year: "Pilih tahun keputusan." With PNGK `4.5`: "PNGK ialah nombor antara 0.00 dan 4.00…". With `3,42` (comma): it saves.
-- [ ] **Matrikulasi**: choose **Jurusan** (Sains Modul I/II/III, Kejuruteraan, Perakaunan, Perakaunan Profesional); its four subjects appear by themselves, you only add grades (A to E). Saving without a jurusan: "Pilih jurusan Matrikulasi anda." Subjects left without a grade are not saved, but they are listed again when you come back.
-- [ ] **Asasi**: Bidang, Nama program (e.g. Asasi Sains Hayat), PNGK, MUET, and an optional subject table.
-- [ ] The page title names your qualification: **Kelayakan Matrikulasi**, **Kelayakan Asasi**, **Kelayakan Diploma**, **Kelayakan SKM**…
-- [ ] **Keputusan semester** (Matrikulasi and Asasi): two semesters to start; **+ Tambah semester** adds one (up to 8), × removes the last. Enter PNGS for the semesters you finished (e.g. 3.50 and 3,80); after saving and reloading they are still there. Diploma has no semester section.
-- [ ] **Bidang**: type a field that is not in the list (e.g. Sains Sukan) and choose **+ Tambah “Sains Sukan” sebagai bidang lain**; it is kept after reloading.
-- [ ] **STPM** has a subject table starting with Pengajian Am; **A-Level** has subjects (A*–E) but no PNGK.
-- [ ] The blue box "Apa yang universiti semak" summarises the usual requirements for the level.
-- [ ] Tab **SPM asas**: the SPM form, with a note on why SPM still matters.
+- [x] Onboarding lists five levels: Tingkatan 1–3, Tingkatan 4–5, Lepasan SPM, **Lepasan Sijil / SVM / SKM**, **Lepasan STPM / Matrikulasi / Asasi / A-Level / Diploma**.
+- [x] Choosing one of the last two opens a dialog asking which qualification: Sijil Politeknik / Kolej Komuniti, SVM or SKM; or STPM, Matrikulasi, Asasi, A-Level, Diploma, DVM or DKM/DLKM.
+- [x] Dokumen akademik shows only the chosen qualification ("Jenis kelayakan: …") with a link to change it in Profil.
+- [x] **SKM**: Bidang, Nama program, Tahap (SKM Tahap 1–3), MUET, Tahun tamat; no PNGK. **Sijil** and **SVM**: Bidang, Nama program, PNGK, MUET, Tahun tamat.
+- [x] **Diploma / DVM / DKM**: Bidang, Nama program, PNGK, MUET, Tahun tamat (DKM also asks DKM Tahap 4 or DLKM Tahap 5). No subject table.
+- [x] Save without a year: "Pilih tahun keputusan." With PNGK `4.5`: "PNGK ialah nombor antara 0.00 dan 4.00…". With `3,42` (comma): it saves.
+- [x] **Matrikulasi**: choose **Jurusan** (Sains Modul I/II/III, Kejuruteraan, Perakaunan, Perakaunan Profesional); its four subjects appear by themselves, you only add grades (A to E). Saving without a jurusan: "Pilih jurusan Matrikulasi anda." Subjects left without a grade are not saved, but they are listed again when you come back.
+- [x] **Asasi**: Bidang, Nama program (e.g. Asasi Sains Hayat), PNGK, MUET, and an optional subject table. **+ Tambah subjek** lists Asasi subjects only (Biologi (Asasi), Kimia (Asasi)…), not matriculation ones.
+- [x] The page title names your qualification: **Kelayakan Matrikulasi**, **Kelayakan Asasi**, **Kelayakan Diploma**, **Kelayakan SKM**…
+- [x] **Keputusan semester** (Matrikulasi and Asasi): two semesters to start; **+ Tambah semester** adds one (up to 8), × removes the last. Enter PNGS for the semesters you finished (e.g. 3.50 and 3,80); after saving and reloading they are still there. Diploma has no semester section.
+- [x] **Bidang**: type a field that is not in the list (e.g. Sains Sukan) and choose **+ Tambah “Sains Sukan” sebagai bidang lain**; it is kept after reloading.
+- [x] **STPM** has a subject table starting with Pengajian Am; **A-Level** has subjects (A*–E) but no PNGK.
+- [x] The blue box "Apa yang universiti semak" summarises the usual requirements for the level.
+- [x] Tab **SPM asas**: the SPM form, with a note on why SPM still matters.
 
 ### E. Profile (click your name at the bottom of the sidebar)
 
-- [ ] **Profil saya** shows your name, email, level and a summary: "Disahkan · N subjek", or for diploma and pre-university "Diploma · PNGK 3.42 · MUET 3.5".
-- [ ] Open **Tukar tahap pendidikan**, choose a higher level, press **Simpan tahap**: "Tahap pendidikan dikemas kini." fades in and out, you stay on the page, the chosen level stays selected and the summary above changes at once (no reload).
-- [ ] Dokumen akademik now shows the form for the new level, and your earlier records are still in Rekod tersimpan (after moving up).
+- [x] **Profil saya** shows your name, email, level and a summary: "Disahkan · N subjek", or for diploma and pre-university "Diploma · PNGK 3.42 · MUET 3.5".
+- [x] Open **Tukar tahap pendidikan**, choose a higher level, press **Simpan tahap**: "Tahap pendidikan dikemas kini." fades in and out, you stay on the page, the chosen level stays selected and the summary above changes at once (no reload).
+- [x] Dokumen akademik now shows the form for the new level, and your earlier records are still in Rekod tersimpan (after moving up).
 
 ### F. Changing level: what is kept and what is deleted
 
-- [ ] Tingkatan 1 shows one tab (**Tingkatan 1 · this year**); Tingkatan 2 shows two (this year and last year); Tingkatan 3 shows three.
-- [ ] Moving up (Tingkatan 1 → 2, Tingkatan 3 → 4–5, Tingkatan 5 → Lepasan SPM): no dialog, and all saved records stay in Rekod tersimpan.
-- [ ] Moving down (for example Tingkatan 2 → 1 with results saved for last year): a dialog lists **Prestasi sekolah (last year)** under "Rekod ini akan dipadam". **Batal** changes nothing; **Sahkan & simpan** deletes it.
-- [ ] Choosing **Lepasan STPM / Matrikulasi / Asasi / A-Level**: a dialog asks which qualification. After choosing Asasi, Dokumen akademik shows the Asasi form only (no buttons for the others), with a link to change it in Profil.
-- [ ] Asasi (with results saved) → Diploma (same level, other qualification): the dialog lists **Asasi** to be deleted; after confirming, the diploma form shows and Asasi is gone from Rekod tersimpan. The SPM results stay.
-- [ ] SKM (saved) → Diploma: no records are deleted; Rekod tersimpan shows both. Then Diploma → SVM: the dialog lists Diploma and SKM to be deleted.
-- [ ] A student can save up to 30 subjects (for example 20 SPM subjects).
+- [x] Tingkatan 1 shows one tab (**Tingkatan 1 · this year**); Tingkatan 2 shows two (this year and last year); Tingkatan 3 shows three.
+- [x] Moving up (Tingkatan 1 → 2, Tingkatan 3 → 4–5, Tingkatan 5 → Lepasan SPM): no dialog, and all saved records stay in Rekod tersimpan.
+- [x] Moving down (for example Tingkatan 2 → 1 with results saved for last year): a dialog lists **Prestasi sekolah (last year)** under "Rekod ini akan dipadam". **Batal** changes nothing; **Sahkan & simpan** deletes it.
+- [x] Choosing **Lepasan STPM / Matrikulasi / Asasi / A-Level**: a dialog asks which qualification. After choosing Asasi, Dokumen akademik shows the Asasi form only (no buttons for the others), with a link to change it in Profil.
+- [x] Asasi (with results saved) → Diploma (same level, other qualification): the dialog lists **Asasi** to be deleted; after confirming, the diploma form shows and Asasi is gone from Rekod tersimpan. The SPM results stay.
+- [x] SKM (saved) → Diploma: no records are deleted; Rekod tersimpan shows both. Then Diploma → SVM: the dialog lists Diploma and SKM to be deleted.
+- [x] A student can save up to 30 subjects (for example 20 SPM subjects).
 
 ### G. Phone
 
-- [ ] On a narrow window the forms fit without sideways scrolling (the Kategori column is hidden, fields stack).
+- [x] On a narrow window the forms fit without sideways scrolling (the Kategori column is hidden, fields stack).
 
-**Result:** ☐ All passed ☐ Problems found (describe below)
+**Result:** ☑ All passed ☐ Problems found (describe below)
 
-Tested by: ____________ Date: ____________
+Tested by: AzimAminz Date: 26 Oct 2026
 
 ---
 
