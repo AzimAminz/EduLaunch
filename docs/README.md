@@ -4,6 +4,7 @@
 |---|---|
 | [edulaunch-guide.md](edulaunch-guide.md) | **Start here.** Plain-language guide to the whole system, with 12 student and admin scenarios |
 | [setup.md](setup.md) | Run EduLaunch on your computer, step by step |
+| [testing/manual-checklist.md](testing/manual-checklist.md) | Checks to do by hand in the browser after each step |
 | [architecture.md](architecture.md) | How the five services, gateway, database schemas and events fit together |
 | [system-design.md](system-design.md) | Roles, architecture, the ten modules, data flows, API outline, security, testing |
 | [ai-and-cost-plan.md](ai-and-cost-plan.md) | Recommendation, offer-chance prediction, content collection, model choices, keeping cost near zero |
