@@ -1,7 +1,5 @@
 import { existsSync } from 'node:fs';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import type { Database } from './database.js';
+import { createDatabase, type Database } from './database.js';
 
 /**
  * Connects integration tests to the local Supabase database with the service's own role.
@@ -13,6 +11,5 @@ export function connectTestDatabase<TSchema extends Record<string, unknown>>(sch
   if (!url) {
     throw new Error('DATABASE_URL is not set. Start Supabase (pnpm db:start) and run pnpm env:setup before integration tests.');
   }
-  const sql = postgres(url, { max: 2, prepare: false, onnotice: () => {} });
-  return { db: drizzle(sql, { schema }), close: () => sql.end({ timeout: 5 }) };
+  return createDatabase(url, schema);
 }
