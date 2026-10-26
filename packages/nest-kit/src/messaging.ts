@@ -14,7 +14,11 @@ export abstract class EventBus implements EventPublisher {
   abstract subscribe(name: string, patterns: string[], handler: EventHandler): Promise<void>;
 }
 
-/** RabbitMQ topic exchange with automatic reconnect. */
+/**
+ * RabbitMQ topic exchange with automatic reconnect.
+ * The service starts even when RabbitMQ is down; events published meanwhile wait in memory
+ * (up to `maxBuffered`, oldest dropped first) and are sent as soon as the connection is up.
+ */
 @Injectable()
 export class RabbitMqEventBus extends EventBus implements OnModuleInit, OnApplicationShutdown {
   private readonly logger = new Logger('EventBus');
@@ -22,10 +26,12 @@ export class RabbitMqEventBus extends EventBus implements OnModuleInit, OnApplic
   private live?: ChannelModel;
   private publishChannel?: Channel;
   private readonly subscriptions: Array<{ name: string; patterns: string[]; handler: EventHandler }> = [];
+  private readonly pending: DomainEvent[] = [];
 
   constructor(
     private readonly url: string,
     private readonly serviceName: string,
+    private readonly maxBuffered = 1000,
   ) {
     super();
   }
@@ -38,23 +44,41 @@ export class RabbitMqEventBus extends EventBus implements OnModuleInit, OnApplic
         factor: 2,
         jitter: 0.2,
         maxRetries: Infinity,
+        // amqplib waits for the first connection by default; the HTTP port must open even without RabbitMQ.
+        waitForConnect: false,
         // Runs after every (re)connect with the live connection; `this.model` is not set yet on the first one.
         setup: async (live: ChannelModel) => {
           this.live = live;
           this.publishChannel = await live.createChannel();
           await this.publishChannel.assertExchange(EXCHANGE, 'topic', { durable: true });
           for (const sub of this.subscriptions) await this.bind(sub.name, sub.patterns, sub.handler);
+          this.logger.log(`Connected to RabbitMQ as ${this.serviceName}`);
+          this.flush();
         },
       },
     });
-    this.model.on('disconnect', (err: Error) => this.logger.warn(`RabbitMQ disconnected: ${err.message}`));
-    await this.model.waitForConnect();
-    this.logger.log(`Connected to RabbitMQ as ${this.serviceName}`);
+    this.model.on('disconnect', (err: Error) => {
+      this.publishChannel = undefined;
+      this.live = undefined;
+      this.logger.warn(`RabbitMQ disconnected (${err.message}); retrying in the background`);
+    });
+    this.model.on('connect-failed', (err: Error) => this.logger.warn(`RabbitMQ not reachable yet (${err.message}); retrying in the background`));
   }
 
   async publish(events: DomainEvent[]): Promise<void> {
-    if (!this.publishChannel) throw new Error('Event bus is not connected');
-    for (const event of events) {
+    this.pending.push(...events);
+    const overflow = this.pending.length - this.maxBuffered;
+    if (overflow > 0) {
+      this.pending.splice(0, overflow);
+      this.logger.error(`RabbitMQ unavailable: dropped ${overflow} oldest event(s)`);
+    }
+    this.flush();
+  }
+
+  private flush(): void {
+    if (!this.publishChannel) return;
+    while (this.pending.length) {
+      const event = this.pending.shift()!;
       this.publishChannel.publish(EXCHANGE, event.name, Buffer.from(JSON.stringify(event)), {
         persistent: true,
         contentType: 'application/json',
