@@ -210,6 +210,9 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] Save without a year: "Pilih tahun keputusan." With PNGK `4.5`: "PNGK ialah nombor antara 0.00 dan 4.00…". With `3,42` (comma): it saves.
 - [ ] **Matrikulasi**: choose **Jurusan** (Sains Modul I/II/III, Kejuruteraan, Perakaunan, Perakaunan Profesional); its four subjects appear by themselves, you only add grades (A to E). Saving without a jurusan: "Pilih jurusan Matrikulasi anda." Subjects left without a grade are not saved, but they are listed again when you come back.
 - [ ] **Asasi**: Bidang, Nama program (e.g. Asasi Sains Hayat), PNGK, MUET, and an optional subject table.
+- [ ] The page title names your qualification: **Kelayakan Matrikulasi**, **Kelayakan Asasi**, **Kelayakan Diploma**, **Kelayakan SKM**…
+- [ ] **Keputusan semester** (Matrikulasi and Asasi): two semesters to start; **+ Tambah semester** adds one (up to 8), × removes the last. Enter PNGS for the semesters you finished (e.g. 3.50 and 3,80); after saving and reloading they are still there. Diploma has no semester section.
+- [ ] **Bidang**: type a field that is not in the list (e.g. Sains Sukan) and choose **+ Tambah “Sains Sukan” sebagai bidang lain**; it is kept after reloading.
 - [ ] **STPM** has a subject table starting with Pengajian Am; **A-Level** has subjects (A*–E) but no PNGK.
 - [ ] The blue box "Apa yang universiti semak" summarises the usual requirements for the level.
 - [ ] Tab **SPM asas**: the SPM form, with a note on why SPM still matters.

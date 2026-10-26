@@ -126,6 +126,8 @@ describe('results after SPM', () => {
       programmeName: 'Diploma Sains Komputer',
       qualificationLevel: null,
       stream: null,
+      customFieldName: null,
+      semesterGpas: null,
       subjects: [],
     });
   });
@@ -195,5 +197,19 @@ describe('matriculation', () => {
       subjects: [{ subjectId: id(1), grade: 'A-' }],
     });
     expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3.2', subjects: '[]' }), 'foundation')).toMatchObject({ subjects: [], stream: null });
+  });
+});
+
+describe('semesters and typed fields', () => {
+  it('reads semester GPAs in order, dropping empty ones at the end', () => {
+    const r = parseHigherSubmission(form({ examYear: '2026', cgpa: '3.6', semesterGpas: JSON.stringify(['3.5', '', '3,7', '', '']), subjects: '[]' }), 'foundation');
+    expect(r).toMatchObject({ semesterGpas: [3.5, null, 3.7] });
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3.6', semesterGpas: JSON.stringify(['5']) }), 'foundation')).toEqual({ error: 'semesterInvalid' });
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3.6', semesterGpas: JSON.stringify(['3.5']) }), 'diploma')).toMatchObject({ semesterGpas: null });
+  });
+
+  it('keeps a typed field only when no field was chosen from the list', () => {
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', customFieldName: ' Sains  Sukan ' }), 'foundation')).toMatchObject({ fieldId: null, customFieldName: 'Sains Sukan' });
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', fieldId: id(9), customFieldName: 'X' }), 'diploma')).toMatchObject({ fieldId: id(9), customFieldName: null });
   });
 });

@@ -57,7 +57,9 @@ async function SavedRecord({ lang, dict, params }: { lang: Locale; dict: Diction
     ...(record.muetBand !== null ? [[h.muet, `Band ${record.muetBand === 5.5 ? '5+' : record.muetBand.toFixed(1)}`] as [string, string]] : []),
     ...(record.stream && record.stream in h.streams ? [[h.stream, h.streams[record.stream as keyof typeof h.streams]] as [string, string]] : []),
     ...(fieldLabel ? [[h.field, fieldName(fieldLabel, lang)] as [string, string]] : []),
+    ...(!fieldLabel && record.customFieldName ? [[h.field, record.customFieldName] as [string, string]] : []),
     ...(record.programmeName ? [[h.programme, record.programmeName] as [string, string]] : []),
+    ...(record.semesterGpas ?? []).map((g, i) => [format(h.semesters.label, { n: i + 1 }), g === null ? '–' : g.toFixed(2)] as [string, string]),
   ];
   return (
     <>

@@ -470,7 +470,8 @@
       "cgpaRequired": "Masukkan PNGK anda.",
       "cgpaInvalid": "PNGK ialah nombor antara 0.00 dan 4.00, contoh 3.42.",
       "levelRequired": "Pilih tahap kelayakan anda.",
-      "streamRequired": "Pilih jurusan Matrikulasi anda."
+      "streamRequired": "Pilih jurusan Matrikulasi anda.",
+      "semesterInvalid": "PNGS setiap semester ialah nombor antara 0.00 dan 4.00."
     },
     "changeQualification": "Tukar kelayakan di Profil",
     "chooseQualification": {
@@ -497,7 +498,32 @@
       "accounting": "Perakaunan",
       "professional_accounting": "Perakaunan Profesional"
     },
-    "streamHint": "Subjek jurusan diisi sendiri. Anda hanya perlu isi gred."
+    "streamHint": "Subjek jurusan diisi sendiri. Anda hanya perlu isi gred.",
+    "titleFor": "Kelayakan {name}",
+    "shortNames": {
+      "stpm": "STPM",
+      "matriculation": "Matrikulasi",
+      "foundation": "Asasi",
+      "a_level": "A-Level",
+      "diploma": "Diploma",
+      "dvm": "DVM",
+      "dkm": "DKM / DLKM",
+      "certificate": "Sijil",
+      "svm": "SVM",
+      "skm": "SKM"
+    },
+    "addField": "+ Tambah “{name}” sebagai bidang lain",
+    "semesters": {
+      "title": "Keputusan semester",
+      "label": "Semester {n} · PNGS",
+      "add": "+ Tambah semester",
+      "remove": "Buang semester {n}",
+      "hint": {
+        "matriculation": "Matrikulasi: 2 semester (program 1 tahun) atau 4 semester (program 2 tahun). Isi PNGS setiap semester yang sudah tamat.",
+        "foundation": "Asasi biasanya 2 semester; sesetengah universiti 3 semester atau lebih. Tambah semester mengikut program anda."
+      },
+      "cgpaNote": "PNGK di atas ialah PNGK kumulatif terkini dalam transkrip anda."
+    }
   },
   "eligibility": {
     "title": "Boleh ke saya masuk?",

@@ -7,7 +7,7 @@ vi.mock('@/lib/profile/actions', () => ({ saveHigherResults: vi.fn(async () => (
 const { HigherResultsForm } = await import('./higher-results-form');
 
 type Initial = Parameters<typeof HigherResultsForm>[0]['initial'];
-const empty: Initial = { examYear: null, cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: null, stream: null, rows: [] };
+const empty: Initial = { examYear: null, cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: null, stream: null, customFieldName: null, semesterGpas: null, rows: [] };
 const subjects = [{ id: '00000000-0000-4000-8000-000000000001', name: 'Pengajian Am', category: 'core', isMandatory: true, keywords: [] }];
 const matriculationSubjects = ['Matematik', 'Kimia', 'Fizik', 'Biologi', 'Sains Komputer'].map((n, i) => {
   const name = `${n} (Matrikulasi)`;
@@ -88,5 +88,37 @@ describe('HigherResultsForm', () => {
     expect(screen.getByLabelText('PNGK / CGPA')).toHaveValue('3.40');
     expect(screen.getByRole('combobox', { name: 'MUET' })).toHaveTextContent('Band 5+');
     expect(screen.getByLabelText('Nama program')).toHaveValue('Diploma Sains Komputer');
+  });
+
+  it('starts matriculation and foundation with two semesters, and lets students add or remove one', async () => {
+    setup('foundation');
+    expect(screen.getByRole('heading', { name: 'Keputusan semester' })).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Semester \d · PNGS/)).toHaveLength(2);
+    await userEvent.click(screen.getByRole('button', { name: '+ Tambah semester' }));
+    expect(screen.getAllByLabelText(/Semester \d · PNGS/)).toHaveLength(3);
+    await userEvent.type(screen.getByLabelText('Semester 3 · PNGS'), '3.75');
+    expect(JSON.parse((document.querySelector('input[name=semesterGpas]') as HTMLInputElement).value)).toEqual(['', '', '3.75']);
+    await userEvent.click(screen.getByRole('button', { name: 'Buang semester 3' }));
+    expect(screen.getAllByLabelText(/Semester \d · PNGS/)).toHaveLength(2);
+  });
+
+  it('has no semesters for a diploma', () => {
+    setup('diploma');
+    expect(screen.queryByRole('heading', { name: 'Keputusan semester' })).not.toBeInTheDocument();
+  });
+
+  it('keeps a field the student types when it is not in the list', async () => {
+    setup('foundation');
+    await userEvent.type(screen.getByRole('combobox', { name: 'Bidang' }), 'Sains Sukan');
+    await userEvent.click(screen.getByRole('option', { name: '+ Tambah “Sains Sukan” sebagai bidang lain' }));
+    expect((document.querySelector('input[name=customFieldName]') as HTMLInputElement).value).toBe('Sains Sukan');
+    expect((document.querySelector('input[name=fieldId]') as HTMLInputElement).value).toBe('');
+  });
+
+  it('shows saved semesters and a typed field', () => {
+    setup('matriculation', { ...empty, semesterGpas: [3.5, null, 3.8, 3.9], stream: 'science_1' });
+    expect(screen.getAllByLabelText(/Semester \d · PNGS/)).toHaveLength(4);
+    expect(screen.getByLabelText('Semester 1 · PNGS')).toHaveValue('3.50');
+    expect(screen.getByLabelText('Semester 2 · PNGS')).toHaveValue('');
   });
 });

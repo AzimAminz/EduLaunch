@@ -1,4 +1,4 @@
-import { GradeScales, MAX_SUBJECTS_PER_RECORD, MatriculationStreams, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, qualificationLevelsFor, requiresSubjects, type HigherQualification, type MatriculationStream, type StudentSnapshot } from '@edulaunch/contracts';
+import { GradeScales, MAX_SEMESTERS, MAX_SUBJECTS_PER_RECORD, MatriculationStreams, MuetBands, hasCgpa, hasProgramme, hasSemesters, hasSubjectGrades, qualificationLevelsFor, requiresSubjects, type HigherQualification, type MatriculationStream, type StudentSnapshot } from '@edulaunch/contracts';
 import { QUALIFICATION_CHOICES } from './levels';
 import { z } from 'zod';
 
@@ -147,16 +147,18 @@ export function parseCgpa(text: string): number | null | 'invalid' {
   return value <= 4 ? value : 'invalid';
 }
 
-export type HigherFormError = RecordFormError | 'cgpaRequired' | 'cgpaInvalid' | 'levelRequired' | 'streamRequired';
+export type HigherFormError = RecordFormError | 'cgpaRequired' | 'cgpaInvalid' | 'levelRequired' | 'streamRequired' | 'semesterInvalid';
 
 export interface HigherSubmission {
   examYear: number;
   cgpa: number | null;
   muetBand: number | null;
   fieldId: string | null;
+  customFieldName: string | null;
   programmeName: string | null;
   qualificationLevel: number | null;
   stream: MatriculationStream | null;
+  semesterGpas: Array<number | null> | null;
   subjects: Array<{ subjectId: string; grade: string; customName: string | null }>;
 }
 
@@ -202,8 +204,25 @@ export function parseHigherSubmission(form: FormData, qualification: HigherQuali
   if (levels && !levels.includes(level)) return { error: 'levelRequired' };
 
   const fieldId = hasProgramme(qualification) ? (z.uuid().safeParse(form.get('fieldId')).data ?? null) : null;
+  // A field typed by the student (not in the list) is kept by name.
+  const customFieldName = hasProgramme(qualification) && !fieldId ? cleanSubjectName(String(form.get('customFieldName') ?? '')) || null : null;
+
+  // Semester GPAs (matriculation, foundation): one per semester in order; empty ones at the end are dropped.
+  let semesterGpas: Array<number | null> | null = null;
+  if (hasSemesters(qualification)) {
+    let typed: unknown;
+    try {
+      typed = JSON.parse(String(form.get('semesterGpas') ?? '[]'));
+    } catch {
+      return { error: 'generic' };
+    }
+    const values = (Array.isArray(typed) ? typed : []).slice(0, MAX_SEMESTERS).map((v) => parseCgpa(v == null ? '' : String(v)));
+    if (values.includes('invalid')) return { error: 'semesterInvalid' };
+    while (values.length && values.at(-1) === null) values.pop();
+    semesterGpas = values.length ? (values as Array<number | null>) : null;
+  }
   const programme = hasProgramme(qualification) ? cleanSubjectName(String(form.get('programmeName') ?? '')).slice(0, 120) : '';
-  return { examYear: year, cgpa, muetBand, fieldId, programmeName: programme || null, qualificationLevel: levels ? level : null, stream, subjects };
+  return { examYear: year, cgpa, muetBand, fieldId, customFieldName, programmeName: programme || null, qualificationLevel: levels ? level : null, stream, semesterGpas, subjects };
 }
 
 /** The subjects of each matriculation stream (KPM), by their official catalogue names. */

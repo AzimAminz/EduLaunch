@@ -120,7 +120,8 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
 
     return (
       <>
-        <Heading eyebrow={`${t.eyebrow} · ${levelTitle}`} title={h.titles[levelKey]} intro={h.intros[levelKey]} />
+        {/* Name the qualification the student chose, e.g. "Kelayakan Matrikulasi". */}
+        <Heading eyebrow={`${t.eyebrow} · ${levelTitle}`} title={format(h.titleFor, { name: h.shortNames[qualification] })} intro={h.intros[levelKey]} />
         <SectionTabs lang={lang} dict={dict} current="results" />
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
@@ -151,6 +152,8 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
                 programmeName: record?.programmeName ?? null,
                 qualificationLevel: record?.qualificationLevel ?? null,
                 stream: record?.stream ?? null,
+                customFieldName: record?.customFieldName ?? null,
+                semesterGpas: record?.semesterGpas ?? null,
                 // A saved matriculation stream lists its subjects again, with the grades already saved.
                 rows: !hasSubjectGrades(qualification)
                   ? []

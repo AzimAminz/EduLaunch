@@ -70,5 +70,12 @@ export const qualificationLevelsFor = (qualification: RecordQualification): numb
 /** Most subjects one record can hold. Some SPM candidates take 20 subjects; 30 leaves room. */
 export const MAX_SUBJECTS_PER_RECORD = 30;
 
+/**
+ * Qualifications recorded semester by semester (GPA each semester, PNGS): matriculation runs 2 semesters
+ * (1 year) or 4 (2 years); foundation usually 2, some universities 3, and studies can be extended.
+ */
+export const hasSemesters = (qualification: RecordQualification) => qualification === 'matriculation' || qualification === 'foundation';
+export const MAX_SEMESTERS = 8;
+
 /** MUET bands (1.0 to 5.0 in half bands, and 5+ stored as 5.5). */
 export const MuetBands = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5] as const;

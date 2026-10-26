@@ -58,6 +58,8 @@ const AcademicRecord = z.object({
   cgpa: z.number().nullable(),
   muetBand: z.number().nullable(),
   fieldId: z.uuid().nullable(),
+  customFieldName: z.string().nullable().default(null),
+  semesterGpas: z.array(z.number().nullable()).nullable().default(null),
   programmeName: z.string().nullable(),
   qualificationLevel: z.number().nullable().default(null),
   stream: z.string().nullable().default(null),
@@ -84,6 +86,8 @@ export interface SaveRecordBody {
   programmeName?: string | null;
   qualificationLevel?: number | null;
   stream?: string | null;
+  customFieldName?: string | null;
+  semesterGpas?: Array<number | null> | null;
 }
 
 export const saveCurrentRecord = (token: string, body: SaveRecordBody) => call(token, '/me/records/current', AcademicRecord, { method: 'PUT', body: JSON.stringify(body) });

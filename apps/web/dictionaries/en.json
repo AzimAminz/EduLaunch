@@ -470,7 +470,8 @@
       "cgpaRequired": "Enter your CGPA.",
       "cgpaInvalid": "CGPA is a number from 0.00 to 4.00, e.g. 3.42.",
       "levelRequired": "Choose the level of your qualification.",
-      "streamRequired": "Choose your matriculation stream."
+      "streamRequired": "Choose your matriculation stream.",
+      "semesterInvalid": "Each semester GPA is a number from 0.00 to 4.00."
     },
     "changeQualification": "Change qualification in your Profile",
     "chooseQualification": {
@@ -497,7 +498,32 @@
       "accounting": "Accounting",
       "professional_accounting": "Professional Accounting"
     },
-    "streamHint": "The stream's subjects are filled in for you. Just add the grades."
+    "streamHint": "The stream's subjects are filled in for you. Just add the grades.",
+    "titleFor": "{name} qualification",
+    "shortNames": {
+      "stpm": "STPM",
+      "matriculation": "Matriculation",
+      "foundation": "Foundation",
+      "a_level": "A-Level",
+      "diploma": "Diploma",
+      "dvm": "DVM",
+      "dkm": "DKM / DLKM",
+      "certificate": "Certificate",
+      "svm": "SVM",
+      "skm": "SKM"
+    },
+    "addField": "+ Add “{name}” as another field",
+    "semesters": {
+      "title": "Semester results",
+      "label": "Semester {n} · GPA",
+      "add": "+ Add semester",
+      "remove": "Remove semester {n}",
+      "hint": {
+        "matriculation": "Matriculation: 2 semesters (1-year programme) or 4 semesters (2-year programme). Enter the GPA of each semester you have finished.",
+        "foundation": "Foundation is usually 2 semesters; some universities have 3 or more. Add semesters to match your programme."
+      },
+      "cgpaNote": "The CGPA above is the latest cumulative CGPA on your transcript."
+    }
   },
   "eligibility": {
     "title": "Can I get in?",
