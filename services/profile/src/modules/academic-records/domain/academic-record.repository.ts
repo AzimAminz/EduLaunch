@@ -9,5 +9,7 @@ export abstract class AcademicRecordRepository {
   abstract findCurrent(studentId: string, qualification: RecordQualification, kind: RecordKind, examYear?: number | null): Promise<AcademicRecord | null>;
   /** Every record of the student, newest exam year first: their academic history across levels. */
   abstract listByStudent(studentId: string): Promise<AcademicRecord[]>;
+  /** Removes records (and their subjects) that no longer fit the student's level; see retention.ts. */
+  abstract deleteMany(ids: string[]): Promise<void>;
   abstract save(record: AcademicRecord): Promise<void>;
 }

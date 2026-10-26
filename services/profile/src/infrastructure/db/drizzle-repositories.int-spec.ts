@@ -28,6 +28,13 @@ afterAll(async () => {
 });
 
 describe('DrizzleStudentRepository (integration)', () => {
+  it('keeps the qualification chosen after pre-university', async () => {
+    const s = await newStudent();
+    s.setEducationLevel('after_preu', null, 'matriculation');
+    await students.save(s);
+    expect((await students.findById(s.id))?.higherQualification).toBe('matriculation');
+  });
+
   it('creates the account on first save and finds the student by account', async () => {
     const s = await newStudent();
     const found = await students.findByAccountId(s.accountId);
@@ -139,6 +146,19 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     r.confirm();
     await records.save(r);
     expect((await records.findCurrent(s.id, 'diploma', 'actual'))?.toSnapshot()).toMatchObject({ cgpa: 3.42, muetBand: 3.5, fieldId: field, programmeName: 'Diploma Sains Komputer', status: 'confirmed' });
+  });
+
+  it('deletes chosen records with their subjects, and nothing else', async () => {
+    const s = await newStudent();
+    const keep = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'spm', kind: 'actual', examYear: 2025 });
+    keep.replaceSubjects([{ subjectId: subject.bm, grade: 'A' }]);
+    const drop = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'foundation', kind: 'actual', examYear: 2026 });
+    drop.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null });
+    await records.save(keep);
+    await records.save(drop);
+    await records.deleteMany([drop.id]);
+    expect((await records.listByStudent(s.id)).map((r) => r.id)).toEqual([keep.id]);
+    await records.deleteMany([]);
   });
 
   it('stores the name of a subject that is not in the catalogue', async () => {

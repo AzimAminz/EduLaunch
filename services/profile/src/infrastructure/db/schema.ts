@@ -28,6 +28,8 @@ export const students = profile.table('student', {
   accountId: uuid('account_id').notNull().unique().references(() => accounts.id, { onDelete: 'cascade' }),
   educationLevel: educationLevel('education_level'),
   formYear: smallint('form_year'),
+  /** After pre-university or diploma: which qualification (stpm, matriculation, foundation, a_level, diploma). */
+  higherQualification: text('higher_qualification'),
   streamProgramId: uuid('stream_program_id'),
   schoolName: text('school_name'),
   dateOfBirth: date('date_of_birth'),

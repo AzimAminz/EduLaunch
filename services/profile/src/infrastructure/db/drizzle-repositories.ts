@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
-import type { RecordQualification } from '@edulaunch/contracts';
-import { and, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
+import type { HigherQualification, RecordQualification } from '@edulaunch/contracts';
+import { and, desc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
 import * as schema from './schema.js';
 import { Student } from '../../modules/students/domain/student.js';
 import { StudentRepository } from '../../modules/students/domain/student.repository.js';
@@ -29,7 +29,15 @@ export class DrizzleStudentRepository extends StudentRepository {
     const s = student.toSnapshot();
     await this.db.transaction(async (tx) => {
       await tx.insert(accounts).values({ id: s.accountId, fullName: s.fullName }).onConflictDoNothing();
-      const values = { id: s.id, accountId: s.accountId, educationLevel: s.educationLevel, formYear: s.formYear, streamProgramId: s.streamProgramId, parentConsentAt: s.parentConsentAt };
+      const values = {
+        id: s.id,
+        accountId: s.accountId,
+        educationLevel: s.educationLevel,
+        formYear: s.formYear,
+        higherQualification: s.higherQualification,
+        streamProgramId: s.streamProgramId,
+        parentConsentAt: s.parentConsentAt,
+      };
       await tx.insert(students).values(values).onConflictDoUpdate({ target: students.id, set: values });
     });
   }
@@ -57,6 +65,7 @@ export class DrizzleStudentRepository extends StudentRepository {
       fullName: row.fullName,
       educationLevel: row.s.educationLevel,
       formYear: row.s.formYear,
+      higherQualification: row.s.higherQualification as HigherQualification | null,
       streamProgramId: row.s.streamProgramId,
       parentConsentAt: row.s.parentConsentAt,
     });
@@ -103,6 +112,10 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       .where(eq(academicRecords.studentId, studentId))
       .orderBy(sql`${academicRecords.examYear} desc nulls last`, academicRecords.recordKind, academicRecords.id);
     return Promise.all(rows.map((row) => this.toDomain(row)));
+  }
+
+  async deleteMany(ids: string[]): Promise<void> {
+    if (ids.length) await this.db.delete(academicRecords).where(inArray(academicRecords.id, ids));
   }
 
   async save(record: AcademicRecord): Promise<void> {

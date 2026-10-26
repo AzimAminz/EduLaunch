@@ -25,6 +25,7 @@ export const hasSubjectGrades = (qualification: RecordQualification): qualificat
 
 /** Results after SPM that lead to a degree (the "after pre-university" and "after diploma" levels). */
 export const HigherQualifications = ['stpm', 'matriculation', 'foundation', 'a_level', 'diploma'] as const satisfies readonly RecordQualification[];
+export type HigherQualification = (typeof HigherQualifications)[number];
 
 /** Qualifications whose results include a CGPA (PNGK). A-Level is graded by subject only. */
 export const hasCgpa = (qualification: RecordQualification) => ['stpm', 'matriculation', 'foundation', 'diploma'].includes(qualification);

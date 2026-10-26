@@ -2,12 +2,16 @@ import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Pos
 import { CurrentCaller, DRIZZLE, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
 import { and, eq } from 'drizzle-orm';
 import * as schema from '../infrastructure/db/schema.js';
-import { RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
+import { HigherQualifications, RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
 import { z } from 'zod';
-import { GetOrCreateMe, GetStudentSnapshot, UpdateEducationLevel } from '../modules/students/application/student.use-cases.js';
+import { GetOrCreateMe, GetStudentSnapshot, PreviewLevelChange, UpdateEducationLevel } from '../modules/students/application/student.use-cases.js';
 import { AcademicRecordService } from '../modules/academic-records/application/academic-record.use-cases.js';
 
-const LevelBody = z.object({ level: StudentSnapshot.shape.educationLevel, formYear: z.number().int().nullable().default(null) });
+const LevelBody = z.object({
+  level: StudentSnapshot.shape.educationLevel,
+  formYear: z.number().int().nullable().default(null),
+  higherQualification: z.enum(HigherQualifications).nullable().default(null),
+});
 const StartRecordBody = z.object({
   qualification: z.enum(['spm', 'school', 'stpm']),
   kind: z.enum(['actual', 'target', 'school']),
@@ -23,7 +27,8 @@ const SaveRecordBody = RecordKey.extend({
   examYear: z.number().int().min(2000).max(2100).nullable().default(null),
   subjects: z
     .array(z.object({ subjectId: z.uuid(), grade: z.string().min(1).max(3), customName: z.string().trim().min(1).max(80).nullable().default(null) }))
-    .max(25),
+    // Some students take many subjects (there are SPM candidates with 20).
+    .max(30),
   cgpa: z.number().min(0).max(4).nullable().default(null),
   muetBand: z.number().nullable().default(null),
   fieldId: z.uuid().nullable().default(null),
@@ -35,6 +40,7 @@ export class ProfileController {
   constructor(
     private readonly me: GetOrCreateMe,
     private readonly updateLevel: UpdateEducationLevel,
+    private readonly previewLevelChange: PreviewLevelChange,
     private readonly snapshot: GetStudentSnapshot,
     private readonly records: AcademicRecordService,
     @Inject(DRIZZLE) private readonly db: Database<typeof schema>,
@@ -49,7 +55,14 @@ export class ProfileController {
   @Roles('student')
   @Patch('me/education-level')
   setLevel(@CurrentCaller() caller: Caller, @Body(new ZodPipe(LevelBody)) body: z.infer<typeof LevelBody>) {
-    return this.updateLevel.execute({ caller, level: body.level, formYear: body.formYear });
+    return this.updateLevel.execute({ caller, ...body });
+  }
+
+  /** What a level change would remove from the student's saved records, shown before they confirm. */
+  @Roles('student')
+  @Post('me/education-level/preview')
+  previewLevel(@CurrentCaller() caller: Caller, @Body(new ZodPipe(LevelBody)) body: z.infer<typeof LevelBody>) {
+    return this.previewLevelChange.execute({ caller, ...body });
   }
 
   /** The results form for one kind of record, e.g. ?qualification=spm&kind=target. `record` is null until first saved. */

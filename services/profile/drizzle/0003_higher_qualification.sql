@@ -1,0 +1,1 @@
+ALTER TABLE "profile"."student" ADD COLUMN "higher_qualification" text;

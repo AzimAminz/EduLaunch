@@ -5,7 +5,7 @@ import { DrizzleAcademicRecordRepository, DrizzleStudentRepository } from './inf
 import { env } from './config.js';
 import { StudentRepository } from './modules/students/domain/student.repository.js';
 import { AcademicRecordRepository } from './modules/academic-records/domain/academic-record.repository.js';
-import { GetOrCreateMe, GetStudentSnapshot, UpdateEducationLevel } from './modules/students/application/student.use-cases.js';
+import { GetOrCreateMe, GetStudentSnapshot, PreviewLevelChange, UpdateEducationLevel } from './modules/students/application/student.use-cases.js';
 import { AcademicRecordService } from './modules/academic-records/application/academic-record.use-cases.js';
 import { ProfileController } from './presentation/profile.controller.js';
 
@@ -21,6 +21,7 @@ import { ProfileController } from './presentation/profile.controller.js';
     { provide: AcademicRecordRepository, useClass: DrizzleAcademicRecordRepository },
     GetOrCreateMe,
     UpdateEducationLevel,
+    PreviewLevelChange,
     GetStudentSnapshot,
     AcademicRecordService,
   ],
