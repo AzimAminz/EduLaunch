@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
 import { Icon } from '@/components/ui/icon';
 
 export interface ComboboxOption {
@@ -12,21 +12,23 @@ interface ComboboxProps {
   /** Form field name; the chosen value is sent in a hidden input ("" means all). */
   name: string;
   label: string;
-  /** The first option, which clears the choice ("All universities"). Also the placeholder. */
+  /** The first option, which clears the choice ("All universities"). Also shown when nothing is chosen. */
   allLabel: string;
   noMatchesLabel: string;
   options: ComboboxOption[];
   defaultValue?: string;
+  /** false = pick from the list only (no typing), for short lists such as "Level". */
+  searchable?: boolean;
 }
 
 /**
- * Dropdown + search in one field (ARIA combobox pattern): click to open, type to narrow the list,
- * arrows and Enter to choose, Escape to cancel. Works inside a plain GET form.
+ * Dropdown with the same look everywhere (ARIA combobox pattern). Searchable: click to open,
+ * type to narrow the list. Both modes: arrows and Enter to choose, Escape to cancel. Works inside a GET form.
  */
-export function Combobox({ name, label, allLabel, noMatchesLabel, options, defaultValue = '' }: ComboboxProps) {
+export function Combobox({ name, label, allLabel, noMatchesLabel, options, defaultValue = '', searchable = true }: ComboboxProps) {
   const id = useId();
   const listId = `${id}-list`;
-  const inputRef = useRef<HTMLInputElement>(null);
+  const fieldRef = useRef<HTMLInputElement & HTMLDivElement>(null);
   const labelOf = (value: string) => options.find((o) => o.value === value)?.label ?? '';
 
   const [value, setValue] = useState(defaultValue);
@@ -35,12 +37,19 @@ export function Combobox({ name, label, allLabel, noMatchesLabel, options, defau
   const [active, setActive] = useState(0);
   const [typed, setTyped] = useState(false);
 
+  const all = useMemo(() => [{ value: '', label: allLabel }, ...options], [allLabel, options]);
   const visible = useMemo(() => {
-    const all = [{ value: '', label: allLabel }, ...options];
-    if (!typed || !text.trim()) return all;
+    if (!searchable || !typed || !text.trim()) return all;
     const q = text.trim().toLocaleLowerCase();
     return options.filter((o) => o.label.toLocaleLowerCase().includes(q));
-  }, [allLabel, options, text, typed]);
+  }, [all, options, searchable, text, typed]);
+
+  /** Opens the list with the current choice highlighted. */
+  function openList() {
+    if (open) return;
+    setActive(Math.max(0, all.findIndex((o) => o.value === value)));
+    setOpen(true);
+  }
 
   function choose(option: ComboboxOption) {
     setValue(option.value);
@@ -55,10 +64,10 @@ export function Combobox({ name, label, allLabel, noMatchesLabel, options, defau
     setTyped(false);
   }
 
-  function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+  function onKeyDown(e: KeyboardEvent<HTMLElement>) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
-      if (!open) setOpen(true);
+      if (!open) return openList();
       const step = e.key === 'ArrowDown' ? 1 : -1;
       setActive((i) => (visible.length ? (i + step + visible.length) % visible.length : 0));
     } else if (e.key === 'Enter' && open) {
@@ -68,55 +77,64 @@ export function Combobox({ name, label, allLabel, noMatchesLabel, options, defau
     } else if (e.key === 'Escape' && open) {
       e.preventDefault();
       cancel();
+    } else if (!searchable && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      openList();
     }
   }
 
-  const activeId = open && visible[active] ? `${id}-opt-${active}` : undefined;
+  function onBlur(e: FocusEvent<HTMLElement>) {
+    if (!e.relatedTarget?.closest(`#${CSS.escape(listId)}`)) cancel();
+  }
+
+  const fieldA11y = {
+    id: `${id}-field`,
+    role: 'combobox' as const,
+    'aria-expanded': open,
+    'aria-controls': listId,
+    'aria-labelledby': `${id}-label`,
+    'aria-activedescendant': open && visible[active] ? `${id}-opt-${active}` : undefined,
+    onKeyDown,
+    onBlur,
+  };
 
   return (
     <div className="relative flex min-w-0 flex-1 flex-col gap-2">
-      <label htmlFor={`${id}-input`} className="text-sm font-semibold text-white">
+      <label id={`${id}-label`} htmlFor={`${id}-field`} className="text-sm font-semibold text-white">
         {label}
       </label>
-      <div className="flex items-center gap-2.5 rounded-xl border-[1.5px] border-[#8792a6] bg-white px-4 py-[15px] focus-within:ring-2 focus-within:ring-yellow">
-        <Icon src="/icons/search.svg" size={18} className="shrink-0" />
-        <input
-          ref={inputRef}
-          id={`${id}-input`}
-          role="combobox"
-          aria-expanded={open}
-          aria-controls={listId}
-          aria-autocomplete="list"
-          aria-activedescendant={activeId}
-          autoComplete="off"
-          placeholder={allLabel}
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            setTyped(true);
-            setOpen(true);
-            setActive(0);
-          }}
-          onClick={() => setOpen(true)}
-          onKeyDown={onKeyDown}
-          onBlur={(e) => {
-            if (!e.relatedTarget?.closest(`#${CSS.escape(listId)}`)) cancel();
-          }}
-          className="min-w-0 flex-1 bg-transparent text-base text-navy outline-none placeholder:text-muted"
-        />
-        <button
-          type="button"
-          tabIndex={-1}
-          aria-hidden
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => {
-            setOpen((o) => !o);
-            inputRef.current?.focus();
-          }}
-          className="shrink-0"
-        >
-          <Icon src="/icons/chevron-down.svg" size={20} />
-        </button>
+      <div
+        className="flex cursor-pointer items-center gap-2.5 rounded-xl border-[1.5px] border-[#8792a6] bg-white px-4 py-[15px] focus-within:ring-2 focus-within:ring-yellow"
+        onMouseDown={(e) => {
+          if (e.target !== fieldRef.current) e.preventDefault();
+          fieldRef.current?.focus();
+          if (open && !searchable) cancel();
+          else openList();
+        }}
+      >
+        {searchable && <Icon src="/icons/search.svg" size={18} className="shrink-0" />}
+        {searchable ? (
+          <input
+            ref={fieldRef}
+            {...fieldA11y}
+            aria-autocomplete="list"
+            autoComplete="off"
+            placeholder={allLabel}
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+              setTyped(true);
+              setOpen(true);
+              setActive(0);
+            }}
+            className="min-w-0 flex-1 bg-transparent text-base text-navy outline-none placeholder:text-muted"
+          />
+        ) : (
+          <div ref={fieldRef} {...fieldA11y} tabIndex={0} className="min-w-0 flex-1 truncate text-base font-medium text-navy outline-none">
+            {labelOf(value) || allLabel}
+          </div>
+        )}
+        <Icon src="/icons/chevron-down.svg" size={20} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </div>
       <input type="hidden" name={name} value={value} />
 

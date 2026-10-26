@@ -89,4 +89,47 @@ describe('Combobox', () => {
     expect(hidden().value).toBe('');
     expect(input).toHaveValue('');
   });
+
+  describe('select-only mode (searchable={false}), used for "Level"', () => {
+    function setupSelect(defaultValue?: string) {
+      const user = userEvent.setup();
+      const levels = [
+        { value: 'diploma', label: 'Diploma' },
+        { value: 'degree', label: 'Ijazah sarjana muda' },
+      ];
+      const { container } = render(
+        <Combobox name="studyLevel" label="Peringkat" allLabel="Semua peringkat" noMatchesLabel="Tiada padanan" options={levels} defaultValue={defaultValue} searchable={false} />,
+      );
+      const hidden = () => container.querySelector<HTMLInputElement>('input[type="hidden"][name="studyLevel"]')!;
+      return { user, hidden, container, field: screen.getByRole('combobox', { name: 'Peringkat' }) };
+    }
+
+    it('shows the current choice as text, with no search icon and no typing', async () => {
+      const { user, field, container } = setupSelect();
+      expect(field).toHaveTextContent('Semua peringkat');
+      expect(container.querySelector('img[src*="search"]')).toBeNull();
+      await user.click(field);
+      await user.keyboard('xyz');
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+    });
+
+    it('opens the same styled list and selects with a click', async () => {
+      const { user, field, hidden } = setupSelect();
+      await user.click(field);
+      await user.click(screen.getByRole('option', { name: 'Ijazah sarjana muda' }));
+      expect(hidden().value).toBe('degree');
+      expect(field).toHaveTextContent('Ijazah sarjana muda');
+      expect(field).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('works with the keyboard and keeps a preselected value', async () => {
+      const { user, field, hidden } = setupSelect('diploma');
+      expect(field).toHaveTextContent('Diploma');
+      field.focus();
+      await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+      expect(hidden().value).toBe('degree');
+      await user.keyboard('{ArrowDown}{Escape}');
+      expect(hidden().value).toBe('degree');
+    });
+  });
 });
