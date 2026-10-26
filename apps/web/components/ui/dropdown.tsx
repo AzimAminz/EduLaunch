@@ -82,7 +82,8 @@ export function Dropdown({
       !searchable || !typed || !query
         ? options
         : options.filter((o) => [o.label, ...(o.keywords ?? [])].some((word) => word.toLocaleLowerCase().includes(query)));
-    const exact = options.some((o) => o.label.toLocaleLowerCase() === query);
+    // No "add …" when the text already names an option (by its label or another name).
+    const exact = options.some((o) => [o.label, ...(o.keywords ?? [])].some((word) => word.toLocaleLowerCase() === query));
     if (createLabel && onCreate && typed && query && !exact) return [...list, { value: CREATE, label: createLabel(text.trim()) }];
     return list;
   }, [createLabel, onCreate, options, searchable, text, typed]);

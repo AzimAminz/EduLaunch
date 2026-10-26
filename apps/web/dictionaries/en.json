@@ -260,7 +260,7 @@
       "school": "Optional. School grades help suggest a Form 4 stream — they are not public exam results.",
       "target": "Target grades are used for Merit Lab simulations and eligibility checks labelled as targets.",
       "actual": "Enter the grades as they appear on your results slip. Remove subjects you did not take, add any that are missing.",
-      "basic": "Most degree programmes still check minimum SPM requirements. CGPA, MUET and STPM grades come in the next step."
+      "basic": "Almost every public degree programme asks for a credit in SPM Malay Language and a pass in SPM History. Enter your SPM results here; CGPA and MUET go in the Qualification tab."
     },
     "examYear": {
       "school": "Final-year exam",
@@ -276,7 +276,9 @@
       "school": "Grade",
       "target": "Target",
       "actual": "SPM grade",
-      "basic": "SPM grade"
+      "basic": "SPM grade",
+      "stpm": "STPM grade",
+      "a_level": "A-Level grade"
     },
     "chooseGrade": "Choose",
     "gradeFor": "Grade for {subject}",
@@ -321,13 +323,13 @@
       "school": "What opens up for you",
       "target": "When SPM results are announced",
       "actual": "After saving",
-      "basic": "Coming next"
+      "basic": "Why SPM still matters"
     },
     "sideBody": {
       "school": "The interest quiz, field exploration and the Form 4 stream picker use your subject strengths.",
       "target": "We will ask for your actual results. Targets are kept as history so you can compare them, not deleted.",
       "actual": "Eligibility checks and programme suggestions will use these confirmed results.",
-      "basic": "CGPA, MUET, STPM grades and your diploma programme will be added in the next step."
+      "basic": "Besides Malay Language and History, some degree programmes check particular SPM subjects, such as Mathematics or Science, even after a diploma or pre-university qualification."
     },
     "noLevel": {
       "title": "Choose your education level first",
@@ -348,12 +350,18 @@
       "labels": {
         "school": "School results {year}",
         "target": "SPM targets {year}",
-        "actual": "SPM results {year}"
+        "actual": "SPM results {year}",
+        "stpm": "STPM {year}",
+        "matriculation": "Matriculation {year}",
+        "foundation": "Foundation {year}",
+        "a_level": "A-Level {year}",
+        "diploma": "Diploma {year}"
       },
       "noYear": "(year not chosen)",
       "open": "View",
       "current": "Open now",
-      "subjects": "{count} subjects"
+      "subjects": "{count} subjects",
+      "details": "CGPA {cgpa} · MUET {muet}"
     },
     "view": {
       "back": "Back to academic documents",
@@ -377,5 +385,57 @@
     "sideBody": "Your data and progress are linked to the same account.",
     "openProfile": "Open my profile",
     "levelSaved": "Education level updated."
+  },
+  "higher": {
+    "titles": {
+      "after_preu": "Pre-university qualification",
+      "after_diploma": "Diploma qualification"
+    },
+    "intros": {
+      "after_preu": "For a bachelor's degree, universities look at your qualification, CGPA, MUET and basic SPM results. Subject grades are only needed for STPM and A-Level.",
+      "after_diploma": "For a degree, universities look at your diploma CGPA, diploma field, MUET and basic SPM results, not the grade of each diploma subject."
+    },
+    "sectionsLabel": "Results sections",
+    "sections": {
+      "results": "Qualification",
+      "spm": "Basic SPM"
+    },
+    "qualificationLabel": "Qualification",
+    "qualifications": {
+      "stpm": "STPM",
+      "matriculation": "Matriculation",
+      "foundation": "Foundation",
+      "a_level": "A-Level",
+      "diploma": "Diploma"
+    },
+    "cgpa": "CGPA",
+    "cgpaHint": "Scale 0.00 – 4.00, as on your transcript.",
+    "cgpaPlaceholder": "e.g. 3.42",
+    "muet": "MUET",
+    "muetNone": "None yet",
+    "year": "Year completed",
+    "field": "Diploma field",
+    "fieldPlaceholder": "Search fields",
+    "fieldNone": "Not chosen",
+    "programme": "Diploma programme name",
+    "programmePlaceholder": "e.g. Diploma in Computer Science",
+    "subjectsTitle": {
+      "stpm": "STPM subject grades",
+      "a_level": "A-Level subject grades"
+    },
+    "subjectsHint": {
+      "stpm": "Enter every subject you took, including General Studies.",
+      "a_level": "Enter every A-Level subject you took."
+    },
+    "sideTitle": "What universities check",
+    "sideBody": {
+      "after_preu": "Most public degree programmes ask for a CGPA of at least 2.00, MUET (usually Band 1–2), a credit in SPM Malay Language and a pass in SPM History. STPM also needs grade C in three subjects including General Studies.",
+      "after_diploma": "Most degree programmes ask for a diploma CGPA of at least 2.00 (some 2.50–3.00), a related diploma field, MUET, a credit in SPM Malay Language and a pass in SPM History."
+    },
+    "sideNote": "Actual requirements differ by programme and year. Always check with the university.",
+    "errors": {
+      "cgpaRequired": "Enter your CGPA.",
+      "cgpaInvalid": "CGPA is a number from 0.00 to 4.00, e.g. 3.42."
+    }
   }
 }

@@ -1,5 +1,5 @@
 import 'server-only';
-import { StudentSnapshot } from '@edulaunch/contracts';
+import { RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
 import { z } from 'zod';
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://127.0.0.1:4000';
@@ -27,7 +27,7 @@ export const getMe = (token: string) => call(token, '/me', Me);
 export const setEducationLevel = (token: string, level: EducationLevel, formYear: number | null) =>
   call(token, '/me/education-level', Me, { method: 'PATCH', body: JSON.stringify({ level, formYear }) });
 
-export const Qualification = z.enum(['spm', 'school', 'stpm']);
+export const Qualification = z.enum(RecordQualifications);
 export const RecordKind = z.enum(['actual', 'target', 'school']);
 export type Qualification = z.infer<typeof Qualification>;
 export type RecordKind = z.infer<typeof RecordKind>;
@@ -37,6 +37,10 @@ const AcademicRecord = z.object({
   qualification: Qualification,
   kind: RecordKind,
   examYear: z.number().nullable(),
+  cgpa: z.number().nullable(),
+  muetBand: z.number().nullable(),
+  fieldId: z.uuid().nullable(),
+  programmeName: z.string().nullable(),
   subjects: z.array(z.object({ subjectId: z.uuid(), grade: z.string(), customName: z.string().nullable() })),
   status: z.enum(['draft', 'confirmed']),
 });
@@ -54,6 +58,10 @@ export interface SaveRecordBody {
   kind: RecordKind;
   examYear: number | null;
   subjects: Array<{ subjectId: string; grade: string; customName: string | null }>;
+  cgpa?: number | null;
+  muetBand?: number | null;
+  fieldId?: string | null;
+  programmeName?: string | null;
 }
 
 export const saveCurrentRecord = (token: string, body: SaveRecordBody) => call(token, '/me/records/current', AcademicRecord, { method: 'PUT', body: JSON.stringify(body) });

@@ -6,8 +6,8 @@ import { lang as rootLang } from 'next/root-params';
 import { LevelPicker } from '@/components/onboarding/level-picker';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
-import { getCurrentRecord, getMe } from '@/lib/profile/api';
-import { recordFormFor } from '@/lib/profile/records';
+import { getMe, listRecords } from '@/lib/profile/api';
+import { higherChoicesFor, recordFormFor } from '@/lib/profile/records';
 import { getAccessToken, getAccount } from '@/lib/supabase/server';
 
 /** "Profil saya" (Figma: Profil & perjalanan saya): account, education level and a summary of saved results. */
@@ -44,13 +44,9 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   if (!account || !token) notFound();
 
   let me: Awaited<ReturnType<typeof getMe>>;
-  let record: Awaited<ReturnType<typeof getCurrentRecord>> = null;
+  let history: Awaited<ReturnType<typeof listRecords>>;
   try {
-    me = await getMe(token);
-    if (me.educationLevel) {
-      const form = recordFormFor(me.educationLevel);
-      record = await getCurrentRecord(token, form.qualification, form.kind);
-    }
+    [me, history] = await Promise.all([getMe(token), listRecords(token)]);
   } catch {
     return (
       <p role="alert" className="rounded-[18px] border border-line bg-white p-6 text-sm">
@@ -58,6 +54,17 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
       </p>
     );
   }
+  // The record that matters most for this level: the qualification after SPM, else the level's own results form.
+  const higher = me.educationLevel ? higherChoicesFor(me.educationLevel) : [];
+  const form = me.educationLevel ? recordFormFor(me.educationLevel) : null;
+  const record =
+    history.find((r) => (higher as string[]).includes(r.qualification)) ??
+    (form ? history.find((r) => r.qualification === form.qualification && r.kind === form.kind) : undefined);
+  const summary = !record
+    ? dict.academic.status.none
+    : record.cgpa !== null || record.muetBand !== null
+      ? `${dict.higher.qualifications[record.qualification as keyof typeof dict.higher.qualifications] ?? ''} · ${format(dict.academic.history.details, { cgpa: record.cgpa?.toFixed(2) ?? '–', muet: record.muetBand === null ? '–' : record.muetBand === 5.5 ? '5+' : record.muetBand.toFixed(1) })}`
+      : `${dict.academic.status[record.status]} · ${format(t.subjectsCount, { count: record.subjects.length })}`;
   const levelTitle = me.educationLevel ? dict.onboarding.levels[me.educationLevel].title : t.levelNone;
   const formSuffix = me.formYear ? ` · ${format(dict.onboarding.levels.form1_3.short, { form: me.formYear })}` : '';
 
@@ -76,7 +83,7 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
           {formSuffix}
         </p>
         <p className="text-sm text-muted">
-          {record ? `${dict.academic.status[record.status]} · ${format(t.subjectsCount, { count: record.subjects.length })}` : dict.academic.status.none}
+          {summary}
         </p>
         <Link href={`/${lang}/dokumen`} className="flex items-center justify-center gap-2 rounded-[10px] bg-navy px-5 py-3.5 font-semibold text-white hover:bg-navy/90 sm:self-start">
           {t.manageAcademic} →

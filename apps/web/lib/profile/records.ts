@@ -1,4 +1,4 @@
-import { GradeScales, type StudentSnapshot } from '@edulaunch/contracts';
+import { GradeScales, HigherQualifications, MuetBands, hasCgpa, hasSubjectGrades, type StudentSnapshot } from '@edulaunch/contracts';
 import { z } from 'zod';
 
 type EducationLevel = StudentSnapshot['educationLevel'];
@@ -14,8 +14,8 @@ export interface RecordForm {
 
 /**
  * Form 1–3: school grades (never converted to SPM), one record per year. Form 4–5: SPM targets.
- * After SPM: actual SPM. After pre-university or Diploma: their basic SPM results for now
- * (CGPA, MUET and STPM grades come in Step 6b).
+ * After SPM: actual SPM. After pre-university or Diploma: their basic SPM results (the "SPM asas" tab);
+ * their qualification itself (CGPA, MUET…) uses the forms further down.
  */
 export function recordFormFor(level: EducationLevel): RecordForm {
   switch (level) {
@@ -30,9 +30,11 @@ export function recordFormFor(level: EducationLevel): RecordForm {
   }
 }
 
+export type HistoryKind = 'school' | 'target' | 'actual' | 'stpm' | 'matriculation' | 'foundation' | 'a_level' | 'diploma';
+
 /** How a saved record is named in the history list. */
-export const historyKind = (record: { qualification: string; kind: string }): 'school' | 'target' | 'actual' =>
-  record.kind === 'school' ? 'school' : record.kind === 'target' ? 'target' : 'actual';
+export const historyKind = (record: { qualification: string; kind: string }): HistoryKind =>
+  record.qualification === 'spm' ? (record.kind === 'target' ? 'target' : 'actual') : (record.qualification as HistoryKind);
 
 export const gradesFor = (qualification: RecordForm['qualification']): readonly string[] => GradeScales[qualification];
 
@@ -111,4 +113,56 @@ export function parseRecordSubmission(
   if (new Set(rows.map((r) => r.subjectId)).size !== rows.length) return { error: 'generic' };
 
   return { examYear, subjects: rows.map((r) => ({ subjectId: r.subjectId, grade: r.grade, customName: r.customName ? cleanSubjectName(r.customName) : null })) };
+}
+
+// ── Results after SPM (pre-university and diploma) ──────────────────────────
+
+export type HigherQualification = (typeof HigherQualifications)[number];
+
+/** The qualifications a level chooses from: STPM, matriculation, foundation or A-Level; or a diploma. */
+export const higherChoicesFor = (level: EducationLevel): HigherQualification[] =>
+  level === 'after_diploma' ? ['diploma'] : level === 'after_preu' ? ['stpm', 'matriculation', 'foundation', 'a_level'] : [];
+
+/** Reads a typed CGPA: "3.42" or "3,42". Empty means not given. */
+export function parseCgpa(text: string): number | null | 'invalid' {
+  const cleaned = text.trim().replace(',', '.');
+  if (!cleaned) return null;
+  if (!/^\d(\.\d{1,2})?$/.test(cleaned)) return 'invalid';
+  const value = Number(cleaned);
+  return value <= 4 ? value : 'invalid';
+}
+
+export type HigherFormError = RecordFormError | 'cgpaRequired' | 'cgpaInvalid';
+
+export interface HigherSubmission {
+  examYear: number;
+  cgpa: number | null;
+  muetBand: number | null;
+  fieldId: string | null;
+  programmeName: string | null;
+  subjects: Array<{ subjectId: string; grade: string; customName: string | null }>;
+}
+
+/** Reads the pre-university or diploma form. CGPA is needed except for A-Level; STPM and A-Level also need subject grades. */
+export function parseHigherSubmission(form: FormData, qualification: HigherQualification): HigherSubmission | { error: HigherFormError } {
+  const year = Number(form.get('examYear'));
+  if (!Number.isInteger(year) || year < 2000 || year > 2100) return { error: 'yearRequired' };
+
+  const cgpa = hasCgpa(qualification) ? parseCgpa(String(form.get('cgpa') ?? '')) : null;
+  if (cgpa === 'invalid') return { error: 'cgpaInvalid' };
+  if (hasCgpa(qualification) && cgpa === null) return { error: 'cgpaRequired' };
+
+  const muet = Number(form.get('muetBand'));
+  const muetBand = (MuetBands as readonly number[]).includes(muet) ? muet : null;
+
+  let subjects: HigherSubmission['subjects'] = [];
+  if (hasSubjectGrades(qualification)) {
+    const parsed = parseRecordSubmission(form, GradeScales[qualification]);
+    if ('error' in parsed) return { error: parsed.error };
+    subjects = parsed.subjects;
+  }
+
+  const fieldId = qualification === 'diploma' ? z.uuid().safeParse(form.get('fieldId')).data ?? null : null;
+  const programme = qualification === 'diploma' ? cleanSubjectName(String(form.get('programmeName') ?? '')).slice(0, 120) : '';
+  return { examYear: year, cgpa, muetBand, fieldId, programmeName: programme || null, subjects };
 }

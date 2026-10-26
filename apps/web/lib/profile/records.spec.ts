@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { examYearsFor, matchOfficialSubject, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
+import { examYearsFor, higherChoicesFor, matchOfficialSubject, parseCgpa, parseHigherSubmission, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
 const subjects = [
@@ -87,5 +87,52 @@ describe('matchOfficialSubject', () => {
     expect(matchOfficialSubject('  add   maths ', list)?.id).toBe(id(1));
     expect(matchOfficialSubject('matematik tambahan', list)?.id).toBe(id(1));
     expect(matchOfficialSubject('Tasawwuf', list)).toBeUndefined();
+  });
+});
+
+describe('results after SPM', () => {
+  it('offers STPM, matriculation, foundation or A-Level after pre-university, and a diploma after diploma', () => {
+    expect(higherChoicesFor('after_preu')).toEqual(['stpm', 'matriculation', 'foundation', 'a_level']);
+    expect(higherChoicesFor('after_diploma')).toEqual(['diploma']);
+    expect(higherChoicesFor('after_spm')).toEqual([]);
+  });
+
+  it('reads a CGPA written with a dot or a comma', () => {
+    expect(parseCgpa('3.42')).toBe(3.42);
+    expect(parseCgpa('3,5')).toBe(3.5);
+    expect(parseCgpa('4')).toBe(4);
+    expect(parseCgpa('')).toBeNull();
+    expect(parseCgpa('4.10')).toBe('invalid');
+    expect(parseCgpa('3.456')).toBe('invalid');
+    expect(parseCgpa('tiga')).toBe('invalid');
+  });
+
+  it('needs the year and, except for A-Level, the CGPA', () => {
+    expect(parseHigherSubmission(form({ cgpa: '3.2' }), 'diploma')).toEqual({ error: 'yearRequired' });
+    expect(parseHigherSubmission(form({ examYear: '2026' }), 'matriculation')).toEqual({ error: 'cgpaRequired' });
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '5' }), 'foundation')).toEqual({ error: 'cgpaInvalid' });
+  });
+
+  it('keeps the diploma field and programme, but no subjects', () => {
+    const field = id(9);
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3.42', muetBand: '3.5', fieldId: field, programmeName: ' Diploma  Sains Komputer ', subjects: '[]' }), 'diploma')).toEqual({
+      examYear: 2026,
+      cgpa: 3.42,
+      muetBand: 3.5,
+      fieldId: field,
+      programmeName: 'Diploma Sains Komputer',
+      subjects: [],
+    });
+  });
+
+  it('needs subject grades for STPM and A-Level, on their own scales', () => {
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', subjects: '[]' }), 'stpm')).toEqual({ error: 'noSubjects' });
+    const aLevel = parseHigherSubmission(form({ examYear: '2026', subjects: JSON.stringify([{ subjectId: id(1), grade: 'A*' }]) }), 'a_level');
+    expect(aLevel).toMatchObject({ cgpa: null, subjects: [{ subjectId: id(1), grade: 'A*' }] });
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', subjects: JSON.stringify([{ subjectId: id(1), grade: 'A+' }]) }), 'stpm')).toEqual({ error: 'missingGrade' });
+  });
+
+  it('ignores a MUET band that does not exist', () => {
+    expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', muetBand: '2.2' }), 'matriculation')).toMatchObject({ muetBand: null });
   });
 });

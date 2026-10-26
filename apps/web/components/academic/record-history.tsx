@@ -19,7 +19,11 @@ export function RecordHistory({ locale, t, records, currentId }: { locale: Local
               <li key={r.id} className="flex items-center justify-between gap-3 py-2.5">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold">{format(t.labels[historyKind(r)], { year: r.examYear ?? t.noYear })}</p>
-                  <p className="text-xs text-muted">{format(t.subjects, { count: r.subjects.length })}</p>
+                  <p className="text-xs text-muted">
+                    {r.cgpa !== null || r.muetBand !== null
+                      ? format(t.details, { cgpa: r.cgpa?.toFixed(2) ?? '–', muet: r.muetBand === null ? '–' : r.muetBand === 5.5 ? '5+' : r.muetBand.toFixed(1) })
+                      : format(t.subjects, { count: r.subjects.length })}
+                  </p>
                 </div>
                 {current ? (
                   <span className="shrink-0 rounded-full bg-blue px-2.5 py-1 text-xs font-semibold">{t.current}</span>

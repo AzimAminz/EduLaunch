@@ -260,7 +260,7 @@
       "school": "Pilihan sahaja. Gred sekolah membantu cadangan aliran Tingkatan 4 — bukan keputusan peperiksaan awam.",
       "target": "Gred sasaran digunakan untuk simulasi Merit Lab dan semakan kelayakan berlabel sasaran.",
       "actual": "Masukkan gred seperti dalam slip keputusan. Buang subjek yang tidak diambil, tambah yang belum ada.",
-      "basic": "Kebanyakan program ijazah masih menyemak syarat minimum SPM. PNGK, MUET dan gred STPM akan ditambah dalam langkah seterusnya."
+      "basic": "Hampir semua program ijazah awam meminta kepujian Bahasa Melayu dan lulus Sejarah SPM. Masukkan keputusan SPM anda di sini; PNGK dan MUET diisi di tab Kelayakan."
     },
     "examYear": {
       "school": "Peperiksaan akhir tahun",
@@ -276,7 +276,9 @@
       "school": "Gred",
       "target": "Sasaran",
       "actual": "Gred SPM",
-      "basic": "Gred SPM"
+      "basic": "Gred SPM",
+      "stpm": "Gred STPM",
+      "a_level": "Gred A-Level"
     },
     "chooseGrade": "Pilih",
     "gradeFor": "Gred {subject}",
@@ -321,13 +323,13 @@
       "school": "Yang dibuka untuk anda",
       "target": "Selepas keputusan SPM diumumkan",
       "actual": "Selepas menyimpan",
-      "basic": "Akan datang"
+      "basic": "Kenapa SPM masih penting"
     },
     "sideBody": {
       "school": "Ujian minat, teroka bidang dan pemilih aliran Tingkatan 4 menggunakan kekuatan subjek anda.",
       "target": "Kami akan minta keputusan sebenar anda. Sasaran disimpan sebagai sejarah supaya anda boleh bandingkan, bukan dipadam.",
       "actual": "Semakan kelayakan dan cadangan program akan menggunakan keputusan yang telah disahkan ini.",
-      "basic": "Medan PNGK, MUET, gred STPM dan program diploma akan ditambah dalam langkah seterusnya."
+      "basic": "Selain syarat Bahasa Melayu dan Sejarah, sesetengah program ijazah menyemak subjek SPM tertentu, contohnya Matematik atau Sains, walaupun anda sudah ada diploma atau kelayakan pra-universiti."
     },
     "noLevel": {
       "title": "Pilih tahap pendidikan dahulu",
@@ -348,12 +350,18 @@
       "labels": {
         "school": "Prestasi sekolah {year}",
         "target": "Sasaran SPM {year}",
-        "actual": "Keputusan SPM {year}"
+        "actual": "Keputusan SPM {year}",
+        "stpm": "STPM {year}",
+        "matriculation": "Matrikulasi {year}",
+        "foundation": "Asasi {year}",
+        "a_level": "A-Level {year}",
+        "diploma": "Diploma {year}"
       },
       "noYear": "(tahun belum dipilih)",
       "open": "Lihat",
       "current": "Sedang dibuka",
-      "subjects": "{count} subjek"
+      "subjects": "{count} subjek",
+      "details": "PNGK {cgpa} · MUET {muet}"
     },
     "view": {
       "back": "Kembali ke dokumen akademik",
@@ -377,5 +385,57 @@
     "sideBody": "Data dan kemajuan dipautkan kepada akaun yang sama.",
     "openProfile": "Buka profil saya",
     "levelSaved": "Tahap pendidikan dikemas kini."
+  },
+  "higher": {
+    "titles": {
+      "after_preu": "Kelayakan pra-universiti",
+      "after_diploma": "Kelayakan Diploma"
+    },
+    "intros": {
+      "after_preu": "Untuk ijazah sarjana muda, universiti menilai jenis kelayakan, PNGK, MUET dan keputusan SPM asas anda. Gred subjek hanya diperlukan untuk STPM dan A-Level.",
+      "after_diploma": "Untuk ijazah, universiti menilai PNGK diploma, bidang diploma, MUET dan keputusan SPM asas anda, bukan gred setiap subjek diploma."
+    },
+    "sectionsLabel": "Bahagian keputusan",
+    "sections": {
+      "results": "Kelayakan",
+      "spm": "SPM asas"
+    },
+    "qualificationLabel": "Jenis kelayakan",
+    "qualifications": {
+      "stpm": "STPM",
+      "matriculation": "Matrikulasi",
+      "foundation": "Asasi",
+      "a_level": "A-Level",
+      "diploma": "Diploma"
+    },
+    "cgpa": "PNGK / CGPA",
+    "cgpaHint": "Skala 0.00 – 4.00, seperti dalam transkrip.",
+    "cgpaPlaceholder": "contoh: 3.42",
+    "muet": "MUET",
+    "muetNone": "Belum ada",
+    "year": "Tahun tamat",
+    "field": "Bidang diploma",
+    "fieldPlaceholder": "Cari bidang",
+    "fieldNone": "Belum dipilih",
+    "programme": "Nama program diploma",
+    "programmePlaceholder": "contoh: Diploma Sains Komputer",
+    "subjectsTitle": {
+      "stpm": "Gred subjek STPM",
+      "a_level": "Gred subjek A-Level"
+    },
+    "subjectsHint": {
+      "stpm": "Masukkan semua subjek yang diambil, termasuk Pengajian Am.",
+      "a_level": "Masukkan semua subjek A-Level yang diambil."
+    },
+    "sideTitle": "Apa yang universiti semak",
+    "sideBody": {
+      "after_preu": "Kebanyakan program ijazah awam meminta PNGK sekurang-kurangnya 2.00, MUET (biasanya Band 1–2), kepujian Bahasa Melayu dan lulus Sejarah SPM. STPM juga memerlukan gred C dalam tiga subjek termasuk Pengajian Am.",
+      "after_diploma": "Kebanyakan program ijazah meminta PNGK diploma sekurang-kurangnya 2.00 (sesetengah 2.50–3.00), bidang diploma yang berkaitan, MUET, kepujian Bahasa Melayu dan lulus Sejarah SPM."
+    },
+    "sideNote": "Syarat sebenar berbeza mengikut program dan tahun. Sentiasa semak dengan universiti.",
+    "errors": {
+      "cgpaRequired": "Masukkan PNGK anda.",
+      "cgpaInvalid": "PNGK ialah nombor antara 0.00 dan 4.00, contoh 3.42."
+    }
   }
 }
