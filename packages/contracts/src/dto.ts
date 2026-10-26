@@ -40,7 +40,8 @@ export type PublishedRequirement = z.infer<typeof PublishedRequirement>;
 /** What the recommendation service needs to know about a student. */
 export const StudentSnapshot = z.object({
   studentId: z.uuid(),
-  educationLevel: z.enum(['form1_3', 'form4_5', 'after_spm', 'after_preu', 'after_diploma']),
+  /** after_certificate: Sijil / SVM / SKM. after_preu: STPM, matriculation, foundation, A-Level, diploma, DVM or DKM. */
+  educationLevel: z.enum(['form1_3', 'form4_5', 'after_spm', 'after_certificate', 'after_preu']),
   isTargetBased: z.boolean(),
   gradeScale: z.enum(['spm', 'school', 'stpm']),
   grades: z.array(z.object({ subjectId: z.uuid(), grade: z.string() })),

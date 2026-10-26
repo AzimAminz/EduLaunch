@@ -1,4 +1,4 @@
-import type { HigherQualification, RecordQualification } from '@edulaunch/contracts';
+import { CertificateQualifications, type HigherQualification, type RecordQualification } from '@edulaunch/contracts';
 import type { EducationLevel } from '../../students/domain/student.js';
 import type { RecordKind } from './academic-record.js';
 
@@ -21,12 +21,13 @@ export function schoolYearsFor(formYear: number, thisYear: number): number[] {
   return Array.from({ length: Math.min(Math.max(formYear, 1), 3) }, (_, i) => thisYear - i);
 }
 
-const levelStage: Record<EducationLevel, number> = { form1_3: 1, form4_5: 2, after_spm: 3, after_preu: 4, after_diploma: 4 };
+/** SPM, then certificate (Sijil, SVM, SKM), then pre-university or diploma. */
+const levelStage: Record<EducationLevel, number> = { form1_3: 1, form4_5: 2, after_spm: 3, after_certificate: 4, after_preu: 5 };
 
 function recordStage(r: RecordSummary): number {
   if (r.qualification === 'school') return 1;
   if (r.qualification === 'spm') return r.kind === 'target' ? 2 : 3;
-  return 4;
+  return (CertificateQualifications as readonly string[]).includes(r.qualification) ? 4 : 5;
 }
 
 /**
@@ -35,7 +36,8 @@ function recordStage(r: RecordSummary): number {
  * - Moving down removes records of the higher stages (Form 5 → Form 3 removes SPM targets;
  *   after SPM → Form 5 removes the actual SPM results).
  * - Form 1–3 keeps only the school years of the chosen form (Form 2 → Form 1 removes last year's).
- * - Switching qualification after SPM (foundation → diploma) removes the other qualification; SPM stays.
+ * - Switching qualification within a stage after SPM (foundation → diploma, SVM → SKM) removes the other one;
+ *   SPM, and a certificate when moving on to a diploma, stay.
  */
 export function recordsToRemove(records: RecordSummary[], next: LevelState, thisYear: number): RecordSummary[] {
   const stage = levelStage[next.level];
@@ -43,7 +45,7 @@ export function recordsToRemove(records: RecordSummary[], next: LevelState, this
   return records.filter((r) => {
     if (recordStage(r) > stage) return true;
     if (schoolYears && r.qualification === 'school' && (r.examYear === null || !schoolYears.includes(r.examYear))) return true;
-    if (stage === 4 && recordStage(r) === 4 && r.qualification !== next.higherQualification) return true;
+    if (stage >= 4 && recordStage(r) === stage && r.qualification !== next.higherQualification) return true;
     return false;
   });
 }

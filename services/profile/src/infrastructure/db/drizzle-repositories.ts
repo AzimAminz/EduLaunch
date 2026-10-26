@@ -63,9 +63,10 @@ export class DrizzleStudentRepository extends StudentRepository {
     return Student.restore(row.s.id, {
       accountId: row.s.accountId,
       fullName: row.fullName,
-      educationLevel: row.s.educationLevel,
+      // Students saved before the levels were merged: 'after_diploma' is now 'after_preu' with a diploma.
+      educationLevel: row.s.educationLevel === 'after_diploma' ? 'after_preu' : row.s.educationLevel,
       formYear: row.s.formYear,
-      higherQualification: row.s.higherQualification as HigherQualification | null,
+      higherQualification: (row.s.higherQualification ?? (row.s.educationLevel === 'after_diploma' ? 'diploma' : null)) as HigherQualification | null,
       streamProgramId: row.s.streamProgramId,
       parentConsentAt: row.s.parentConsentAt,
     });
@@ -131,6 +132,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
         muetBand: s.muetBand === null ? null : String(s.muetBand),
         fieldId: s.fieldId,
         programmeName: s.programmeName,
+        qualificationLevel: s.qualificationLevel,
         recordStatus: s.status,
         confirmedAt: s.confirmedAt,
       };
@@ -155,6 +157,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       muetBand: num(row.muetBand),
       fieldId: row.fieldId,
       programmeName: row.programmeName,
+      qualificationLevel: row.qualificationLevel,
       subjects: subjects.map((x) => ({ subjectId: x.subjectId, grade: x.grade, customName: x.customName, readConfidence: num(x.readConfidence) })),
       status: row.recordStatus,
       confirmedAt: row.confirmedAt,

@@ -5,6 +5,8 @@ const target: RecordSummary = { id: 'target', qualification: 'spm', kind: 'targe
 const spm: RecordSummary = { id: 'spm', qualification: 'spm', kind: 'actual', examYear: 2025 };
 const foundation: RecordSummary = { id: 'foundation', qualification: 'foundation', kind: 'actual', examYear: 2026 };
 const diploma: RecordSummary = { id: 'diploma', qualification: 'diploma', kind: 'actual', examYear: 2026 };
+const certificate: RecordSummary = { id: 'certificate', qualification: 'certificate', kind: 'actual', examYear: 2025 };
+const svm: RecordSummary = { id: 'svm', qualification: 'svm', kind: 'actual', examYear: 2025 };
 const all = [school(2024), school(2025), school(2026), target, spm, foundation, diploma];
 const removed = (records: RecordSummary[], next: Parameters<typeof recordsToRemove>[1]) => recordsToRemove(records, next, 2026).map((r) => r.id);
 
@@ -35,8 +37,18 @@ describe('recordsToRemove', () => {
   });
 
   it('removes the other qualification when switching after SPM, and keeps SPM', () => {
-    expect(removed([spm, foundation], { level: 'after_diploma', formYear: null, higherQualification: 'diploma' })).toEqual(['foundation']);
+    expect(removed([spm, foundation], { level: 'after_preu', formYear: null, higherQualification: 'diploma' })).toEqual(['foundation']);
     expect(removed([spm, diploma], { level: 'after_preu', formYear: null, higherQualification: 'stpm' })).toEqual(['diploma']);
+  });
+
+  it('keeps a certificate when moving on to a diploma', () => {
+    expect(removed([spm, certificate], { level: 'after_preu', formYear: null, higherQualification: 'diploma' })).toEqual([]);
+  });
+
+  it('removes diploma-stage records when moving back to a certificate, and the other certificate when switching', () => {
+    expect(removed([spm, certificate, diploma], { level: 'after_certificate', formYear: null, higherQualification: 'certificate' })).toEqual(['diploma']);
+    expect(removed([spm, svm], { level: 'after_certificate', formYear: null, higherQualification: 'skm' })).toEqual(['svm']);
+    expect(removed([spm, svm], { level: 'after_spm', formYear: null, higherQualification: null })).toEqual(['svm']);
   });
 
   it('keeps SPM targets when moving between Form 4 and Form 5', () => {

@@ -11,15 +11,22 @@ describe('Student.setEducationLevel', () => {
     expect(s.formYear).toBe(2);
   });
 
-  it('asks which qualification after pre-university, and sets the diploma after diploma', () => {
-    expect(() => student().setEducationLevel('after_preu', null)).toThrow(/STPM, matriculation, foundation or A-Level/);
-    expect(() => student().setEducationLevel('after_preu', null, 'diploma')).toThrow(/STPM/);
-    const preu = student();
-    preu.setEducationLevel('after_preu', null, 'foundation');
-    expect(preu.higherQualification).toBe('foundation');
-    const diploma = student();
-    diploma.setEducationLevel('after_diploma', null, null);
-    expect(diploma.higherQualification).toBe('diploma');
+  it('asks which qualification after pre-university or diploma, including DVM and DKM', () => {
+    expect(() => student().setEducationLevel('after_preu', null)).toThrow(/STPM, matriculation, foundation, A-Level, diploma, DVM or DKM/);
+    expect(() => student().setEducationLevel('after_preu', null, 'svm')).toThrow(/STPM/);
+    for (const q of ['foundation', 'diploma', 'dkm'] as const) {
+      const s = student();
+      s.setEducationLevel('after_preu', null, q);
+      expect(s.higherQualification).toBe(q);
+    }
+  });
+
+  it('asks which certificate after certificate: Sijil, SVM or SKM', () => {
+    expect(() => student().setEducationLevel('after_certificate', null)).toThrow(/certificate, SVM or SKM/);
+    expect(() => student().setEducationLevel('after_certificate', null, 'diploma')).toThrow(/certificate, SVM or SKM/);
+    const s = student();
+    s.setEducationLevel('after_certificate', null, 'skm');
+    expect(s.higherQualification).toBe('skm');
   });
 
   it('clears the form and qualification for levels without them', () => {

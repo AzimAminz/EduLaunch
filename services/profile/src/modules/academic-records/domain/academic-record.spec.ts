@@ -94,12 +94,33 @@ describe('AcademicRecord', () => {
     expect(() => stpm.setResultDetails({ cgpa: 4.5, muetBand: null, fieldId: null, programmeName: null })).toThrow(/0.00 to 4.00/);
     expect(() => stpm.setResultDetails({ cgpa: 3.123, muetBand: null, fieldId: null, programmeName: null })).toThrow(/0.00 to 4.00/);
     expect(() => stpm.setResultDetails({ cgpa: 3, muetBand: 2.2, fieldId: null, programmeName: null })).toThrow(/MUET band/);
-    expect(() => stpm.setResultDetails({ cgpa: 3, muetBand: 4, fieldId: 'f1', programmeName: null })).toThrow(/Only a diploma/);
+    expect(() => stpm.setResultDetails({ cgpa: 3, muetBand: 4, fieldId: 'f1', programmeName: null })).toThrow(/Only a diploma or certificate/);
     expect(() => spm().setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null })).toThrow(/no CGPA/);
     const aLevel = AcademicRecord.start('a1', { studentId: 's1', qualification: 'a_level', kind: 'actual', examYear: 2026 });
     expect(() => aLevel.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null })).toThrow(/no CGPA/);
     aLevel.setGrade('maths', 'a*');
     expect(aLevel.subjects[0]?.grade).toBe('A*');
+  });
+
+  it('records SKM with its level and field, without CGPA', () => {
+    const skm = AcademicRecord.start('k1', { studentId: 's1', qualification: 'skm', kind: 'actual', examYear: 2025 });
+    expect(() => skm.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null })).toThrow(/no CGPA/);
+    expect(() => skm.setResultDetails({ cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: 4 })).toThrow(/1, 2, 3/);
+    expect(() => skm.confirm()).toThrow(/level/);
+    skm.setResultDetails({ cgpa: null, muetBand: null, fieldId: 'f1', programmeName: 'SKM Pendawaian Elektrik', qualificationLevel: 3 });
+    skm.confirm();
+    expect(skm.toSnapshot()).toMatchObject({ qualificationLevel: 3, fieldId: 'f1', status: 'confirmed' });
+  });
+
+  it('records a certificate or DKM like a diploma: CGPA, field and (for DKM) level 4 or 5', () => {
+    const cert = AcademicRecord.start('c1', { studentId: 's1', qualification: 'certificate', kind: 'actual', examYear: 2025 });
+    cert.setResultDetails({ cgpa: 3.2, muetBand: null, fieldId: 'f1', programmeName: 'Sijil Teknologi Elektrik', qualificationLevel: null });
+    cert.confirm();
+    const dkm = AcademicRecord.start('d2', { studentId: 's1', qualification: 'dkm', kind: 'actual', examYear: 2026 });
+    expect(() => dkm.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: 3 })).toThrow(/4, 5/);
+    dkm.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: 5 });
+    dkm.confirm();
+    expect(dkm.isConfirmed).toBe(true);
   });
 
   it('needs STPM subjects and CGPA before confirming', () => {

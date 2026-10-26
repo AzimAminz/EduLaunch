@@ -68,7 +68,13 @@ export class AcademicRecordService {
       AcademicRecord.start(randomUUID(), { studentId, qualification: input.qualification, kind: input.kind, examYear: null });
     record.setExamYear(input.examYear);
     record.replaceSubjects(input.subjects);
-    record.setResultDetails({ cgpa: input.cgpa ?? null, muetBand: input.muetBand ?? null, fieldId: input.fieldId ?? null, programmeName: input.programmeName ?? null });
+    record.setResultDetails({
+      cgpa: input.cgpa ?? null,
+      muetBand: input.muetBand ?? null,
+      fieldId: input.fieldId ?? null,
+      programmeName: input.programmeName ?? null,
+      qualificationLevel: input.qualificationLevel ?? null,
+    });
     record.confirm();
     await this.records.save(record);
     await this.events.publish(record.pullEvents());

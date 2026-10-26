@@ -13,8 +13,9 @@ const TARGET_LEVELS: Record<StudentSnapshot['educationLevel'], StudyLevel[]> = {
   form1_3: ['form4_stream'],
   form4_5: ['foundation', 'matriculation', 'diploma', 'certificate', 'skills'],
   after_spm: ['foundation', 'matriculation', 'diploma', 'certificate', 'skills'],
+  // Certificate, SVM and SKM holders usually continue to a diploma (or the next skills level).
+  after_certificate: ['diploma', 'skills'],
   after_preu: ['degree'],
-  after_diploma: ['degree'],
 };
 
 @Injectable()

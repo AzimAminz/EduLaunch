@@ -33,6 +33,7 @@ const SaveRecordBody = RecordKey.extend({
   muetBand: z.number().nullable().default(null),
   fieldId: z.uuid().nullable().default(null),
   programmeName: z.string().max(120).nullable().default(null),
+  qualificationLevel: z.number().int().nullable().default(null),
 });
 
 @Controller()

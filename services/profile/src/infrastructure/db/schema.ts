@@ -11,7 +11,9 @@ const id = () => uuid('id').primaryKey().default(sql`gen_random_uuid()`);
 
 export const role = profile.enum('role', ['student', 'admin']);
 export const accountStatus = profile.enum('account_status', ['active', 'suspended', 'deleted']);
-export const educationLevel = profile.enum('education_level', ['form1_3', 'form4_5', 'after_spm', 'after_preu', 'after_diploma']);
+// 'after_diploma' is no longer used: diploma holders are 'after_preu' with higher_qualification 'diploma' (migration 0004).
+// Postgres cannot drop an enum value, so it stays listed here.
+export const educationLevel = profile.enum('education_level', ['form1_3', 'form4_5', 'after_spm', 'after_preu', 'after_diploma', 'after_certificate']);
 export const recordKind = profile.enum('record_kind', ['actual', 'target', 'school']);
 export const recordStatus = profile.enum('record_status', ['draft', 'confirmed']);
 
@@ -28,7 +30,7 @@ export const students = profile.table('student', {
   accountId: uuid('account_id').notNull().unique().references(() => accounts.id, { onDelete: 'cascade' }),
   educationLevel: educationLevel('education_level'),
   formYear: smallint('form_year'),
-  /** After pre-university or diploma: which qualification (stpm, matriculation, foundation, a_level, diploma). */
+  /** After SPM: which qualification (certificate, svm, skm; or stpm, matriculation, foundation, a_level, diploma, dvm, dkm). */
   higherQualification: text('higher_qualification'),
   streamProgramId: uuid('stream_program_id'),
   schoolName: text('school_name'),
@@ -43,6 +45,8 @@ export const academicRecords = profile.table('academic_record', {
   /** Diploma results: the catalogue field of study (degree programmes favour a related field) and the programme name. */
   fieldId: uuid('field_id'),
   programmeName: text('programme_name'),
+  /** MQF level where a qualification has several: SKM 1–3, DKM 4 / DLKM 5. */
+  qualificationLevel: smallint('qualification_level'),
   qualification: text('qualification').notNull(),
   recordKind: recordKind('record_kind').notNull(),
   examYear: smallint('exam_year'),

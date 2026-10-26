@@ -1,5 +1,5 @@
 import { AggregateRoot, DomainError } from '@edulaunch/ddd';
-import type { HigherQualification, StudentSnapshot } from '@edulaunch/contracts';
+import { CertificateQualifications, DegreeEntryQualifications, type HigherQualification, type StudentSnapshot } from '@edulaunch/contracts';
 
 export type EducationLevel = StudentSnapshot['educationLevel'];
 
@@ -39,20 +39,22 @@ export class Student extends AggregateRoot<string, StudentProps> {
   }
 
   /**
-   * Form 1–3 and Form 4–5 also need the form year. After pre-university, the student says which qualification
-   * (STPM, matriculation, foundation or A-Level); after diploma it is the diploma. Other levels have neither.
+   * Form 1–3 and Form 4–5 also need the form year. After SPM the two higher levels need the qualification:
+   * after certificate (Sijil, SVM or SKM) or after pre-university / diploma (STPM, matriculation, foundation,
+   * A-Level, diploma, DVM or DKM). Other levels have neither.
    */
   setEducationLevel(level: EducationLevel, formYear: number | null, higherQualification: HigherQualification | null = null): void {
     const range = level === 'form1_3' ? [1, 3] : level === 'form4_5' ? [4, 5] : null;
     if (range && (formYear === null || formYear < range[0]! || formYear > range[1]!)) {
       throw new DomainError('invalid_level', `Choose a form between ${range[0]} and ${range[1]}`);
     }
-    if (level === 'after_preu' && (higherQualification === null || higherQualification === 'diploma')) {
-      throw new DomainError('invalid_level', 'Choose STPM, matriculation, foundation or A-Level');
+    const choices: readonly string[] | null = level === 'after_certificate' ? CertificateQualifications : level === 'after_preu' ? DegreeEntryQualifications : null;
+    if (choices && (higherQualification === null || !choices.includes(higherQualification))) {
+      throw new DomainError('invalid_level', level === 'after_certificate' ? 'Choose a certificate, SVM or SKM' : 'Choose STPM, matriculation, foundation, A-Level, diploma, DVM or DKM');
     }
     this.props.educationLevel = level;
     this.props.formYear = range ? formYear : null;
-    this.props.higherQualification = level === 'after_preu' ? higherQualification : level === 'after_diploma' ? 'diploma' : null;
+    this.props.higherQualification = choices ? higherQualification : null;
     if (level !== 'form4_5') this.props.streamProgramId = null;
   }
 

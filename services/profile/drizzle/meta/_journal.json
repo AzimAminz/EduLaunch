@@ -29,6 +29,13 @@
       "when": 1793003485400,
       "tag": "0003_higher_qualification",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793005054881,
+      "tag": "0004_certificate_level",
+      "breakpoints": true
     }
   ]
 }
