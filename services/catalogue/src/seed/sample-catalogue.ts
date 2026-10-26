@@ -114,6 +114,22 @@ export const sampleCatalogue: SeedDataset = {
     { key: 'mat-fin-acc', name: 'Perakaunan Kewangan (Matrikulasi)', nameEn: 'Financial Accounting (Matriculation)', qualification: 'matriculation', category: 'business', isMandatory: false, aliases: ['Financial Accounting'] },
     { key: 'mat-mgmt-acc', name: 'Perakaunan Pengurusan (Matrikulasi)', nameEn: 'Management Accounting (Matriculation)', qualification: 'matriculation', category: 'business', isMandatory: false, aliases: ['Management Accounting'] },
     { key: 'mat-bus-acc', name: 'Perakaunan Perniagaan (Matrikulasi)', nameEn: 'Business Accounting (Matriculation)', qualification: 'matriculation', category: 'business', isMandatory: false, aliases: ['Business Accounting'] },
+    // Foundation (Asasi) subjects, 4.00-point letter grades. Common courses across university Asasi programmes
+    // (science, social science, law, TESL, Islamic studies); students add any course not listed.
+    { key: 'asasi-bio', name: 'Biologi (Asasi)', nameEn: 'Biology (Foundation)', qualification: 'foundation', category: 'science', isMandatory: false, aliases: ['Biologi', 'Biology'] },
+    { key: 'asasi-chem', name: 'Kimia (Asasi)', nameEn: 'Chemistry (Foundation)', qualification: 'foundation', category: 'science', isMandatory: false, aliases: ['Kimia', 'Kimia Asas', 'Chemistry'] },
+    { key: 'asasi-phys', name: 'Fizik (Asasi)', nameEn: 'Physics (Foundation)', qualification: 'foundation', category: 'science', isMandatory: false, aliases: ['Fizik', 'Fizik Asas', 'Physics'] },
+    { key: 'asasi-math', name: 'Matematik (Asasi)', nameEn: 'Mathematics (Foundation)', qualification: 'foundation', category: 'science', isMandatory: false, aliases: ['Matematik', 'Mathematics'] },
+    { key: 'asasi-stats', name: 'Statistik (Asasi)', nameEn: 'Statistics (Foundation)', qualification: 'foundation', category: 'science', isMandatory: false, aliases: ['Statistik', 'Statistics'] },
+    { key: 'asasi-it', name: 'Teknologi Maklumat (Asasi)', nameEn: 'Information Technology (Foundation)', qualification: 'foundation', category: 'science', isMandatory: false, aliases: ['Sains Komputer', 'IT', 'Computer Science'] },
+    { key: 'asasi-eng-lang', name: 'Bahasa Inggeris (Asasi)', nameEn: 'English (Foundation)', qualification: 'foundation', category: 'language', isMandatory: false, aliases: ['English', 'English for Foundation Studies'] },
+    { key: 'asasi-eng-lit', name: 'Kesusasteraan Inggeris (Asasi)', nameEn: 'English Literature (Foundation)', qualification: 'foundation', category: 'language', isMandatory: false, aliases: ['Literature', 'Drama'] },
+    { key: 'asasi-acc', name: 'Prinsip Perakaunan (Asasi)', nameEn: 'Principles of Accounting (Foundation)', qualification: 'foundation', category: 'business', isMandatory: false, aliases: ['Perakaunan', 'Accounting'] },
+    { key: 'asasi-econ', name: 'Ekonomi (Asasi)', nameEn: 'Economics (Foundation)', qualification: 'foundation', category: 'business', isMandatory: false, aliases: ['Ekonomi', 'Economics'] },
+    { key: 'asasi-bus', name: 'Pengurusan Perniagaan (Asasi)', nameEn: 'Business Management (Foundation)', qualification: 'foundation', category: 'business', isMandatory: false, aliases: ['Pengurusan', 'Business'] },
+    { key: 'asasi-law', name: 'Pengenalan Undang-undang (Asasi)', nameEn: 'Introduction to Law (Foundation)', qualification: 'foundation', category: 'humanities', isMandatory: false, aliases: ['Undang-undang', 'Law'] },
+    { key: 'asasi-islamic', name: 'Pengajian Islam (Asasi)', nameEn: 'Islamic Studies (Foundation)', qualification: 'foundation', category: 'religion', isMandatory: false, aliases: ['Pengajian Islam', 'Islamic Studies'] },
+    { key: 'asasi-arabic', name: 'Bahasa Arab (Asasi)', nameEn: 'Arabic (Foundation)', qualification: 'foundation', category: 'language', isMandatory: false, aliases: ['Bahasa Arab', 'Arabic'] },
     // A-Level subjects, A*–E
     { key: 'al-math', name: 'Mathematics (A-Level)', nameEn: 'Mathematics (A-Level)', qualification: 'a_level', category: 'science', isMandatory: false, aliases: ['Matematik', 'Maths'] },
     { key: 'al-further-math', name: 'Further Mathematics (A-Level)', nameEn: 'Further Mathematics (A-Level)', qualification: 'a_level', category: 'science', isMandatory: false, aliases: ['Further Maths'] },

@@ -115,8 +115,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
     const loaded = await loadRecord(token, qualification, 'actual');
     if (!loaded.ok) return <LoadError text={t.loadError} />;
     const record = loaded.record;
-    // Foundation courses use the matriculation subject list (Biologi, Kimia…); others their own.
-    const subjects = hasSubjectGrades(qualification) ? subjectOptions(reference, qualification === 'foundation' ? 'matriculation' : qualification, lang) : [];
+    const subjects = hasSubjectGrades(qualification) ? subjectOptions(reference, qualification, lang) : [];
 
     return (
       <>
