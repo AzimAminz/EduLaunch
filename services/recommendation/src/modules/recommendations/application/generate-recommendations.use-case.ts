@@ -4,6 +4,7 @@ import { EventBus } from '@edulaunch/nest-kit';
 import type { StudentSnapshot, StudyLevel } from '@edulaunch/contracts';
 import { EligibilityEngine } from '../../eligibility/domain/eligibility-engine.js';
 import { Grade } from '../../eligibility/domain/grade.js';
+import { pickRequirement } from '../../eligibility/domain/entry-route.js';
 import { MatchScorer, OfferChanceEstimator, interestFit } from '../domain/scoring.js';
 import { RecommendationList } from '../domain/recommendation-list.js';
 import { CatalogueGateway, ProfileGateway, RecommendationStore } from './ports.js';
@@ -42,14 +43,15 @@ export class GenerateRecommendations implements UseCase<{ studentId: string }, R
     const ctx = { snapshot, subjectNames };
 
     const candidates = programmes.flatMap((programme) => {
-      const requirement = requirements.find((r) => r.programId === programme.id);
+      // The requirement for the student's entry route (after SPM, after STPM, after diploma…).
+      const requirement = pickRequirement(requirements.filter((r) => r.programId === programme.id), snapshot);
       if (!requirement) return []; // no verified requirement yet: never guess eligibility
       const result = this.engine.check(requirement, ctx);
       const fits = programme.fieldIds.map((f) => interestFit(snapshot.riasec, fieldWeights.get(f) ?? null));
       const fit = fits.length ? Math.max(...fits) : interestFit(snapshot.riasec, null);
       const ruleSubjects = new Set(requirement.rules.map((r) => r.subjectId).filter(Boolean));
       const relevant = snapshot.grades.filter((g) => ruleSubjects.has(g.subjectId));
-      const graded = (relevant.length ? relevant : snapshot.grades).map((g) => Grade.of(snapshot.gradeScale, g.grade).normalised);
+      const graded = (relevant.length ? relevant : snapshot.grades).map((g) => Grade.of(g.scale ?? snapshot.gradeScale, g.grade).normalised);
       const academic = graded.length ? graded.reduce((a, b) => a + b, 0) / graded.length : 0;
       const offer = this.offers.estimate(null, []); // admission statistics are added in Sprint 8
       const score = this.scorer.score({ interestFit: fit, academicStrength: academic, offerChance: offer.band, preferenceSignal: 0 });

@@ -69,4 +69,43 @@ describe('EligibilityEngine', () => {
     const r = check({ [ids.bm]: 'B', [ids.math]: 'A' });
     expect(r.missing[0]).toMatch(/^One of: Physics .* \/ Science/);
   });
+
+  it('returns every group with its rules as data (required, actual, passed)', () => {
+    const r = check({ [ids.bm]: 'B', [ids.math]: 'C+', [ids.phy]: 'B' });
+    expect(r.groups).toEqual([
+      { passed: true, rules: [{ type: 'min_grade', subjectId: ids.bm, required: 'C', actual: 'B', passed: true }] },
+      { passed: false, rules: [{ type: 'min_grade', subjectId: ids.math, required: 'B', actual: 'C+', passed: false }] },
+      {
+        passed: true,
+        rules: [
+          { type: 'min_grade', subjectId: ids.phy, required: 'C', actual: 'B', passed: true },
+          { type: 'min_grade', subjectId: ids.sci, required: 'C', actual: null, passed: false },
+        ],
+      },
+    ]);
+  });
+
+  it('compares an STPM subject on the STPM scale, and counts credits on SPM grades only', () => {
+    const stpmMath = '00000000-0000-4000-8000-000000000009';
+    const req: PublishedRequirement = {
+      ...requirement,
+      entryRoute: 'stpm',
+      rules: [
+        { ...rule(1, stpmMath, 'C'), ruleType: 'min_grade' },
+        { ...rule(2, ids.bm, 'C'), ruleType: 'min_credits', subjectId: null, minValue: 2 },
+      ],
+    };
+    const snapshot: StudentSnapshot = {
+      ...student({}),
+      educationLevel: 'after_preu',
+      grades: [
+        { subjectId: ids.bm, grade: 'A', scale: 'spm' },
+        { subjectId: stpmMath, grade: 'C-', scale: 'stpm' },
+        { subjectId: '00000000-0000-4000-8000-000000000010', grade: 'A', scale: 'stpm' },
+      ],
+    };
+    const r = engine.check(req, { snapshot, subjectNames: names });
+    expect(r.groups[0]!.rules[0]).toMatchObject({ required: 'C', actual: 'C-', passed: false });
+    expect(r.groups[1]!.rules[0]).toMatchObject({ type: 'min_credits', required: 2, actual: 1, passed: false });
+  });
 });
