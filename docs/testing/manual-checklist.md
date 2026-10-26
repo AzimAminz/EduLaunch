@@ -208,7 +208,9 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] **SKM**: Bidang, Nama program, Tahap (SKM Tahap 1–3), MUET, Tahun tamat; no PNGK. **Sijil** and **SVM**: Bidang, Nama program, PNGK, MUET, Tahun tamat.
 - [ ] **Diploma / DVM / DKM**: Bidang, Nama program, PNGK, MUET, Tahun tamat (DKM also asks DKM Tahap 4 or DLKM Tahap 5). No subject table.
 - [ ] Save without a year: "Pilih tahun keputusan." With PNGK `4.5`: "PNGK ialah nombor antara 0.00 dan 4.00…". With `3,42` (comma): it saves.
-- [ ] **Matrikulasi** and **Asasi** ask for PNGK and MUET only; **STPM** also has a subject table starting with Pengajian Am; **A-Level** has subjects (A*–E) but no PNGK.
+- [ ] **Matrikulasi**: choose **Jurusan** (Sains Modul I/II/III, Kejuruteraan, Perakaunan, Perakaunan Profesional); its four subjects appear by themselves, you only add grades (A to E). Saving without a jurusan: "Pilih jurusan Matrikulasi anda." Subjects left without a grade are not saved, but they are listed again when you come back.
+- [ ] **Asasi**: Bidang, Nama program (e.g. Asasi Sains Hayat), PNGK, MUET, and an optional subject table.
+- [ ] **STPM** has a subject table starting with Pengajian Am; **A-Level** has subjects (A*–E) but no PNGK.
 - [ ] The blue box "Apa yang universiti semak" summarises the usual requirements for the level.
 - [ ] Tab **SPM asas**: the SPM form, with a note on why SPM still matters.
 

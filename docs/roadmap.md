@@ -40,6 +40,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | **Pre-university and diploma merged** into one level, with the qualification chosen in a dialog: STPM, matriculation, foundation, A-Level, diploma, DVM, DKM/DLKM | All lead to a degree and are judged on CGPA, MUET and (for diplomas) a related field |
 | Record rules cover five stages: certificate → diploma keeps the certificate; moving down or switching within a stage deletes what no longer fits, after confirming | Matching must not use results entered by mistake |
 | Admin entry routes (Step 8) and the catalogue need certificate, SVM, SKM, DVM and DKM routes | Requirements are stored per entry route |
+| Matriculation records its **stream** (Science modules I–III, Engineering, Accounting, Professional Accounting) with subject grades; foundation records its **field and programme** with optional subject grades | Degree programmes check related fields and specific grades (e.g. B in Biology); both feed degree recommendations |
 | Figma onboarding, level dialog and certificate form to be updated | The design still shows the old five levels |
 
 ### Changes since v3 (Step 6)
