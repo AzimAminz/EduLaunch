@@ -24,6 +24,8 @@ packages = ["src/content_service"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = ["integration: needs the local Supabase database (pnpm db:start)"]
+addopts = "-m 'not integration'"
 
 [tool.ruff]
 line-length = 120
