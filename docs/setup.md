@@ -38,6 +38,7 @@ This one command:
 4. Creates your own settings files with new random passwords.
 5. Starts the helpers (messages and fast storage).
 6. Creates all the database tables.
+7. Loads sample universities and programmes so there is something to try. These are made up and every institution is called "Contoh".
 
 The first run takes a few minutes because it downloads a lot. You can run it again at any time. It will not delete your data.
 
@@ -80,6 +81,7 @@ Next time, you only need: open Docker Desktop → `pnpm db:start` → `pnpm infr
 | `pnpm build` | Prepare everything as it would run online |
 | `pnpm doctor` | Check that your tools are installed |
 | `pnpm db:migrate` | Add any new database tables or columns your teammates created |
+| `pnpm db:seed` | Load the sample universities and programmes (safe to run again) |
 
 Working on one part only? Add `--filter`, for example `pnpm --filter @edulaunch/catalogue-service dev`.
 

@@ -60,6 +60,7 @@ if (!output('supabase', ['status', '-o', 'json'])) run('supabase', ['start']);
 run('node', ['tools/scripts/setup-env.mjs']);
 run('docker', ['compose', '-f', 'infra/docker/compose.yml', 'up', '-d', '--wait']);
 run('pnpm', ['db:migrate'], { env: { ...process.env, TURBO_TELEMETRY_DISABLED: '1' } });
+run('pnpm', ['db:seed'], { env: { ...process.env, TURBO_TELEMETRY_DISABLED: '1' } });
 run('pnpm', ['turbo', 'run', 'build', '--filter=./packages/*'], { env: { ...process.env, TURBO_TELEMETRY_DISABLED: '1' } });
 
 console.log(`

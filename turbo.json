@@ -41,6 +41,12 @@
         "^build"
       ],
       "cache": false
+    },
+    "db:seed": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
     }
   }
 }
