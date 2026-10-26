@@ -49,6 +49,9 @@ export async function signIn(_prev: FormState, form: FormData): Promise<FormStat
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { error: authErrorKey(error), values };
 
+  // Later e-mails (such as "forgot password") follow the language used most recently.
+  if (data.user.user_metadata?.locale !== locale) await supabase.auth.updateUser({ data: { locale } });
+
   const role: Role = data.user.app_metadata?.role === 'admin' ? 'admin' : 'student';
   const fallback = await landingFor(locale, role, data.session?.access_token);
   redirect(nextFor(String(form.get('next') ?? ''), { role }, fallback));
@@ -65,7 +68,8 @@ export async function signUp(_prev: FormState, form: FormData): Promise<FormStat
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { full_name: parsed.data.fullName, consented_at: new Date().toISOString() },
+      // locale picks the language of Supabase e-mails (see tools/scripts/build-email-templates.mjs).
+      data: { full_name: parsed.data.fullName, consented_at: new Date().toISOString(), locale },
       emailRedirectTo: `${await origin()}/${locale}/${AUTH_PAGES.callback}?next=/${locale}/${AUTH_PAGES.onboarding}`,
     },
   });

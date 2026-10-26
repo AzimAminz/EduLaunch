@@ -18,3 +18,4 @@ supabase/.branches/
 supabase/.temp/
 
 .DS_Store
+supabase/templates/preview/
