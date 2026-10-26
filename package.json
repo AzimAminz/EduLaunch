@@ -22,7 +22,8 @@
     "db:reset": "supabase db reset",
     "db:migrate": "turbo run db:migrate",
     "db:seed": "turbo run db:seed",
-    "env:setup": "node tools/scripts/setup-env.mjs"
+    "env:setup": "node tools/scripts/setup-env.mjs",
+    "admin:grant": "node tools/scripts/make-admin.mjs"
   },
   "devDependencies": {
     "turbo": "^2.11.10",

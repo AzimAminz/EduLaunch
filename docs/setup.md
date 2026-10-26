@@ -82,6 +82,7 @@ Next time, you only need: open Docker Desktop → `pnpm db:start` → `pnpm infr
 | `pnpm doctor` | Check that your tools are installed |
 | `pnpm db:migrate` | Add any new database tables or columns your teammates created |
 | `pnpm db:seed` | Load the sample universities and programmes (safe to run again) |
+| `pnpm admin:grant <email>` | Make a local account an admin (see below) |
 
 Working on one part only? Add `--filter`, for example `pnpm --filter @edulaunch/catalogue-service dev`.
 
@@ -89,16 +90,16 @@ Working on one part only? Add `--filter`, for example `pnpm --filter @edulaunch/
 
 ## Make your account an admin
 
-1. Sign up on the website with your email.
-2. Open the database viewer (http://127.0.0.1:54323) → **SQL Editor**, paste this with your own email, and press **Run**:
+1. Create an account on the website (http://localhost:3000/ms/daftar).
+2. In a terminal, run this with your own email:
 
-   ```sql
-   update auth.users
-   set raw_app_meta_data = raw_app_meta_data || '{"role": "admin"}'
-   where email = 'you@example.com';
+   ```bash
+   pnpm admin:grant you@example.com
    ```
 
-3. Sign out and sign in again.
+3. Log out and log in again. You now land on the admin console.
+
+To make the account a student again: `pnpm admin:grant you@example.com --revoke`.
 
 Only the database can give someone admin rights. Users cannot make themselves admin.
 
