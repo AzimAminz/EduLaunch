@@ -192,7 +192,8 @@
       "linkExpired": "Pautan ini sudah luput atau telah digunakan. Minta pautan baharu di bawah.",
       "levelRequired": "Pilih tahap pendidikan anda.",
       "formRequired": "Pilih tingkatan anda.",
-      "generic": "Sesuatu tidak kena. Cuba lagi sebentar lagi."
+      "generic": "Sesuatu tidak kena. Cuba lagi sebentar lagi.",
+      "qualificationRequired": "Pilih kelayakan anda."
     }
   },
   "onboarding": {
@@ -238,6 +239,18 @@
         "body": "CGPA dan bidang diploma untuk ijazah berkaitan.",
         "short": "Lepasan Diploma"
       }
+    },
+    "dialog": {
+      "title": "Sahkan perubahan tahap",
+      "qualificationQuestion": "Kelayakan apa yang anda ada sekarang?",
+      "qualificationHint": "Dokumen akademik akan memaparkan borang untuk kelayakan ini sahaja.",
+      "diplomaNote": "Dokumen akademik akan memaparkan borang kelayakan Diploma.",
+      "removeTitle": "Rekod ini akan dipadam",
+      "removeBody": "Rekod ini tidak sesuai dengan tahap baharu anda. Ia dipadam supaya padanan program tidak menggunakan data yang salah.",
+      "noRemove": "Tiada rekod akan dipadam. Rekod lama kekal sebagai sejarah.",
+      "checking": "Menyemak rekod anda…",
+      "cancel": "Batal",
+      "confirm": "Sahkan & simpan"
     }
   },
   "admin": {
@@ -366,7 +379,8 @@
     "view": {
       "back": "Kembali ke dokumen akademik",
       "readOnly": "Rekod ini dipaparkan untuk rujukan. Untuk menyuntingnya, buka tahap pendidikan yang berkaitan di Profil."
-    }
+    },
+    "schoolTab": "Tingkatan {form} · {year}"
   },
   "profile": {
     "eyebrow": "RUANG PERIBADI",
@@ -376,7 +390,7 @@
     "levelTitle": "Tahap pendidikan",
     "levelNone": "Belum dipilih",
     "changeLevel": "Tukar tahap pendidikan",
-    "changeLevelHint": "Keputusan lama tidak dipadam apabila anda menukar tahap.",
+    "changeLevelHint": "Bila anda naik tahap, rekod lama kekal sebagai sejarah. Jika ada rekod yang tidak sesuai dengan tahap baharu, anda diminta mengesahkan dahulu sebelum ia dipadam.",
     "saveLevel": "Simpan tahap",
     "academicTitle": "Keputusan akademik",
     "subjectsCount": "{count} subjek",
@@ -436,6 +450,12 @@
     "errors": {
       "cgpaRequired": "Masukkan PNGK anda.",
       "cgpaInvalid": "PNGK ialah nombor antara 0.00 dan 4.00, contoh 3.42."
+    },
+    "changeQualification": "Tukar kelayakan di Profil",
+    "chooseQualification": {
+      "title": "Pilih kelayakan anda dahulu",
+      "body": "Beritahu kami sama ada anda lepasan STPM, Matrikulasi, Asasi atau A-Level supaya borang yang betul dipaparkan.",
+      "action": "Pilih di Profil"
     }
   }
 }

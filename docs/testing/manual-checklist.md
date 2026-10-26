@@ -204,17 +204,26 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 - [ ] **Lepasan Diploma**, tab **Kelayakan**: Bidang diploma (searchable), Nama program, PNGK, MUET and Tahun tamat. There is no subject table.
 - [ ] Save without a year: "Pilih tahun keputusan." With PNGK `4.5`: "PNGK ialah nombor antara 0.00 dan 4.00…". With `3,42` (comma): it saves.
-- [ ] **Lepasan pra-universiti**: choose STPM, Matrikulasi, Asasi or A-Level. Matrikulasi and Asasi ask for PNGK and MUET only; STPM also has a subject table starting with Pengajian Am; A-Level has subjects (A*–E) but no PNGK.
+- [ ] **Lepasan pra-universiti** (qualification chosen in the level dialog): Matrikulasi and Asasi ask for PNGK and MUET only; STPM also has a subject table starting with Pengajian Am; A-Level has subjects (A*–E) but no PNGK.
 - [ ] The blue box "Apa yang universiti semak" summarises the usual requirements.
 - [ ] Tab **SPM asas**: the SPM form, with a note on why SPM still matters.
 
 ### E. Profile (click your name at the bottom of the sidebar)
 
 - [ ] **Profil saya** shows your name, email, level and a summary: "Disahkan · N subjek", or for diploma and pre-university "Diploma · PNGK 3.42 · MUET 3.5".
-- [ ] Open **Tukar tahap pendidikan**, choose another level, press **Simpan tahap**: "Tahap pendidikan dikemas kini." fades in and out, you stay on the page, the chosen level stays selected and the summary above changes at once (no reload).
-- [ ] Dokumen akademik now shows the form for the new level, and your earlier records are still in Rekod tersimpan.
+- [ ] Open **Tukar tahap pendidikan**, choose a higher level, press **Simpan tahap**: "Tahap pendidikan dikemas kini." fades in and out, you stay on the page, the chosen level stays selected and the summary above changes at once (no reload).
+- [ ] Dokumen akademik now shows the form for the new level, and your earlier records are still in Rekod tersimpan (after moving up).
 
-### F. Phone
+### F. Changing level: what is kept and what is deleted
+
+- [ ] Tingkatan 1 shows one tab (**Tingkatan 1 · this year**); Tingkatan 2 shows two (this year and last year); Tingkatan 3 shows three.
+- [ ] Moving up (Tingkatan 1 → 2, Tingkatan 3 → 4–5, Tingkatan 5 → Lepasan SPM): no dialog, and all saved records stay in Rekod tersimpan.
+- [ ] Moving down (for example Tingkatan 2 → 1 with results saved for last year): a dialog lists **Prestasi sekolah (last year)** under "Rekod ini akan dipadam". **Batal** changes nothing; **Sahkan & simpan** deletes it.
+- [ ] Choosing **Lepasan STPM / Matrikulasi / Asasi / A-Level**: a dialog asks which qualification. After choosing Asasi, Dokumen akademik shows the Asasi form only (no buttons for the others), with a link to change it in Profil.
+- [ ] Asasi (with results saved) → **Lepasan Diploma**: the dialog lists **Asasi** to be deleted; after confirming, the diploma form shows and Asasi is gone from Rekod tersimpan. The SPM results stay.
+- [ ] A student can save up to 30 subjects (for example 20 SPM subjects).
+
+### G. Phone
 
 - [ ] On a narrow window the forms fit without sideways scrolling (the Kategori column is hidden, fields stack).
 

@@ -1,4 +1,4 @@
-import type { StudentSnapshot } from '@edulaunch/contracts';
+import type { HigherQualification, StudentSnapshot } from '@edulaunch/contracts';
 
 type EducationLevel = StudentSnapshot['educationLevel'];
 
@@ -13,11 +13,28 @@ export const EDUCATION_LEVELS: Array<{ level: EducationLevel; forms?: number[] }
 
 export const formsFor = (level: EducationLevel) => EDUCATION_LEVELS.find((l) => l.level === level)?.forms;
 
-/** Validates a submitted level and form year; the profile service checks the same rule again. */
-export function parseLevelChoice(form: FormData): { level: EducationLevel; formYear: number | null } | { error: 'levelRequired' | 'formRequired' } {
+/** The qualifications a student chooses from after pre-university (asked in a dialog). */
+export const PRE_UNIVERSITY: HigherQualification[] = ['stpm', 'matriculation', 'foundation', 'a_level'];
+
+export interface LevelChoice {
+  level: EducationLevel;
+  formYear: number | null;
+  higherQualification: HigherQualification | null;
+}
+
+/** Levels after SPM ask which qualification in a dialog before saving. */
+export const asksQualification = (level: EducationLevel | null) => level === 'after_preu' || level === 'after_diploma';
+
+/** Validates a submitted level, form and qualification; the profile service checks the same rules again. */
+export function parseLevelChoice(form: FormData): LevelChoice | { error: 'levelRequired' | 'formRequired' | 'qualificationRequired' } {
   const level = EDUCATION_LEVELS.find((l) => l.level === form.get('level'));
   if (!level) return { error: 'levelRequired' };
-  if (!level.forms) return { level: level.level, formYear: null };
+  if (level.level === 'after_diploma') return { level: level.level, formYear: null, higherQualification: 'diploma' };
+  if (level.level === 'after_preu') {
+    const q = PRE_UNIVERSITY.find((x) => x === form.get('higherQualification'));
+    return q ? { level: level.level, formYear: null, higherQualification: q } : { error: 'qualificationRequired' };
+  }
+  if (!level.forms) return { level: level.level, formYear: null, higherQualification: null };
   const formYear = Number(form.get('formYear'));
-  return level.forms.includes(formYear) ? { level: level.level, formYear } : { error: 'formRequired' };
+  return level.forms.includes(formYear) ? { level: level.level, formYear, higherQualification: null } : { error: 'formRequired' };
 }

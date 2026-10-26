@@ -66,7 +66,11 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
       ? `${dict.higher.qualifications[record.qualification as keyof typeof dict.higher.qualifications] ?? ''} · ${format(dict.academic.history.details, { cgpa: record.cgpa?.toFixed(2) ?? '–', muet: record.muetBand === null ? '–' : record.muetBand === 5.5 ? '5+' : record.muetBand.toFixed(1) })}`
       : `${dict.academic.status[record.status]} · ${format(t.subjectsCount, { count: record.subjects.length })}`;
   const levelTitle = me.educationLevel ? dict.onboarding.levels[me.educationLevel].title : t.levelNone;
-  const formSuffix = me.formYear ? ` · ${format(dict.onboarding.levels.form1_3.short, { form: me.formYear })}` : '';
+  const formSuffix = me.formYear
+    ? ` · ${format(dict.onboarding.levels.form1_3.short, { form: me.formYear })}`
+    : me.educationLevel === 'after_preu' && me.higherQualification
+      ? ` · ${dict.higher.qualifications[me.higherQualification]}`
+      : '';
 
   return (
     <div className="flex flex-col gap-4">
@@ -95,7 +99,15 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
           {t.changeLevel} <span className="text-muted group-open:hidden">+</span>
         </summary>
         <p className="mb-4 mt-1 text-sm text-muted">{t.changeLevelHint}</p>
-        <LevelPicker locale={lang} t={dict.onboarding} errors={dict.auth.errors} initial={{ level: me.educationLevel, formYear: me.formYear }} savedLabel={t.levelSaved} submitLabel={t.saveLevel} />
+        <LevelPicker
+          locale={lang}
+          t={dict.onboarding}
+          errors={dict.auth.errors}
+          names={{ qualifications: dict.higher.qualifications, records: dict.academic.history.labels, noYear: dict.academic.history.noYear }}
+          initial={{ level: me.educationLevel, formYear: me.formYear, higherQualification: me.higherQualification }}
+          savedLabel={t.levelSaved}
+          submitLabel={t.saveLevel}
+        />
       </details>
     </div>
   );

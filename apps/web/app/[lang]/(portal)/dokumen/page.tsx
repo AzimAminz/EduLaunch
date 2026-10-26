@@ -9,9 +9,9 @@ import { RecordHistory } from '@/components/academic/record-history';
 import { SubjectTable } from '@/components/academic/subject-table';
 import { fieldName, getReferenceData, localName } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
-import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getCurrentRecord, getMe, listRecords, type AcademicRecord } from '@/lib/profile/api';
-import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, sortRows, startingRows, type HigherQualification, type RecordVariant, type SubjectOption } from '@/lib/profile/records';
+import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, schoolTabsFor, sortRows, startingRows, type HigherQualification, type RecordVariant, type SubjectOption } from '@/lib/profile/records';
 import { getAccessToken } from '@/lib/supabase/server';
 
 const SIDE_IMAGE: Record<RecordVariant, string> = {
@@ -54,7 +54,7 @@ async function loadBasics(token: string) {
     const me = await getMe(token);
     if (!me.educationLevel) return { state: 'noLevel' as const };
     const [history, reference] = await Promise.all([listRecords(token), getReferenceData()]);
-    return { state: 'ready' as const, level: me.educationLevel, history, reference };
+    return { state: 'ready' as const, level: me.educationLevel, formYear: me.formYear, higherQualification: me.higherQualification, history, reference };
   } catch {
     return { state: 'error' as const };
   }
@@ -89,7 +89,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
     );
   }
 
-  const { level, history, reference } = data;
+  const { level, formYear, higherQualification, history, reference } = data;
   const thisYear = new Date().getFullYear();
   const choices = higherChoicesFor(level);
   const showHigher = choices.length > 0 && param('bahagian') !== 'spm';
@@ -99,8 +99,19 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
   if (showHigher) {
     const h = dict.higher;
     const levelKey = level as 'after_preu' | 'after_diploma';
-    const wanted = choices.find((c) => c === param('kelayakan'));
-    const qualification: HigherQualification = wanted ?? (history.find((r) => (choices as string[]).includes(r.qualification))?.qualification as HigherQualification | undefined) ?? choices[0]!;
+    // The qualification the student chose when setting their level; only its form is shown.
+    const qualification: HigherQualification | null = level === 'after_diploma' ? 'diploma' : higherQualification;
+    if (!qualification) {
+      return (
+        <section className="flex flex-col items-start gap-3 rounded-[22px] bg-white p-6 lg:p-10">
+          <h1 className="text-[28px] font-bold leading-tight">{h.chooseQualification.title}</h1>
+          <p className="text-[15px] text-muted">{h.chooseQualification.body}</p>
+          <Link href={`/${lang}/profil`} className="rounded-[10px] bg-navy px-5 py-3 font-semibold text-white">
+            {h.chooseQualification.action}
+          </Link>
+        </section>
+      );
+    }
     const loaded = await loadRecord(token, qualification, 'actual');
     if (!loaded.ok) return <LoadError text={t.loadError} />;
     const record = loaded.record;
@@ -112,23 +123,14 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
         <SectionTabs lang={lang} dict={dict} current="results" />
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
-            {choices.length > 1 && (
-              <nav aria-label={h.qualificationLabel} className="flex flex-col gap-2">
-                <p className="text-sm font-semibold">{h.qualificationLabel}</p>
-                <div className="flex flex-wrap gap-2">
-                  {choices.map((c) => (
-                    <Link
-                      key={c}
-                      href={`/${lang}/dokumen?kelayakan=${c}`}
-                      aria-current={c === qualification ? 'page' : undefined}
-                      className={`rounded-full px-4 py-2 text-sm font-semibold ${c === qualification ? 'bg-navy text-white' : 'bg-bg hover:bg-blue'}`}
-                    >
-                      {h.qualifications[c]}
-                    </Link>
-                  ))}
-                </div>
-              </nav>
-            )}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-semibold">
+                {h.qualificationLabel}: {h.qualifications[qualification]}
+              </p>
+              <Link href={`/${lang}/profil`} className="text-sm font-semibold text-[#2f5bd3] hover:underline">
+                {h.changeQualification}
+              </Link>
+            </div>
             <HigherResultsForm
               // Another qualification starts from its own saved values; saving keeps the form (and its notice).
               key={qualification}
@@ -166,7 +168,8 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
 
   // ── School grades, SPM targets, actual SPM, or the basic SPM part of a higher level ──
   const form = recordFormFor(level);
-  const years = examYearsFor(form, thisYear);
+  const years = examYearsFor(form, thisYear, formYear);
+  const tabs = schoolTabsFor(formYear, thisYear);
   const wantedYear = Number(param('tahun'));
   // School results are kept per year: the year in the address, else the newest saved one, else this year.
   const schoolYear =
@@ -186,14 +189,14 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
         <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
           {schoolYear !== null && (
             <nav aria-label={t.yearTabs} className="flex flex-wrap gap-2">
-              {years.map((y) => (
+              {tabs.map((tab) => (
                 <Link
-                  key={y}
-                  href={`/${lang}/dokumen?tahun=${y}`}
-                  aria-current={y === schoolYear ? 'page' : undefined}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold ${y === schoolYear ? 'bg-navy text-white' : 'bg-bg hover:bg-blue'}`}
+                  key={tab.year}
+                  href={`/${lang}/dokumen?tahun=${tab.year}`}
+                  aria-current={tab.year === schoolYear ? 'page' : undefined}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold ${tab.year === schoolYear ? 'bg-navy text-white' : 'bg-bg hover:bg-blue'}`}
                 >
-                  {t.examYear.school} {y}
+                  {format(t.schoolTab, tab)}
                 </Link>
               ))}
             </nav>

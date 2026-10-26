@@ -40,6 +40,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | **Step 6b** done: diploma and pre-university students record what degree programmes actually check (CGPA, MUET, diploma field, STPM/A-Level grades) plus basic SPM | Researched from public university entry requirements |
 | Subjects: searchable system dropdown, 83 official subjects, students can add an unlisted subject by name | Students take subjects such as Bahasa Arab or Tasawwuf |
 | Records kept per year and listed as history | A Form 1 student's results stay when they move to Form 4 |
+| Level changes: moving up keeps records; moving down or switching qualification deletes the records that no longer fit, after the student confirms in a dialog; the qualification after SPM is asked once and only its form is shown | Matching must not use results entered by mistake |
 | Slip upload button from Figma not shown yet | OCR is a later item (Slip upload + OCR); no button that does nothing |
 
 ### Changes since v3 (Step 5)

@@ -1,5 +1,5 @@
 import 'server-only';
-import { RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
+import { HigherQualifications, RecordQualifications, StudentSnapshot, type HigherQualification } from '@edulaunch/contracts';
 import { z } from 'zod';
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://127.0.0.1:4000';
@@ -7,7 +7,12 @@ const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://127.0.0.1:4000';
 export const EducationLevel = StudentSnapshot.shape.educationLevel;
 export type EducationLevel = z.infer<typeof EducationLevel>;
 
-const Me = z.object({ studentId: z.uuid(), educationLevel: EducationLevel.nullable(), formYear: z.number().nullable() });
+const Me = z.object({
+  studentId: z.uuid(),
+  educationLevel: EducationLevel.nullable(),
+  formYear: z.number().nullable(),
+  higherQualification: z.enum(HigherQualifications).nullable().default(null),
+});
 export type Me = z.infer<typeof Me>;
 
 /** Calls the profile service through the gateway as the signed-in student. */
@@ -24,8 +29,21 @@ async function call<T extends z.ZodType>(token: string, path: string, schema: T,
 /** Creates the profile on first use. */
 export const getMe = (token: string) => call(token, '/me', Me);
 
-export const setEducationLevel = (token: string, level: EducationLevel, formYear: number | null) =>
-  call(token, '/me/education-level', Me, { method: 'PATCH', body: JSON.stringify({ level, formYear }) });
+export interface LevelBody {
+  level: EducationLevel;
+  formYear: number | null;
+  higherQualification: HigherQualification | null;
+}
+
+/** Sets the level; records that no longer fit it are removed by the profile service (see previewLevelChange). */
+export const setEducationLevel = (token: string, body: LevelBody) => call(token, '/me/education-level', Me, { method: 'PATCH', body: JSON.stringify(body) });
+
+const RecordSummary = z.object({ id: z.uuid(), qualification: z.enum(RecordQualifications), kind: z.enum(['actual', 'target', 'school']), examYear: z.number().nullable() });
+export type RecordSummary = z.infer<typeof RecordSummary>;
+
+/** The saved records a level change would remove, shown to the student before they confirm. */
+export const previewLevelChange = (token: string, body: LevelBody) =>
+  call(token, '/me/education-level/preview', z.object({ remove: z.array(RecordSummary) }), { method: 'POST', body: JSON.stringify(body) });
 
 export const Qualification = z.enum(RecordQualifications);
 export const RecordKind = z.enum(['actual', 'target', 'school']);

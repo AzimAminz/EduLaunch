@@ -192,7 +192,8 @@
       "linkExpired": "This link has expired or was already used. Request a new one below.",
       "levelRequired": "Choose your education level.",
       "formRequired": "Choose your form.",
-      "generic": "Something went wrong. Please try again shortly."
+      "generic": "Something went wrong. Please try again shortly.",
+      "qualificationRequired": "Choose your qualification."
     }
   },
   "onboarding": {
@@ -238,6 +239,18 @@
         "body": "CGPA and diploma field for related degrees.",
         "short": "after-Diploma"
       }
+    },
+    "dialog": {
+      "title": "Confirm level change",
+      "qualificationQuestion": "Which qualification do you have now?",
+      "qualificationHint": "Your academic documents will show the form for this qualification only.",
+      "diplomaNote": "Your academic documents will show the diploma form.",
+      "removeTitle": "These records will be deleted",
+      "removeBody": "They do not fit your new level. They are deleted so programme matching does not use the wrong data.",
+      "noRemove": "No records will be deleted. Older records stay as history.",
+      "checking": "Checking your records…",
+      "cancel": "Cancel",
+      "confirm": "Confirm & save"
     }
   },
   "admin": {
@@ -366,7 +379,8 @@
     "view": {
       "back": "Back to academic documents",
       "readOnly": "This record is shown for reference. To edit it, choose the matching education level in your Profile."
-    }
+    },
+    "schoolTab": "Form {form} · {year}"
   },
   "profile": {
     "eyebrow": "PERSONAL SPACE",
@@ -376,7 +390,7 @@
     "levelTitle": "Education level",
     "levelNone": "Not chosen",
     "changeLevel": "Change education level",
-    "changeLevelHint": "Older results are not deleted when you change your level.",
+    "changeLevelHint": "When you move up, older records stay as history. If some records do not fit the new level, you are asked to confirm before they are deleted.",
     "saveLevel": "Save level",
     "academicTitle": "Academic results",
     "subjectsCount": "{count} subjects",
@@ -436,6 +450,12 @@
     "errors": {
       "cgpaRequired": "Enter your CGPA.",
       "cgpaInvalid": "CGPA is a number from 0.00 to 4.00, e.g. 3.42."
+    },
+    "changeQualification": "Change qualification in your Profile",
+    "chooseQualification": {
+      "title": "Choose your qualification first",
+      "body": "Tell us whether you have STPM, matriculation, foundation or A-Level so the right form is shown.",
+      "action": "Choose in Profile"
     }
   }
 }

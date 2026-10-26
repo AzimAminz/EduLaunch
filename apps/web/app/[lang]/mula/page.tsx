@@ -52,7 +52,7 @@ export default async function OnboardingPage({ params }: PageProps<'/[lang]/mula
         </header>
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
           <section className="rounded-[18px] bg-white p-5 sm:p-6">
-            <LevelPicker locale={lang} t={t} errors={dict.auth.errors} />
+            <LevelPicker locale={lang} t={t} errors={dict.auth.errors} names={{ qualifications: dict.higher.qualifications, records: dict.academic.history.labels, noYear: dict.academic.history.noYear }} />
           </section>
           <aside className="hidden flex-col gap-3 rounded-[18px] bg-blue p-6 lg:flex">
             <Image src="/illustrations/rimau-compass.png" alt="" width={300} height={300} loading="eager" className="mx-auto size-[260px] object-contain" />

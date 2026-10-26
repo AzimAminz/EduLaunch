@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '../i18n/locale';
-import { getMe, setEducationLevel } from '../profile/api';
+import { getMe, previewLevelChange, setEducationLevel, type RecordSummary } from '../profile/api';
 import { parseLevelChoice } from '../profile/levels';
 import { createClient, getAccessToken } from '../supabase/server';
 import { authErrorKey } from './errors';
@@ -112,6 +112,22 @@ export async function updatePassword(_prev: FormState, form: FormData): Promise<
   redirect(homeFor(locale, role));
 }
 
+/**
+ * What saving this level would remove from the student's records (empty for a new student).
+ * Called by the level dialog before the student confirms.
+ */
+export async function previewEducationLevel(form: FormData): Promise<{ remove: RecordSummary[] } | { error: AuthErrorKey }> {
+  const choice = parseLevelChoice(form);
+  if ('error' in choice) return { error: choice.error };
+  const token = await getAccessToken();
+  if (!token) return { error: 'generic' };
+  try {
+    return await previewLevelChange(token, choice);
+  } catch {
+    return { error: 'generic' };
+  }
+}
+
 export async function signOut(form: FormData): Promise<void> {
   const locale = localeOf(form);
   const supabase = await createClient();
@@ -121,14 +137,14 @@ export async function signOut(form: FormData): Promise<void> {
 
 export async function chooseEducationLevel(_prev: FormState, form: FormData): Promise<FormState> {
   const locale = localeOf(form);
-  const values = { level: String(form.get('level') ?? ''), formYear: String(form.get('formYear') ?? '') };
+  const values = { level: String(form.get('level') ?? ''), formYear: String(form.get('formYear') ?? ''), higherQualification: String(form.get('higherQualification') ?? '') };
   const choice = parseLevelChoice(form);
   if ('error' in choice) return { error: choice.error, values };
 
   const token = await getAccessToken();
   if (!token) redirect(`/${locale}/${AUTH_PAGES.signIn}?next=/${locale}/${AUTH_PAGES.onboarding}`);
   try {
-    await setEducationLevel(token, choice.level, choice.formYear);
+    await setEducationLevel(token, choice);
   } catch {
     return { error: 'generic', values };
   }

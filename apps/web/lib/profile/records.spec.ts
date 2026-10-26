@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { examYearsFor, higherChoicesFor, matchOfficialSubject, parseCgpa, parseHigherSubmission, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
+import { examYearsFor, schoolTabsFor, higherChoicesFor, matchOfficialSubject, parseCgpa, parseHigherSubmission, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
 const subjects = [
@@ -27,7 +27,8 @@ describe('recordFormFor', () => {
 describe('examYearsFor', () => {
   it('looks ahead for targets and back for results', () => {
     expect(examYearsFor(recordFormFor('form4_5'), 2026)).toEqual([2026, 2027, 2028]);
-    expect(examYearsFor(recordFormFor('form1_3'), 2026)).toEqual([2026, 2025, 2024]);
+    expect(examYearsFor(recordFormFor('form1_3'), 2026, 3)).toEqual([2026, 2025, 2024]);
+    expect(examYearsFor(recordFormFor('form1_3'), 2026, 1)).toEqual([2026]);
     expect(examYearsFor(recordFormFor('after_spm'), 2026)[0]).toBe(2026);
     expect(examYearsFor(recordFormFor('after_spm'), 2026)).toHaveLength(6);
   });
@@ -134,5 +135,16 @@ describe('results after SPM', () => {
 
   it('ignores a MUET band that does not exist', () => {
     expect(parseHigherSubmission(form({ examYear: '2026', cgpa: '3', muetBand: '2.2' }), 'matriculation')).toMatchObject({ muetBand: null });
+  });
+});
+
+describe('schoolTabsFor', () => {
+  it('has one tab per year in secondary school, named by form', () => {
+    expect(schoolTabsFor(1, 2026)).toEqual([{ form: 1, year: 2026 }]);
+    expect(schoolTabsFor(2, 2026)).toEqual([
+      { form: 2, year: 2026 },
+      { form: 1, year: 2025 },
+    ]);
+    expect(schoolTabsFor(3, 2026).map((t) => `${t.form}:${t.year}`)).toEqual(['3:2026', '2:2025', '1:2024']);
   });
 });

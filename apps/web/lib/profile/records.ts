@@ -38,10 +38,20 @@ export const historyKind = (record: { qualification: string; kind: string }): Hi
 
 export const gradesFor = (qualification: RecordForm['qualification']): readonly string[] => GradeScales[qualification];
 
-/** Exam years to choose from, newest first. School results cover Form 1–3 (three years back); targets are ahead. */
-export function examYearsFor(form: RecordForm, thisYear: number): number[] {
+/**
+ * School results have one tab per year the student has been in secondary school:
+ * Form 1 this year only; Form 2 this year (Form 2) and last year (Form 1); Form 3 three years. Newest first.
+ * The profile service keeps the same years when the form changes (retention.ts).
+ */
+export function schoolTabsFor(formYear: number | null, thisYear: number): Array<{ form: number; year: number }> {
+  const forms = Math.min(Math.max(formYear ?? 1, 1), 3);
+  return Array.from({ length: forms }, (_, i) => ({ form: forms - i, year: thisYear - i }));
+}
+
+/** Exam years to choose from, newest first. Targets are ahead; actual results are in the past. */
+export function examYearsFor(form: RecordForm, thisYear: number, formYear: number | null = null): number[] {
   if (form.kind === 'target') return [thisYear, thisYear + 1, thisYear + 2];
-  if (form.kind === 'school') return [thisYear, thisYear - 1, thisYear - 2];
+  if (form.kind === 'school') return schoolTabsFor(formYear, thisYear).map((tab) => tab.year);
   return Array.from({ length: 6 }, (_, i) => thisYear - i);
 }
 
