@@ -347,7 +347,8 @@
         "returned": "Tiada draf dipulangkan kepada anda.",
         "myDrafts": "Anda tiada draf yang belum dihantar.",
         "waiting": "Tiada draf anda yang sedang menunggu."
-      }
+      },
+      "institution": "Permintaan padam institusi (bersama semua programnya)"
     },
     "programmes": {
       "title": "Program",
@@ -391,9 +392,9 @@
       "levelPlaceholder": "Pilih peringkat",
       "duration": "Tempoh (semester)",
       "durationHint": "Contoh: 6 semester untuk diploma 3 tahun.",
-      "fields": "Bidang",
+      "fields": "Bidang cadangan",
       "fieldsPlaceholder": "Cari bidang",
-      "fieldsHint": "Pilih satu atau lebih bidang (sehingga 10). Bidang digunakan untuk cadangan kepada pelajar.",
+      "fieldsHint": "Diisi daripada kod NEC dan boleh diubah. Digunakan untuk cadangan kepada pelajar.",
       "create": "Simpan draf",
       "save": "Simpan perubahan",
       "saved": "Disimpan.",
@@ -401,8 +402,43 @@
         "nameRequired": "Tulis nama program (3 hingga 160 aksara).",
         "institutionRequired": "Pilih institusi.",
         "levelRequired": "Pilih peringkat.",
-        "durationInvalid": "Tempoh ialah nombor bulat 1 hingga 16."
-      }
+        "durationInvalid": "Tempoh ialah nombor bulat 1 hingga 16.",
+        "upuInvalid": "Kod program mesti seperti UC6522001.",
+        "sourceInvalid": "Pautan mesti bermula dengan https://"
+      },
+      "sections": {
+        "identity": "Identiti",
+        "academic": "Akademik",
+        "admission": "Kemasukan",
+        "source": "Sumber"
+      },
+      "upuCode": "Kod program (JPT / UPU)",
+      "upuPlaceholder": "cth. UC6522001",
+      "upuHint": "Dua huruf dan tujuh digit, seperti dalam ePanduan atau prospektus.",
+      "internalCode": "Kod universiti",
+      "internalPlaceholder": "cth. BELG",
+      "faculty": "Fakulti / pusat pengajian",
+      "facultyPlaceholder": "cth. Fakulti Teknologi dan Kejuruteraan Elektrik",
+      "nec": "Bidang NEC",
+      "necPlaceholder": "Cari kod atau nama, cth. 0712",
+      "necHint": "Kod bidang pendidikan kebangsaan, seperti dalam ePanduan JPT. Bidang cadangan diisi sendiri daripada kod ini.",
+      "studyMode": "Mod pengajian",
+      "studyModePlaceholder": "Pilih mod",
+      "studyModes": {
+        "conventional": "Konvensional",
+        "work_based": "2U2I / 3U1I (berasaskan kerja)",
+        "distance": "Pembelajaran jarak jauh"
+      },
+      "campus": "Kampus",
+      "campusPlaceholder": "cth. Kampus Induk, Durian Tunggal",
+      "interview": "Ada temu duga atau ujian",
+      "stem": "Program STEM",
+      "tvet": "Program TVET",
+      "bumiputera": "Untuk Bumiputera sahaja",
+      "flagsHint": "Ditunjukkan kepada pelajar bersama syarat program.",
+      "sourceUrl": "Pautan sumber",
+      "sourcePlaceholder": "https://… (ePanduan atau prospektus)",
+      "sourceHint": "Halaman atau dokumen rasmi tempat maklumat ini diambil."
     },
     "programme": {
       "back": "← Semua program",
@@ -504,7 +540,72 @@
       },
       "countPublished": "{count} diterbitkan",
       "countOpen": "{count} belum diterbitkan",
-      "countArchived": "{count} diarkib"
+      "countArchived": "{count} diarkib",
+      "state": "Negeri",
+      "statePlaceholder": "Pilih negeri",
+      "tabs": {
+        "summary": "Ringkasan",
+        "programmes": "Program",
+        "sources": "Sumber & import",
+        "settings": "Tetapan"
+      },
+      "summary": {
+        "published": "Diterbitkan",
+        "open": "Belum diterbitkan",
+        "withoutRequirements": "Tanpa syarat diterbitkan",
+        "archived": "Diarkib",
+        "next": "Langkah seterusnya",
+        "nextNoProgrammes": "Tambah program pertama institusi ini.",
+        "nextNoSources": "Tambah sumber rasmi (halaman program atau prospektus) supaya program boleh disemak dengan sumbernya.",
+        "nextRequirements": "Tulis syarat untuk program yang belum ada syarat.",
+        "nextDone": "Semua program yang diterbitkan sudah ada syarat."
+      },
+      "sourcesTitle": "Sumber rasmi",
+      "sourcesIntro": "Tempat institusi ini menerbitkan program dan syaratnya. Admin menyemak data dengan sumber ini.",
+      "kinds": {
+        "programme_page": "Halaman senarai program",
+        "prospectus": "Prospektus / PDF syarat",
+        "epanduan": "ePanduan JPT",
+        "other": "Lain-lain"
+      },
+      "kind": "Jenis sumber",
+      "kindPlaceholder": "Pilih jenis",
+      "url": "Pautan",
+      "urlPlaceholder": "https://…",
+      "label": "Nota (pilihan)",
+      "labelPlaceholder": "cth. Syarat lepasan diploma 2026/2027",
+      "addSource": "Tambah sumber",
+      "removeSource": "Buang",
+      "noSources": "Belum ada sumber selain laman web.",
+      "sourceErrors": {
+        "kindRequired": "Pilih jenis sumber.",
+        "urlInvalid": "Pautan mesti bermula dengan https://"
+      },
+      "settingsTitle": "Maklumat institusi",
+      "danger": {
+        "title": "Zon bahaya",
+        "body": "Memadam institusi turut memadam semua programnya, syarat, rekod merit, laluan dan sumber.",
+        "button": "Padam institusi…",
+        "modalTitle": "Padam {name}?",
+        "willRemove": "Akan dipadam bersama institusi ini:",
+        "programmes": "{count} program ({published} diterbitkan)",
+        "requirements": "{count} versi syarat",
+        "admissionStats": "{count} rekod merit",
+        "pathways": "{count} laluan antara program",
+        "sources": "{count} sumber",
+        "irreversible": "Tindakan ini tidak boleh dibuat asal.",
+        "needsApproval": "Pelajar sedang nampak {count} program institusi ini, jadi admin lain perlu meluluskan padam ini dahulu.",
+        "typePrompt": "Taip {text} untuk sahkan",
+        "deleteNow": "Padam semua",
+        "sendForApproval": "Hantar untuk kelulusan",
+        "cancel": "Batal",
+        "requestedByYou": "Anda meminta institusi ini dipadam. Menunggu admin lain meluluskannya.",
+        "requestedByOther": "Admin lain meminta institusi ini dipadam bersama semua programnya. Semak kesannya di bawah sebelum meluluskan.",
+        "approve": "Luluskan & padam semua",
+        "cancelRequest": "Batalkan permintaan",
+        "requested": "Permintaan padam dihantar.",
+        "cancelled": "Permintaan dibatalkan."
+      }
     },
     "requirement": {
       "titleEdit": "Kemas kini syarat: {programme}",
@@ -627,7 +728,8 @@
       "reason_required": "Terangkan apa yang perlu dibetulkan (sekurang-kurangnya 5 aksara).",
       "not_found": "Rekod ini tidak dijumpai. Mungkin sudah dibuang.",
       "noRules": "Tambah sekurang-kurangnya satu syarat.",
-      "institution_in_use": "Institusi ini masih ada program, termasuk yang diarkib. Pindahkan atau buang program itu dahulu."
+      "confirmation_mismatch": "Teks pengesahan tidak sama. Taip tepat seperti yang ditunjukkan.",
+      "upu_code_taken": "Kod program ini sudah digunakan oleh program lain."
     }
   },
   "footer": {

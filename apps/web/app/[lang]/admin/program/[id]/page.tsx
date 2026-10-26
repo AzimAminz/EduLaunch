@@ -8,7 +8,8 @@ import { ProgrammeForm } from '@/components/admin/programme-form';
 import { ReviewActions } from '@/components/admin/review-actions';
 import { OtherRoute, StartRequirement } from '@/components/admin/start-requirement';
 import { AdminHeading, Card, LoadError, StatusChip, who } from '@/components/admin/ui';
-import { AdminApiError, getProgrammeDetail, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
+import { AdminApiError, getProgrammeDetail, listNecFields, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
+import { necOptions } from '@/lib/admin/nec';
 import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
@@ -36,9 +37,10 @@ async function Programme({ locale, dict, params }: { locale: Locale; dict: Dicti
   const account = await requireRole(locale, 'admin');
   const t = dict.admin;
   let programme: ProgrammeDetail;
-  let reference;
+  let reference, nec;
   try {
-    [programme, reference] = await Promise.all([getProgrammeDetail((await getAccessToken())!, id), getReferenceData()]);
+    const token = (await getAccessToken())!;
+    [programme, reference, nec] = await Promise.all([getProgrammeDetail(token, id), getReferenceData(), listNecFields(token)]);
   } catch (err) {
     if (err instanceof AdminApiError && (err.status === 404 || err.status === 400)) notFound();
     return <LoadError text={t.errors.generic} />;
@@ -104,6 +106,7 @@ async function Programme({ locale, dict, params }: { locale: Locale; dict: Dicti
             noMatches={dict.directory.noMatches}
             institutions={[]}
             fields={reference.fields.map((f) => ({ value: f.id, label: fieldName(f, locale) })).sort((a, b) => a.label.localeCompare(b.label, locale))}
+            necFields={necOptions(nec)}
             programme={programme}
             editable={editable}
           />

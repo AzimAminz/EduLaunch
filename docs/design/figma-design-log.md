@@ -613,3 +613,8 @@ Peraturan:
 
 Belum dibina (langkah kemudian): mod latihan, lawatan berpandu, carian bantuan, jejak audit, formula merit, laluan bertangga, sumber & import, dan pemetaan subjek/bidang yang ditaip sendiri oleh pelajar. Item sidebar bagi modul ini tidak dipaparkan sehingga ia berfungsi.
 
+### 25.1 Profil institusi dan borang program standard (27 Okt 2026)
+- **Profil institusi** dengan empat tab: Ringkasan (bilangan yang membuka senarai sepadan, dan satu "Langkah seterusnya"), Program, Sumber & import (laman web, halaman program, prospektus/PDF, ePanduan, lain-lain), Tetapan (sunting dan Zon bahaya). Institusi baharu terus membuka profilnya. Profil ini menjadi tempat "Program dijumpai" daripada import nanti; butang import tidak dipaparkan selagi belum berfungsi.
+- **Padam institusi:** modal menyenaraikan semua yang turut dipadam, dan butang hanya aktif selepas admin menaip singkatan institusi. Tanpa program diterbitkan, terus dipadam (semua data di bawahnya dipadam bersama dalam satu transaksi). Jika pelajar sedang nampak programnya, permintaan masuk ke Peti tugasan dan admin lain meluluskan atau membatalkan.
+- **Borang program mengikut standard ePanduan JPT dan prospektus universiti:** Identiti (nama, kod program JPT/UPU, kod universiti, fakulti), Akademik (bidang NEC 157 kod, tempoh, mod pengajian, kampus, bidang cadangan diisi sendiri daripada kod NEC), Kemasukan (temu duga/ujian, Bumiputera sahaja, STEM, TVET), Sumber (pautan).
+- Figma Admin v2 perlu diselaraskan dengan skrin ini.

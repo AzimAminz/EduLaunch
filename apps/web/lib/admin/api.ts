@@ -1,5 +1,5 @@
 import 'server-only';
-import { EntryRoutes, InstitutionTypes, RuleType, StudyLevel } from '@edulaunch/contracts';
+import { EntryRoutes, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, RuleType, StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://127.0.0.1:4000';
@@ -36,9 +36,11 @@ export const ReviewStatus = z.enum(['draft', 'in_review', 'returned', 'published
 export type ReviewStatus = z.infer<typeof ReviewStatus>;
 
 const Task = z.object({
-  kind: z.enum(['programme', 'requirement']),
+  /** `institution`: a delete waiting for another admin's approval. */
+  kind: z.enum(['programme', 'requirement', 'institution']),
   id: z.uuid(),
-  programmeId: z.uuid(),
+  programmeId: z.uuid().nullable(),
+  institutionId: z.uuid().nullable(),
   programmeName: z.string(),
   institutionName: z.string().nullable(),
   entryRoute: z.string().nullable(),
@@ -103,7 +105,23 @@ const RequirementVersion = z.object({
 });
 export type RequirementVersion = z.infer<typeof RequirementVersion>;
 
-const ProgrammeDetail = z.object({
+/** The standard details every programme has (as JPT and university prospectuses publish them). */
+const ProgrammeFacts = z.object({
+  upuCode: z.string().nullable(),
+  internalCode: z.string().nullable(),
+  faculty: z.string().nullable(),
+  necCode: z.string().nullable(),
+  studyMode: z.enum(StudyModes).nullable(),
+  campus: z.string().nullable(),
+  hasInterview: z.boolean(),
+  isStem: z.boolean(),
+  isTvet: z.boolean(),
+  bumiputeraOnly: z.boolean(),
+  sourceUrl: z.string().nullable(),
+});
+export type ProgrammeFacts = z.infer<typeof ProgrammeFacts>;
+
+const ProgrammeDetail = ProgrammeFacts.extend({
   id: z.uuid(),
   name: z.string(),
   studyLevel: StudyLevel,
@@ -161,17 +179,24 @@ export interface InstitutionBody {
   shortName: string | null;
   type: (typeof InstitutionTypes)[number];
   websiteUrl: string | null;
+  state: (typeof MalaysianStates)[number] | null;
 }
 
 export const createInstitution = (token: string, body: InstitutionBody) => call(token, '/institutions', Saved, send(body));
-export const deleteInstitution = (token: string, id: string) => call(token, `/institutions/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
+export type DeletionAction = { action: 'request'; confirm: string } | { action: 'approve' | 'cancel' };
+export const institutionDeletion = (token: string, id: string, body: DeletionAction) =>
+  call(token, `/institutions/${encodeURIComponent(id)}/deletion`, z.object({ status: z.enum(['deleted', 'requested', 'cancelled']) }), send(body));
+export const addInstitutionSource = (token: string, id: string, body: { kind: (typeof InstitutionSourceKinds)[number]; url: string; label: string | null }) =>
+  call(token, `/institutions/${encodeURIComponent(id)}/sources`, Saved, send(body));
+export const removeInstitutionSource = (token: string, id: string, sourceId: string) =>
+  call(token, `/institutions/${encodeURIComponent(id)}/sources/${encodeURIComponent(sourceId)}`, z.undefined(), { method: 'DELETE' });
 export const updateInstitution = (token: string, id: string, body: InstitutionBody) => call(token, `/institutions/${encodeURIComponent(id)}`, Saved, send(body, 'PATCH'));
 
-export interface ProgrammeBody {
+export type ProgrammeBody = ProgrammeFacts & {
   name: string;
   durationSemesters: number | null;
   fieldIds: string[];
-}
+};
 
 export const createProgramme = (token: string, body: ProgrammeBody & { institutionId: string | null; studyLevel: z.infer<typeof StudyLevel> }) =>
   call(token, '/programmes', Saved, send(body));
@@ -195,11 +220,28 @@ const AdminInstitution = z.object({
   shortName: z.string().nullable(),
   type: z.string(),
   websiteUrl: z.string().nullable(),
+  state: z.string().nullable(),
+  deletionRequestedBy: z.uuid().nullable(),
   programmes: z.number(),
   published: z.number(),
   open: z.number(),
 });
 export type AdminInstitution = z.infer<typeof AdminInstitution>;
+
+const InstitutionDetail = AdminInstitution.extend({
+  archived: z.number(),
+  withoutRequirements: z.number(),
+  deletionRequestedAt: z.coerce.date().nullable(),
+  sources: z.array(z.object({ id: z.uuid(), kind: z.enum(InstitutionSourceKinds), url: z.string(), label: z.string().nullable() })),
+  impact: z.object({ programmes: z.number(), published: z.number(), requirements: z.number(), admissionStats: z.number(), pathways: z.number(), sources: z.number() }),
+});
+export type InstitutionDetail = z.infer<typeof InstitutionDetail>;
+
+export const getInstitutionDetail = (token: string, id: string) => call(token, `/admin/institutions/${encodeURIComponent(id)}`, InstitutionDetail);
+
+const NecField = z.object({ code: z.string(), name: z.string(), fieldId: z.uuid().nullable() });
+export type NecField = z.infer<typeof NecField>;
+export const listNecFields = (token: string) => call(token, '/admin/nec-fields', z.array(NecField));
 
 /** Institutions with how many programmes each has (all, published, not yet published). */
 export const listAdminInstitutions = (token: string) => call(token, '/admin/institutions', z.array(AdminInstitution));

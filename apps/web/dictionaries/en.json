@@ -347,7 +347,8 @@
         "returned": "No drafts have been returned to you.",
         "myDrafts": "You have no unsent drafts.",
         "waiting": "None of your drafts are waiting."
-      }
+      },
+      "institution": "Request to delete an institution (with all its programmes)"
     },
     "programmes": {
       "title": "Programmes",
@@ -391,9 +392,9 @@
       "levelPlaceholder": "Choose level",
       "duration": "Duration (semesters)",
       "durationHint": "For example, 6 semesters for a 3-year diploma.",
-      "fields": "Fields",
+      "fields": "Recommendation fields",
       "fieldsPlaceholder": "Search fields",
-      "fieldsHint": "Choose one or more fields (up to 10). Fields are used to recommend programmes to students.",
+      "fieldsHint": "Filled in from the NEC code and can be changed. Used to recommend programmes to students.",
       "create": "Save draft",
       "save": "Save changes",
       "saved": "Saved.",
@@ -401,8 +402,43 @@
         "nameRequired": "Write the programme name (3 to 160 characters).",
         "institutionRequired": "Choose an institution.",
         "levelRequired": "Choose a level.",
-        "durationInvalid": "Duration is a whole number from 1 to 16."
-      }
+        "durationInvalid": "Duration is a whole number from 1 to 16.",
+        "upuInvalid": "The programme code must look like UC6522001.",
+        "sourceInvalid": "The link must start with https://"
+      },
+      "sections": {
+        "identity": "Identity",
+        "academic": "Academic",
+        "admission": "Admission",
+        "source": "Source"
+      },
+      "upuCode": "Programme code (JPT / UPU)",
+      "upuPlaceholder": "e.g. UC6522001",
+      "upuHint": "Two letters and seven digits, as in ePanduan or the prospectus.",
+      "internalCode": "University code",
+      "internalPlaceholder": "e.g. BELG",
+      "faculty": "Faculty / school",
+      "facultyPlaceholder": "e.g. Faculty of Electrical Technology and Engineering",
+      "nec": "NEC field",
+      "necPlaceholder": "Search code or name, e.g. 0712",
+      "necHint": "National Education Code field, as in JPT ePanduan. Recommendation fields are filled in from this code.",
+      "studyMode": "Mode of study",
+      "studyModePlaceholder": "Choose mode",
+      "studyModes": {
+        "conventional": "Conventional",
+        "work_based": "2U2I / 3U1I (work-based)",
+        "distance": "Distance learning"
+      },
+      "campus": "Campus",
+      "campusPlaceholder": "e.g. Main campus, Durian Tunggal",
+      "interview": "Has an interview or test",
+      "stem": "STEM programme",
+      "tvet": "TVET programme",
+      "bumiputera": "For Bumiputera only",
+      "flagsHint": "Shown to students with the programme's requirements.",
+      "sourceUrl": "Source link",
+      "sourcePlaceholder": "https://… (ePanduan or prospectus)",
+      "sourceHint": "The official page or document these details come from."
     },
     "programme": {
       "back": "← All programmes",
@@ -504,7 +540,72 @@
       },
       "countPublished": "{count} published",
       "countOpen": "{count} not yet published",
-      "countArchived": "{count} archived"
+      "countArchived": "{count} archived",
+      "state": "State",
+      "statePlaceholder": "Choose state",
+      "tabs": {
+        "summary": "Summary",
+        "programmes": "Programmes",
+        "sources": "Sources & import",
+        "settings": "Settings"
+      },
+      "summary": {
+        "published": "Published",
+        "open": "Not yet published",
+        "withoutRequirements": "Without published requirements",
+        "archived": "Archived",
+        "next": "Next step",
+        "nextNoProgrammes": "Add this institution's first programme.",
+        "nextNoSources": "Add official sources (programme page or prospectus) so programmes can be checked against them.",
+        "nextRequirements": "Write requirements for the programmes that have none.",
+        "nextDone": "Every published programme has requirements."
+      },
+      "sourcesTitle": "Official sources",
+      "sourcesIntro": "Where this institution publishes its programmes and requirements. Admins check the data against these sources.",
+      "kinds": {
+        "programme_page": "Programme list page",
+        "prospectus": "Prospectus / requirements PDF",
+        "epanduan": "JPT ePanduan",
+        "other": "Other"
+      },
+      "kind": "Source type",
+      "kindPlaceholder": "Choose type",
+      "url": "Link",
+      "urlPlaceholder": "https://…",
+      "label": "Note (optional)",
+      "labelPlaceholder": "e.g. After-diploma requirements 2026/2027",
+      "addSource": "Add source",
+      "removeSource": "Remove",
+      "noSources": "No sources yet apart from the website.",
+      "sourceErrors": {
+        "kindRequired": "Choose the source type.",
+        "urlInvalid": "The link must start with https://"
+      },
+      "settingsTitle": "Institution details",
+      "danger": {
+        "title": "Danger zone",
+        "body": "Deleting the institution also deletes all its programmes, requirements, merit records, pathways and sources.",
+        "button": "Delete institution…",
+        "modalTitle": "Delete {name}?",
+        "willRemove": "Deleted together with this institution:",
+        "programmes": "{count} programme(s) ({published} published)",
+        "requirements": "{count} requirement version(s)",
+        "admissionStats": "{count} merit record(s)",
+        "pathways": "{count} pathway(s) between programmes",
+        "sources": "{count} source(s)",
+        "irreversible": "This cannot be undone.",
+        "needsApproval": "Students can see {count} of this institution's programmes, so another admin must approve this delete first.",
+        "typePrompt": "Type {text} to confirm",
+        "deleteNow": "Delete everything",
+        "sendForApproval": "Send for approval",
+        "cancel": "Cancel",
+        "requestedByYou": "You asked to delete this institution. Waiting for another admin to approve.",
+        "requestedByOther": "Another admin asked to delete this institution with all its programmes. Check what it removes below before approving.",
+        "approve": "Approve & delete everything",
+        "cancelRequest": "Cancel the request",
+        "requested": "Delete request sent.",
+        "cancelled": "Request cancelled."
+      }
     },
     "requirement": {
       "titleEdit": "Update requirements: {programme}",
@@ -627,7 +728,8 @@
       "reason_required": "Explain what needs fixing (at least 5 characters).",
       "not_found": "This record was not found. It may have been removed.",
       "noRules": "Add at least one requirement.",
-      "institution_in_use": "This institution still has programmes, archived ones included. Move or remove them first."
+      "confirmation_mismatch": "The confirmation text does not match. Type it exactly as shown.",
+      "upu_code_taken": "Another programme already uses this programme code."
     }
   },
   "footer": {

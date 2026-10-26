@@ -3,9 +3,11 @@ import type { AdminTask } from '@/lib/admin/api';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { StatusChip, timeAgo } from './ui';
 
-/** Where a task opens: the programme page, or the requirement editor / review screen. */
-export const taskHref = (task: AdminTask, locale: Locale) =>
-  task.kind === 'programme' ? `/${locale}/admin/program/${task.programmeId}` : `/${locale}/admin/syarat/${task.id}`;
+/** Where a task opens: the programme page, the requirement editor / review screen, or the institution's settings. */
+export function taskHref(task: AdminTask, locale: Locale): string {
+  if (task.kind === 'institution') return `/${locale}/admin/institusi/${task.institutionId}?tab=tetapan`;
+  return task.kind === 'programme' ? `/${locale}/admin/program/${task.programmeId}` : `/${locale}/admin/syarat/${task.id}`;
+}
 
 /** One line per task: what it is, its status, how long it has waited, and the button to open it. */
 export function TaskList({ tasks, locale, dict, now, action, empty }: { tasks: AdminTask[]; locale: Locale; dict: Dictionary; now: number; action: string; empty: string }) {
@@ -20,7 +22,11 @@ export function TaskList({ tasks, locale, dict, now, action, empty }: { tasks: A
             <p className="truncate font-semibold">{task.programmeName}</p>
             <p className="text-[13px] text-muted">
               {task.institutionName && `${task.institutionName} · `}
-              {task.kind === 'programme' ? t.tasks.programme : format(t.tasks.requirement, { route: routes[task.entryRoute ?? ''] ?? task.entryRoute ?? '', version: task.versionNo ?? 1 })}
+              {task.kind === 'institution'
+                ? t.tasks.institution
+                : task.kind === 'programme'
+                  ? t.tasks.programme
+                  : format(t.tasks.requirement, { route: routes[task.entryRoute ?? ''] ?? task.entryRoute ?? '', version: task.versionNo ?? 1 })}
             </p>
             {task.returnReason && task.status === 'returned' && <p className="text-[13px] text-[#b33a35]">{format(t.tasks.reason, { reason: task.returnReason })}</p>}
           </div>

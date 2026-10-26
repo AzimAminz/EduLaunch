@@ -1,6 +1,6 @@
 'use server';
 
-import { InstitutionTypes, StudyLevel, isEntryRoute } from '@edulaunch/contracts';
+import { InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, UPU_CODE_PATTERN, isEntryRoute } from '@edulaunch/contracts';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '../i18n/locale';
@@ -21,10 +21,11 @@ export type AdminErrorKey =
   | 'invalid_institution'
   | 'reason_required'
   | 'not_found'
-  | 'institution_in_use'
+  | 'confirmation_mismatch'
+  | 'upu_code_taken'
   | 'noRules';
 
-const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'institution_in_use'];
+const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'confirmation_mismatch', 'upu_code_taken'];
 
 export interface AdminFormState {
   /** A new time on every successful save, to show "Saved". */
@@ -34,6 +35,8 @@ export interface AdminFormState {
   fieldErrors?: Record<string, string>;
   /** Requirement editor: problems by line and rule. */
   problems?: CheckedState['problems'];
+  /** Institution delete: whether it was requested (waiting for another admin) or cancelled. */
+  status?: 'requested' | 'cancelled';
 }
 
 const localeOf = (form: FormData): Locale => {
@@ -69,6 +72,7 @@ export async function saveInstitution(_prev: AdminFormState, form: FormData): Pr
     shortName: text(form, 'shortName') || null,
     type: InstitutionTypes.find((t) => t === text(form, 'type')),
     websiteUrl: text(form, 'websiteUrl') || null,
+    state: MalaysianStates.find((x) => x === text(form, 'state')) ?? null,
   };
   const fieldErrors: Record<string, string> = {};
   if (body.name.length < 3 || body.name.length > 160) fieldErrors.name = 'nameRequired';
@@ -77,28 +81,68 @@ export async function saveInstitution(_prev: AdminFormState, form: FormData): Pr
   if (Object.keys(fieldErrors).length || !body.type) return { fieldErrors };
 
   const token = await adminToken(locale);
+  let created: string | null = null;
   try {
     if (id) await api.updateInstitution(token, id, { ...body, type: body.type });
-    else await api.createInstitution(token, { ...body, type: body.type });
+    else created = (await api.createInstitution(token, { ...body, type: body.type })).id;
   } catch (err) {
     return { error: errorKey(err) };
   }
   // The directory filters list institutions from a cached copy; this refreshes it.
   updateTag('catalogue-reference');
   refresh();
+  // A new institution opens on its profile, where its programmes and sources are added next.
+  if (created) redirect(`/${locale}/admin/institusi/${created}`);
   return { savedAt: Date.now() };
 }
 
-/** Deletes an institution that has no programmes (the catalogue service refuses otherwise). */
-export async function deleteInstitution(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+/**
+ * Deletes an institution and everything under it (`action=request` with the typed confirmation), or approves or
+ * cancels a delete that waits for a second admin. A finished delete returns to the institution list.
+ */
+export async function institutionDeletion(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
+  const action = text(form, 'action');
+  if (action !== 'request' && action !== 'approve' && action !== 'cancel') return { error: 'generic' };
   const token = await adminToken(locale);
+  let status: 'deleted' | 'requested' | 'cancelled';
   try {
-    await api.deleteInstitution(token, text(form, 'id'));
+    ({ status } = await api.institutionDeletion(token, text(form, 'id'), action === 'request' ? { action, confirm: text(form, 'confirm') } : { action }));
   } catch (err) {
     return { error: errorKey(err) };
   }
   updateTag('catalogue-reference');
+  refresh();
+  if (status === 'deleted') redirect(`/${locale}/admin/institusi`);
+  return { savedAt: Date.now(), status };
+}
+
+export async function addInstitutionSource(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const kind = InstitutionSourceKinds.find((k) => k === text(form, 'kind'));
+  const url = text(form, 'url');
+  const fieldErrors: Record<string, string> = {};
+  if (!kind) fieldErrors.kind = 'kindRequired';
+  if (!/^https?:\/\/\S+$/.test(url)) fieldErrors.url = 'urlInvalid';
+  if (Object.keys(fieldErrors).length || !kind) return { fieldErrors };
+  const token = await adminToken(locale);
+  try {
+    await api.addInstitutionSource(token, text(form, 'id'), { kind, url, label: text(form, 'label') || null });
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
+  refresh();
+  return { savedAt: Date.now() };
+}
+
+export async function removeInstitutionSource(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const token = await adminToken(locale);
+  try {
+    await api.removeInstitutionSource(token, text(form, 'id'), text(form, 'sourceId'));
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
   refresh();
   return { savedAt: Date.now() };
 }
@@ -111,7 +155,30 @@ function programmeDetails(form: FormData) {
   const fieldErrors: Record<string, string> = {};
   if (name.length < 3 || name.length > 160) fieldErrors.name = 'nameRequired';
   if (duration !== null && (!Number.isInteger(duration) || duration < 1 || duration > 16)) fieldErrors.durationSemesters = 'durationInvalid';
-  return { details: { name, durationSemesters: duration, fieldIds: [...new Set(fieldIds)].slice(0, 10) }, fieldErrors };
+  const upuCode = text(form, 'upuCode').toUpperCase() || null;
+  if (upuCode && !UPU_CODE_PATTERN.test(upuCode)) fieldErrors.upuCode = 'upuInvalid';
+  const sourceUrl = text(form, 'sourceUrl') || null;
+  if (sourceUrl && !/^https?:\/\/\S+$/.test(sourceUrl)) fieldErrors.sourceUrl = 'sourceInvalid';
+  const flag = (name: string) => form.get(name) === 'on';
+  return {
+    details: {
+      name,
+      durationSemesters: duration,
+      fieldIds: [...new Set(fieldIds)].slice(0, 10),
+      upuCode,
+      internalCode: text(form, 'internalCode') || null,
+      faculty: text(form, 'faculty') || null,
+      necCode: /^\d{4}$/.test(text(form, 'necCode')) ? text(form, 'necCode') : null,
+      studyMode: StudyModes.find((m) => m === text(form, 'studyMode')) ?? null,
+      campus: text(form, 'campus') || null,
+      hasInterview: flag('hasInterview'),
+      isStem: flag('isStem'),
+      isTvet: flag('isTvet'),
+      bumiputeraOnly: flag('bumiputeraOnly'),
+      sourceUrl,
+    },
+    fieldErrors,
+  };
 }
 
 export async function createProgramme(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {

@@ -284,16 +284,19 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 ### B. Institutions (start here)
 
-- [ ] **Institusi** → **Tambah institusi** (top right): fill in the name, short name, type and website (`https://…`), then **Simpan**. "Disimpan." shows and the institution appears in the list.
-- [ ] Each row shows how many programmes it has (for example "4 program · 4 diterbitkan"). **Buka** opens the institution: its official website and its programmes, with **Tambah program di sini**.
+- [ ] **Institusi** → **Tambah institusi** (top right): name, short name, type, **Negeri** and website (`https://…`), then **Simpan**. The new institution's **profile** opens.
 - [ ] A website without `https://` shows "Laman web mesti bermula dengan https://".
-- [ ] **Sunting** on a row changes it in place.
-- [ ] **Padam** on the institution you added asks to confirm (**Ya, padam**), then it disappears and "Dipadam." shows. Any admin may add, edit or delete institutions; there is no second-admin review for them.
-- [ ] Universiti Contoh A has no **Padam** button: an institution with programmes (archived ones included) cannot be deleted.
+- [ ] The profile has four tabs. **Ringkasan**: counts (Diterbitkan, Belum diterbitkan, Tanpa syarat diterbitkan, Diarkib; each opens the matching list) and one **Langkah seterusnya** (for a new institution: add its first programme).
+- [ ] **Sumber & import**: the website is listed; add a source (type **Prospektus / PDF syarat**, a link, a note), then **Buang** removes it.
+- [ ] **Tetapan**: change the details and **Simpan**. In the institution list each row shows its programmes ("4 program · 4 diterbitkan") and **Buka**.
+- [ ] **Padam institusi…** (Tetapan, Zon bahaya) opens a window listing what goes with it (programmes, requirement versions, merit records, pathways, sources). **Padam semua** stays grey until you type the short name (for example `UTeM`; letter case does not matter).
+- [ ] An institution with no published programmes is deleted at once, with everything under it, and you return to the list.
+- [ ] Universiti Contoh A (students see its programmes): typing `UCA` gives **Hantar untuk kelulusan**. Nothing is deleted; Admin B sees "Permintaan padam institusi" in **Peti tugasan** and, on the institution's Tetapan tab, can **Luluskan & padam semua** or **Batalkan permintaan**. (Use **Batalkan** unless you want to lose the sample data.)
 
 ### C. A new programme needs another admin
 
-- [ ] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen. Choose Peringkat, name, 6 semesters and one or more Bidang, then **Simpan draf**. The programme page opens with the status **Draf**, and its back link leads to the institution.
+- [ ] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen. Fill in Peringkat, name, **Kod program** (for example `uc6522001`, saved as `UC6522001`), Kod universiti, Fakulti, **Bidang NEC** (type `0712`; the recommendation field **Kejuruteraan** is added by itself), 8 semesters, Mod pengajian, Kampus, the four ticks under Kemasukan and the source link, then **Simpan draf**. The programme page opens with the status **Draf** and every value kept; its back link leads to the institution.
+- [ ] A second programme with the same Kod program is refused: "Kod program ini sudah digunakan oleh program lain." A code like `BELG` in that field shows "Kod program mesti seperti UC6522001."
 - [ ] Admin A: **Hantar untuk semakan**. The status becomes **Menunggu semakan**, the details are locked, and there is no approve button for Admin A.
 - [ ] Admin B: **Peti tugasan** shows the programme under **Untuk saya** (with a number on the sidebar). Open it, press **Pulangkan dengan sebab**, write a reason and send. Admin A sees **Dipulangkan** with that reason, corrects the details, and sends it again.
 - [ ] Admin B: **Luluskan & terbitkan**. The status becomes **Diterbitkan**; students now find the programme in **Teroka program** (allow up to a minute).
