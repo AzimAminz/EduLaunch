@@ -58,9 +58,12 @@ export function PasswordField({ showLabel, hideLabel, ...props }: FieldProps & {
   );
 }
 
-/** Main navy button. Shows that the form is being sent and cannot be pressed twice. */
-export function SubmitButton({ children, icon }: { children: ReactNode; icon?: string }) {
-  const { pending } = useFormStatus();
+/**
+ * Main navy button. Shows that the form is being sent and cannot be pressed twice.
+ * `pending` is passed by forms that submit through `useFormAction` (React's form status does not see those). */
+export function SubmitButton({ children, icon, pending: busy }: { children: ReactNode; icon?: string; pending?: boolean }) {
+  const status = useFormStatus();
+  const pending = busy ?? status.pending;
   return (
     <button
       type="submit"
@@ -77,7 +80,7 @@ export function SubmitButton({ children, icon }: { children: ReactNode; icon?: s
 export function FormAlert({ children }: { children?: string }) {
   if (!children) return null;
   return (
-    <p role="alert" className="rounded-[10px] border border-red/40 bg-red/10 px-4 py-3 text-sm font-medium text-navy">
+    <p role="alert" className="animate-alert-in rounded-[10px] border border-red/40 bg-red/10 px-4 py-3 text-sm font-medium text-navy">
       {children}
     </p>
   );

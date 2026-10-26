@@ -13,8 +13,8 @@ import { NewPasswordForm, ResetRequestForm, SignInForm, SignUpForm, parseForm, t
 
 /** What a form shows after a failed submit. Typed values come back so the form keeps them (never the password). */
 export interface FormState {
-  /** Saved without leaving the page (changing the level on the profile page). */
-  saved?: boolean;
+  /** Saved without leaving the page (changing the level on the profile page); a new time on every save. */
+  savedAt?: number;
   error?: AuthErrorKey;
   fieldErrors?: Partial<Record<string, AuthErrorKey>>;
   values?: Record<string, string>;
@@ -135,6 +135,6 @@ export async function chooseEducationLevel(_prev: FormState, form: FormData): Pr
   // Every page that depends on the level (results form, profile) shows the new one straight away.
   revalidatePath('/[lang]', 'layout');
   // The profile page stays put and says it is saved; onboarding continues to the portal.
-  if (form.get('stay') === '1') return { saved: true, values };
+  if (form.get('stay') === '1') return { savedAt: Date.now(), values };
   redirect(homeFor(locale, 'student'));
 }

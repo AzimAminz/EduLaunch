@@ -1,10 +1,12 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useState } from 'react';
 import { chooseEducationLevel } from '@/lib/auth/actions';
 import { EDUCATION_LEVELS } from '@/lib/profile/levels';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, SubmitButton } from '@/components/auth/fields';
+import { Notice } from '@/components/ui/notice';
+import { useFormAction } from '@/components/ui/use-form-action';
 
 type Level = (typeof EDUCATION_LEVELS)[number]['level'];
 
@@ -21,7 +23,7 @@ interface LevelPickerProps {
 
 /** "What is your education level now?" — one card per level; Form 1–3 and 4–5 also ask which form. */
 export function LevelPicker({ locale, t, errors, initial, savedLabel, submitLabel }: LevelPickerProps) {
-  const [state, action] = useActionState(chooseEducationLevel, {});
+  const [state, onSubmit, pending] = useFormAction(chooseEducationLevel, {});
   const [level, setLevel] = useState<Level | null>((state.values?.level as Level) || initial?.level || null);
   const [form, setForm] = useState<number | null>(Number(state.values?.formYear) || initial?.formYear || null);
 
@@ -29,13 +31,13 @@ export function LevelPicker({ locale, t, errors, initial, savedLabel, submitLabe
   const short = chosen && (!chosen.forms || form) ? format(t.levels[chosen.level].short, { form: form ?? '' }) : null;
 
   return (
-    <form action={action} className="flex flex-col gap-5">
+    <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <input type="hidden" name="locale" value={locale} />
       {savedLabel && <input type="hidden" name="stay" value="1" />}
       <fieldset className="flex flex-col gap-4">
         <legend className="mb-1 text-xl font-semibold">{t.question}</legend>
         <p className="text-sm text-muted">{t.questionHint}</p>
-        <FormAlert>{state.error && errors[state.error]}</FormAlert>
+        <FormAlert>{!pending && state.error ? errors[state.error] : undefined}</FormAlert>
         <div className="grid gap-3 sm:grid-cols-2">
           {EDUCATION_LEVELS.map(({ level: value, forms }) => {
             const selected = level === value;
@@ -75,12 +77,10 @@ export function LevelPicker({ locale, t, errors, initial, savedLabel, submitLabe
           })}
         </div>
       </fieldset>
-      {state.saved && savedLabel && (
-        <p role="status" className="rounded-[10px] bg-mint px-4 py-3 text-sm font-medium">
-          {savedLabel}
-        </p>
-      )}
-      <SubmitButton icon="/icons/arrow-right-white.svg">{submitLabel ?? (short ? format(t.continueTo, { level: short }) : t.continue)}</SubmitButton>
+      <SubmitButton icon="/icons/arrow-right-white.svg" pending={pending}>
+        {submitLabel ?? (short ? format(t.continueTo, { level: short }) : t.continue)}
+      </SubmitButton>
+      {savedLabel && <Notice showKey={state.savedAt}>{savedLabel}</Notice>}
     </form>
   );
 }

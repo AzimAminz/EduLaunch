@@ -191,6 +191,7 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] × removes a row. Under the table it only says how many subjects still need a grade (nothing when all are graded).
 - [ ] Press **Simpan & sahkan** with a missing grade: "Pilih gred untuk setiap subjek." and the empty boxes turn red.
 - [ ] Give every subject a grade and save: "✓ Disimpan dan disahkan." appears next to the button and the label at the top says **Disahkan**, without reloading. Change a grade: the label says **Ada perubahan belum disimpan**.
+- [ ] The "✓ Disimpan dan disahkan." message fades in, then fades out by itself after a few seconds. Press save again: it shows again.
 - [ ] Reload: the same subjects (including Tasawwuf), grades and year are there.
 
 ### C. Saved records (history)
@@ -210,7 +211,7 @@ Tested by: AzimAminz Date: 26 Oct 2026
 ### E. Profile (click your name at the bottom of the sidebar)
 
 - [ ] **Profil saya** shows your name, email, level and a summary: "Disahkan · N subjek", or for diploma and pre-university "Diploma · PNGK 3.42 · MUET 3.5".
-- [ ] Open **Tukar tahap pendidikan**, choose another level, press **Simpan tahap**: "Tahap pendidikan dikemas kini." appears and you stay on the page.
+- [ ] Open **Tukar tahap pendidikan**, choose another level, press **Simpan tahap**: "Tahap pendidikan dikemas kini." fades in and out, you stay on the page, the chosen level stays selected and the summary above changes at once (no reload).
 - [ ] Dokumen akademik now shows the form for the new level, and your earlier records are still in Rekod tersimpan.
 
 ### F. Phone

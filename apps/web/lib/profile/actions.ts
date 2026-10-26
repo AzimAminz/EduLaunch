@@ -9,7 +9,8 @@ import { HigherQualifications } from '@edulaunch/contracts';
 import { gradesFor, parseHigherSubmission, parseRecordSubmission, recordFormFor, type HigherFormError, type HigherQualification, type RecordFormError } from './records';
 
 export interface RecordFormState {
-  saved?: boolean;
+  /** When it was saved: changes on every save, so the confirmation shows again. */
+  savedAt?: number;
   error?: RecordFormError;
 }
 
@@ -35,11 +36,11 @@ export async function saveAcademicRecord(_prev: RecordFormState, form: FormData)
   }
   // Re-render this page and any page that shows these results (status, profile summary) without a reload.
   revalidatePath('/[lang]', 'layout');
-  return { saved: true };
+  return { savedAt: Date.now() };
 }
 
 export interface HigherFormState {
-  saved?: boolean;
+  savedAt?: number;
   error?: HigherFormError;
 }
 
@@ -60,5 +61,5 @@ export async function saveHigherResults(_prev: HigherFormState, form: FormData):
     return { error: 'generic' };
   }
   revalidatePath('/[lang]', 'layout');
-  return { saved: true };
+  return { savedAt: Date.now() };
 }

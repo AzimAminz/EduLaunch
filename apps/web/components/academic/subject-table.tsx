@@ -1,11 +1,13 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useState } from 'react';
 import { saveAcademicRecord } from '@/lib/profile/actions';
 import type { RecordVariant, SubjectOption, SubjectRow } from '@/lib/profile/records';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, SubmitButton } from '@/components/auth/fields';
 import { Dropdown } from '@/components/ui/dropdown';
+import { Notice } from '@/components/ui/notice';
+import { useFormAction } from '@/components/ui/use-form-action';
 import { SubjectRowsEditor } from './subject-rows-editor';
 
 interface SubjectTableProps {
@@ -30,11 +32,11 @@ interface SubjectTableProps {
  * Everything is saved together.
  */
 export function SubjectTable({ locale, variant, t, subjects, grades, years, fixedYear, initialYear, initialRows, status }: SubjectTableProps) {
-  const [state, action, pending] = useActionState(saveAcademicRecord, {});
   const [rows, setRowsState] = useState(initialRows);
   const [year, setYearState] = useState(initialYear ? String(initialYear) : '');
   // Any edit after loading or saving means what is on screen is not what is saved.
   const [edited, setEdited] = useState(false);
+  const [state, onSubmit, pending] = useFormAction(saveAcademicRecord, {}, () => setEdited(false));
   const setRows = (update: (all: SubjectRow[]) => SubjectRow[]) => {
     setRowsState(update);
     setEdited(true);
@@ -50,8 +52,8 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
   const showErrors = error === 'missingGrade';
 
   return (
-    <form action={action} onSubmit={() => setEdited(false)} className="flex flex-col gap-5">
-      <p role="status" className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${edited ? 'bg-cream' : status === 'confirmed' ? 'bg-mint' : 'bg-bg'}`}>
+    <form onSubmit={onSubmit} className="flex flex-col gap-5">
+      <p className={`self-start rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-300 ${edited ? 'bg-cream' : status === 'confirmed' ? 'bg-mint' : 'bg-bg'}`}>
         {edited ? t.status.unsaved : t.status[status]}
       </p>
       <input type="hidden" name="locale" value={locale} />
@@ -98,13 +100,11 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="sm:w-[240px]">
-          <SubmitButton icon="/icons/check-white.svg">{t.submit}</SubmitButton>
+          <SubmitButton icon="/icons/check-white.svg" pending={pending}>
+            {t.submit}
+          </SubmitButton>
         </div>
-        {state.saved && !edited && !pending && (
-          <p role="status" className="text-sm font-medium text-[#2e7d57]">
-            ✓ {t.saved}
-          </p>
-        )}
+        <Notice showKey={state.savedAt}>{t.saved}</Notice>
       </div>
     </form>
   );

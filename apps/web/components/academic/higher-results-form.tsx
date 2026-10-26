@@ -1,12 +1,14 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useState } from 'react';
 import { MuetBands, hasCgpa, hasSubjectGrades } from '@edulaunch/contracts';
 import { saveHigherResults } from '@/lib/profile/actions';
 import type { HigherQualification, SubjectOption, SubjectRow } from '@/lib/profile/records';
 import type { Dictionary, Locale } from '@/lib/i18n/locale';
 import { FormAlert, SubmitButton, TextField } from '@/components/auth/fields';
 import { Dropdown } from '@/components/ui/dropdown';
+import { Notice } from '@/components/ui/notice';
+import { useFormAction } from '@/components/ui/use-form-action';
 import { SubjectRowsEditor } from './subject-rows-editor';
 
 interface HigherResultsFormProps {
@@ -30,8 +32,8 @@ const muetLabel = (band: number) => (band === 5.5 ? '5+' : band.toFixed(1));
  * What degree programmes check: CGPA, MUET, year, the diploma field, and subject grades only for STPM and A-Level.
  */
 export function HigherResultsForm({ locale, qualification, t, academic, subjects, grades, fields, years, initial, status }: HigherResultsFormProps) {
-  const [state, action, pending] = useActionState(saveHigherResults, {});
   const [edited, setEdited] = useState(false);
+  const [state, onSubmit, pending] = useFormAction(saveHigherResults, {}, () => setEdited(false));
   const [year, setYear] = useState(initial.examYear ? String(initial.examYear) : '');
   const [cgpa, setCgpa] = useState(initial.cgpa !== null ? initial.cgpa.toFixed(2) : '');
   const [muet, setMuet] = useState(initial.muetBand !== null ? String(initial.muetBand) : '');
@@ -51,8 +53,8 @@ export function HigherResultsForm({ locale, qualification, t, academic, subjects
   const errorText = error ? (error === 'cgpaRequired' || error === 'cgpaInvalid' ? t.errors[error] : academic.errors[error]) : undefined;
 
   return (
-    <form action={action} onSubmit={() => setEdited(false)} className="flex flex-col gap-5">
-      <p role="status" className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${edited ? 'bg-cream' : status === 'confirmed' ? 'bg-mint' : 'bg-bg'}`}>
+    <form onSubmit={onSubmit} className="flex flex-col gap-5">
+      <p className={`self-start rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-300 ${edited ? 'bg-cream' : status === 'confirmed' ? 'bg-mint' : 'bg-bg'}`}>
         {edited ? academic.status.unsaved : academic.status[status]}
       </p>
       <input type="hidden" name="locale" value={locale} />
@@ -129,13 +131,11 @@ export function HigherResultsForm({ locale, qualification, t, academic, subjects
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="sm:w-[240px]">
-          <SubmitButton icon="/icons/check-white.svg">{academic.submit}</SubmitButton>
+          <SubmitButton icon="/icons/check-white.svg" pending={pending}>
+            {academic.submit}
+          </SubmitButton>
         </div>
-        {state.saved && !edited && !pending && (
-          <p role="status" className="text-sm font-medium text-[#2e7d57]">
-            ✓ {academic.saved}
-          </p>
-        )}
+        <Notice showKey={state.savedAt}>{academic.saved}</Notice>
       </div>
     </form>
   );

@@ -12,6 +12,39 @@
   --color-mint: #ddf4e9;
   --color-red: #ee5d57;
   --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --animate-notice-in: notice-in 220ms ease-out both;
+  --animate-notice-out: notice-out 300ms ease-in both;
+  --animate-alert-in: notice-in 200ms ease-out both;
+}
+
+/* Confirmations and alerts slide in a little and fade; confirmations fade out on their own. */
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes notice-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-notice-in,
+  .animate-notice-out,
+  .animate-alert-in {
+    animation-duration: 1ms;
+    transform: none;
+  }
 }
 
 body {
