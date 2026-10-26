@@ -105,7 +105,9 @@
       "stpm": "After STPM",
       "matrikulasi": "After Matriculation",
       "diploma": "After Diploma",
-      "form3": "Form 3 (stream choice)"
+      "form3": "Form 3 (stream choice)",
+      "sijil": "After a certificate",
+      "a_level": "After A-Level"
     }
   },
   "soon": {
@@ -477,5 +479,36 @@
       "5": "DLKM (level 5)"
     },
     "levelPlaceholder": "Choose a level"
+  },
+  "eligibility": {
+    "title": "Can I get in?",
+    "status": {
+      "eligible": "You meet the requirements",
+      "almost": "Almost eligible",
+      "not_yet": "Not eligible yet"
+    },
+    "statusBody": {
+      "eligible": "Your results meet every requirement listed for the {route} route.",
+      "almost": "One requirement is still slightly short. See the ones marked ✗ below.",
+      "not_yet": "Some requirements are not met yet. See the ones marked ✗ below."
+    },
+    "targetNote": "Based on your target grades, not actual results.",
+    "oneOf": "One of:",
+    "grade": "{subject}: {required} needed, you have {actual}",
+    "gradeMissing": "{subject}: {required} needed, not in your results",
+    "credits": "Credits: {required} subjects needed, you have {actual}",
+    "cgpa": "CGPA: {required} needed, you have {actual}",
+    "cgpaMissing": "CGPA: {required} needed, not entered",
+    "muet": "MUET: Band {required} needed, you have Band {actual}",
+    "muetMissing": "MUET: Band {required} needed, not entered",
+    "otherSubject": "Subject",
+    "noRequirement": "This programme's requirements are not verified yet, so your eligibility cannot be checked.",
+    "noRoute": "This programme does not list requirements for your route yet. Routes listed: {routes}.",
+    "noResults": "Enter and confirm your results first to check eligibility for the {route} route.",
+    "fillResults": "Enter my results",
+    "updateResults": "Update results",
+    "disclaimer": "This check is a guide only. Admission decisions are made by the institution.",
+    "loadError": "Eligibility cannot be checked right now. Please try again shortly.",
+    "checking": "Checking your eligibility…"
   }
 }

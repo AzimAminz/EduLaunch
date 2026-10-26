@@ -3,12 +3,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import { lang as rootLang } from 'next/root-params';
+import { EligibilityResult } from '@/components/catalogue/eligibility-result';
 import { FieldIllustration } from '@/components/catalogue/field-illustration';
 import { NotFoundError, fieldName, getProgramme, getPublishedRequirements, getReferenceData, localName } from '@/lib/catalogue/api';
 import { programmeMeta } from '@/lib/catalogue/presentation';
 import { describeRequirement } from '@/lib/catalogue/requirements';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { getEligibility } from '@/lib/recommendation/api';
+import { getAccessToken } from '@/lib/supabase/server';
 
 export default async function ProgrammePage({ params }: PageProps<'/[lang]/teroka/[id]'>) {
   const lang = await rootLang();
@@ -56,6 +59,11 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
         <p className="text-[15px] leading-tight text-muted">{[programmeMeta(programme.studyLevel, programme.durationSemesters, dict), ...fields].join(' • ')}</p>
       </header>
 
+      {/* The student's own check reads their session, so it streams in after the rest of the page. */}
+      <Suspense fallback={<p className="rounded-[22px] bg-white p-6 text-sm text-muted">{dict.eligibility.checking}</p>}>
+        <Eligibility lang={lang} dict={dict} programId={programme.id} subjectNames={subjectNames} />
+      </Suspense>
+
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <section className="flex flex-col gap-[18px] rounded-[22px] bg-white p-6" aria-labelledby="requirements-title">
           <h2 id="requirements-title" className="text-[26px] font-semibold leading-tight">
@@ -90,6 +98,27 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
       </div>
     </>
   );
+}
+
+async function loadEligibility(programId: string) {
+  try {
+    const token = await getAccessToken();
+    return token ? await getEligibility(token, programId) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function Eligibility({ lang, dict, programId, subjectNames }: { lang: Locale; dict: Dictionary; programId: string; subjectNames: ReadonlyMap<string, string> }) {
+  const answer = await loadEligibility(programId);
+  if (!answer) {
+    return (
+      <p role="alert" className="rounded-[22px] border border-line bg-white p-6 text-sm">
+        {dict.eligibility.loadError}
+      </p>
+    );
+  }
+  return <EligibilityResult locale={lang} answer={answer} subjectNames={subjectNames} t={dict.eligibility} routeNames={dict.requirements.routes} />;
 }
 
 function Item({ title, detail }: { title: string; detail: string }) {

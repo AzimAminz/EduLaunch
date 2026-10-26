@@ -105,7 +105,9 @@
       "stpm": "Lepasan STPM",
       "matrikulasi": "Lepasan Matrikulasi",
       "diploma": "Lepasan Diploma",
-      "form3": "Tingkatan 3 (pilihan aliran)"
+      "form3": "Tingkatan 3 (pilihan aliran)",
+      "sijil": "Lepasan Sijil",
+      "a_level": "Lepasan A-Level"
     }
   },
   "soon": {
@@ -477,5 +479,36 @@
       "5": "DLKM (Tahap 5)"
     },
     "levelPlaceholder": "Pilih tahap"
+  },
+  "eligibility": {
+    "title": "Boleh ke saya masuk?",
+    "status": {
+      "eligible": "Anda memenuhi syarat",
+      "almost": "Hampir layak",
+      "not_yet": "Belum memenuhi syarat"
+    },
+    "statusBody": {
+      "eligible": "Keputusan anda memenuhi setiap syarat yang disenaraikan untuk laluan {route}.",
+      "almost": "Satu syarat masih kurang sedikit. Lihat yang bertanda ✗ di bawah.",
+      "not_yet": "Beberapa syarat belum dipenuhi. Lihat yang bertanda ✗ di bawah."
+    },
+    "targetNote": "Berdasarkan gred sasaran anda, bukan keputusan sebenar.",
+    "oneOf": "Salah satu daripada:",
+    "grade": "{subject}: perlu {required}, anda {actual}",
+    "gradeMissing": "{subject}: perlu {required}, tiada dalam keputusan anda",
+    "credits": "Kepujian: perlu {required} subjek, anda ada {actual}",
+    "cgpa": "PNGK: perlu {required}, anda {actual}",
+    "cgpaMissing": "PNGK: perlu {required}, belum diisi",
+    "muet": "MUET: perlu Band {required}, anda Band {actual}",
+    "muetMissing": "MUET: perlu Band {required}, belum diisi",
+    "otherSubject": "Subjek",
+    "noRequirement": "Syarat program ini belum disahkan, jadi kelayakan anda belum boleh disemak.",
+    "noRoute": "Program ini belum menyenaraikan syarat untuk laluan anda. Syarat yang ada: {routes}.",
+    "noResults": "Isi dan sahkan keputusan anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
+    "fillResults": "Isi keputusan saya",
+    "updateResults": "Kemas kini keputusan",
+    "disclaimer": "Semakan ini panduan sahaja. Keputusan kemasukan ditentukan oleh institusi.",
+    "loadError": "Kelayakan tidak dapat disemak buat sementara. Cuba lagi sebentar lagi.",
+    "checking": "Menyemak kelayakan anda…"
   }
 }
