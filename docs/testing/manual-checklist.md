@@ -75,6 +75,8 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 ### B. Directory (http://localhost:3000/ms/teroka)
 
+Since Step 5 every portal page needs an account: log in first.
+
 - [x] Sidebar on the left with **Teroka program** highlighted, and the navy search panel as in the Figma screen "Portal / Public directory".
 - [x] It says **14 program dijumpai**, and that the list includes sample data.
 - [x] Each card shows information only (no pictures): programme name as the title, the institution under it (**Sekolah menengah** for streams), level and length, field tags, and the requirement status with a coloured dot.
@@ -104,3 +106,62 @@ Tested by: AzimAminz Date: 26 Oct 2026
 **Result:** ☑ All passed ☐ Problems found (describe below)
 
 Tested by: AzimAminz Date: 26 Oct 2026
+
+---
+
+## Step 5 · Accounts: sign up, log in, password, onboarding
+
+**Before you start:** `pnpm dev` is running. Once only, restart Supabase so the new login settings apply: stop `pnpm dev`, run `pnpm db:stop` and `pnpm db:start`, then `pnpm dev` again. Sign-up and password emails do not really go out; they arrive in the **test inbox** at http://127.0.0.1:54324.
+
+### A. Private portal
+
+- [ ] Open http://localhost:3000. It goes to **/ms/log-masuk**.
+- [ ] Open http://localhost:3000/ms/teroka while logged out. It goes to the log in page, and the address ends with `?next=%2Fms%2Fteroka`.
+- [ ] Log in, then open http://localhost:3000/ms/log-masuk: it goes straight to the portal.
+
+### B. Create an account (http://localhost:3000/ms/daftar)
+
+- [ ] The page looks like the Figma screen "W / Cipta akaun EduLaunch": form on the left, Rimau on the right.
+- [ ] Press **Cipta akaun** with everything empty: each field says what is missing, and the consent box asks to be ticked.
+- [ ] Type a password of 7 characters: "Kata laluan perlu sekurang-kurangnya 8 aksara."
+- [ ] **Tunjuk** shows the password, **Sembunyi** hides it again.
+- [ ] Fill in everything correctly. You arrive at **Mulakan dari situasi anda** (/ms/mula).
+- [ ] Log out and sign up again with the same email: "E-mel ini sudah mempunyai akaun. Cuba log masuk."
+
+### C. Onboarding (/ms/mula)
+
+- [ ] The bar at the top shows Cipta akaun ✓ → **Situasi anda** → Dashboard.
+- [ ] Choose **Tingkatan 1–3**: the buttons 1, 2, 3 appear. Choose 3: the button says "Teruskan ke dashboard Tingkatan 3".
+- [ ] Press the button without choosing a form (choose Tingkatan 4–5 and press at once): "Pilih tingkatan anda."
+- [ ] Choose a level and continue: you arrive at the portal (/ms/utama, "Sedang dibina" for now).
+- [ ] Log out and log in again: you go straight to the portal, not to onboarding.
+
+### D. Log in and log out (http://localhost:3000/ms/log-masuk)
+
+- [ ] The page looks like the Figma screen "P / Log masuk".
+- [ ] A wrong password says "E-mel atau kata laluan tidak betul." and keeps the email you typed.
+- [ ] The sidebar shows **Log masuk sebagai** with your name, and **Log keluar** takes you back to the log in page.
+- [ ] Switch to **EN**: every label on the log in, sign up and onboarding pages is in English.
+
+### E. Forgot password
+
+- [ ] On the log in page click **Lupa kata laluan?**, enter your email, press **Hantar pautan pemulihan**: the "Semak peti masuk anda" page appears.
+- [ ] Open the test inbox (http://127.0.0.1:54324), open the newest email, click the link: you land on **Tetapkan kata laluan baharu**.
+- [ ] Save a new password: you arrive in the portal. Log out and log in with the new password.
+- [ ] Click the same email link again: you land on **Pulihkan akses akaun** with the message that the link has expired.
+
+### F. Admin
+
+- [ ] In a terminal run `pnpm admin:grant <your email>`, then log out and log in: you land on **Konsol admin**.
+- [ ] As an admin, open http://localhost:3000/ms/mula: it goes back to the admin console.
+- [ ] Run `pnpm admin:grant <your email> --revoke`, log out and in: you are a student again. http://localhost:3000/ms/admin now goes to the portal.
+
+### G. Sidebar on different screen sizes
+
+- [ ] Desktop: the panel button next to the logo shrinks the sidebar to icons only (hovering an icon shows its name). Reload the page: it stays small. Press again to widen it.
+- [ ] Make the window narrow (or open the page on your phone): the sidebar is hidden and a top bar with a menu button appears. The menu slides the sidebar in; tapping outside it, pressing Escape or choosing a page closes it.
+- [ ] On a phone, the directory, programme page and log in pages need no sideways scrolling.
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________

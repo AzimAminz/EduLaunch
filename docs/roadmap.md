@@ -25,10 +25,21 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 2 | Integration tests for every service's database code | **Done** |
 | 3 | Sample catalogue (3 institutions, 14 programmes, marked "Contoh") and `pnpm db:seed` | **Done** (checked by hand) |
 | 4 | Student portal layout, programme directory and programme page, in BM and EN | **Done** (checked by hand) |
-| 5 | Sign up and log in screens (student and admin) | **Next** |
+| 5 | Accounts: sign up, log in, forgot password, onboarding (education level), log out; every portal page now needs an account; sidebar works on phones and can be collapsed | **Done** (manual check waiting) |
 | 6 | Academic profile screens: education level, subjects and grades | Planned |
 | 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
 | 8 | Admin: edit programmes and review requirements (two-admin rule) | Planned; **M1 demo** after this step |
+| 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
+
+### Changes since v3 (Step 5)
+
+| Change | Why |
+|---|---|
+| **Accounts** screens done: sign up, log in, forgot password, new password, onboarding | Step 5 |
+| Every portal page needs an account; only the account pages are public | Matches the Figma design: the sidebar is the private portal, the public website is separate |
+| Sidebar works on phones (menu button) and can be shrunk to icons on desktop | Found during review: the portal was not responsive |
+| New **Step 9: public website** | The landing and information pages from Figma are not built yet |
+| `pnpm admin:grant <email>` | Teammates can test the admin console locally |
 
 ### Changes in this update (v2 → v3)
 
@@ -65,7 +76,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Bahasa Melayu / English | Every screen and catalogue name in both languages, `/ms` and `/en` addresses, remembered choice | **Done** | Keep adding both languages for each new screen |
 | Data model | Tables from the ERD in each service's schema, migrations | **In Progress** | Storage bucket for slips |
 | Seed catalogue | 5 universities, 30–50 programmes, Form 4 streams, a few certificate and skills programmes; requirements entered by hand and checked | **In Progress** | Real data from official sources (seed script and 14 sample programmes are done) |
-| Accounts | Sign up, log in, reset password, choose education level | **In Progress** | Sign-in screens (sessions and level API are done) |
+| Accounts | Sign up, log in, reset password, choose education level | **Done** | — |
 | Academic profile (manual) | Subjects from the catalogue, add/remove, grade validation | **In Progress** | Screens (API with grade checks is done) |
 | Programme search | University + field comboboxes, programme details | **Done** | — |
 | Eligibility engine | Eligible / almost / not yet, with the reason for each rule | **Done** | — |
