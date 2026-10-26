@@ -18,7 +18,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
   async findById(id: string): Promise<Requirement | null> {
     const [row] = await this.db.select().from(requirements).where(eq(requirements.id, id)).limit(1);
     if (!row) return null;
-    const rules = await this.db.select().from(requirementRules).where(eq(requirementRules.requirementId, id));
+    const rules = await this.db.select().from(requirementRules).where(eq(requirementRules.requirementId, id)).orderBy(requirementRules.groupNo, requirementRules.id);
     return this.toDomain(row, rules);
   }
 
@@ -30,7 +30,11 @@ export class DrizzleRequirementRepository extends RequirementRepository {
       .where(and(inArray(requirements.programId, programIds), eq(requirements.reviewStatus, 'published')))
       .orderBy(requirements.programId, requirements.entryRoute, desc(requirements.versionNo));
     if (rows.length === 0) return [];
-    const rules = await this.db.select().from(requirementRules).where(inArray(requirementRules.requirementId, rows.map((r) => r.id)));
+    const rules = await this.db
+      .select()
+      .from(requirementRules)
+      .where(inArray(requirementRules.requirementId, rows.map((r) => r.id)))
+      .orderBy(requirementRules.groupNo, requirementRules.id);
     return rows.map((r) => this.toDomain(r, rules.filter((x) => x.requirementId === r.id)));
   }
 

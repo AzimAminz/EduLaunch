@@ -17,7 +17,7 @@ export class DrizzleProgramRepository extends ProgramRepository {
   async findById(id: string): Promise<Program | null> {
     const [row] = await this.db.select().from(programs).where(eq(programs.id, id)).limit(1);
     if (!row) return null;
-    const fieldRows = await this.db.select({ fieldId: programFields.fieldId }).from(programFields).where(eq(programFields.programId, id));
+    const fieldRows = await this.db.select({ fieldId: programFields.fieldId }).from(programFields).where(eq(programFields.programId, id)).orderBy(programFields.fieldId);
     return this.toDomain(row, fieldRows.map((f) => f.fieldId));
   }
 
