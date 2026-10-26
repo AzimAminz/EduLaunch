@@ -104,6 +104,8 @@ To make the account a student again: `pnpm admin:grant you@example.com --revoke`
 
 Only the database can give someone admin rights. Users cannot make themselves admin.
 
+To try the review workflow you need **two** admin accounts: the admin who prepares a draft cannot approve it. Create a second account, run `pnpm admin:grant` for it too, and use it in another browser or a private window.
+
 ---
 
 ## Changing the e-mails

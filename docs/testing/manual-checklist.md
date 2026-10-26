@@ -269,3 +269,56 @@ Tested by: AzimAminz Date: 26 Oct 2026
 **Result:** ☑ All passed ☐ Problems found (describe below)
 
 Tested by: AzimAminz Date: 26 Oct 2026
+
+---
+
+## Step 8 · Admin console
+
+**Before you start:** `pnpm dev` is running, and `pnpm db:migrate` has been run after pulling. You need **two admin accounts** (the person who prepares a draft cannot approve it): sign up twice in the web app, then run `pnpm admin:grant <email>` for each. Use two browsers (or one normal and one private window), one per admin. Below they are called **Admin A** and **Admin B**.
+
+### A. Admin pages are for admins only
+
+- [ ] Admin A logs in and lands on **Laman utama** ("Selamat datang, …") with three tasks: **Semak draf yang menunggu**, **Kemas kini syarat program**, **Tambah program baharu**.
+- [ ] The sidebar shows Laman utama, Peti tugasan, Universiti & program and Institusi. It collapses like the student sidebar, and works as a menu on a phone.
+- [ ] A student who types `/ms/admin` in the address bar is sent back to the student portal.
+
+### B. Institutions
+
+- [ ] **Institusi** → **Tambah institusi**: fill in the name, short name, type and website (`https://…`), then **Simpan**. "Disimpan." shows and the institution appears in the list.
+- [ ] A website without `https://` shows "Laman web mesti bermula dengan https://".
+- [ ] **Sunting** on a row changes it in place.
+
+### C. A new programme needs another admin
+
+- [ ] Admin A: **Universiti & program** → **Tambah program**: choose Peringkat, Institusi (the one from B), name, 6 semesters and one or more Bidang, then **Simpan draf**. The programme page opens with the status **Draf**.
+- [ ] Admin A: **Hantar untuk semakan**. The status becomes **Menunggu semakan**, the details are locked, and there is no approve button for Admin A.
+- [ ] Admin B: **Peti tugasan** shows the programme under **Untuk saya** (with a number on the sidebar). Open it, press **Pulangkan dengan sebab**, write a reason and send. Admin A sees **Dipulangkan** with that reason, corrects the details, and sends it again.
+- [ ] Admin B: **Luluskan & terbitkan**. The status becomes **Diterbitkan**; students now find the programme in **Teroka program** (allow up to a minute).
+
+### D. Requirement wizard
+
+- [ ] On the programme page, **Syarat kemasukan ikut laluan** lists the usual routes for the level (a diploma: Lepasan SPM, Sijil, SVM, SKM, STPM). Admin A presses **Tambah syarat** on Lepasan SPM: the wizard opens.
+- [ ] Press **Hantar untuk semakan** with nothing filled in: the missing parts turn red and a message says how many to fix.
+- [ ] Fill in the source link, then write:
+  - "Pelajar perlu **Gred subjek** minimum **C** dalam **Bahasa Melayu**", with its source sentence;
+  - **+ Tambah syarat**, type **Bilangan kepujian**, gred C, 3 subjects;
+  - **+ Tambah syarat** with Matematik, then **+ atau pilihan lain** with Fizik ("SALAH SATU daripada").
+- [ ] **Apa pelajar nampak** on the right updates while typing. **Simpan draf** shows "Draf disimpan." and "Ada perubahan belum disimpan" disappears.
+- [ ] Changing a subject to an STPM subject clears an SPM-only grade such as A+.
+- [ ] **Hantar untuk semakan**: the page shows **Menunggu semakan** and Admin A can no longer edit it.
+
+### E. Reviewing requirements
+
+- [ ] Admin B opens it from **Peti tugasan**: **1. Apa yang berubah?** shows the current version (or "Ini syarat pertama") next to the new draft; **2. Semak sumber** has the source link and the quoted sentences.
+- [ ] **Pulangkan dengan soalan** with a reason: Admin A sees the reason at the top of the wizard, changes a grade and sends again.
+- [ ] Admin B: **Luluskan & terbitkan**. A student opening the programme sees the new requirements and the "Boleh ke saya masuk?" check uses them.
+- [ ] Admin A: **Kemas kini syarat** on the same route starts **versi 2** with the published rules already filled in. Admin B's review shows the changed line marked **Baharu** and the old one **Dibuang**. **Buang draf** (by Admin A) removes the draft and version 1 stays published.
+
+### F. Language and phone
+
+- [ ] Switch to **EN**: every admin page is in English.
+- [ ] On a narrow window the pages need no sideways scrolling (the programme table scrolls inside its box).
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________

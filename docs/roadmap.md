@@ -1,6 +1,6 @@
 # EduLaunch — Roadmap
 
-Version 3 · 26 Oct 2026 · current position: **middle of Sprint 2**
+Version 3 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 built, M1 demo after its manual check)
 
 **Assumptions:** final-year project over two semesters (about 28 weeks), one to three developers, two-week sprints. Capacity split: about 70% features, 20% testing and clean-up, 10% buffer for surprises.
 
@@ -10,8 +10,8 @@ Version 3 · 26 Oct 2026 · current position: **middle of Sprint 2**
 
 ## Status overview
 
-- **Done:** 5 of 28 items (Steps 1–7 checked by hand). Project setup, CI on GitHub, the eligibility engine, programme search screens, and Bahasa Melayu / English.
-- **In Progress:** 10 items. Back-end services exist with unit and integration tests; most screens and real programme data do not yet.
+- **Done:** 8 of 28 items. Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 waiting for its check).
+- **In Progress:** 7 items. Back-end services exist with unit and integration tests; their screens and real programme data do not yet.
 - **Not Started:** 13 items.
 - **At risk:** real catalogue data (the sample data is enough for demos, not for real decisions) and historical admission data (blocks real offer chances).
 
@@ -29,8 +29,18 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 6 | Academic profile: results form per level (school grades, SPM targets, actual SPM), add/remove subjects, save & confirm; profile page with level change | **Done** (checked by hand) |
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (checked by hand) |
 | 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (checked by hand) |
-| 8 | Admin: edit programmes and review requirements (two-admin rule), including entry routes for certificate, SVM, SKM, DVM and DKM holders | Planned; **M1 demo** after this step |
+| 8 | Admin console: home with today's tasks, task inbox, institutions, programmes (draft → another admin approves → published), requirement wizard by entry route (including SVM, SKM, DVM and DKM routes) with a second-admin review | **Done** (manual check waiting); **M1 demo** after the check |
 | 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
+
+### Changes since v3 (Step 8, 27 Oct 2026)
+
+| Change | Why |
+|---|---|
+| Admin console built: home with today's tasks, task inbox (for me / returned / my drafts / waiting), institutions, programmes, requirement wizard and review screen | Step 8; follows Figma Admin v2 (A1, A5, B1, B2, B3) |
+| Programmes now go through the same two-admin rule as requirements: draft → another admin approves → students see it; published programmes can be archived | Nobody publishes their own work |
+| Requirements are written as sentences ("Pelajar perlu minimum B dalam Matematik", "SALAH SATU daripada"), each with the sentence from the source and a link to the official source; a new version starts from the published rules | Admins are mostly not IT people |
+| New entry routes **SVM, SKM, DVM and DKM**; a student uses their own route first, then the closest general one (SVM → certificate → SPM, DVM/DKM → diploma) | Certificate and DVM/DKM holders were checked against the wrong route |
+| Not in Step 8: training mode, guided tour, help search, audit trail screen, and mapping subjects or fields that students typed themselves | Kept for later steps so Step 8 stays testable |
 
 ### Changes since v3 (levels revised, 26 Oct 2026)
 
@@ -100,10 +110,10 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Data model | Tables from the ERD in each service's schema, migrations | **In Progress** | Storage bucket for slips |
 | Seed catalogue | 5 universities, 30–50 programmes, Form 4 streams, a few certificate and skills programmes; requirements entered by hand and checked | **In Progress** | Real data from official sources (seed script and 14 sample programmes are done) |
 | Accounts | Sign up, log in, reset password, choose education level | **Done** | — |
-| Academic profile (manual) | Subjects from the catalogue, add/remove, grade validation | **In Progress** | Screens (API with grade checks is done) |
+| Academic profile (manual) | Subjects from the catalogue, add/remove, grade validation | **Done** | — |
 | Programme search | University + field comboboxes, programme details | **Done** | — |
 | Eligibility engine | Eligible / almost / not yet, with the reason for each rule | **Done** | — |
-| Admin catalogue | Create and edit institutions, programmes, requirements (draft → second-admin approval → publish) | **In Progress** | Programme/institution editing API; admin screens (requirement review workflow is done) |
+| Admin catalogue | Create and edit institutions, programmes, requirements (draft → second-admin approval → publish) | **Done** (manual check waiting) | Map subjects and fields that students type themselves to the catalogue (moved to Next) |
 
 **Milestone M1 (Week 8):** a student can enter SPM results and see which seeded programmes they qualify for. An admin can edit and publish a programme.
 
@@ -144,10 +154,10 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Sprint | Weeks | Goal | Status |
 |---|---|---|---|
 | 1 | 1–2 | Setup, database schema, auth, service skeletons | **Done** (plus early back end for Sprints 2–9) |
-| 2 | 3–4 | **Seed catalogue**; CI; programme search and detail screens; BM/EN | **In Progress** (all done except real catalogue data) |
-| 3 | 5–6 | Sign-in screens; academic profile screens with subject picker | Next |
-| 4 | 7–8 | Eligibility on screen with real data; admin programme editing; requirement review screens; **M1 demo** | |
-| 5 | 9–10 | Interest test and activities | |
+| 2 | 3–4 | **Seed catalogue**; CI; programme search and detail screens; BM/EN | **Done** except real catalogue data (still at risk) |
+| 3 | 5–6 | Sign-in screens; academic profile screens with subject picker | **Done** (Steps 5–6) |
+| 4 | 7–8 | Eligibility on screen with real data; admin programme editing; requirement review screens; **M1 demo** | **Done** (Steps 7–8); M1 demo after the Step 8 check |
+| 5 | 9–10 | Interest test and activities | Next |
 | 6 | 11–12 | Recommendation dashboard card; merit calculator | |
 | 7 | 13–14 | Slip upload, OCR, review screen | |
 | 8 | 15–16 | Prediction v1 with admission data; alternative pathways + what-if; all education levels | |

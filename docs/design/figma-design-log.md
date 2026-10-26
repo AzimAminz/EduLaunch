@@ -594,3 +594,20 @@ Setiap fungsi tahap pelajar wujud di kedua-dua platform (jadual penuh di halaman
 - Dokumentasi: system-design §3.7, ai-and-cost-plan §1, panduan senario 1 & 5, roadmap.
 
 - **ERD diringkaskan kepada 24 jadual (26 Okt 2026):** aliran T4 disimpan sebagai `PROGRAM` (`study_level = form4_stream`), jadi `STREAM`/`STREAM_FIELD` tidak diperlukan. `QUESTION` + `ASSESSMENT_ANSWER` digabung ke dalam `ASSESSMENT.answers`. `FIELD_CAREER` diganti dengan `CAREER.field_id`. Jadual teknikal (`AI_CHAT`, `CONTENT_CHUNK`, `NOTIFICATION`, log audit) masih wujud dalam sistem tetapi tidak ditunjukkan dalam ERD dokumentasi.
+
+## 25. Ruang admin dibina dalam kod (Step 8, 27 Okt 2026)
+
+Skrin yang dibina mengikut Admin v2:
+- **B1 Laman utama** menunjukkan tiga tugas (semak draf yang menunggu, kemas kini syarat program, tambah program baharu), "Kerja anda" (dipulangkan, draf, menunggu admin lain), ringkasan katalog dan "Cara ruang admin berfungsi".
+- **A1 Peti tugasan** ada tab Untuk saya / Dipulangkan / Draf saya / Menunggu admin lain, dengan yang paling lama menunggu di atas.
+- **A5 Universiti & program** ada carian, penapis status dan jadual dengan laluan yang sudah ada syarat diterbitkan. Halaman program mengandungi maklumat program, butang semakan, dan syarat ikut laluan masuk.
+- **B2 Wizard syarat** dalam satu halaman: penunjuk 4 langkah, pautan sumber rasmi, dan syarat sebagai ayat ("Pelajar perlu minimum [B] dalam [Matematik]", "SALAH SATU daripada", "atau pilihan lain"). Setiap baris ada ayat sumber, panel "Apa pelajar nampak", dan butang Simpan draf / Hantar untuk semakan / Buang draf.
+- **B3 Semak draf**: "1. Apa yang berubah?" (versi diterbitkan bersebelahan draf, baris Baharu/Dibuang ditanda), "2. Semak sumber" (pautan dan ayat sumber), "3. Keputusan anda" (kesan kepada pelajar, Luluskan & terbitkan, Pulangkan dengan soalan).
+- **Institusi**: senarai dengan tambah dan sunting di tempat. Institusi ialah data rujukan, jadi tiada semakan dua admin.
+
+Peraturan:
+- Program baharu juga mengikut peraturan dua admin. Program diterbitkan boleh dibetulkan terus (nama, tempoh, bidang) atau diarkibkan.
+- Laluan masuk baharu ialah SVM, SKM, DVM dan DKM/DLKM.
+
+Belum dibina (langkah kemudian): mod latihan, lawatan berpandu, carian bantuan, jejak audit, formula merit, laluan bertangga, sumber & import, dan pemetaan subjek/bidang yang ditaip sendiri oleh pelajar. Item sidebar bagi modul ini tidak dipaparkan sehingga ia berfungsi.
+
