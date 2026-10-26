@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { connectTestDatabase } from '@edulaunch/nest-kit/testing';
 import { inArray } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
-import { Program } from '../domain/program.js';
+import { NO_FACTS, Program } from '../domain/program.js';
 import { DrizzleProgramRepository } from './drizzle-program.repository.js';
 
 const { db, close } = connectTestDatabase(schema);
@@ -19,6 +19,7 @@ const programme = (name: string, over: Partial<Parameters<typeof Program.restore
   const id = randomUUID();
   created.push(id);
   return Program.restore(id, {
+    ...NO_FACTS,
     institutionId,
     name: `${name} ${tag}`,
     studyLevel: 'diploma',

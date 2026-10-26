@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { CurrentCaller, Public, Roles, ZodPipe, type Caller } from '@edulaunch/nest-kit';
-import { StudyLevel } from '@edulaunch/contracts';
+import { StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { SearchProgrammes } from '../application/search-programmes.use-case.js';
 import { GetProgramme } from '../application/get-programme.use-case.js';
@@ -19,6 +19,17 @@ const DetailsBody = z.object({
   name: z.string().max(200),
   durationSemesters: z.number().int().nullable().default(null),
   fieldIds: z.array(z.uuid()).max(10).default([]),
+  upuCode: z.string().max(20).nullable().optional(),
+  internalCode: z.string().max(40).nullable().optional(),
+  faculty: z.string().max(200).nullable().optional(),
+  necCode: z.string().max(4).nullable().optional(),
+  studyMode: z.enum(StudyModes).nullable().optional(),
+  campus: z.string().max(200).nullable().optional(),
+  hasInterview: z.boolean().optional(),
+  isStem: z.boolean().optional(),
+  isTvet: z.boolean().optional(),
+  bumiputeraOnly: z.boolean().optional(),
+  sourceUrl: z.string().max(600).nullable().optional(),
 });
 
 const CreateBody = DetailsBody.extend({ institutionId: z.uuid().nullable(), studyLevel: StudyLevel });

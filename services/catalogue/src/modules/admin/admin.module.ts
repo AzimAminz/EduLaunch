@@ -1,19 +1,21 @@
 import { Controller, Get, Inject, Injectable, Module, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { NotFoundError } from '@edulaunch/ddd';
 import { CurrentCaller, DRIZZLE, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
-import { and, count, desc, eq, ilike, inArray, ne, notExists, or, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, inArray, isNotNull, ne, notExists, or, type SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import * as schema from '../../infrastructure/db/schema.js';
 
-const { programs, institutions, programFields, requirements, requirementRules } = schema;
+const { programs, institutions, institutionSources, programFields, programPathways, admissionStats, requirements, requirementRules, necFields } = schema;
 
 type Status = (typeof schema.reviewStatus.enumValues)[number];
 const OPEN: Status[] = ['draft', 'returned', 'in_review'];
 
 export interface AdminTask {
-  kind: 'programme' | 'requirement';
+  kind: 'programme' | 'requirement' | 'institution';
   id: string;
-  programmeId: string;
+  /** Null for institution tasks (a delete waiting for approval). */
+  programmeId: string | null;
+  institutionId: string | null;
   programmeName: string;
   institutionName: string | null;
   entryRoute: string | null;
@@ -34,10 +36,11 @@ export class AdminQueries {
 
   /** Everything not yet published, as tasks for the signed-in admin. */
   async tasks(adminId: string) {
-    const [programmeRows, requirementRows] = await Promise.all([
+    const [programmeRows, requirementRows, deletionRows] = await Promise.all([
       this.db
         .select({
           id: programs.id,
+          institutionId: programs.institutionId,
           programmeName: programs.name,
           institutionName: institutions.name,
           status: programs.publishStatus,
@@ -52,6 +55,7 @@ export class AdminQueries {
         .select({
           id: requirements.id,
           programmeId: requirements.programId,
+          institutionId: programs.institutionId,
           programmeName: programs.name,
           institutionName: institutions.name,
           entryRoute: requirements.entryRoute,
@@ -65,10 +69,29 @@ export class AdminQueries {
         .innerJoin(programs, eq(programs.id, requirements.programId))
         .leftJoin(institutions, eq(institutions.id, programs.institutionId))
         .where(inArray(requirements.reviewStatus, OPEN)),
+      this.db
+        .select({ id: institutions.id, name: institutions.name, by: institutions.deletionRequestedBy, at: institutions.deletionRequestedAt })
+        .from(institutions)
+        .where(isNotNull(institutions.deletionRequestedBy)),
     ]);
     const all: AdminTask[] = [
       ...programmeRows.map((r) => ({ ...r, kind: 'programme' as const, programmeId: r.id, entryRoute: null, versionNo: null })),
       ...requirementRows.map((r) => ({ ...r, kind: 'requirement' as const })),
+      // A delete of an institution that students can see waits for another admin, like a draft.
+      ...deletionRows.map((r) => ({
+        kind: 'institution' as const,
+        id: r.id,
+        programmeId: null,
+        institutionId: r.id,
+        programmeName: r.name,
+        institutionName: null,
+        entryRoute: null,
+        versionNo: null,
+        status: 'in_review' as const,
+        preparedBy: r.by,
+        returnReason: null,
+        updatedAt: r.at ?? new Date(),
+      })),
     ].sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
 
     const mine = (t: AdminTask) => t.preparedBy === adminId;
@@ -150,6 +173,8 @@ export class AdminQueries {
         shortName: institutions.shortName,
         type: institutions.type,
         websiteUrl: institutions.websiteUrl,
+        state: institutions.state,
+        deletionRequestedBy: institutions.deletionRequestedBy,
         status: programs.publishStatus,
         n: count(programs.id),
       })
@@ -157,9 +182,22 @@ export class AdminQueries {
       .leftJoin(programs, eq(programs.institutionId, institutions.id))
       .groupBy(institutions.id, programs.publishStatus)
       .orderBy(institutions.name);
-    const byId = new Map<string, { id: string; name: string; shortName: string | null; type: string; websiteUrl: string | null; programmes: number; published: number; open: number }>();
+    type Item = {
+      id: string;
+      name: string;
+      shortName: string | null;
+      type: string;
+      websiteUrl: string | null;
+      state: string | null;
+      deletionRequestedBy: string | null;
+      programmes: number;
+      published: number;
+      open: number;
+    };
+    const byId = new Map<string, Item>();
     for (const r of rows) {
-      const item = byId.get(r.id) ?? { id: r.id, name: r.name, shortName: r.shortName, type: r.type, websiteUrl: r.websiteUrl, programmes: 0, published: 0, open: 0 };
+      const { status: _status, n: _n, ...base } = r;
+      const item = byId.get(r.id) ?? { ...base, programmes: 0, published: 0, open: 0 };
       if (r.status) {
         item.programmes += r.n;
         if (r.status === 'published') item.published += r.n;
@@ -168,6 +206,54 @@ export class AdminQueries {
       byId.set(r.id, item);
     }
     return [...byId.values()];
+  }
+
+  /** One institution for its profile: details, programme counts, official sources and what deleting it would remove. */
+  async institution(id: string) {
+    const summary = (await this.institutions()).find((i) => i.id === id);
+    if (!summary) throw new NotFoundError('Institution', id);
+    const inInstitution = this.db.select({ id: programs.id }).from(programs).where(eq(programs.institutionId, id));
+    const [sources, [withoutRequirements], [reqs], [stats], [paths], [requested]] = await Promise.all([
+      this.db.select().from(institutionSources).where(eq(institutionSources.institutionId, id)).orderBy(institutionSources.createdAt),
+      this.db
+        .select({ n: count() })
+        .from(programs)
+        .where(
+          and(
+            eq(programs.institutionId, id),
+            eq(programs.publishStatus, 'published'),
+            notExists(this.db.select({ id: requirements.id }).from(requirements).where(and(eq(requirements.programId, programs.id), eq(requirements.reviewStatus, 'published')))),
+          ),
+        ),
+      this.db.select({ n: count() }).from(requirements).where(inArray(requirements.programId, inInstitution)),
+      this.db.select({ n: count() }).from(admissionStats).where(inArray(admissionStats.programId, inInstitution)),
+      this.db
+        .select({ n: count() })
+        .from(programPathways)
+        .where(or(inArray(programPathways.fromProgramId, inInstitution), inArray(programPathways.toProgramId, inInstitution))),
+      this.db.select({ at: institutions.deletionRequestedAt }).from(institutions).where(eq(institutions.id, id)),
+    ]);
+    return {
+      ...summary,
+      archived: summary.programmes - summary.published - summary.open,
+      withoutRequirements: withoutRequirements?.n ?? 0,
+      deletionRequestedAt: requested?.at ?? null,
+      sources: sources.map((s) => ({ id: s.id, kind: s.kind, url: s.url, label: s.label })),
+      /** Everything a delete removes along with the institution. */
+      impact: {
+        programmes: summary.programmes,
+        published: summary.published,
+        requirements: reqs?.n ?? 0,
+        admissionStats: stats?.n ?? 0,
+        pathways: paths?.n ?? 0,
+        sources: sources.length,
+      },
+    };
+  }
+
+  /** NEC fields for the programme form, each with the broad EduLaunch field it suggests. */
+  necFields() {
+    return this.db.select().from(necFields).orderBy(necFields.code);
   }
 
   async programme(id: string) {
@@ -179,6 +265,17 @@ export class AdminQueries {
         durationSemesters: programs.durationSemesters,
         institutionId: programs.institutionId,
         institutionName: institutions.name,
+        upuCode: programs.upuCode,
+        internalCode: programs.internalCode,
+        faculty: programs.faculty,
+        necCode: programs.necCode,
+        studyMode: programs.studyMode,
+        campus: programs.campus,
+        hasInterview: programs.hasInterview,
+        isStem: programs.isStem,
+        isTvet: programs.isTvet,
+        bumiputeraOnly: programs.bumiputeraOnly,
+        sourceUrl: programs.sourceUrl,
         status: programs.publishStatus,
         preparedBy: programs.preparedBy,
         approvedBy: programs.approvedBy,
@@ -279,6 +376,16 @@ export class AdminController {
   @Get('institutions')
   institutions() {
     return this.queries.institutions();
+  }
+
+  @Get('institutions/:id')
+  institution(@Param('id', ParseUUIDPipe) id: string) {
+    return this.queries.institution(id);
+  }
+
+  @Get('nec-fields')
+  necFields() {
+    return this.queries.necFields();
   }
 
   @Get('programmes/:id')

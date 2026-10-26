@@ -29,6 +29,13 @@
       "when": 1793030382247,
       "tag": "0003_admin_review",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793035545637,
+      "tag": "0004_institution_profile",
+      "breakpoints": true
     }
   ]
 }

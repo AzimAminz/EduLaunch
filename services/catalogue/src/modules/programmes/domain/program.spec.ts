@@ -1,4 +1,4 @@
-import { Program, type ProgramDetails } from './program.js';
+import { NO_FACTS, Program, type ProgramDetails } from './program.js';
 
 const institutionId = '00000000-0000-4000-8000-000000000001';
 const details: ProgramDetails = { institutionId, name: 'Diploma Sains Komputer', studyLevel: 'diploma', durationSemesters: 6, fieldIds: [] };
@@ -51,7 +51,7 @@ describe('Program', () => {
   });
 
   it('lets any admin correct a published programme, archive it and reopen it as a draft', () => {
-    const p = Program.restore('p', { ...details, publishStatus: 'published', preparedBy: null, approvedBy: null, returnReason: null });
+    const p = Program.restore('p', { ...NO_FACTS, ...details, publishStatus: 'published', preparedBy: null, approvedBy: null, returnReason: null });
     p.updateDetails('admin-c', { name: 'Diploma Sains Komputer (Rangkaian)', durationSemesters: 6, fieldIds: ['f', 'f'] });
     expect(p.toSnapshot().fieldIds).toEqual(['f']);
     p.archive();
@@ -63,8 +63,22 @@ describe('Program', () => {
   });
 
   it('lets any admin submit a seeded draft, who then becomes its preparer', () => {
-    const p = Program.restore('p', { ...details, publishStatus: 'draft', preparedBy: null, approvedBy: null, returnReason: null });
+    const p = Program.restore('p', { ...NO_FACTS, ...details, publishStatus: 'draft', preparedBy: null, approvedBy: null, returnReason: null });
     p.submitForReview('admin-a');
     expect(() => p.approve('admin-a')).toThrow('Another admin');
+  });
+
+  it('keeps the standard details in a clean form', () => {
+    const p = Program.create('p', { ...details, upuCode: ' uc6522001 ', internalCode: ' BELG ', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true });
+    expect(p.toSnapshot()).toMatchObject({ upuCode: 'UC6522001', internalCode: 'BELG', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true, hasInterview: false });
+    expect(() => Program.create('p', { ...details, upuCode: 'BELG' })).toThrow('UC6522001');
+    expect(() => Program.create('p', { ...details, necCode: '712' })).toThrow('four digits');
+    expect(() => Program.create('p', { ...details, sourceUrl: 'prospektus.pdf' })).toThrow('web link');
+  });
+
+  it('keeps the institution and level when other details change', () => {
+    const p = draft();
+    p.updateDetails('admin-a', { name: 'Diploma Sains Komputer', durationSemesters: 6, fieldIds: [], campus: 'Kampus Induk' });
+    expect(p.toSnapshot()).toMatchObject({ institutionId, studyLevel: 'diploma', campus: 'Kampus Induk' });
   });
 });

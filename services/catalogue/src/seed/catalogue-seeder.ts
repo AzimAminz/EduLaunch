@@ -7,6 +7,7 @@ import type { SeedDataset } from './seed-types.js';
 export interface SeedSummary {
   institutions: number;
   fields: number;
+  necFields: number;
   subjects: number;
   programmes: number;
   requirements: number;
@@ -42,6 +43,10 @@ export class CatalogueSeeder {
       for (const f of data.fields) {
         const row = { name: f.name, nameEn: f.nameEn, riasecWeights: f.riasec };
         await tx.insert(schema.fields).values({ id: id.field(f.key), ...row }).onConflictDoUpdate({ target: schema.fields.id, set: row });
+      }
+      for (const n of data.necFields) {
+        const row = { name: n.name, fieldId: n.fieldKey ? id.field(n.fieldKey) : null };
+        await tx.insert(schema.necFields).values({ code: n.code, ...row }).onConflictDoUpdate({ target: schema.necFields.code, set: row });
       }
       for (const s of data.subjects) {
         const row = { name: s.name, nameEn: s.nameEn, qualification: s.qualification, category: s.category, isMandatory: s.isMandatory, aliases: s.aliases ?? [] };
@@ -119,6 +124,7 @@ export class CatalogueSeeder {
     return {
       institutions: data.institutions.length,
       fields: data.fields.length,
+      necFields: data.necFields.length,
       subjects: data.subjects.length,
       programmes: data.programmes.length,
       requirements: data.requirements.length,

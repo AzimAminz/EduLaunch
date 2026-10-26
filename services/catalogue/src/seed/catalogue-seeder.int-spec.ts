@@ -14,6 +14,8 @@ const t = `it-${randomUUID().slice(0, 8)}`;
 const tiny = (programmeName = `Diploma Ujian ${t}`): SeedDataset => ({
   institutions: [{ key: `${t}-inst`, name: `Kolej Contoh ${t}`, shortName: 'KCU', type: 'college', websiteUrl: null }],
   fields: [{ key: `${t}-field`, name: `Bidang ${t}`, nameEn: `Field ${t}`, riasec: { R: 1, I: 2, A: 3, S: 4, E: 5, C: 0 } }],
+  // An NEC code no real data uses, so the test can remove it afterwards.
+  necFields: [{ code: `9${t.slice(3, 6)}`, name: `NEC ${t}`, fieldKey: `${t}-field` }],
   subjects: [{ key: `${t}-math`, name: `Matematik ${t}`, nameEn: `Mathematics ${t}`, qualification: 'spm', category: 'core', isMandatory: true }],
   programmes: [
     { key: `${t}-cert`, name: `Sijil Ujian ${t}`, institutionKey: `${t}-inst`, studyLevel: 'certificate', durationSemesters: 4, fieldKeys: [`${t}-field`] },
@@ -45,6 +47,7 @@ afterAll(async () => {
   await db.delete(schema.careers).where(eq(schema.careers.fieldId, ids.field));
   await db.delete(schema.activities).where(eq(schema.activities.fieldId, ids.field));
   await db.delete(schema.subjects).where(eq(schema.subjects.id, ids.subject));
+  await db.delete(schema.necFields).where(eq(schema.necFields.fieldId, ids.field));
   await db.delete(schema.fields).where(eq(schema.fields.id, ids.field));
   await db.delete(schema.institutions).where(eq(schema.institutions.id, ids.institution));
   await close();

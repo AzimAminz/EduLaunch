@@ -1,9 +1,28 @@
 import { AggregateRoot, DomainError } from '@edulaunch/ddd';
-import type { StudyLevel } from '@edulaunch/contracts';
+import { StudyModes, UPU_CODE_PATTERN, type StudyLevel, type StudyMode } from '@edulaunch/contracts';
 
 export type PublishStatus = 'draft' | 'in_review' | 'returned' | 'published' | 'archived';
 
-export interface ProgramDetails {
+/** The details JPT and university prospectuses publish for every programme, so all programmes share one standard. */
+export interface ProgramFacts {
+  /** JPT / UPU code, for example UC6522001. */
+  upuCode: string | null;
+  /** The university's own code, for example BELG. */
+  internalCode: string | null;
+  faculty: string | null;
+  /** National Education Code field, for example 0712. */
+  necCode: string | null;
+  studyMode: StudyMode | null;
+  campus: string | null;
+  hasInterview: boolean;
+  isStem: boolean;
+  isTvet: boolean;
+  bumiputeraOnly: boolean;
+  /** The official page or document these details come from. */
+  sourceUrl: string | null;
+}
+
+interface ProgramCore {
   institutionId: string | null;
   name: string;
   studyLevel: StudyLevel;
@@ -11,13 +30,37 @@ export interface ProgramDetails {
   fieldIds: string[];
 }
 
-interface ProgramProps extends ProgramDetails {
+/** What an admin or an import supplies; facts left out stay as they were (or empty for a new programme). */
+export type ProgramDetails = ProgramCore & Partial<ProgramFacts>;
+
+export type EditableDetails = Omit<ProgramDetails, 'institutionId' | 'studyLevel'>;
+
+/** Only the values actually given, so a missing fact never overwrites a saved one with `undefined`. */
+const given = <T extends object>(details: T): T => Object.fromEntries(Object.entries(details).filter(([, v]) => v !== undefined)) as T;
+
+/** Facts of a programme nobody has filled in yet. */
+export const NO_FACTS: ProgramFacts = {
+  upuCode: null,
+  internalCode: null,
+  faculty: null,
+  necCode: null,
+  studyMode: null,
+  campus: null,
+  hasInterview: false,
+  isStem: false,
+  isTvet: false,
+  bumiputeraOnly: false,
+  sourceUrl: null,
+};
+
+type ProgramProps = ProgramCore &
+  ProgramFacts & {
   publishStatus: PublishStatus;
   /** The admin who prepared the draft; null for programmes loaded from the seed. */
   preparedBy: string | null;
   approvedBy: string | null;
   returnReason: string | null;
-}
+};
 
 /**
  * A study option students can find. New programmes start as drafts that students cannot see.
@@ -26,9 +69,7 @@ interface ProgramProps extends ProgramDetails {
  */
 export class Program extends AggregateRoot<string, ProgramProps> {
   static create(id: string, details: ProgramDetails, preparedBy: string | null = null): Program {
-    const program = new Program(id, { ...details, publishStatus: 'draft', preparedBy, approvedBy: null, returnReason: null });
-    program.props = { ...program.props, ...Program.validated(details) };
-    return program;
+    return new Program(id, { ...Program.validated({ ...NO_FACTS, ...given(details) }), publishStatus: 'draft', preparedBy, approvedBy: null, returnReason: null });
   }
 
   static restore(id: string, props: ProgramProps): Program {
@@ -56,14 +97,14 @@ export class Program extends AggregateRoot<string, ProgramProps> {
   }
 
   /** Changes name, duration and fields. Drafts only by the admin preparing them; published ones by any admin. */
-  updateDetails(by: string, details: Omit<ProgramDetails, 'institutionId' | 'studyLevel'>): void {
+  updateDetails(by: string, details: EditableDetails): void {
     if (this.props.publishStatus === 'archived') throw new DomainError('conflict', 'An archived programme cannot be edited');
     if (this.props.publishStatus === 'in_review') throw new DomainError('conflict', 'This programme is waiting for review; ask the reviewer to return it first');
     if (this.isDraft && this.props.preparedBy && this.props.preparedBy !== by) {
       throw new DomainError('forbidden', 'Only the admin who prepared this draft can edit it');
     }
-    const next = Program.validated({ ...this.props, ...details });
-    this.props = { ...this.props, name: next.name, durationSemesters: next.durationSemesters, fieldIds: next.fieldIds };
+    const { institutionId, studyLevel } = this.props;
+    this.props = { ...this.props, ...Program.validated({ ...this.props, ...given(details), institutionId, studyLevel }) };
   }
 
   submitForReview(by: string): void {
@@ -108,7 +149,7 @@ export class Program extends AggregateRoot<string, ProgramProps> {
     if (by === this.props.preparedBy) throw new DomainError('forbidden', 'Another admin must review this programme');
   }
 
-  private static validated(d: ProgramDetails): ProgramDetails {
+  private static validated(d: ProgramCore & ProgramFacts): ProgramCore & ProgramFacts {
     if (d.studyLevel === 'form4_stream' && d.institutionId !== null) {
       throw new DomainError('invalid_program', 'A Form 4 stream does not belong to an institution');
     }
@@ -120,6 +161,26 @@ export class Program extends AggregateRoot<string, ProgramProps> {
     if (d.durationSemesters !== null && (!Number.isInteger(d.durationSemesters) || d.durationSemesters < 1 || d.durationSemesters > 16)) {
       throw new DomainError('invalid_program', 'Duration must be 1 to 16 semesters');
     }
-    return { ...d, name, fieldIds: [...new Set(d.fieldIds)] };
+    const text = (v: string | null | undefined, max: number, what: string) => {
+      const t = v?.trim() || null;
+      if (t && t.length > max) throw new DomainError('invalid_program', `${what} must be at most ${max} characters`);
+      return t;
+    };
+    const upuCode = text(d.upuCode, 9, 'Programme code')?.toUpperCase() ?? null;
+    if (upuCode && !UPU_CODE_PATTERN.test(upuCode)) throw new DomainError('invalid_program', 'Programme code must look like UC6522001');
+    if (d.necCode && !/^\d{4}$/.test(d.necCode)) throw new DomainError('invalid_program', 'NEC code has four digits');
+    if (d.studyMode && !(StudyModes as readonly string[]).includes(d.studyMode)) throw new DomainError('invalid_program', `Unknown study mode ${d.studyMode}`);
+    const sourceUrl = text(d.sourceUrl, 500, 'Source link');
+    if (sourceUrl && !/^https?:\/\/\S+$/.test(sourceUrl)) throw new DomainError('invalid_source', 'The source must be a web link (https://…)');
+    return {
+      ...d,
+      name,
+      fieldIds: [...new Set(d.fieldIds)],
+      upuCode,
+      internalCode: text(d.internalCode, 20, 'University code'),
+      faculty: text(d.faculty, 160, 'Faculty'),
+      campus: text(d.campus, 120, 'Campus'),
+      sourceUrl,
+    };
   }
 }

@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { DomainError, NotFoundError, type UseCase } from '@edulaunch/ddd';
 import { randomUUID } from 'node:crypto';
-import { Program, type ProgramDetails } from '../domain/program.js';
+import { Program, type EditableDetails, type ProgramDetails } from '../domain/program.js';
 import { ProgramRepository } from '../domain/program.repository.js';
 
 /** Catches unknown institutions and fields here, so the admin gets a clear message instead of a database error. */
-async function checkReferences(programs: ProgramRepository, institutionId: string | null, fieldIds: string[]) {
-  if (institutionId && !(await programs.institutionExists(institutionId))) throw new DomainError('invalid_program', 'Choose an institution from the list');
+async function checkReferences(programs: ProgramRepository, programId: string | null, d: Partial<ProgramDetails>) {
+  if (d.institutionId && !(await programs.institutionExists(d.institutionId))) throw new DomainError('invalid_program', 'Choose an institution from the list');
+  const fieldIds = d.fieldIds ?? [];
   const found = await programs.existingFieldIds(fieldIds);
   if (found.length !== new Set(fieldIds).size) throw new DomainError('invalid_program', 'Choose fields from the list');
+  if (d.necCode && !(await programs.necCodeExists(d.necCode))) throw new DomainError('invalid_program', 'Choose an NEC field from the list');
+  const upu = d.upuCode?.trim().toUpperCase();
+  if (upu && (await programs.upuCodeTaken(upu, programId))) throw new DomainError('upu_code_taken', `Another programme already uses the code ${upu}`);
 }
 
 @Injectable()
@@ -16,20 +20,14 @@ export class CreateProgramme implements UseCase<ProgramDetails & { adminId: stri
   constructor(private readonly programs: ProgramRepository) {}
 
   async execute({ adminId, ...details }: ProgramDetails & { adminId: string }) {
-    await checkReferences(this.programs, details.institutionId, details.fieldIds);
+    await checkReferences(this.programs, null, details);
     const program = Program.create(randomUUID(), details, adminId);
     await this.programs.save(program);
     return { id: program.id };
   }
 }
 
-export interface UpdateProgrammeInput {
-  id: string;
-  adminId: string;
-  name: string;
-  durationSemesters: number | null;
-  fieldIds: string[];
-}
+export type UpdateProgrammeInput = EditableDetails & { id: string; adminId: string };
 
 @Injectable()
 export class UpdateProgramme implements UseCase<UpdateProgrammeInput, { status: string }> {
@@ -38,7 +36,7 @@ export class UpdateProgramme implements UseCase<UpdateProgrammeInput, { status: 
   async execute({ id, adminId, ...details }: UpdateProgrammeInput) {
     const program = await this.programs.findById(id);
     if (!program) throw new NotFoundError('Programme', id);
-    await checkReferences(this.programs, null, details.fieldIds);
+    await checkReferences(this.programs, id, details);
     program.updateDetails(adminId, details);
     await this.programs.save(program);
     return { status: program.status };

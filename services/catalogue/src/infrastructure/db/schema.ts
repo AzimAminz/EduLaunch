@@ -23,7 +23,22 @@ export const institutions = catalogue.table('institution', {
   shortName: text('short_name'),
   type: text('institution_type').notNull(),
   websiteUrl: text('website_url'),
+  /** Negeri (state or federal territory). */
+  state: text('state'),
+  /** A delete waiting for a second admin, because students can see some of its programmes. */
+  deletionRequestedBy: uuid('deletion_requested_by'),
+  deletionRequestedAt: timestamp('deletion_requested_at', { withTimezone: true }),
   ...timestamps,
+});
+
+/** Where an institution publishes its programmes: website, programme page, prospectus PDFs, its ePanduan code. */
+export const institutionSources = catalogue.table('institution_source', {
+  id: id(),
+  institutionId: uuid('institution_id').notNull().references(() => institutions.id, { onDelete: 'cascade' }),
+  kind: text('kind').notNull(),
+  url: text('url').notNull(),
+  label: text('label'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const fields = catalogue.table('field', {
@@ -46,13 +61,38 @@ export const subjects = catalogue.table('subject', {
   isMandatory: boolean('is_mandatory').notNull().default(false),
 });
 
+/**
+ * National Education Code (NEC) fields, the 4-digit codes used by JPT and MQA (for example 0712 Electricity and energy).
+ * `field_id` is the broad EduLaunch field it suggests for recommendations.
+ */
+export const necFields = catalogue.table('nec_field', {
+  code: text('code').primaryKey(),
+  name: text('name').notNull(),
+  fieldId: uuid('field_id').references(() => fields.id),
+});
+
 /** Every study option, including Form 4 streams (`study_level = form4_stream`, no institution). */
 export const programs = catalogue.table('program', {
   id: id(),
-  institutionId: uuid('institution_id').references(() => institutions.id),
+  institutionId: uuid('institution_id').references(() => institutions.id, { onDelete: 'cascade' }),
   name: text('program_name').notNull(),
   studyLevel: studyLevel('study_level').notNull(),
   durationSemesters: integer('duration_semesters'),
+  /** Programme code used by JPT / UPU, for example UC6522001. */
+  upuCode: text('upu_code').unique(),
+  /** The university's own code, for example BELG. */
+  internalCode: text('internal_code'),
+  faculty: text('faculty'),
+  necCode: text('nec_code').references(() => necFields.code),
+  /** conventional, work_based (2U2I / 3U1I) or distance. */
+  studyMode: text('study_mode'),
+  campus: text('campus'),
+  hasInterview: boolean('has_interview').notNull().default(false),
+  isStem: boolean('is_stem').notNull().default(false),
+  isTvet: boolean('is_tvet').notNull().default(false),
+  /** Open to Bumiputera applicants only (for example some foundation programmes). */
+  bumiputeraOnly: boolean('bumiputera_only').notNull().default(false),
+  sourceUrl: text('source_url'),
   publishStatus: reviewStatus('publish_status').notNull().default('draft'),
   /** Admin user IDs (auth service). Null for programmes loaded from the seed. */
   preparedBy: uuid('prepared_by'),
@@ -73,8 +113,8 @@ export const programFields = catalogue.table(
 export const programPathways = catalogue.table(
   'program_pathway',
   {
-    fromProgramId: uuid('from_program_id').notNull().references(() => programs.id),
-    toProgramId: uuid('to_program_id').notNull().references(() => programs.id),
+    fromProgramId: uuid('from_program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
+    toProgramId: uuid('to_program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
     conditionText: text('condition_text'),
     minCgpa: numeric('min_cgpa', { precision: 3, scale: 2 }),
     sourceId: uuid('source_id'),
@@ -84,7 +124,7 @@ export const programPathways = catalogue.table(
 
 export const requirements = catalogue.table('requirement', {
   id: id(),
-  programId: uuid('program_id').notNull().references(() => programs.id),
+  programId: uuid('program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
   sourceId: uuid('source_id'),
   /** The official page or document the rules were taken from, until sources are registered in the content service. */
   sourceUrl: text('source_url'),
@@ -122,7 +162,7 @@ export const meritFormulas = catalogue.table('merit_formula', {
 
 export const admissionStats = catalogue.table('admission_stat', {
   id: id(),
-  programId: uuid('program_id').notNull().references(() => programs.id),
+  programId: uuid('program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
   sourceId: uuid('source_id'),
   intakeYear: integer('intake_year').notNull(),
   lowestMerit: numeric('lowest_merit', { precision: 6, scale: 2 }),

@@ -3,10 +3,24 @@ import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
 import type { Page } from '@edulaunch/ddd';
 import { and, count, eq, ilike, inArray, type SQL } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
-import { Program } from '../domain/program.js';
+import { Program, type ProgramFacts } from '../domain/program.js';
 import { ProgramRepository, type ProgramSearch } from '../domain/program.repository.js';
 
-const { programs, programFields, institutions, fields } = schema;
+const { programs, programFields, institutions, fields, necFields } = schema;
+
+const facts = (p: ProgramFacts): ProgramFacts => ({
+  upuCode: p.upuCode,
+  internalCode: p.internalCode,
+  faculty: p.faculty,
+  necCode: p.necCode,
+  studyMode: p.studyMode,
+  campus: p.campus,
+  hasInterview: p.hasInterview,
+  isStem: p.isStem,
+  isTvet: p.isTvet,
+  bumiputeraOnly: p.bumiputeraOnly,
+  sourceUrl: p.sourceUrl,
+});
 
 @Injectable()
 export class DrizzleProgramRepository extends ProgramRepository {
@@ -59,10 +73,12 @@ export class DrizzleProgramRepository extends ProgramRepository {
           preparedBy: s.preparedBy,
           approvedBy: s.approvedBy,
           returnReason: s.returnReason,
+          ...facts(s),
         })
         .onConflictDoUpdate({
           target: programs.id,
           set: {
+            ...facts(s),
             name: s.name,
             durationSemesters: s.durationSemesters,
             publishStatus: s.publishStatus,
@@ -82,6 +98,16 @@ export class DrizzleProgramRepository extends ProgramRepository {
     return !!row;
   }
 
+  async necCodeExists(code: string): Promise<boolean> {
+    const [row] = await this.db.select({ code: necFields.code }).from(necFields).where(eq(necFields.code, code)).limit(1);
+    return !!row;
+  }
+
+  async upuCodeTaken(code: string, exceptId: string | null): Promise<boolean> {
+    const rows = await this.db.select({ id: programs.id }).from(programs).where(eq(programs.upuCode, code));
+    return rows.some((r) => r.id !== exceptId);
+  }
+
   async existingFieldIds(ids: string[]): Promise<string[]> {
     if (ids.length === 0) return [];
     const rows = await this.db.select({ id: fields.id }).from(fields).where(inArray(fields.id, ids));
@@ -99,6 +125,7 @@ export class DrizzleProgramRepository extends ProgramRepository {
       preparedBy: row.preparedBy,
       approvedBy: row.approvedBy,
       returnReason: row.returnReason,
+      ...facts({ ...row, studyMode: row.studyMode as ProgramFacts['studyMode'] }),
     });
   }
 }

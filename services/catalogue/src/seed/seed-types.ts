@@ -6,6 +6,8 @@ type Riasec = Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>;
 export interface SeedDataset {
   institutions: Array<{ key: string; name: string; shortName: string; type: string; websiteUrl: string | null }>;
   fields: Array<{ key: string; name: string; nameEn: string; riasec: Riasec }>;
+  /** NEC field codes; `fieldKey` is the broad field each suggests (null for generic programmes). */
+  necFields: Array<{ code: string; name: string; fieldKey: string | null }>;
   /** `aliases`: other names students type, such as "Add Maths" (used for search). */
   subjects: Array<{ key: string; name: string; nameEn: string; qualification: 'spm' | 'school' | 'stpm' | 'a_level' | 'matriculation' | 'foundation'; category: string; isMandatory: boolean; aliases?: string[] }>;
   programmes: Array<{ key: string; name: string; institutionKey: string | null; studyLevel: StudyLevel; durationSemesters: number | null; fieldKeys: string[] }>;

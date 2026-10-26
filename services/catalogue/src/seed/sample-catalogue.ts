@@ -1,4 +1,5 @@
 import type { SeedDataset } from './seed-types.js';
+import { necFieldsSeed } from './nec-fields.js';
 
 /**
  * SAMPLE DATA for development and demos. Institutions, programmes and requirements are made up
@@ -8,6 +9,8 @@ import type { SeedDataset } from './seed-types.js';
 const Q = (text: string) => `[Contoh] ${text}`;
 
 export const sampleCatalogue: SeedDataset = {
+  necFields: necFieldsSeed,
+
   institutions: [
     { key: 'uca', name: 'Universiti Contoh A', shortName: 'UCA', type: 'public_university', websiteUrl: null },
     { key: 'pcb', name: 'Politeknik Contoh B', shortName: 'PCB', type: 'polytechnic', websiteUrl: null },

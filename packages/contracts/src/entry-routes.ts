@@ -50,3 +50,34 @@ export const InstitutionTypes = [
   'private_college',
 ] as const;
 export type InstitutionType = (typeof InstitutionTypes)[number];
+
+/** How a programme is studied: on campus, work-based (2U2I / 3U1I) or by distance learning. */
+export const StudyModes = ['conventional', 'work_based', 'distance'] as const;
+export type StudyMode = (typeof StudyModes)[number];
+
+/** JPT / UPU programme codes: two letters for the institution, then seven digits (for example UC6522001). */
+export const UPU_CODE_PATTERN = /^[A-Z]{2}\d{7}$/;
+
+/** Malaysian states and federal territories, for an institution's location. */
+export const MalaysianStates = [
+  'Johor',
+  'Kedah',
+  'Kelantan',
+  'Melaka',
+  'Negeri Sembilan',
+  'Pahang',
+  'Perak',
+  'Perlis',
+  'Pulau Pinang',
+  'Sabah',
+  'Sarawak',
+  'Selangor',
+  'Terengganu',
+  'WP Kuala Lumpur',
+  'WP Labuan',
+  'WP Putrajaya',
+] as const;
+
+/** Kinds of official source an institution publishes its programmes in (its website is a field of its own). */
+export const InstitutionSourceKinds = ['programme_page', 'prospectus', 'epanduan', 'other'] as const;
+export type InstitutionSourceKind = (typeof InstitutionSourceKinds)[number];
