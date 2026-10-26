@@ -25,8 +25,8 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 2 | Integration tests for every service's database code | **Done** |
 | 3 | Sample catalogue (3 institutions, 14 programmes, marked "Contoh") and `pnpm db:seed` | **Done** (checked by hand) |
 | 4 | Student portal layout, programme directory and programme page, in BM and EN | **Done** (checked by hand) |
-| 5 | Accounts: sign up, log in, forgot password, onboarding (education level), log out; every portal page now needs an account; sidebar works on phones and can be collapsed | **Done** (manual check waiting) |
-| 6 | Academic profile screens: education level, subjects and grades | Planned |
+| 5 | Accounts: sign up, log in, forgot password, onboarding (education level), log out; every portal page now needs an account; sidebar works on phones and can be collapsed; admins and students kept to their own pages; e-mails in the EduLaunch design | **Done** (checked by hand) |
+| 6 | Academic profile screens: education level, subjects and grades | **Next** |
 | 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
 | 8 | Admin: edit programmes and review requirements (two-admin rule) | Planned; **M1 demo** after this step |
 | 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
