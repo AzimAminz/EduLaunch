@@ -9,7 +9,7 @@ export class ReferenceQueries {
 
   subjects() {
     return this.db
-      .select({ id: schema.subjects.id, name: schema.subjects.name, qualification: schema.subjects.qualification, category: schema.subjects.category, isMandatory: schema.subjects.isMandatory })
+      .select({ id: schema.subjects.id, name: schema.subjects.name, nameEn: schema.subjects.nameEn, qualification: schema.subjects.qualification, category: schema.subjects.category, isMandatory: schema.subjects.isMandatory })
       .from(schema.subjects)
       .orderBy(schema.subjects.name);
   }

@@ -29,13 +29,17 @@ export const institutions = catalogue.table('institution', {
 export const fields = catalogue.table('field', {
   id: id(),
   parentId: uuid('parent_field_id'),
+  /** Bahasa Melayu name (default). */
   name: text('field_name').notNull(),
+  nameEn: text('field_name_en'),
   riasecWeights: jsonb('riasec_weights').$type<Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>>(),
 });
 
 export const subjects = catalogue.table('subject', {
   id: id(),
+  /** Official (Bahasa Melayu) subject name. */
   name: text('subject_name').notNull(),
+  nameEn: text('subject_name_en'),
   aliases: text('aliases').array().notNull().default(sql`'{}'`),
   category: text('category'),
   qualification: text('qualification').notNull(),

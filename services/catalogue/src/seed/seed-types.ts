@@ -5,8 +5,8 @@ type Riasec = Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>;
 /** Rows are linked by readable keys; the seeder turns each key into a fixed UUID. */
 export interface SeedDataset {
   institutions: Array<{ key: string; name: string; shortName: string; type: string; websiteUrl: string | null }>;
-  fields: Array<{ key: string; name: string; riasec: Riasec }>;
-  subjects: Array<{ key: string; name: string; qualification: 'spm' | 'school'; category: string; isMandatory: boolean }>;
+  fields: Array<{ key: string; name: string; nameEn: string; riasec: Riasec }>;
+  subjects: Array<{ key: string; name: string; nameEn: string; qualification: 'spm' | 'school'; category: string; isMandatory: boolean }>;
   programmes: Array<{ key: string; name: string; institutionKey: string | null; studyLevel: StudyLevel; durationSemesters: number | null; fieldKeys: string[] }>;
   requirements: Array<{
     programmeKey: string;

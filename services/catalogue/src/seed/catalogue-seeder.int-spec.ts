@@ -13,8 +13,8 @@ const seeder = new CatalogueSeeder(db);
 const t = `it-${randomUUID().slice(0, 8)}`;
 const tiny = (programmeName = `Diploma Ujian ${t}`): SeedDataset => ({
   institutions: [{ key: `${t}-inst`, name: `Kolej Contoh ${t}`, shortName: 'KCU', type: 'college', websiteUrl: null }],
-  fields: [{ key: `${t}-field`, name: `Bidang ${t}`, riasec: { R: 1, I: 2, A: 3, S: 4, E: 5, C: 0 } }],
-  subjects: [{ key: `${t}-math`, name: `Matematik ${t}`, qualification: 'spm', category: 'core', isMandatory: true }],
+  fields: [{ key: `${t}-field`, name: `Bidang ${t}`, nameEn: `Field ${t}`, riasec: { R: 1, I: 2, A: 3, S: 4, E: 5, C: 0 } }],
+  subjects: [{ key: `${t}-math`, name: `Matematik ${t}`, nameEn: `Mathematics ${t}`, qualification: 'spm', category: 'core', isMandatory: true }],
   programmes: [
     { key: `${t}-cert`, name: `Sijil Ujian ${t}`, institutionKey: `${t}-inst`, studyLevel: 'certificate', durationSemesters: 4, fieldKeys: [`${t}-field`] },
     { key: `${t}-dip`, name: programmeName, institutionKey: `${t}-inst`, studyLevel: 'diploma', durationSemesters: 6, fieldKeys: [`${t}-field`] },

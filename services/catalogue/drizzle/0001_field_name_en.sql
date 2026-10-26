@@ -1,0 +1,1 @@
+ALTER TABLE "catalogue"."field" ADD COLUMN "field_name_en" text;

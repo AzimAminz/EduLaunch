@@ -134,6 +134,18 @@ describe('sample catalogue', () => {
     expect(levels).toContain('degree');
   });
 
+  it('names every field in Bahasa Melayu and English', () => {
+    for (const f of data.fields) {
+      expect(f.name.trim().length, f.key).toBeGreaterThan(2);
+      expect(f.nameEn.trim().length, f.key).toBeGreaterThan(2);
+      expect(f.name).not.toBe(f.nameEn);
+    }
+  });
+
+  it('names every subject in Bahasa Melayu and English', () => {
+    for (const s of data.subjects) expect(s.nameEn.trim().length, s.key).toBeGreaterThan(2);
+  });
+
   it('keeps field interest weights between 0 and 5', () => {
     for (const f of data.fields) {
       for (const v of Object.values(f.riasec)) {

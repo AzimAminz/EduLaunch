@@ -1,0 +1,1 @@
+ALTER TABLE "catalogue"."subject" ADD COLUMN "subject_name_en" text;
