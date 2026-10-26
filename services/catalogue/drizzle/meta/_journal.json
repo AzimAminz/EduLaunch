@@ -36,6 +36,13 @@
       "when": 1793035545637,
       "tag": "0004_institution_profile",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793037811145,
+      "tag": "0005_programme_pending_changes",
+      "breakpoints": true
     }
   ]
 }

@@ -29,6 +29,7 @@ const programme = (name: string, over: Partial<Parameters<typeof Program.restore
     preparedBy: null,
     approvedBy: null,
     returnReason: null,
+    pending: null,
     ...over,
   });
 };
@@ -66,6 +67,27 @@ describe('DrizzleProgramRepository (integration)', () => {
     const found = (await repo.findById(p.id))!.toSnapshot();
     expect(found.name).toBe(`Diploma Kejuruteraan Elektrik ${tag}`);
     expect(found.fieldIds).toEqual([fieldB]);
+  });
+
+  it('keeps a pending change beside the published details, and applies it on approval', async () => {
+    const [maker, checker] = [randomUUID(), randomUUID()];
+    const p = programme('Diploma Perakaunan');
+    await repo.save(p);
+    const editing = (await repo.findById(p.id))!;
+    editing.edit(maker, { campus: 'Kampus Induk', fieldIds: [fieldB] });
+    editing.submitForReview(maker);
+    await repo.save(editing);
+
+    const waiting = (await repo.findById(p.id))!.toSnapshot();
+    expect(waiting.campus).toBeNull();
+    expect(waiting.fieldIds).toEqual([fieldA]);
+    expect(waiting.pending).toMatchObject({ status: 'in_review', preparedBy: maker, details: { campus: 'Kampus Induk', fieldIds: [fieldB] } });
+
+    const reviewing = (await repo.findById(p.id))!;
+    reviewing.approve(checker);
+    await repo.save(reviewing);
+    const approved = (await repo.findById(p.id))!.toSnapshot();
+    expect(approved).toMatchObject({ campus: 'Kampus Induk', fieldIds: [fieldB], pending: null });
   });
 
   it('returns null for an unknown id', async () => {

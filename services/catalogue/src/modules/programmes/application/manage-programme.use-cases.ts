@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DomainError, NotFoundError, type UseCase } from '@edulaunch/ddd';
 import { randomUUID } from 'node:crypto';
-import { Program, type EditableDetails, type ProgramDetails } from '../domain/program.js';
+import { Program, type ProgramDetails } from '../domain/program.js';
 import { ProgramRepository } from '../domain/program.repository.js';
 
 /** Catches unknown institutions and fields here, so the admin gets a clear message instead of a database error. */
@@ -27,7 +27,7 @@ export class CreateProgramme implements UseCase<ProgramDetails & { adminId: stri
   }
 }
 
-export type UpdateProgrammeInput = EditableDetails & { id: string; adminId: string };
+export type UpdateProgrammeInput = Partial<ProgramDetails> & { id: string; adminId: string };
 
 @Injectable()
 export class UpdateProgramme implements UseCase<UpdateProgrammeInput, { status: string }> {
@@ -37,13 +37,13 @@ export class UpdateProgramme implements UseCase<UpdateProgrammeInput, { status: 
     const program = await this.programs.findById(id);
     if (!program) throw new NotFoundError('Programme', id);
     await checkReferences(this.programs, id, details);
-    program.updateDetails(adminId, details);
+    program.edit(adminId, details);
     await this.programs.save(program);
     return { status: program.status };
   }
 }
 
-export type ProgrammeAction = { action: 'submit' | 'approve' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
+export type ProgrammeAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
 
 /** Publishing workflow: one entry point so the rules stay in the aggregate. */
 @Injectable()
@@ -62,6 +62,12 @@ export class ReviewProgramme implements UseCase<{ id: string; adminId: string } 
         break;
       case 'return':
         program.returnToPreparer(input.adminId, input.reason);
+        break;
+      case 'withdraw':
+        program.withdraw();
+        break;
+      case 'discard':
+        program.discardChanges();
         break;
       case 'archive':
         program.archive();

@@ -3,10 +3,18 @@ import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
 import type { Page } from '@edulaunch/ddd';
 import { and, count, eq, ilike, inArray, type SQL } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
-import { Program, type ProgramFacts } from '../domain/program.js';
+import { Program, type PendingChange, type PendingStatus, type ProgramFacts } from '../domain/program.js';
 import { ProgramRepository, type ProgramSearch } from '../domain/program.repository.js';
 
 const { programs, programFields, institutions, fields, necFields } = schema;
+
+/** The pending change of a published programme, spread over its four columns (all null when there is none). */
+const pendingColumns = (p: PendingChange | null) => ({
+  pendingChanges: p?.details ?? null,
+  pendingStatus: p?.status ?? null,
+  pendingPreparedBy: p?.preparedBy ?? null,
+  pendingReturnReason: p?.returnReason ?? null,
+});
 
 const facts = (p: ProgramFacts): ProgramFacts => ({
   upuCode: p.upuCode,
@@ -74,11 +82,16 @@ export class DrizzleProgramRepository extends ProgramRepository {
           approvedBy: s.approvedBy,
           returnReason: s.returnReason,
           ...facts(s),
+          ...pendingColumns(s.pending),
         })
         .onConflictDoUpdate({
           target: programs.id,
           set: {
             ...facts(s),
+            ...pendingColumns(s.pending),
+            // A draft may still move to another institution or level.
+            institutionId: s.institutionId,
+            studyLevel: s.studyLevel,
             name: s.name,
             durationSemesters: s.durationSemesters,
             publishStatus: s.publishStatus,
@@ -126,6 +139,15 @@ export class DrizzleProgramRepository extends ProgramRepository {
       approvedBy: row.approvedBy,
       returnReason: row.returnReason,
       ...facts({ ...row, studyMode: row.studyMode as ProgramFacts['studyMode'] }),
+      pending:
+        row.pendingChanges && row.pendingStatus && row.pendingPreparedBy
+          ? {
+              details: row.pendingChanges as PendingChange['details'],
+              status: row.pendingStatus as PendingStatus,
+              preparedBy: row.pendingPreparedBy,
+              returnReason: row.pendingReturnReason,
+            }
+          : null,
     });
   }
 }

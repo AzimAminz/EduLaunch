@@ -24,6 +24,8 @@ export interface AdminTask {
   preparedBy: string | null;
   returnReason: string | null;
   updatedAt: Date;
+  /** A change to a published programme (students still see the published version). */
+  isChange: boolean;
 }
 
 /**
@@ -36,7 +38,7 @@ export class AdminQueries {
 
   /** Everything not yet published, as tasks for the signed-in admin. */
   async tasks(adminId: string) {
-    const [programmeRows, requirementRows, deletionRows] = await Promise.all([
+    const [programmeRows, changeRows, requirementRows, deletionRows] = await Promise.all([
       this.db
         .select({
           id: programs.id,
@@ -51,6 +53,20 @@ export class AdminQueries {
         .from(programs)
         .leftJoin(institutions, eq(institutions.id, programs.institutionId))
         .where(inArray(programs.publishStatus, OPEN)),
+      this.db
+        .select({
+          id: programs.id,
+          institutionId: programs.institutionId,
+          programmeName: programs.name,
+          institutionName: institutions.name,
+          status: programs.pendingStatus,
+          preparedBy: programs.pendingPreparedBy,
+          returnReason: programs.pendingReturnReason,
+          updatedAt: programs.updatedAt,
+        })
+        .from(programs)
+        .leftJoin(institutions, eq(institutions.id, programs.institutionId))
+        .where(isNotNull(programs.pendingStatus)),
       this.db
         .select({
           id: requirements.id,
@@ -75,8 +91,9 @@ export class AdminQueries {
         .where(isNotNull(institutions.deletionRequestedBy)),
     ]);
     const all: AdminTask[] = [
-      ...programmeRows.map((r) => ({ ...r, kind: 'programme' as const, programmeId: r.id, entryRoute: null, versionNo: null })),
-      ...requirementRows.map((r) => ({ ...r, kind: 'requirement' as const })),
+      ...programmeRows.map((r) => ({ ...r, kind: 'programme' as const, programmeId: r.id, entryRoute: null, versionNo: null, isChange: false })),
+      ...changeRows.map((r) => ({ ...r, status: r.status as Status, kind: 'programme' as const, programmeId: r.id, entryRoute: null, versionNo: null, isChange: true })),
+      ...requirementRows.map((r) => ({ ...r, kind: 'requirement' as const, isChange: false })),
       // A delete of an institution that students can see waits for another admin, like a draft.
       ...deletionRows.map((r) => ({
         kind: 'institution' as const,
@@ -91,6 +108,7 @@ export class AdminQueries {
         preparedBy: r.by,
         returnReason: null,
         updatedAt: r.at ?? new Date(),
+        isChange: false,
       })),
     ].sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
 
@@ -137,6 +155,7 @@ export class AdminQueries {
           studyLevel: programs.studyLevel,
           institutionName: institutions.name,
           status: programs.publishStatus,
+          pendingStatus: programs.pendingStatus,
           updatedAt: programs.updatedAt,
         })
         .from(programs)
@@ -276,6 +295,10 @@ export class AdminQueries {
         isTvet: programs.isTvet,
         bumiputeraOnly: programs.bumiputeraOnly,
         sourceUrl: programs.sourceUrl,
+        pendingChanges: programs.pendingChanges,
+        pendingStatus: programs.pendingStatus,
+        pendingPreparedBy: programs.pendingPreparedBy,
+        pendingReturnReason: programs.pendingReturnReason,
         status: programs.publishStatus,
         preparedBy: programs.preparedBy,
         approvedBy: programs.approvedBy,

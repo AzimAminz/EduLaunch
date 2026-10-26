@@ -93,6 +93,14 @@ export const programs = catalogue.table('program', {
   /** Open to Bumiputera applicants only (for example some foundation programmes). */
   bumiputeraOnly: boolean('bumiputera_only').notNull().default(false),
   sourceUrl: text('source_url'),
+  /**
+   * A change to a published programme waiting for approval: the whole proposed version, its review status
+   * (draft, in_review, returned), who prepared it and why it was returned. Students keep seeing the columns above.
+   */
+  pendingChanges: jsonb('pending_changes'),
+  pendingStatus: text('pending_status'),
+  pendingPreparedBy: uuid('pending_prepared_by'),
+  pendingReturnReason: text('pending_return_reason'),
   publishStatus: reviewStatus('publish_status').notNull().default('draft'),
   /** Admin user IDs (auth service). Null for programmes loaded from the seed. */
   preparedBy: uuid('prepared_by'),

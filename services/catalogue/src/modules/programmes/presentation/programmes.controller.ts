@@ -33,9 +33,10 @@ const DetailsBody = z.object({
 });
 
 const CreateBody = DetailsBody.extend({ institutionId: z.uuid().nullable(), studyLevel: StudyLevel });
+const UpdateBody = DetailsBody.extend({ institutionId: z.uuid().nullable().optional(), studyLevel: StudyLevel.optional() });
 
 const ReviewBody = z.discriminatedUnion('action', [
-  z.object({ action: z.enum(['submit', 'approve', 'archive', 'reopen']) }),
+  z.object({ action: z.enum(['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen']) }),
   z.object({ action: z.literal('return'), reason: z.string().min(5).max(1000) }),
 ]);
 
@@ -76,9 +77,10 @@ export class ProgrammesController {
     return this.createProgramme.execute({ ...body, adminId: caller.userId });
   }
 
+  /** Edits a draft directly, or a published programme through a pending change. Institution and level apply to drafts only. */
   @Roles('admin')
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(DetailsBody)) body: z.infer<typeof DetailsBody>, @CurrentCaller() caller: Caller) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(UpdateBody)) body: z.infer<typeof UpdateBody>, @CurrentCaller() caller: Caller) {
     return this.updateProgramme.execute({ id, adminId: caller.userId, ...body });
   }
 

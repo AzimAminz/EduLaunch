@@ -33,8 +33,6 @@ interface ProgramCore {
 /** What an admin or an import supplies; facts left out stay as they were (or empty for a new programme). */
 export type ProgramDetails = ProgramCore & Partial<ProgramFacts>;
 
-export type EditableDetails = Omit<ProgramDetails, 'institutionId' | 'studyLevel'>;
-
 /** Only the values actually given, so a missing fact never overwrites a saved one with `undefined`. */
 const given = <T extends object>(details: T): T => Object.fromEntries(Object.entries(details).filter(([, v]) => v !== undefined)) as T;
 
@@ -53,23 +51,47 @@ export const NO_FACTS: ProgramFacts = {
   sourceUrl: null,
 };
 
-type ProgramProps = ProgramCore &
-  ProgramFacts & {
-  publishStatus: PublishStatus;
-  /** The admin who prepared the draft; null for programmes loaded from the seed. */
-  preparedBy: string | null;
-  approvedBy: string | null;
-  returnReason: string | null;
-};
+export type PendingStatus = 'draft' | 'in_review' | 'returned';
 
 /**
- * A study option students can find. New programmes start as drafts that students cannot see.
- * Workflow: draft → in_review → published (or returned → draft); another admin must approve.
- * A published programme's details can still be corrected; it can be archived to hide it again.
+ * Changes to a published programme, kept beside it until another admin approves them. Students keep seeing the
+ * published details meanwhile (like a "changed" entry in a headless CMS). Holds the whole proposed version.
+ */
+export interface PendingChange {
+  details: ProgramCore & ProgramFacts;
+  status: PendingStatus;
+  preparedBy: string;
+  returnReason: string | null;
+}
+
+type ProgramProps = ProgramCore &
+  ProgramFacts & {
+    publishStatus: PublishStatus;
+    /** The admin who last changed or sent the draft (the maker); null for programmes loaded from the seed. */
+    preparedBy: string | null;
+    approvedBy: string | null;
+    returnReason: string | null;
+    pending: PendingChange | null;
+  };
+
+/**
+ * A study option students can find. Maker-checker ("four eyes"): any admin may prepare a change, and an admin other
+ * than the one who prepared it approves it.
+ * - A new programme is a draft students cannot see: draft → in_review → published (or returned → draft).
+ * - A published programme is changed through a pending change: students keep the published details until another
+ *   admin approves the change.
+ * - A published programme can be archived (hidden) and reopened as a draft.
  */
 export class Program extends AggregateRoot<string, ProgramProps> {
   static create(id: string, details: ProgramDetails, preparedBy: string | null = null): Program {
-    return new Program(id, { ...Program.validated({ ...NO_FACTS, ...given(details) }), publishStatus: 'draft', preparedBy, approvedBy: null, returnReason: null });
+    return new Program(id, {
+      ...Program.validated({ ...NO_FACTS, ...given(details) }),
+      publishStatus: 'draft',
+      preparedBy,
+      approvedBy: null,
+      returnReason: null,
+      pending: null,
+    });
   }
 
   static restore(id: string, props: ProgramProps): Program {
@@ -88,6 +110,10 @@ export class Program extends AggregateRoot<string, ProgramProps> {
     return this.props.publishStatus;
   }
 
+  get pending(): PendingChange | null {
+    return this.props.pending;
+  }
+
   get isStream(): boolean {
     return this.props.studyLevel === 'form4_stream';
   }
@@ -96,42 +122,80 @@ export class Program extends AggregateRoot<string, ProgramProps> {
     return this.props.publishStatus === 'published';
   }
 
-  /** Changes name, duration and fields. Drafts only by the admin preparing them; published ones by any admin. */
-  updateDetails(by: string, details: EditableDetails): void {
-    if (this.props.publishStatus === 'archived') throw new DomainError('conflict', 'An archived programme cannot be edited');
-    if (this.props.publishStatus === 'in_review') throw new DomainError('conflict', 'This programme is waiting for review; ask the reviewer to return it first');
-    if (this.isDraft && this.props.preparedBy && this.props.preparedBy !== by) {
-      throw new DomainError('forbidden', 'Only the admin who prepared this draft can edit it');
+  /**
+   * Any admin may change a programme; whoever changes it becomes its preparer (and so cannot approve it).
+   * Before the first publication the institution and level can change too; afterwards they stay as published.
+   */
+  edit(by: string, details: Partial<ProgramDetails>): void {
+    const status = this.props.publishStatus;
+    if (status === 'archived') throw new DomainError('conflict', 'Reopen this archived programme before editing it');
+    if (status === 'in_review') throw new DomainError('conflict', 'This programme is waiting for review; withdraw it first to edit');
+    if (status === 'published') {
+      if (this.props.pending?.status === 'in_review') throw new DomainError('conflict', 'The changes are waiting for review; withdraw them first to edit');
+      const base = this.props.pending?.details ?? this.liveDetails();
+      const next = Program.validated({ ...base, ...given(details), institutionId: this.props.institutionId, studyLevel: this.props.studyLevel });
+      this.props.pending = { details: next, status: 'draft', preparedBy: by, returnReason: this.props.pending?.returnReason ?? null };
+      return;
     }
-    const { institutionId, studyLevel } = this.props;
-    this.props = { ...this.props, ...Program.validated({ ...this.props, ...given(details), institutionId, studyLevel }) };
+    this.props = { ...this.props, ...Program.validated({ ...this.liveDetails(), ...given(details) }), preparedBy: by };
   }
 
+  /** Sends the draft, or the pending change of a published programme, to another admin. */
   submitForReview(by: string): void {
-    if (!this.isDraft) throw new DomainError('conflict', 'Only a draft can be sent for review');
-    if (this.props.preparedBy && this.props.preparedBy !== by) throw new DomainError('forbidden', 'Only the admin who prepared the draft can submit it');
-    this.props.preparedBy = by;
-    this.props.publishStatus = 'in_review';
-    this.props.returnReason = null;
+    if (this.isDraft) {
+      this.props = { ...this.props, publishStatus: 'in_review', preparedBy: by, returnReason: null };
+      return;
+    }
+    const pending = this.props.pending;
+    if (this.props.publishStatus === 'published' && pending && pending.status !== 'in_review') {
+      this.props.pending = { ...pending, status: 'in_review', preparedBy: by, returnReason: null };
+      return;
+    }
+    throw new DomainError('conflict', 'There is nothing to send for review');
+  }
+
+  /** Takes a draft (or pending change) back from review so it can be edited again. */
+  withdraw(): void {
+    if (this.props.publishStatus === 'in_review') {
+      this.props.publishStatus = 'draft';
+      return;
+    }
+    if (this.props.pending?.status === 'in_review') {
+      this.props.pending = { ...this.props.pending, status: 'draft' };
+      return;
+    }
+    throw new DomainError('conflict', 'Nothing is waiting for review');
   }
 
   approve(by: string): void {
-    this.assertInReview(by);
-    this.props.publishStatus = 'published';
-    this.props.approvedBy = by;
+    const target = this.reviewTarget(by);
+    if (target === 'draft') {
+      this.props = { ...this.props, publishStatus: 'published', approvedBy: by };
+      return;
+    }
+    // The approved change becomes what students see.
+    this.props = { ...this.props, ...this.props.pending!.details, approvedBy: by, pending: null };
   }
 
   returnToPreparer(by: string, reason: string): void {
-    this.assertInReview(by);
+    const target = this.reviewTarget(by);
     if (reason.trim().length < 5) throw new DomainError('reason_required', 'Explain what needs to change');
-    this.props.publishStatus = 'returned';
-    this.props.returnReason = reason.trim();
+    if (target === 'draft') this.props = { ...this.props, publishStatus: 'returned', returnReason: reason.trim() };
+    else this.props.pending = { ...this.props.pending!, status: 'returned', returnReason: reason.trim() };
+  }
+
+  /** Drops the pending change of a published programme; the published details stay. */
+  discardChanges(): void {
+    if (!this.props.pending) throw new DomainError('conflict', 'There are no changes to discard');
+    if (this.props.pending.status === 'in_review') throw new DomainError('conflict', 'Withdraw the changes from review first');
+    this.props.pending = null;
   }
 
   /** Hides a published programme from students (for example, no longer offered). */
   archive(): void {
     if (this.props.publishStatus !== 'published') throw new DomainError('conflict', 'Only a published programme can be archived');
-    this.props.publishStatus = 'archived';
+    if (this.props.pending?.status === 'in_review') throw new DomainError('conflict', 'Its changes are waiting for review; withdraw them first');
+    this.props = { ...this.props, publishStatus: 'archived', pending: null };
   }
 
   /** Brings an archived programme back as a draft, to be reviewed again before students see it. */
@@ -140,13 +204,26 @@ export class Program extends AggregateRoot<string, ProgramProps> {
     this.props = { ...this.props, publishStatus: 'draft', preparedBy: by, approvedBy: null, returnReason: null };
   }
 
+  private liveDetails(): ProgramCore & ProgramFacts {
+    const { publishStatus: _s, preparedBy: _p, approvedBy: _a, returnReason: _r, pending: _c, ...details } = this.props;
+    return details;
+  }
+
   private get isDraft(): boolean {
     return this.props.publishStatus === 'draft' || this.props.publishStatus === 'returned';
   }
 
-  private assertInReview(by: string): void {
-    if (this.props.publishStatus !== 'in_review') throw new DomainError('conflict', 'This programme is not waiting for review');
-    if (by === this.props.preparedBy) throw new DomainError('forbidden', 'Another admin must review this programme');
+  /** What an approve or return acts on, after checking that someone other than its preparer is reviewing it. */
+  private reviewTarget(by: string): 'draft' | 'change' {
+    if (this.props.publishStatus === 'in_review') {
+      if (by === this.props.preparedBy) throw new DomainError('forbidden', 'Another admin must review this programme');
+      return 'draft';
+    }
+    if (this.props.pending?.status === 'in_review') {
+      if (by === this.props.pending.preparedBy) throw new DomainError('forbidden', 'Another admin must review these changes');
+      return 'change';
+    }
+    throw new DomainError('conflict', 'This programme is not waiting for review');
   }
 
   private static validated(d: ProgramCore & ProgramFacts): ProgramCore & ProgramFacts {
