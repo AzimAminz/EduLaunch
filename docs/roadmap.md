@@ -28,7 +28,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 5 | Accounts: sign up, log in, forgot password, onboarding (education level), log out; every portal page now needs an account; sidebar works on phones and can be collapsed; admins and students kept to their own pages; e-mails in the EduLaunch design | **Done** (checked by hand) |
 | 6 | Academic profile: results form per level (school grades, SPM targets, actual SPM), add/remove subjects, save & confirm; profile page with level change | **Done** (manual check waiting) |
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (manual check waiting, together with Step 6) |
-| 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
+| 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (manual check waiting) |
 | 8 | Admin: edit programmes and review requirements (two-admin rule), including entry routes for certificate, SVM, SKM, DVM and DKM holders | Planned; **M1 demo** after this step |
 | 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
 
@@ -73,7 +73,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | **Bahasa Melayu / English** moved from "Could have" to **Done** | Team decision: the whole system is bilingual from the start, so every new screen ships in both languages |
 | Programme cards show information only, no pictures | Admins should not have to upload a picture for every programme |
 | Services keep running when RabbitMQ is down | Found during manual testing |
-| New follow-up: recommendation reasons become codes that the web app translates | Reasons are written in English by the back end today |
+| Recommendation reasons become data the web app translates | **Done for the eligibility check** (Step 7); the recommendations list still uses English reasons until its screen is built |
 
 ### Changes in the previous update (v1 → v2)
 
