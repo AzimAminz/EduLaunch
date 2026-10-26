@@ -25,6 +25,9 @@ const programme = (name: string, over: Partial<Parameters<typeof Program.restore
     durationSemesters: 6,
     fieldIds: [fieldA],
     publishStatus: 'published',
+    preparedBy: null,
+    approvedBy: null,
+    returnReason: null,
     ...over,
   });
 };

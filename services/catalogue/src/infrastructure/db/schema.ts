@@ -54,6 +54,10 @@ export const programs = catalogue.table('program', {
   studyLevel: studyLevel('study_level').notNull(),
   durationSemesters: integer('duration_semesters'),
   publishStatus: reviewStatus('publish_status').notNull().default('draft'),
+  /** Admin user IDs (auth service). Null for programmes loaded from the seed. */
+  preparedBy: uuid('prepared_by'),
+  approvedBy: uuid('approved_by'),
+  returnReason: text('return_reason'),
   ...timestamps,
 });
 
@@ -82,6 +86,8 @@ export const requirements = catalogue.table('requirement', {
   id: id(),
   programId: uuid('program_id').notNull().references(() => programs.id),
   sourceId: uuid('source_id'),
+  /** The official page or document the rules were taken from, until sources are registered in the content service. */
+  sourceUrl: text('source_url'),
   preparedBy: uuid('prepared_by').notNull(),
   approvedBy: uuid('approved_by'),
   entryRoute: text('entry_route').notNull(),

@@ -14,7 +14,7 @@ const rule = (over: Partial<RequirementRule> = {}): RequirementRule => ({
 });
 
 const draft = () =>
-  Requirement.draft('req1', { programId: 'p1', entryRoute: 'spm', versionNo: 2, sourceId: null, preparedBy: 'aina', rules: [rule()] });
+  Requirement.draft('req1', { programId: 'p1', entryRoute: 'spm', versionNo: 2, sourceId: null, sourceUrl: 'https://contoh.edu.my/prospektus', preparedBy: 'aina', rules: [rule()] });
 
 describe('Requirement', () => {
   it('rejects a rule without evidence from the source', () => {
@@ -50,5 +50,46 @@ describe('Requirement', () => {
     req.submitForReview('aina');
     req.approve('faiz');
     expect(() => req.replaceRules([rule()])).toThrow(/new version/);
+  });
+
+  it('accepts known entry routes only', () => {
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'upu', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [] })).toThrow(/entry route/);
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'svm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [] })).not.toThrow();
+  });
+
+  it('needs a link to the official source before review', () => {
+    const req = Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [rule()] });
+    expect(() => req.submitForReview('aina')).toThrow(/link to the official source/);
+    expect(() => req.edit('aina', { rules: [rule()], sourceUrl: 'prospektus.pdf' })).toThrow(/web link/);
+    req.edit('aina', { rules: [rule()], sourceUrl: ' https://contoh.edu.my/a.pdf ' });
+    expect(req.toSnapshot().sourceUrl).toBe('https://contoh.edu.my/a.pdf');
+    req.submitForReview('aina');
+    expect(req.status).toBe('in_review');
+  });
+
+  it('lets only the preparer edit a draft', () => {
+    expect(() => draft().edit('faiz', { rules: [rule()], sourceUrl: null })).toThrow(/Only the admin/);
+  });
+
+  it('checks the value of CGPA, MUET and credit rules', () => {
+    const value = (ruleType: RequirementRule['ruleType'], minValue: number | null) => () => draft().replaceRules([rule({ ruleType, subjectId: null, minGrade: null, minValue })]);
+    expect(value('min_cgpa', 4.5)).toThrow(/between 0 and 4/);
+    expect(value('min_muet', 0)).toThrow(/between 1 and 6/);
+    expect(value('min_credits', 2.5)).toThrow(/between 1 and 20/);
+    expect(value('min_credits', null)).toThrow(/needs a minimum value/);
+    expect(value('min_cgpa', 2.75)).not.toThrow();
+  });
+
+  it('starts the next version from the published rules', () => {
+    const req = draft();
+    req.submitForReview('aina');
+    req.approve('faiz');
+    let n = 0;
+    const next = Requirement.nextVersion('req2', req, 3, 'faiz', () => `new-${++n}`);
+    expect(next.status).toBe('draft');
+    expect(next.preparedBy).toBe('faiz');
+    expect(next.toSnapshot().versionNo).toBe(3);
+    expect(next.toSnapshot().sourceUrl).toBe('https://contoh.edu.my/prospektus');
+    expect(next.rules.map((r) => [r.id, r.minGrade])).toEqual([['new-1', 'B']]);
   });
 });

@@ -1,11 +1,12 @@
-import type { PublishedRequirement, StudentSnapshot } from '@edulaunch/contracts';
+import type { EntryRoute, PublishedRequirement, StudentSnapshot } from '@edulaunch/contracts';
 
 /**
  * Which entry routes apply to a student, best match first. A programme can publish requirements
  * per route (after SPM, after STPM, after matriculation/foundation, after diploma, Form 3 streams).
- * Certificate holders use a certificate route when the programme has one, otherwise the SPM route.
+ * SVM, SKM, DVM and DKM holders use their own route when the programme has one, then the closest general
+ * route: SVM → certificate → SPM, SKM → SPM, DVM/DKM → diploma.
  */
-export function routesFor(snapshot: Pick<StudentSnapshot, 'educationLevel' | 'higherQualification'>): string[] {
+export function routesFor(snapshot: Pick<StudentSnapshot, 'educationLevel' | 'higherQualification'>): EntryRoute[] {
   switch (snapshot.educationLevel) {
     case 'form1_3':
       return ['form3'];
@@ -13,7 +14,14 @@ export function routesFor(snapshot: Pick<StudentSnapshot, 'educationLevel' | 'hi
     case 'after_spm':
       return ['spm'];
     case 'after_certificate':
-      return ['sijil', 'spm'];
+      switch (snapshot.higherQualification) {
+        case 'svm':
+          return ['svm', 'sijil', 'spm'];
+        case 'skm':
+          return ['skm', 'spm'];
+        default:
+          return ['sijil', 'spm'];
+      }
     case 'after_preu':
       switch (snapshot.higherQualification) {
         case 'stpm':
@@ -24,9 +32,11 @@ export function routesFor(snapshot: Pick<StudentSnapshot, 'educationLevel' | 'hi
         case 'foundation':
           return ['matrikulasi'];
         case 'diploma':
-        case 'dvm':
-        case 'dkm':
           return ['diploma'];
+        case 'dvm':
+          return ['dvm', 'diploma'];
+        case 'dkm':
+          return ['dkm', 'diploma'];
         default:
           return [];
       }

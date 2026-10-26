@@ -22,6 +22,13 @@
       "when": 1792977678911,
       "tag": "0002_subject_name_en",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793030382247,
+      "tag": "0003_admin_review",
+      "breakpoints": true
     }
   ]
 }

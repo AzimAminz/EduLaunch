@@ -17,4 +17,7 @@ export abstract class ProgramRepository {
   abstract findById(id: string): Promise<Program | null>;
   abstract search(criteria: ProgramSearch): Promise<Page<Program>>;
   abstract save(program: Program): Promise<void>;
+  abstract institutionExists(id: string): Promise<boolean>;
+  /** The given field IDs that exist in the catalogue. */
+  abstract existingFieldIds(ids: string[]): Promise<string[]>;
 }

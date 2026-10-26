@@ -5,7 +5,7 @@ import * as schema from '../../../infrastructure/db/schema.js';
 import { Requirement, type ReviewStatus } from '../domain/requirement.js';
 import { RequirementRepository } from '../domain/requirement.repository.js';
 
-const { requirements, requirementRules } = schema;
+const { requirements, requirementRules, programs, subjects } = schema;
 type RequirementRow = typeof requirements.$inferSelect;
 type RuleRow = typeof requirementRules.$inferSelect;
 
@@ -57,6 +57,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
           entryRoute: s.entryRoute,
           versionNo: s.versionNo,
           sourceId: s.sourceId,
+          sourceUrl: s.sourceUrl,
           preparedBy: s.preparedBy,
           approvedBy: s.approvedBy,
           reviewStatus: s.status,
@@ -64,7 +65,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
         })
         .onConflictDoUpdate({
           target: requirements.id,
-          set: { approvedBy: s.approvedBy, reviewStatus: s.status, returnReason: s.returnReason, updatedAt: new Date() },
+          set: { sourceUrl: s.sourceUrl, approvedBy: s.approvedBy, reviewStatus: s.status, returnReason: s.returnReason, updatedAt: new Date() },
         });
       await tx.delete(requirementRules).where(eq(requirementRules.requirementId, s.id));
       if (s.rules.length) {
@@ -84,12 +85,47 @@ export class DrizzleRequirementRepository extends RequirementRepository {
     });
   }
 
+  async delete(id: string): Promise<void> {
+    await this.db.delete(requirements).where(eq(requirements.id, id));
+  }
+
+  async findOpen(programId: string, entryRoute: string): Promise<Requirement | null> {
+    const [row] = await this.db
+      .select({ id: requirements.id })
+      .from(requirements)
+      .where(and(eq(requirements.programId, programId), eq(requirements.entryRoute, entryRoute), inArray(requirements.reviewStatus, ['draft', 'returned', 'in_review'])))
+      .limit(1);
+    return row ? this.findById(row.id) : null;
+  }
+
+  async findLatestPublished(programId: string, entryRoute: string): Promise<Requirement | null> {
+    const [row] = await this.db
+      .select({ id: requirements.id })
+      .from(requirements)
+      .where(and(eq(requirements.programId, programId), eq(requirements.entryRoute, entryRoute), eq(requirements.reviewStatus, 'published')))
+      .orderBy(desc(requirements.versionNo))
+      .limit(1);
+    return row ? this.findById(row.id) : null;
+  }
+
+  async programExists(programId: string): Promise<boolean> {
+    const [row] = await this.db.select({ id: programs.id }).from(programs).where(eq(programs.id, programId)).limit(1);
+    return !!row;
+  }
+
+  async subjectQualifications(ids: string[]): Promise<Map<string, string>> {
+    if (ids.length === 0) return new Map();
+    const rows = await this.db.select({ id: subjects.id, qualification: subjects.qualification }).from(subjects).where(inArray(subjects.id, ids));
+    return new Map(rows.map((r) => [r.id, r.qualification]));
+  }
+
   private toDomain(row: RequirementRow, rules: RuleRow[]): Requirement {
     return Requirement.restore(row.id, {
       programId: row.programId,
       entryRoute: row.entryRoute,
       versionNo: row.versionNo,
       sourceId: row.sourceId,
+      sourceUrl: row.sourceUrl,
       preparedBy: row.preparedBy,
       approvedBy: row.approvedBy,
       status: row.reviewStatus as ReviewStatus,

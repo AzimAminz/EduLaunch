@@ -6,7 +6,7 @@ import * as schema from '../../../infrastructure/db/schema.js';
 import { Program } from '../domain/program.js';
 import { ProgramRepository, type ProgramSearch } from '../domain/program.repository.js';
 
-const { programs, programFields } = schema;
+const { programs, programFields, institutions, fields } = schema;
 
 @Injectable()
 export class DrizzleProgramRepository extends ProgramRepository {
@@ -49,14 +49,43 @@ export class DrizzleProgramRepository extends ProgramRepository {
     await this.db.transaction(async (tx) => {
       await tx
         .insert(programs)
-        .values({ id: s.id, institutionId: s.institutionId, name: s.name, studyLevel: s.studyLevel, durationSemesters: s.durationSemesters, publishStatus: s.publishStatus })
+        .values({
+          id: s.id,
+          institutionId: s.institutionId,
+          name: s.name,
+          studyLevel: s.studyLevel,
+          durationSemesters: s.durationSemesters,
+          publishStatus: s.publishStatus,
+          preparedBy: s.preparedBy,
+          approvedBy: s.approvedBy,
+          returnReason: s.returnReason,
+        })
         .onConflictDoUpdate({
           target: programs.id,
-          set: { name: s.name, durationSemesters: s.durationSemesters, publishStatus: s.publishStatus, updatedAt: new Date() },
+          set: {
+            name: s.name,
+            durationSemesters: s.durationSemesters,
+            publishStatus: s.publishStatus,
+            preparedBy: s.preparedBy,
+            approvedBy: s.approvedBy,
+            returnReason: s.returnReason,
+            updatedAt: new Date(),
+          },
         });
       await tx.delete(programFields).where(eq(programFields.programId, s.id));
       if (s.fieldIds.length) await tx.insert(programFields).values(s.fieldIds.map((fieldId) => ({ programId: s.id, fieldId })));
     });
+  }
+
+  async institutionExists(id: string): Promise<boolean> {
+    const [row] = await this.db.select({ id: institutions.id }).from(institutions).where(eq(institutions.id, id)).limit(1);
+    return !!row;
+  }
+
+  async existingFieldIds(ids: string[]): Promise<string[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.db.select({ id: fields.id }).from(fields).where(inArray(fields.id, ids));
+    return rows.map((r) => r.id);
   }
 
   private toDomain(row: typeof programs.$inferSelect, fieldIds: string[]): Program {
@@ -67,6 +96,9 @@ export class DrizzleProgramRepository extends ProgramRepository {
       durationSemesters: row.durationSemesters,
       fieldIds,
       publishStatus: row.publishStatus,
+      preparedBy: row.preparedBy,
+      approvedBy: row.approvedBy,
+      returnReason: row.returnReason,
     });
   }
 }

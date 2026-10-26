@@ -8,10 +8,14 @@ describe('routesFor', () => {
     expect(routesFor({ educationLevel: 'form1_3' })).toEqual(['form3']);
     expect(routesFor({ educationLevel: 'form4_5' })).toEqual(['spm']);
     expect(routesFor({ educationLevel: 'after_spm' })).toEqual(['spm']);
-    expect(routesFor({ educationLevel: 'after_certificate', higherQualification: 'skm' })).toEqual(['sijil', 'spm']);
+    expect(routesFor({ educationLevel: 'after_certificate', higherQualification: 'certificate' })).toEqual(['sijil', 'spm']);
+    expect(routesFor({ educationLevel: 'after_certificate', higherQualification: 'svm' })).toEqual(['svm', 'sijil', 'spm']);
+    expect(routesFor({ educationLevel: 'after_certificate', higherQualification: 'skm' })).toEqual(['skm', 'spm']);
     expect(routesFor({ educationLevel: 'after_preu', higherQualification: 'stpm' })).toEqual(['stpm']);
     expect(routesFor({ educationLevel: 'after_preu', higherQualification: 'foundation' })).toEqual(['matrikulasi']);
-    expect(routesFor({ educationLevel: 'after_preu', higherQualification: 'dkm' })).toEqual(['diploma']);
+    expect(routesFor({ educationLevel: 'after_preu', higherQualification: 'diploma' })).toEqual(['diploma']);
+    expect(routesFor({ educationLevel: 'after_preu', higherQualification: 'dvm' })).toEqual(['dvm', 'diploma']);
+    expect(routesFor({ educationLevel: 'after_preu', higherQualification: 'dkm' })).toEqual(['dkm', 'diploma']);
     expect(routesFor({ educationLevel: 'after_preu', higherQualification: null })).toEqual([]);
   });
 });

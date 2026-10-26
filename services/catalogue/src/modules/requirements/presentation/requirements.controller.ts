@@ -1,26 +1,38 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { CurrentCaller, Public, Roles, ZodPipe, type Caller } from '@edulaunch/nest-kit';
-import { RuleType } from '@edulaunch/contracts';
+import { EntryRoutes, RuleType } from '@edulaunch/contracts';
 import { z } from 'zod';
-import { CreateRequirementDraft, GetPublishedRequirements, ReviewRequirement } from '../application/requirement-workflow.use-cases.js';
+import {
+  CreateRequirementDraft,
+  DiscardRequirementDraft,
+  EditRequirementDraft,
+  GetPublishedRequirements,
+  ReviewRequirement,
+} from '../application/requirement-workflow.use-cases.js';
 
+const Rules = z
+  .array(
+    z.object({
+      groupNo: z.number().int().min(1),
+      ruleType: RuleType,
+      subjectId: z.uuid().nullable().default(null),
+      minGrade: z.string().max(3).nullable().default(null),
+      minValue: z.number().nullable().default(null),
+      evidenceQuote: z.string().min(5).max(1000),
+    }),
+  )
+  .max(40);
+
+/** With no rules, the draft starts from the published version (if any). */
 const DraftBody = z.object({
   programId: z.uuid(),
-  entryRoute: z.string().min(2).max(40),
+  entryRoute: z.enum(EntryRoutes),
   sourceId: z.uuid().nullable().default(null),
-  rules: z
-    .array(
-      z.object({
-        groupNo: z.number().int().min(1),
-        ruleType: RuleType,
-        subjectId: z.uuid().nullable().default(null),
-        minGrade: z.string().max(3).nullable().default(null),
-        minValue: z.number().nullable().default(null),
-        evidenceQuote: z.string().min(5).max(1000),
-      }),
-    )
-    .min(1),
+  sourceUrl: z.string().max(600).nullable().default(null),
+  rules: Rules.default([]),
 });
+
+const EditBody = z.object({ sourceUrl: z.string().max(600).nullable().default(null), rules: Rules });
 
 const ReviewBody = z.discriminatedUnion('action', [
   z.object({ action: z.literal('submit') }),
@@ -36,6 +48,8 @@ export class RequirementsController {
     private readonly createDraft: CreateRequirementDraft,
     private readonly review: ReviewRequirement,
     private readonly published: GetPublishedRequirements,
+    private readonly edit: EditRequirementDraft,
+    private readonly discard: DiscardRequirementDraft,
   ) {}
 
   /** Used by the recommendation service and by programme pages. */
@@ -55,5 +69,18 @@ export class RequirementsController {
   @Post(':id/review')
   reviewDraft(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(ReviewBody)) body: z.infer<typeof ReviewBody>, @CurrentCaller() caller: Caller) {
     return this.review.execute({ id, adminId: caller.userId, ...body });
+  }
+
+  @Roles('admin')
+  @Put(':id')
+  editDraft(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(EditBody)) body: z.infer<typeof EditBody>, @CurrentCaller() caller: Caller) {
+    return this.edit.execute({ id, adminId: caller.userId, ...body });
+  }
+
+  @Roles('admin')
+  @Delete(':id')
+  @HttpCode(204)
+  discardDraft(@Param('id', ParseUUIDPipe) id: string, @CurrentCaller() caller: Caller) {
+    return this.discard.execute({ id, adminId: caller.userId });
   }
 }

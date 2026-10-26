@@ -5,6 +5,8 @@ import { env } from './config.js';
 import { ProgrammesModule } from './modules/programmes/programmes.module.js';
 import { RequirementsModule } from './modules/requirements/requirements.module.js';
 import { ReferenceModule } from './modules/reference/reference.module.js';
+import { InstitutionsModule } from './modules/institutions/institutions.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { ReferenceModule } from './modules/reference/reference.module.js';
     ProgrammesModule,
     RequirementsModule,
     ReferenceModule,
+    InstitutionsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

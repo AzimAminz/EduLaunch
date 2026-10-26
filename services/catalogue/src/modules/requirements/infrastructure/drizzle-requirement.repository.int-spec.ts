@@ -20,7 +20,7 @@ const rules = (minGrade = 'B'): RequirementRule[] => [
 
 async function newDraft(entryRoute: string, minGrade = 'B') {
   const versionNo = await repo.nextVersionNo(programId, entryRoute);
-  const req = Requirement.draft(randomUUID(), { programId, entryRoute, versionNo, sourceId: null, preparedBy: randomUUID(), rules: rules(minGrade) });
+  const req = Requirement.draft(randomUUID(), { programId, entryRoute, versionNo, sourceId: null, sourceUrl: 'https://contoh.edu.my/syarat', preparedBy: randomUUID(), rules: rules(minGrade) });
   await repo.save(req);
   return req;
 }
@@ -83,4 +83,23 @@ describe('DrizzleRequirementRepository (integration)', () => {
   it('returns nothing for an empty list of programmes', async () => {
     expect(await repo.findPublished([])).toEqual([]);
   });
+
+  it('finds the open draft and the latest published version of a route, and deletes a draft', async () => {
+    const published = await newDraft('stpm', 'C');
+    await publish(published);
+    expect((await repo.findLatestPublished(programId, 'stpm'))?.id).toBe(published.id);
+    expect(await repo.findOpen(programId, 'stpm')).toBeNull();
+    const draft = await newDraft('stpm', 'B');
+    expect((await repo.findOpen(programId, 'stpm'))?.id).toBe(draft.id);
+    await repo.delete(draft.id);
+    expect(await repo.findById(draft.id)).toBeNull();
+    expect(await repo.findOpen(programId, 'stpm')).toBeNull();
+  });
+
+  it('knows which programmes and subjects exist, and each subject qualification', async () => {
+    expect(await repo.programExists(programId)).toBe(true);
+    expect(await repo.programExists(randomUUID())).toBe(false);
+    expect(await repo.subjectQualifications([subjectId, randomUUID()])).toEqual(new Map([[subjectId, 'spm']]));
+  });
 });
+
