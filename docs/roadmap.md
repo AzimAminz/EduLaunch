@@ -4,6 +4,13 @@ Version 3.1 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 buil
 
 **Assumptions:** final-year project over two semesters (about 28 weeks), one to three developers, two-week sprints. Capacity split: about 70% features, 20% testing and clean-up, 10% buffer for surprises.
 
+**Guiding rules (every step must keep these):**
+1. Students see only data an admin approved, from official Malaysian sources.
+2. AI prepares drafts; a person approves. No LLM writes a student's eligibility, roadmap or careers on the spot.
+3. Every requirement, career and pathway shows its source and year.
+4. No salary, offer or job guarantee without an official source.
+5. Small steps: unit tests first, then a manual check.
+
 **Status labels:** **Done** = built and tested · **In Progress** = part built (usually the back end exists, the screens do not) · **Not Started**.
 
 ---
@@ -34,6 +41,17 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | Planned |
 | 11 | **JPT import, part 2 (requirements):** read each programme's Syarat Am and Syarat Khas with a headless browser, parse with rules first and Claude for what rules cannot read, validate (exact quotes, known subjects, valid grades), create requirement drafts that an admin approves | Planned |
 | 12 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
+| 13 | **Career data and study roadmap:** careers with MASCO code, qualification level and source; after-Diploma branches (work now, degree, professional qualification, work first); "being prepared" state and data-gap tasks; AI drafts for missing fields from whitelisted Malaysian sources, approved by admins | Planned |
+
+### Changes since v3 (career data planned, 27 Oct 2026)
+
+| Change | Why |
+|---|---|
+| **Guiding rules** added at the top of this roadmap | Keeps every step on target: verified Malaysian data, AI drafts and people approve, sources shown |
+| New **Step 13: career data and study roadmap**, after the JPT import | Branch "continue to a degree" needs real programmes and requirements first |
+| Careers get a **MASCO 2020 code**, qualification level (MQF) and source; fields use NEC codes | Careers must match Malaysian job classes and qualification levels |
+| When a field has no career data: "being prepared" for the student, a data-gap task for admins, AI drafts from **whitelisted Malaysian sources** (MASCO, MyCOL, MQA, professional bodies, JPT), admin approval | A live AI answer could invent jobs or use other countries' routes |
+| Salaries stay hidden until an official source exists (for example KESUMA's starting-salary guidelines by MASCO category) | No guesses about pay |
 
 ### Changes since v3 (JPT import planned, 27 Oct 2026)
 
@@ -144,7 +162,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Slip upload + OCR | Upload, local OCR, review screen with flagged rows | Not Started | |
 | Prediction v1 | Margin bands from `ADMISSION_STAT`, "No data" state | **In Progress** | Merit averages from the JPT import (Step 9); endpoint (estimator logic is done) |
 | Alternative pathways | Certificate/skills programmes, stepping-stone pathways, what-if "improve a result", supportive wording | Not Started | Pathway table exists |
-| Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma "work now or continue" with careers | Not Started | Tables exist |
+| Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma branches (work now, degree, professional qualification, work first) with careers | Not Started | Step 13: MASCO codes and sources in `CAREER`; data-gap tasks; AI gap filling from whitelisted Malaysian sources; screens (tables exist) |
 | Notifications | Requirement change alerts, result-release prompts | **In Progress** | Result-release prompts; screens (change alerts are done) |
 | All education levels | Form 1–3, Form 4–5, after SPM, after certificate (Sijil/SVM/SKM), after pre-university or diploma (STPM, matriculation, foundation, A-Level, diploma, DVM, DKM) | **In Progress** | Results forms per level are done; dashboards and recommendations per level still to do |
 | Staging deployment | The whole system online for supervisors and testers | Not Started | Choose free hosting; production compose file; deployment guide |
@@ -211,6 +229,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 |---|---|---|
 | Real decisions by students | Real catalogue data from official sources (JPT import, Steps 9 and 11) | Sample data must stay clearly marked "Contoh" |
 | JPT import | ePanduan terms of use allow automated reading (or JPT agrees); the site's page layout | Fall back to prospectus PDFs with AI extraction and manual entry |
+| Study roadmap (Step 13) | JPT import (degree branch), NEC field codes, career data from MASCO and other whitelisted sources | Branches show "being prepared"; students are not given unverified careers |
 | Recommendation | Eligibility engine (done), interest test, seed catalogue | No core demo |
 | Alternative pathways | Certificate/skills programmes and pathways in the catalogue | Students with weak results see only "almost eligible" options |
 | Prediction | Merit averages from ePanduan (`ADMISSION_STAT`) | Show "No data"; do not block the release |
@@ -233,6 +252,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Free AI tier changes | Medium | Provider-agnostic AI client; local model fallback |
 | Wrong requirement data | Medium | Admin approval, quotes as evidence, golden-set checks |
 | ePanduan terms do not allow automated reading | Medium | Check before Step 9; ask JPT through the supervisor; fall back to prospectus PDFs |
+| AI career drafts that do not fit Malaysia | Medium | Whitelisted Malaysian sources, MASCO and MQF checks, quotes, admin approval |
 | ePanduan changes its page layout | Medium | Parser reads labels, not positions; a run that finds no programmes stops and alerts instead of wiping data; saved pages as test fixtures |
 | A screen ships in one language only | Low | Tests check both dictionaries have the same keys; guideline in CONTRIBUTING |
 | Team availability around exams | Medium | 10% buffer; milestones before exam weeks |

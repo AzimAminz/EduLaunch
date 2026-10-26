@@ -147,10 +147,16 @@ Each module owns its tables. Other modules read through its API, never by writin
   - Careers come from `CAREER`; each career belongs to one main field (`CAREER.field_id`). `CAREER.min_study_level` decides whether a career appears under "Can work now (Diploma accepted)" or "Opens with a degree".
   - Careers are sorted by interest fit. Each degree that opens a career is checked with the eligibility engine, so the student sees "Eligible" next to it.
   - No salary is shown unless an admin attaches an official source. Careers are presented as options to explore, never as a job guarantee.
+- **Branches after a diploma:** A work now (careers at diploma level), B continue to a degree (only degrees the student is eligible for), C professional qualification, D work first then study (part-time, distance learning, APEL). Branches come from `CAREER` and `PROGRAM_PATHWAY`, checked by the eligibility engine.
+- **Career data stays Malaysian and verified (planned):**
+  - `CAREER` gains a MASCO 2020 code, the minimum qualification level (MQF) and its source; fields carry their NEC code, so a student's diploma field leads straight to its careers.
+  - When a field has no verified careers, the student sees "being prepared" plus general information for the wider field group, and a **data gap** is recorded for admins.
+  - The content pipeline drafts the missing careers and pathways from whitelisted Malaysian sources (section 3.8); an admin approves before students see them.
+  - The roadmap itself is built by code from this data; no LLM writes a student's roadmap.
 
 ### 3.8 Content Pipeline
 - **Purpose:** keep programme data fresh and correct.
-- **Functions:** register official sources; crawl on a schedule; detect changes; extract requirements with AI into a draft; prepare text chunks for search and Q&A.
+- **Functions:** register official sources; crawl on a schedule (first source: the JPT ePanduan site); detect changes; extract requirements with AI into a draft; fill career and pathway data gaps from whitelisted Malaysian sources (MASCO, MyCOL, MQA, professional bodies, JPT); prepare text chunks for search and Q&A.
 - **Owns:** `DATA_SOURCE`. Search chunks and embeddings (`CONTENT_CHUNK`) are a technical table, left out of the documentation ERD.
 - **Rule:** the pipeline only creates **drafts**. An admin approves before anything reaches students.
 
