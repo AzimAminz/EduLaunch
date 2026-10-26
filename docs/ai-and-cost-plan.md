@@ -181,6 +181,13 @@ ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-universit
 - The field filter lists **157 NEC field codes** (for example `0311 Ekonomi`, `0714 Mechanics and metal trades`); university requirement documents use the same codes for "diploma in a related field".
 - Syarat Am and Syarat Khas are loaded by the page's JavaScript when the **Syarat** button is pressed, so they need a headless browser.
 
+**Institution first (owner's flow, 27 Oct 2026):**
+1. An admin adds an institution with its official sources: website, programme page, prospectus PDFs, and its ePanduan university code (the site filters by university).
+2. The system reads that institution's programmes: from ePanduan filtered by the university code, or from the institution's own programme page or prospectus.
+3. The admin sees **"Programmes found at <institution>"** (new, changed, missing) and accepts them, many at once, as drafts; another admin publishes.
+4. Every week the same sources are read again. New programmes are offered for review; a programme no longer listed is **flagged** for an admin, never archived automatically (the page may simply have failed).
+5. Adding a programme by hand stays as a fallback.
+
 **Pipeline (in the content service):**
 
 | Stage | What happens | Kept |

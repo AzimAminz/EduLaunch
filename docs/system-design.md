@@ -166,6 +166,7 @@ Each module owns its tables. Other modules read through its API, never by writin
 
 ### 3.10 Administration
 - **Functions:** manage institutions and programmes; manage requirements and merit formulas; review and publish pipeline drafts; manage admin accounts; view the audit log.
+- **Institution first (planned):** an institution is added with its official sources (website, programme page, prospectus PDFs, ePanduan university code). The content pipeline reads its programmes from those sources and shows "programmes found" (new, changed, missing) for an admin to accept as drafts; another admin publishes. Programmes no longer listed are flagged, never archived automatically. Adding a programme by hand remains a fallback.
 - **Notes:** all admin changes are versioned (`version_no`, `review_status`, `approved_by`). The audit log is a technical table and is left out of the documentation ERD.
 - **Designed for non-technical admins** (most admins are not IT staff, so the console must teach itself):
   - *Task-first home:* "What do you want to do today?" with three main tasks (review drafts, update requirements, answer student reports) and a list of less common tasks.

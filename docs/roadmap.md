@@ -37,11 +37,21 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (checked by hand) |
 | 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (checked by hand) |
 | 8 | Admin console: home with today's tasks, task inbox, institutions, programmes (draft → another admin approves → published), requirement wizard by entry route (including SVM, SKM, DVM and DKM routes) with a second-admin review | **Done** (manual check waiting); **M1 demo** after the check |
-| 9 | **JPT import, part 1 (programme list):** read the public ePanduan programme pages (code, name, institution, NEC field, duration, year, merit average) → draft programmes for admin review, merit averages into `ADMISSION_STAT`, the 157 NEC field codes as the field list. Starts only after the site's terms of use are checked | Planned (next) |
+| 9 | **Programmes found from each institution (institution first):** an admin adds an institution with its official sources (website, programme page, prospectus PDFs, its ePanduan university code) → the system reads that institution's programmes (code, name, level, NEC field, duration, year, merit average) → a "programmes found" list for that institution, which an admin accepts (in bulk) as drafts → another admin publishes. Merit averages go to `ADMISSION_STAT`; the 157 NEC codes become the field list. Weekly re-check: new programmes are offered, missing ones are flagged (never archived automatically). Adding a programme by hand stays as a fallback. Reading ePanduan starts only after its terms of use are checked | Planned (next) |
 | 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | Planned |
 | 11 | **JPT import, part 2 (requirements):** read each programme's Syarat Am and Syarat Khas with a headless browser, parse with rules first and Claude for what rules cannot read, validate (exact quotes, known subjects, valid grades), create requirement drafts that an admin approves | Planned |
 | 12 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
 | 13 | **Career data and study roadmap:** careers with MASCO code, qualification level and source; after-Diploma branches (work now, degree, professional qualification, work first); "being prepared" state and data-gap tasks; AI drafts for missing fields from whitelisted Malaysian sources, approved by admins | Planned |
+
+### Changes since v3 (institution-first programme import, 27 Oct 2026)
+
+| Change | Why |
+|---|---|
+| Programmes are found **from each institution**: add the institution and its official sources first, then the system reads the programmes it offers | Owner's flow: typing every programme by hand is slow; an institution's own sources say what it offers |
+| The institution form gets **official sources**: website, programme page, prospectus PDFs and its ePanduan university code | One place per institution for where its data comes from |
+| A **"programmes found"** list per institution: an admin accepts many at once as drafts; another admin publishes | Same two-admin rule; no programme reaches students without people checking it |
+| Weekly re-check: new programmes are offered for review; programmes no longer listed are **flagged**, never archived automatically | A missing page can be a site error, not a closed programme |
+| "Add programme" by hand stays | For institutions whose sources cannot be read automatically |
 
 ### Changes since v3 (career data planned, 27 Oct 2026)
 
@@ -153,7 +163,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 ### Next — intelligence (Weeks 9–18)
 | Item | Outcome | Status | What is left |
 |---|---|---|---|
-| JPT import (programme list) | Weekly read of ePanduan list pages: programmes, NEC fields, merit averages → drafts and `ADMISSION_STAT` | Not Started | Terms check; parser with saved pages as test fixtures; staging tables; import report (Step 9) |
+| Programmes from each institution | Institution → its official sources → its programmes found automatically (ePanduan by university, its own site or prospectus) → admin accepts → published; merit averages into `ADMISSION_STAT` | Not Started | Sources on the institution form; terms check; parser with saved pages as test fixtures; "programmes found" review list; weekly re-check (Step 9) |
 | Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | Not Started | Step 10 |
 | JPT import (requirements) | Requirement text parsed by rules, Claude for the rest, validated, drafts for admin approval | Not Started | Step 11; needs Steps 9–10 and an Anthropic API key |
 | Interest test + activities | RIASEC result, activity ratings | Not Started | Questions, scoring, screens (tables exist) |
