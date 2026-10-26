@@ -73,10 +73,21 @@ const ProgrammeRow = z.object({
 });
 export type ProgrammeRow = z.infer<typeof ProgrammeRow>;
 
-export function listProgrammes(token: string, q: { query?: string; status?: ReviewStatus; page?: number }) {
+export interface ProgrammeQuery {
+  query?: string;
+  status?: ReviewStatus;
+  institutionId?: string;
+  /** Published programmes without any published requirement. */
+  missingRequirements?: boolean;
+  page?: number;
+}
+
+export function listProgrammes(token: string, q: ProgrammeQuery) {
   const params = new URLSearchParams();
   if (q.query) params.set('q', q.query);
   if (q.status) params.set('status', q.status);
+  if (q.institutionId) params.set('institutionId', q.institutionId);
+  if (q.missingRequirements) params.set('missingRequirements', 'true');
   params.set('page', String(q.page ?? 1));
   params.set('pageSize', '50');
   return call(token, `/admin/programmes?${params}`, z.object({ items: z.array(ProgrammeRow), total: z.number(), page: z.number(), pageSize: z.number() }));
@@ -177,6 +188,21 @@ export const saveRequirementDraft = (token: string, id: string, body: { sourceUr
 export const reviewRequirement = (token: string, id: string, body: Exclude<ReviewAction, { action: 'archive' | 'reopen' }>) =>
   call(token, `/requirements/${encodeURIComponent(id)}/review`, Status, send(body));
 export const discardRequirementDraft = (token: string, id: string) => call(token, `/requirements/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
+
+const AdminInstitution = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  shortName: z.string().nullable(),
+  type: z.string(),
+  websiteUrl: z.string().nullable(),
+  programmes: z.number(),
+  published: z.number(),
+  open: z.number(),
+});
+export type AdminInstitution = z.infer<typeof AdminInstitution>;
+
+/** Institutions with how many programmes each has (all, published, not yet published). */
+export const listAdminInstitutions = (token: string) => call(token, '/admin/institutions', z.array(AdminInstitution));
 
 /** Institutions with their website, read fresh (the student pages cache the same list for a few minutes). */
 export const listInstitutions = (token: string) =>

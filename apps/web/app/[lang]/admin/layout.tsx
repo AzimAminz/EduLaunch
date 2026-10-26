@@ -49,9 +49,10 @@ async function AdminSidebar({ locale, dict }: { locale: Locale; dict: Dictionary
     },
     {
       title: t.groupProgramme,
+      // Data follows its hierarchy: an institution offers programmes; requirements live on each programme.
       items: [
-        { href: `${base}/program`, label: t.programmes, icon: 'rules' },
         { href: `${base}/institusi`, label: t.institutions, icon: 'building' },
+        { href: `${base}/program`, label: t.programmes, icon: 'rules' },
       ],
     },
   ];

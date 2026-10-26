@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { InstitutionTypes } from '@edulaunch/contracts';
 import { deleteInstitution, saveInstitution, type AdminFormState } from '@/lib/admin/actions';
@@ -7,6 +8,7 @@ import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, TextField } from '@/components/auth/fields';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
+import { AdminHeading } from './ui';
 import { useFormAction } from '@/components/ui/use-form-action';
 
 export interface InstitutionRow {
@@ -15,6 +17,10 @@ export interface InstitutionRow {
   shortName: string | null;
   type: string;
   websiteUrl: string | null;
+  /** Programmes of any status, and how many are published or not yet published. */
+  programmes: number;
+  published: number;
+  open: number;
 }
 
 type T = Dictionary['admin'];
@@ -34,15 +40,21 @@ export function InstitutionManager({ locale, rows, t, noMatches }: { locale: Loc
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        {editing !== '' && (
-          <button type="button" onClick={() => setEditing('')} className="rounded-[10px] bg-yellow px-4 py-2.5 text-sm font-semibold hover:bg-yellow/85">
-            {i.add}
-          </button>
-        )}
-        <Notice showKey={savedAt}>{i.saved}</Notice>
-        <Notice showKey={deletedAt}>{i.deleted}</Notice>
-      </div>
+      <AdminHeading
+        title={i.title}
+        intro={i.intro}
+        actions={
+          <div className="flex items-center gap-3">
+            <Notice showKey={savedAt}>{i.saved}</Notice>
+            <Notice showKey={deletedAt}>{i.deleted}</Notice>
+            {editing !== '' && (
+              <button type="button" onClick={() => setEditing('')} className="rounded-[10px] bg-yellow px-4 py-2.5 text-sm font-semibold hover:bg-yellow/85">
+                {i.add}
+              </button>
+            )}
+          </div>
+        }
+      />
       {editing === '' && <InstitutionForm key="new" locale={locale} t={t} noMatches={noMatches} onDone={close} />}
 
       <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-[14px] border border-line bg-white">
@@ -55,8 +67,34 @@ export function InstitutionManager({ locale, rows, t, noMatches }: { locale: Loc
             <li key={row.id} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">
-                  {row.name}
+                  <Link href={`/${locale}/admin/institusi/${row.id}`} className="hover:underline">
+                    {row.name}
+                  </Link>
                   {row.shortName && <span className="font-normal text-muted"> ({row.shortName})</span>}
+                </p>
+                <p className="text-[13px]">
+                  {row.programmes ? (
+                    <>
+                      <span className="font-semibold">{format(i.programmeCount, { count: row.programmes })}</span>
+                      {/* Only the parts that apply, e.g. "4 programmes · 3 published · 1 archived". */}
+                      {(
+                        [
+                          [row.published, i.countPublished],
+                          [row.open, i.countOpen],
+                          [row.programmes - row.published - row.open, i.countArchived],
+                        ] as const
+                      )
+                        .filter(([n]) => n > 0)
+                        .map(([n, text]) => (
+                          <span key={text} className="text-muted">
+                            {' · '}
+                            {format(text, { count: n })}
+                          </span>
+                        ))}
+                    </>
+                  ) : (
+                    <span className="text-muted">{i.noProgrammes}</span>
+                  )}
                 </p>
                 <p className="text-[13px] text-muted">
                   {types[row.type] ?? row.type}
@@ -71,10 +109,14 @@ export function InstitutionManager({ locale, rows, t, noMatches }: { locale: Loc
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                <Link href={`/${locale}/admin/institusi/${row.id}`} className="rounded-[10px] bg-navy px-3.5 py-2 text-sm font-semibold text-white hover:bg-navy/90">
+                  {i.open}
+                </Link>
                 <button type="button" onClick={() => setEditing(row.id)} className="rounded-[10px] border border-line px-3.5 py-2 text-sm font-semibold hover:bg-bg">
                   {i.edit}
                 </button>
-                <DeleteInstitution locale={locale} row={row} t={t} onDeleted={setDeletedAt} />
+                {/* Deleting is offered only when no programme depends on the institution. */}
+                {row.programmes === 0 && <DeleteInstitution locale={locale} row={row} t={t} onDeleted={setDeletedAt} />}
               </div>
             </li>
           ),

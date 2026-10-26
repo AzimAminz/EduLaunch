@@ -94,11 +94,16 @@ export class AdminQueries {
     };
   }
 
-  async programmes(q: { query?: string; status?: Status; institutionId?: string; page: number; pageSize: number }) {
+  async programmes(q: { query?: string; status?: Status; institutionId?: string; missingRequirements?: boolean; page: number; pageSize: number }) {
     const filters: SQL[] = [];
     if (q.query) filters.push(or(ilike(programs.name, `%${q.query}%`), ilike(institutions.name, `%${q.query}%`))!);
     if (q.status) filters.push(eq(programs.publishStatus, q.status));
     if (q.institutionId) filters.push(eq(programs.institutionId, q.institutionId));
+    // Programmes students can see but cannot be checked against: no published requirement on any route.
+    if (q.missingRequirements) {
+      filters.push(eq(programs.publishStatus, 'published'));
+      filters.push(notExists(this.db.select({ id: requirements.id }).from(requirements).where(and(eq(requirements.programId, programs.id), eq(requirements.reviewStatus, 'published')))));
+    }
     const where = filters.length ? and(...filters) : undefined;
 
     const [rows, [total]] = await Promise.all([
@@ -134,6 +139,35 @@ export class AdminQueries {
       };
     });
     return { items, total: total?.value ?? 0, page: q.page, pageSize: q.pageSize };
+  }
+
+  /** Every institution with how many programmes it has, by status, for the institutions page. */
+  async institutions() {
+    const rows = await this.db
+      .select({
+        id: institutions.id,
+        name: institutions.name,
+        shortName: institutions.shortName,
+        type: institutions.type,
+        websiteUrl: institutions.websiteUrl,
+        status: programs.publishStatus,
+        n: count(programs.id),
+      })
+      .from(institutions)
+      .leftJoin(programs, eq(programs.institutionId, institutions.id))
+      .groupBy(institutions.id, programs.publishStatus)
+      .orderBy(institutions.name);
+    const byId = new Map<string, { id: string; name: string; shortName: string | null; type: string; websiteUrl: string | null; programmes: number; published: number; open: number }>();
+    for (const r of rows) {
+      const item = byId.get(r.id) ?? { id: r.id, name: r.name, shortName: r.shortName, type: r.type, websiteUrl: r.websiteUrl, programmes: 0, published: 0, open: 0 };
+      if (r.status) {
+        item.programmes += r.n;
+        if (r.status === 'published') item.published += r.n;
+        if (OPEN.includes(r.status)) item.open += r.n;
+      }
+      byId.set(r.id, item);
+    }
+    return [...byId.values()];
   }
 
   async programme(id: string) {
@@ -222,6 +256,7 @@ const ProgrammesQuery = z.object({
   q: z.string().trim().max(100).optional(),
   status: z.enum(schema.reviewStatus.enumValues).optional(),
   institutionId: z.uuid().optional(),
+  missingRequirements: z.enum(['true', 'false']).transform((v) => v === 'true').optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(50),
 });
@@ -238,7 +273,12 @@ export class AdminController {
 
   @Get('programmes')
   programmes(@Query(new ZodPipe(ProgrammesQuery)) q: z.infer<typeof ProgrammesQuery>) {
-    return this.queries.programmes({ query: q.q, status: q.status, institutionId: q.institutionId, page: q.page, pageSize: q.pageSize });
+    return this.queries.programmes({ query: q.q, status: q.status, institutionId: q.institutionId, missingRequirements: q.missingRequirements, page: q.page, pageSize: q.pageSize });
+  }
+
+  @Get('institutions')
+  institutions() {
+    return this.queries.institutions();
   }
 
   @Get('programmes/:id')

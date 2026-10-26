@@ -279,23 +279,25 @@ Tested by: AzimAminz Date: 26 Oct 2026
 ### A. Admin pages are for admins only
 
 - [ ] Admin A logs in and lands on **Laman utama** ("Selamat datang, …") with three tasks: **Semak draf yang menunggu**, **Kemas kini syarat program**, **Tambah program baharu**.
-- [ ] The sidebar shows Laman utama, Peti tugasan, Universiti & program and Institusi. It collapses like the student sidebar, and works as a menu on a phone.
+- [ ] The sidebar shows **Kerja hari ini** (Laman utama, Peti tugasan) and **Katalog** (Institusi, then Program). It collapses like the student sidebar, and works as a menu on a phone.
 - [ ] A student who types `/ms/admin` in the address bar is sent back to the student portal.
 
-### B. Institutions
+### B. Institutions (start here)
 
-- [ ] **Institusi** → **Tambah institusi**: fill in the name, short name, type and website (`https://…`), then **Simpan**. "Disimpan." shows and the institution appears in the list.
+- [ ] **Institusi** → **Tambah institusi** (top right): fill in the name, short name, type and website (`https://…`), then **Simpan**. "Disimpan." shows and the institution appears in the list.
+- [ ] Each row shows how many programmes it has (for example "4 program · 4 diterbitkan"). **Buka** opens the institution: its official website and its programmes, with **Tambah program di sini**.
 - [ ] A website without `https://` shows "Laman web mesti bermula dengan https://".
 - [ ] **Sunting** on a row changes it in place.
 - [ ] **Padam** on the institution you added asks to confirm (**Ya, padam**), then it disappears and "Dipadam." shows. Any admin may add, edit or delete institutions; there is no second-admin review for them.
-- [ ] **Padam** on Universiti Contoh A is refused: "Institusi ini masih ada program…". An institution with programmes (archived ones included) cannot be deleted.
+- [ ] Universiti Contoh A has no **Padam** button: an institution with programmes (archived ones included) cannot be deleted.
 
 ### C. A new programme needs another admin
 
-- [ ] Admin A: **Universiti & program** → **Tambah program**: choose Peringkat, Institusi (the one from B), name, 6 semesters and one or more Bidang, then **Simpan draf**. The programme page opens with the status **Draf**.
+- [ ] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen. Choose Peringkat, name, 6 semesters and one or more Bidang, then **Simpan draf**. The programme page opens with the status **Draf**, and its back link leads to the institution.
 - [ ] Admin A: **Hantar untuk semakan**. The status becomes **Menunggu semakan**, the details are locked, and there is no approve button for Admin A.
 - [ ] Admin B: **Peti tugasan** shows the programme under **Untuk saya** (with a number on the sidebar). Open it, press **Pulangkan dengan sebab**, write a reason and send. Admin A sees **Dipulangkan** with that reason, corrects the details, and sends it again.
 - [ ] Admin B: **Luluskan & terbitkan**. The status becomes **Diterbitkan**; students now find the programme in **Teroka program** (allow up to a minute).
+- [ ] **Program** in the sidebar: filter by institution (KCC, PCB, UCA…), by status, and by **Belum ada syarat diterbitkan**. The home card **Kemas kini syarat program** opens that last filter when such programmes exist.
 
 ### D. Requirement wizard
 

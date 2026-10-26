@@ -49,7 +49,7 @@ async function AdminHome({ locale, dict }: { locale: Locale; dict: Dictionary })
           action={t.home.review.action}
           primary={tasks.toReview.length > 0}
         />
-        <TaskCard icon="pencil" tone="bg-blue" title={t.home.requirements.title} body={t.home.requirements.body} note={t.home.requirements.hint} href={`${base}/program`} action={t.home.requirements.action} />
+        <TaskCard icon="pencil" tone="bg-blue" title={t.home.requirements.title} body={t.home.requirements.body} note={tasks.counts.withoutRequirements > 0 ? t.home.requirements.hint : t.home.requirements.hintAll} href={tasks.counts.withoutRequirements > 0 ? `${base}/program?syarat=tiada` : `${base}/program`} action={t.home.requirements.action} />
         <TaskCard icon="plus" tone="bg-mint" title={t.home.programme.title} body={t.home.programme.body} href={`${base}/program/baharu`} action={t.home.programme.action} />
       </div>
 

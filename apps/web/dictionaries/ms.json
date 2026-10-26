@@ -264,8 +264,8 @@
       "home": "Laman utama",
       "tasks": "Peti tugasan",
       "groupWork": "Kerja hari ini",
-      "groupProgramme": "Maklumat program",
-      "programmes": "Universiti & program",
+      "groupProgramme": "Katalog",
+      "programmes": "Program",
       "institutions": "Institusi"
     },
     "status": {
@@ -297,8 +297,9 @@
       "requirements": {
         "title": "Kemas kini syarat program",
         "body": "Ada prospektus atau pekeliling baharu? Pilih program dan laluan, tunjukkan sumber, kemudian tulis syarat.",
-        "hint": "Biasanya 5 minit",
-        "action": "Pilih program"
+        "hint": "Program tanpa syarat dahulu",
+        "action": "Pilih program",
+        "hintAll": "Biasanya 5 minit"
       },
       "programme": {
         "title": "Tambah program baharu",
@@ -349,7 +350,7 @@
       }
     },
     "programmes": {
-      "title": "Universiti & program",
+      "title": "Program",
       "intro": "{total} program. Perubahan disimpan sebagai draf dan hanya kelihatan kepada pelajar selepas admin lain meluluskannya.",
       "add": "Tambah program",
       "search": "Cari program atau institusi",
@@ -368,11 +369,15 @@
       "how": {
         "title": "Cara modul ini berfungsi",
         "steps": [
-          "Anda menambah atau menyunting program sebagai draf.",
+          "Pilih institusi, kemudian tambah atau sunting program sebagai draf.",
           "Draf masuk ke Peti tugasan admin lain. Anda tidak meluluskan draf sendiri.",
           "Selepas diluluskan, pelajar nampak program ini dalam direktori."
         ]
-      }
+      },
+      "missingRequirements": "Belum ada syarat diterbitkan",
+      "institutionFilter": "Institusi: {name}",
+      "clearFilter": "Kosongkan",
+      "allInstitutions": "Semua institusi"
     },
     "programmeForm": {
       "newTitle": "Tambah program baharu",
@@ -479,7 +484,27 @@
       "delete": "Padam",
       "deleteConfirm": "Padam {name}? Tindakan ini tidak boleh dibuat asal.",
       "deleteYes": "Ya, padam",
-      "deleted": "Dipadam."
+      "deleted": "Dipadam.",
+      "programmeCount": "{count} program",
+      "noProgrammes": "Belum ada program",
+      "open": "Buka",
+      "detailBack": "← Semua institusi",
+      "sources": "Sumber rasmi",
+      "noWebsite": "Belum ada laman web. Tambah melalui Sunting di senarai institusi.",
+      "sourcesHint": "Tidak lama lagi, program institusi ini akan dibaca secara automatik daripada sumber di sini dan dipaparkan untuk anda semak sebelum diterbitkan.",
+      "programmesHere": "Program di institusi ini",
+      "addHere": "Tambah program di sini",
+      "how": {
+        "title": "Mula dari institusi",
+        "steps": [
+          "Tambah institusi dan laman web rasminya.",
+          "Buka institusi untuk melihat dan menambah programnya.",
+          "Dari setiap program, tulis syarat kemasukan ikut laluan."
+        ]
+      },
+      "countPublished": "{count} diterbitkan",
+      "countOpen": "{count} belum diterbitkan",
+      "countArchived": "{count} diarkib"
     },
     "requirement": {
       "titleEdit": "Kemas kini syarat: {programme}",

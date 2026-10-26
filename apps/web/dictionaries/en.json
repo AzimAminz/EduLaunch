@@ -264,8 +264,8 @@
       "home": "Home",
       "tasks": "Task inbox",
       "groupWork": "Today's work",
-      "groupProgramme": "Programme data",
-      "programmes": "Universities & programmes",
+      "groupProgramme": "Catalogue",
+      "programmes": "Programmes",
       "institutions": "Institutions"
     },
     "status": {
@@ -297,8 +297,9 @@
       "requirements": {
         "title": "Update programme requirements",
         "body": "New prospectus or circular? Pick the programme and route, show the source, then write the requirements.",
-        "hint": "Usually 5 minutes",
-        "action": "Choose programme"
+        "hint": "Programmes without requirements first",
+        "action": "Choose programme",
+        "hintAll": "Usually 5 minutes"
       },
       "programme": {
         "title": "Add a new programme",
@@ -349,7 +350,7 @@
       }
     },
     "programmes": {
-      "title": "Universities & programmes",
+      "title": "Programmes",
       "intro": "{total} programmes. Changes are saved as drafts and students see them only after another admin approves them.",
       "add": "Add programme",
       "search": "Search programme or institution",
@@ -368,11 +369,15 @@
       "how": {
         "title": "How this works",
         "steps": [
-          "You add or edit a programme as a draft.",
+          "Choose the institution, then add or edit a programme as a draft.",
           "The draft goes to another admin's task inbox. You do not approve your own drafts.",
           "Once approved, students see the programme in the directory."
         ]
-      }
+      },
+      "missingRequirements": "No published requirements",
+      "institutionFilter": "Institution: {name}",
+      "clearFilter": "Clear",
+      "allInstitutions": "All institutions"
     },
     "programmeForm": {
       "newTitle": "Add a new programme",
@@ -479,7 +484,27 @@
       "delete": "Delete",
       "deleteConfirm": "Delete {name}? This cannot be undone.",
       "deleteYes": "Yes, delete",
-      "deleted": "Deleted."
+      "deleted": "Deleted.",
+      "programmeCount": "{count} programme(s)",
+      "noProgrammes": "No programmes yet",
+      "open": "Open",
+      "detailBack": "← All institutions",
+      "sources": "Official sources",
+      "noWebsite": "No website yet. Add it with Edit on the institution list.",
+      "sourcesHint": "Soon, this institution's programmes will be read automatically from the sources here and shown for you to check before they are published.",
+      "programmesHere": "Programmes at this institution",
+      "addHere": "Add a programme here",
+      "how": {
+        "title": "Start from the institution",
+        "steps": [
+          "Add the institution and its official website.",
+          "Open the institution to see and add its programmes.",
+          "From each programme, write the entry requirements by route."
+        ]
+      },
+      "countPublished": "{count} published",
+      "countOpen": "{count} not yet published",
+      "countArchived": "{count} archived"
     },
     "requirement": {
       "titleEdit": "Update requirements: {programme}",

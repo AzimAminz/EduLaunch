@@ -20,13 +20,15 @@ interface ProgrammeFormProps {
   programme?: { id: string; name: string; durationSemesters: number | null; fieldIds: string[]; institutionName: string | null; studyLevel: keyof Dictionary['levels'] };
   /** False while the programme waits for review or belongs to another admin's draft. */
   editable?: boolean;
+  /** A new programme started from an institution's page: that institution is chosen already. */
+  initialInstitutionId?: string;
 }
 
 /** Add a programme (saved as a draft) or correct its details. */
-export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fields, programme, editable = true }: ProgrammeFormProps) {
+export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fields, programme, editable = true, initialInstitutionId }: ProgrammeFormProps) {
   const f = t.programmeForm;
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(programme ? updateProgramme : createProgramme, {});
-  const [institutionId, setInstitutionId] = useState('');
+  const [institutionId, setInstitutionId] = useState(initialInstitutionId ?? '');
   const [level, setLevel] = useState<string>(programme?.studyLevel ?? '');
   const [fieldIds, setFieldIds] = useState<string[]>(programme?.fieldIds ?? []);
   const fieldError = (name: string) => {

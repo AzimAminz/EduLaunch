@@ -71,7 +71,12 @@ async function Programme({ locale, dict, params }: { locale: Locale; dict: Dicti
   return (
     <>
       <AdminHeading
-        back={{ href: `/${locale}/admin/program`, label: t.programme.back }}
+        // Back to where the programme belongs: its institution (Form 4 streams have none).
+        back={
+          programme.institutionId
+            ? { href: `/${locale}/admin/institusi/${programme.institutionId}`, label: `← ${programme.institutionName ?? t.institutions.title}` }
+            : { href: `/${locale}/admin/program`, label: t.programme.back }
+        }
         title={programme.name}
         intro={
           <span className="flex flex-wrap items-center gap-2">

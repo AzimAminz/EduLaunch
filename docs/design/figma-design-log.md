@@ -605,6 +605,8 @@ Skrin yang dibina mengikut Admin v2:
 - **B3 Semak draf**: "1. Apa yang berubah?" (versi diterbitkan bersebelahan draf, baris Baharu/Dibuang ditanda), "2. Semak sumber" (pautan dan ayat sumber), "3. Keputusan anda" (kesan kepada pelajar, Luluskan & terbitkan, Pulangkan dengan soalan).
 - **Institusi**: senarai dengan tambah dan sunting di tempat. Institusi ialah data rujukan, jadi tiada semakan dua admin.
 
+Susunan aliran (dikemas kini 27 Okt 2026): sidebar **Kerja hari ini** (Laman utama, Peti tugasan) dan **Katalog** (Institusi, kemudian Program), ikut hierarki data institusi → program → syarat. Setiap institusi ada halaman sendiri (sumber rasmi, program, "Tambah program di sini"). Senarai program boleh ditapis ikut institusi, status dan "belum ada syarat diterbitkan". Butang Padam hanya muncul untuk institusi tanpa program. Figma Admin v2 masih menunjukkan "Universiti & program"; perlu diselaraskan.
+
 Peraturan:
 - Program baharu juga mengikut peraturan dua admin. Program diterbitkan boleh dibetulkan terus (nama, tempoh, bidang) atau diarkibkan.
 - Laluan masuk baharu ialah SVM, SKM, DVM dan DKM/DLKM.
