@@ -44,11 +44,15 @@ export const academicRecords = profile.table('academic_record', {
   diplomaProgramId: uuid('diploma_program_id'),
   /** Diploma results: the catalogue field of study (degree programmes favour a related field) and the programme name. */
   fieldId: uuid('field_id'),
+  /** A field typed by the student when it is not in the catalogue (e.g. an uncommon foundation programme). */
+  customFieldName: text('custom_field_name'),
   programmeName: text('programme_name'),
   /** MQF level where a qualification has several: SKM 1–3, DKM 4 / DLKM 5. */
   qualificationLevel: smallint('qualification_level'),
   /** Matriculation stream (science_1…3, engineering, accounting, professional_accounting). */
   stream: text('stream'),
+  /** Matriculation and foundation: GPA of each semester (PNGS), in order; null for a semester without one yet. */
+  semesterGpas: jsonb('semester_gpas').$type<Array<number | null>>(),
   qualification: text('qualification').notNull(),
   recordKind: recordKind('record_kind').notNull(),
   examYear: smallint('exam_year'),

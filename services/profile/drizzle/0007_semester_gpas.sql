@@ -1,0 +1,1 @@
+ALTER TABLE "profile"."academic_record" ADD COLUMN "semester_gpas" jsonb;

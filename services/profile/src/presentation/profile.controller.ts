@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Pos
 import { CurrentCaller, DRIZZLE, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
 import { and, eq } from 'drizzle-orm';
 import * as schema from '../infrastructure/db/schema.js';
-import { HigherQualifications, MAX_SUBJECTS_PER_RECORD, MatriculationStreams, RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
+import { HigherQualifications, MAX_SEMESTERS, MAX_SUBJECTS_PER_RECORD, MatriculationStreams, RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { GetOrCreateMe, GetStudentSnapshot, PreviewLevelChange, UpdateEducationLevel } from '../modules/students/application/student.use-cases.js';
 import { AcademicRecordService } from '../modules/academic-records/application/academic-record.use-cases.js';
@@ -31,9 +31,11 @@ const SaveRecordBody = RecordKey.extend({
   cgpa: z.number().min(0).max(4).nullable().default(null),
   muetBand: z.number().nullable().default(null),
   fieldId: z.uuid().nullable().default(null),
+  customFieldName: z.string().trim().min(1).max(80).nullable().default(null),
   programmeName: z.string().max(120).nullable().default(null),
   qualificationLevel: z.number().int().nullable().default(null),
   stream: z.enum(MatriculationStreams).nullable().default(null),
+  semesterGpas: z.array(z.number().min(0).max(4).nullable()).max(MAX_SEMESTERS).nullable().default(null),
 });
 
 @Controller()

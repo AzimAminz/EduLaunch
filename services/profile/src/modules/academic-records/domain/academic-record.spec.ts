@@ -135,6 +135,23 @@ describe('AcademicRecord', () => {
     expect(m.subjects[0]?.grade).toBe('B+');
   });
 
+  it('keeps the GPA of each semester for matriculation and foundation only', () => {
+    const m = AcademicRecord.start('m2', { studentId: 's1', qualification: 'matriculation', kind: 'actual', examYear: 2026 });
+    m.setResultDetails({ cgpa: 3.6, muetBand: null, fieldId: null, programmeName: null, stream: 'science_2', semesterGpas: [3.5, null, 3.7, 3.8] });
+    expect(m.toSnapshot().semesterGpas).toEqual([3.5, null, 3.7, 3.8]);
+    expect(() => m.setResultDetails({ cgpa: 3.6, muetBand: null, fieldId: null, programmeName: null, stream: 'science_2', semesterGpas: [4.2] })).toThrow(/0.00 to 4.00/);
+    expect(() => m.setResultDetails({ cgpa: 3.6, muetBand: null, fieldId: null, programmeName: null, stream: 'science_2', semesterGpas: Array(9).fill(3) })).toThrow(/At most 8/);
+    const d = AcademicRecord.start('d3', { studentId: 's1', qualification: 'diploma', kind: 'actual', examYear: 2026 });
+    expect(() => d.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null, semesterGpas: [3] })).toThrow(/no semesters/);
+  });
+
+  it('keeps a field the student typed when it is not in the list', () => {
+    const f = AcademicRecord.start('f2', { studentId: 's1', qualification: 'foundation', kind: 'actual', examYear: 2026 });
+    f.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, customFieldName: '  Sains   Sukan ', programmeName: 'Asasi Sains Sukan' });
+    expect(f.toSnapshot().customFieldName).toBe('Sains Sukan');
+    expect(() => f.setResultDetails({ cgpa: 3, muetBand: null, fieldId: 'f1', customFieldName: 'Sains Sukan', programmeName: null })).toThrow(/not both/);
+  });
+
   it('records a foundation programme by field and name, with optional subject grades', () => {
     const f = AcademicRecord.start('f1', { studentId: 's1', qualification: 'foundation', kind: 'actual', examYear: 2026 });
     expect(() => f.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null, stream: 'science_1' })).toThrow(/Only matriculation/);

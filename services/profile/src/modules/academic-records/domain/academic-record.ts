@@ -1,5 +1,5 @@
 import { AggregateRoot, DomainError, createEvent } from '@edulaunch/ddd';
-import { Events, MatriculationStreams, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, isValidGrade, qualificationLevelsFor, requiresSubjects, type RecordQualification } from '@edulaunch/contracts';
+import { Events, MAX_SEMESTERS, MatriculationStreams, MuetBands, hasCgpa, hasSemesters, hasProgramme, hasSubjectGrades, isValidGrade, qualificationLevelsFor, requiresSubjects, type RecordQualification } from '@edulaunch/contracts';
 
 export type RecordKind = 'actual' | 'target' | 'school';
 
@@ -16,13 +16,17 @@ export const MAX_CUSTOM_NAME = 80;
 export interface ResultDetails {
   cgpa: number | null;
   muetBand: number | null;
-  /** Programme-based qualifications only (diploma, DVM, DKM, certificate, SVM, SKM). */
+  /** Programme-based qualifications only (diploma, DVM, DKM, certificate, SVM, SKM, foundation). */
   fieldId: string | null;
+  /** The field typed by the student when it is not in the catalogue; used instead of `fieldId`. */
+  customFieldName?: string | null;
   programmeName: string | null;
   /** SKM 1–3, DKM 4 / DLKM 5. */
   qualificationLevel?: number | null;
   /** Matriculation only: its stream (science_1…3, engineering, accounting, professional_accounting). */
   stream?: string | null;
+  /** Matriculation and foundation: GPA (PNGS) of each semester in order, null where not entered. */
+  semesterGpas?: Array<number | null> | null;
 }
 
 interface AcademicRecordProps {
@@ -33,9 +37,11 @@ interface AcademicRecordProps {
   cgpa: number | null;
   muetBand: number | null;
   fieldId: string | null;
+  customFieldName: string | null;
   programmeName: string | null;
   qualificationLevel: number | null;
   stream: string | null;
+  semesterGpas: Array<number | null> | null;
   subjects: SubjectGrade[];
   status: 'draft' | 'confirmed';
   confirmedAt: Date | null;
@@ -51,7 +57,7 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
       throw new DomainError('invalid_record', 'School grades use the school grade scale, and only school records use it');
     }
     if (input.kind === 'target' && input.qualification !== 'spm') throw new DomainError('invalid_record', 'Only SPM has target grades');
-    return new AcademicRecord(id, { ...input, cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: null, stream: null, subjects: [], status: 'draft', confirmedAt: null });
+    return new AcademicRecord(id, { ...input, cgpa: null, muetBand: null, fieldId: null, customFieldName: null, programmeName: null, qualificationLevel: null, stream: null, semesterGpas: null, subjects: [], status: 'draft', confirmedAt: null });
   }
 
   static restore(id: string, props: AcademicRecordProps): AcademicRecord {
@@ -113,25 +119,34 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
     const { cgpa, muetBand, fieldId } = details;
     const qualificationLevel = details.qualificationLevel ?? null;
     const stream = details.stream ?? null;
+    const semesterGpas = details.semesterGpas?.length ? details.semesterGpas : null;
+    if (semesterGpas && !hasSemesters(q)) throw new DomainError('invalid_record', `${q} results have no semesters`);
+    if (semesterGpas && semesterGpas.length > MAX_SEMESTERS) throw new DomainError('invalid_record', `At most ${MAX_SEMESTERS} semesters`);
+    if (semesterGpas?.some((g) => g !== null && (g < 0 || g > 4 || Math.round(g * 100) !== g * 100))) throw new DomainError('invalid_record', 'A semester GPA is a number from 0.00 to 4.00');
     if (stream !== null && q !== 'matriculation') throw new DomainError('invalid_record', 'Only matriculation has a stream');
     if (stream !== null && !(MatriculationStreams as readonly string[]).includes(stream)) throw new DomainError('invalid_record', 'Choose a matriculation stream from the list');
     const levels = qualificationLevelsFor(q);
     if (qualificationLevel !== null && !levels?.includes(qualificationLevel)) throw new DomainError('invalid_record', levels ? `Choose a level from ${levels.join(', ')}` : `${q} has no level to choose`);
     const programmeName = details.programmeName?.trim() || null;
+    const customFieldName = details.customFieldName?.trim().replace(/\s+/g, ' ') || null;
+    if (customFieldName !== null && fieldId !== null) throw new DomainError('invalid_record', 'Choose a field from the list or type one, not both');
+    if (customFieldName !== null && customFieldName.length > 80) throw new DomainError('invalid_record', 'A field name can have at most 80 characters');
     if (cgpa !== null && !hasCgpa(q)) throw new DomainError('invalid_record', `${q.toUpperCase()} results have no CGPA`);
     if (cgpa !== null && (cgpa < 0 || cgpa > 4 || Math.round(cgpa * 100) !== cgpa * 100)) throw new DomainError('invalid_record', 'CGPA is a number from 0.00 to 4.00');
     if (muetBand !== null && (q === 'school' || q === 'spm')) throw new DomainError('invalid_record', 'MUET is recorded with results after SPM');
     if (muetBand !== null && !(MuetBands as readonly number[]).includes(muetBand)) throw new DomainError('invalid_record', 'Choose a MUET band from 1.0 to 5+');
-    if ((fieldId !== null || programmeName !== null) && !hasProgramme(q)) throw new DomainError('invalid_record', 'Only a diploma or certificate has a field and programme name');
+    if ((fieldId !== null || customFieldName !== null || programmeName !== null) && !hasProgramme(q)) throw new DomainError('invalid_record', 'Only a diploma or certificate has a field and programme name');
     if (programmeName !== null && programmeName.length > 120) throw new DomainError('invalid_record', 'A programme name can have at most 120 characters');
     const changed =
       cgpa !== this.props.cgpa ||
       muetBand !== this.props.muetBand ||
       fieldId !== this.props.fieldId ||
+      customFieldName !== this.props.customFieldName ||
       programmeName !== this.props.programmeName ||
       qualificationLevel !== this.props.qualificationLevel ||
-      stream !== this.props.stream;
-    Object.assign(this.props, { cgpa, muetBand, fieldId, programmeName, qualificationLevel, stream });
+      stream !== this.props.stream ||
+      JSON.stringify(semesterGpas) !== JSON.stringify(this.props.semesterGpas);
+    Object.assign(this.props, { cgpa, muetBand, fieldId, customFieldName, programmeName, qualificationLevel, stream, semesterGpas });
     if (changed) this.reopen();
   }
 

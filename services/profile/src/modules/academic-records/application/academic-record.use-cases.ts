@@ -72,9 +72,11 @@ export class AcademicRecordService {
       cgpa: input.cgpa ?? null,
       muetBand: input.muetBand ?? null,
       fieldId: input.fieldId ?? null,
+      customFieldName: input.customFieldName ?? null,
       programmeName: input.programmeName ?? null,
       qualificationLevel: input.qualificationLevel ?? null,
       stream: input.stream ?? null,
+      semesterGpas: input.semesterGpas ?? null,
     });
     record.confirm();
     await this.records.save(record);
