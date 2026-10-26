@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guard, homeFor, safeNext } from './routes';
+import { guard, homeFor, nextFor, safeNext } from './routes';
 
 const student = { role: 'student' as const };
 const admin = { role: 'admin' as const };
@@ -28,10 +28,21 @@ describe('guard', () => {
     expect(guard('/en/daftar', admin)).toEqual({ redirect: '/en/admin' });
   });
 
-  it('keeps students out of the admin console, and admins out of student onboarding', () => {
+  it('keeps students out of the admin console', () => {
     expect(guard('/ms/admin', student)).toEqual({ redirect: '/ms/utama' });
+    expect(guard('/ms/admin/programmes', student)).toEqual({ redirect: '/ms/utama' });
+  });
+
+  it('keeps admins out of every student page', () => {
     expect(guard('/ms/admin', admin)).toBeNull();
-    expect(guard('/ms/mula', admin)).toEqual({ redirect: '/ms/admin' });
+    for (const page of ['utama', 'teroka', 'teroka/abc', 'banding', 'mula', 'kemas-kini']) {
+      expect(guard(`/ms/${page}`, admin)).toEqual({ redirect: '/ms/admin' });
+    }
+  });
+
+  it('lets both roles set a new password from the e-mail link', () => {
+    expect(guard('/ms/kata-laluan-baharu', admin)).toBeNull();
+    expect(guard('/ms/kata-laluan-baharu', student)).toBeNull();
   });
 });
 
@@ -43,6 +54,19 @@ describe('safeNext', () => {
     expect(safeNext('/\\evil.example', '/ms/utama')).toBe('/ms/utama');
     expect(safeNext('/teroka', '/ms/utama')).toBe('/ms/utama');
     expect(safeNext(null, '/ms/utama')).toBe('/ms/utama');
+  });
+});
+
+describe('nextFor', () => {
+  it('returns to the page asked for when the role may open it', () => {
+    expect(nextFor('/ms/teroka?page=2', student, '/ms/utama')).toBe('/ms/teroka?page=2');
+    expect(nextFor('/ms/admin', admin, '/ms/admin')).toBe('/ms/admin');
+  });
+
+  it('otherwise goes home', () => {
+    expect(nextFor('/ms/teroka', admin, '/ms/admin')).toBe('/ms/admin');
+    expect(nextFor('/ms/admin', student, '/ms/utama')).toBe('/ms/utama');
+    expect(nextFor('https://evil.example', student, '/ms/utama')).toBe('/ms/utama');
   });
 });
 

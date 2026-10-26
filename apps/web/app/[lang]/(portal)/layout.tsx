@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Sidebar } from '@/components/portal/sidebar';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
-import { getAccount } from '@/lib/supabase/server';
+import { requireRole } from '@/lib/supabase/server';
 
 /** Student portal frame: sidebar on the left (a menu on phones), page content in a 1088px column. */
 export default async function PortalLayout({ children, params }: LayoutProps<'/[lang]'>) {
@@ -24,6 +24,7 @@ export default async function PortalLayout({ children, params }: LayoutProps<'/[
 }
 
 async function PortalSidebar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
-  const account = await getAccount();
-  return <Sidebar locale={locale} nav={dict.nav} language={dict.language} auth={dict.auth} account={account && { name: account.name, email: account.email }} />;
+  // Students only; admins are sent to the admin console.
+  const account = await requireRole(locale, 'student');
+  return <Sidebar locale={locale} nav={dict.nav} language={dict.language} auth={dict.auth} account={{ name: account.name, email: account.email }} />;
 }

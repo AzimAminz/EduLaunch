@@ -23,6 +23,10 @@ export interface SignedInUser {
 const PUBLIC = new Set(['log-masuk', 'daftar', 'lupa-kata-laluan', 'semak-emel', 'auth']);
 /** Pages that make no sense once signed in. */
 const GUEST_ONLY = new Set(['log-masuk', 'daftar']);
+/** The admin console. Students never enter it, and admins never enter the student portal. */
+const ADMIN_AREA = 'admin';
+/** Signed-in pages both roles use (setting a new password from the e-mail link). */
+const ANY_ROLE = new Set(['kata-laluan-baharu']);
 
 export const homeFor = (locale: Locale, role: Role) => (role === 'admin' ? `/${locale}/admin` : `/${locale}/utama`);
 
@@ -46,7 +50,15 @@ export function guard(pathname: string, user: SignedInUser | null, search = ''):
     return PUBLIC.has(section) ? null : { redirect: `/${locale}/${AUTH_PAGES.signIn}?next=${encodeURIComponent(pathname + search)}` };
   }
   if (GUEST_ONLY.has(section)) return { redirect: homeFor(locale, user.role) };
-  if (section === 'admin' && user.role !== 'admin') return { redirect: homeFor(locale, user.role) };
-  if (section === AUTH_PAGES.onboarding && user.role === 'admin') return { redirect: homeFor(locale, 'admin') };
+  if (PUBLIC.has(section) || ANY_ROLE.has(section)) return null;
+
+  const inAdminArea = section === ADMIN_AREA;
+  if (inAdminArea !== (user.role === 'admin')) return { redirect: homeFor(locale, user.role) };
   return null;
+}
+
+/** After logging in: the page the user asked for, if their role may open it; otherwise their home. */
+export function nextFor(next: string | null | undefined, user: SignedInUser, fallback: string): string {
+  const target = safeNext(next, fallback);
+  return guard(target.split('?')[0]!, user) ? fallback : target;
 }

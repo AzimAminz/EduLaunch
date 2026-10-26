@@ -153,7 +153,7 @@ Tested by: AzimAminz Date: 26 Oct 2026
 ### F. Admin
 
 - [ ] In a terminal run `pnpm admin:grant <your email>`, then log out and log in: you land on **Konsol admin**.
-- [ ] As an admin, open http://localhost:3000/ms/mula: it goes back to the admin console.
+- [ ] As an admin, open http://localhost:3000/ms/teroka, /ms/utama and /ms/mula: each one goes back to the admin console (admins never see student pages).
 - [ ] Run `pnpm admin:grant <your email> --revoke`, log out and in: you are a student again. http://localhost:3000/ms/admin now goes to the portal.
 
 ### G. Sidebar on different screen sizes

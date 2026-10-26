@@ -7,7 +7,7 @@ import { getMe, setEducationLevel } from '../profile/api';
 import { parseLevelChoice } from '../profile/levels';
 import { createClient } from '../supabase/server';
 import { authErrorKey } from './errors';
-import { AUTH_PAGES, homeFor, safeNext, type Role } from './routes';
+import { AUTH_PAGES, homeFor, nextFor, type Role } from './routes';
 import { NewPasswordForm, ResetRequestForm, SignInForm, SignUpForm, parseForm, type AuthErrorKey } from './schemas';
 
 /** What a form shows after a failed submit. Typed values come back so the form keeps them (never the password). */
@@ -51,7 +51,7 @@ export async function signIn(_prev: FormState, form: FormData): Promise<FormStat
 
   const role: Role = data.user.app_metadata?.role === 'admin' ? 'admin' : 'student';
   const fallback = await landingFor(locale, role, data.session?.access_token);
-  redirect(safeNext(String(form.get('next') ?? ''), fallback));
+  redirect(nextFor(String(form.get('next') ?? ''), { role }, fallback));
 }
 
 export async function signUp(_prev: FormState, form: FormData): Promise<FormState> {

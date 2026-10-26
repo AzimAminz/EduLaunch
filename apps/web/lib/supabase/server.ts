@@ -1,7 +1,9 @@
 import 'server-only';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import type { Role } from '../auth/routes';
+import { redirect } from 'next/navigation';
+import { AUTH_PAGES, homeFor, type Role } from '../auth/routes';
+import type { Locale } from '../i18n/locale';
 
 /** Supabase client for Server Components, Server Actions and Route Handlers. The session lives in cookies. */
 export async function createClient() {
@@ -40,4 +42,15 @@ export async function getAccount(): Promise<Account | null> {
     name: meta.full_name?.trim() || null,
     role: claims.app_metadata?.role === 'admin' ? 'admin' : 'student',
   };
+}
+
+/**
+ * Second check after the proxy, on the server that renders the page:
+ * no account → log in; the other role → that role's own home.
+ */
+export async function requireRole(locale: Locale, role: Role): Promise<Account> {
+  const account = await getAccount();
+  if (!account) redirect(`/${locale}/${AUTH_PAGES.signIn}`);
+  if (account.role !== role) redirect(homeFor(locale, account.role));
+  return account;
 }
