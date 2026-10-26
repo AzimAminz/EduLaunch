@@ -229,22 +229,21 @@
         "body": "Enter your actual SPM results and check eligibility.",
         "short": "after-SPM"
       },
-      "after_preu": {
-        "title": "After STPM / Matriculation / Foundation / A-Level",
-        "body": "CGPA, MUET and subject grades for degree programmes.",
-        "short": "pre-university"
+      "after_certificate": {
+        "title": "After a certificate / SVM / SKM",
+        "body": "Polytechnic or community college certificate, Malaysian Vocational Certificate or SKM. To continue to a diploma.",
+        "short": "after-certificate"
       },
-      "after_diploma": {
-        "title": "After Diploma",
-        "body": "CGPA and diploma field for related degrees.",
-        "short": "after-Diploma"
+      "after_preu": {
+        "title": "After STPM / Matriculation / Foundation / A-Level / Diploma",
+        "body": "Including DVM and DKM/DLKM. CGPA, MUET and field for degree programmes.",
+        "short": "pre-university / diploma"
       }
     },
     "dialog": {
       "title": "Confirm level change",
       "qualificationQuestion": "Which qualification do you have now?",
       "qualificationHint": "Your academic documents will show the form for this qualification only.",
-      "diplomaNote": "Your academic documents will show the diploma form.",
       "removeTitle": "These records will be deleted",
       "removeBody": "They do not fit your new level. They are deleted so programme matching does not use the wrong data.",
       "noRemove": "No records will be deleted. Older records stay as history.",
@@ -368,7 +367,12 @@
         "matriculation": "Matriculation {year}",
         "foundation": "Foundation {year}",
         "a_level": "A-Level {year}",
-        "diploma": "Diploma {year}"
+        "diploma": "Diploma {year}",
+        "dvm": "DVM {year}",
+        "dkm": "DKM / DLKM {year}",
+        "certificate": "Certificate {year}",
+        "svm": "SVM {year}",
+        "skm": "SKM {year}"
       },
       "noYear": "(year not chosen)",
       "open": "View",
@@ -402,12 +406,12 @@
   },
   "higher": {
     "titles": {
-      "after_preu": "Pre-university qualification",
-      "after_diploma": "Diploma qualification"
+      "after_preu": "Pre-university / diploma qualification",
+      "after_certificate": "Certificate qualification"
     },
     "intros": {
-      "after_preu": "For a bachelor's degree, universities look at your qualification, CGPA, MUET and basic SPM results. Subject grades are only needed for STPM and A-Level.",
-      "after_diploma": "For a degree, universities look at your diploma CGPA, diploma field, MUET and basic SPM results, not the grade of each diploma subject."
+      "after_preu": "For a bachelor's degree, universities look at your qualification, CGPA, field (for a diploma), MUET and basic SPM results. Subject grades are only needed for STPM and A-Level.",
+      "after_certificate": "For a diploma, polytechnics and universities look at your certificate in a related field, its CGPA (or SKM level) and your basic SPM results."
     },
     "sectionsLabel": "Results sections",
     "sections": {
@@ -420,7 +424,12 @@
       "matriculation": "Matriculation",
       "foundation": "Foundation",
       "a_level": "A-Level",
-      "diploma": "Diploma"
+      "diploma": "Diploma (university, polytechnic, private)",
+      "dvm": "Malaysian Vocational Diploma (DVM)",
+      "dkm": "Malaysian Skills Diploma (DKM / DLKM)",
+      "certificate": "Polytechnic / community college certificate",
+      "svm": "Malaysian Vocational Certificate (SVM)",
+      "skm": "Malaysian Skills Certificate (SKM)"
     },
     "cgpa": "CGPA",
     "cgpaHint": "Scale 0.00 – 4.00, as on your transcript.",
@@ -428,11 +437,11 @@
     "muet": "MUET",
     "muetNone": "None yet",
     "year": "Year completed",
-    "field": "Diploma field",
+    "field": "Field",
     "fieldPlaceholder": "Search fields",
     "fieldNone": "Not chosen",
-    "programme": "Diploma programme name",
-    "programmePlaceholder": "e.g. Diploma in Computer Science",
+    "programme": "Programme name",
+    "programmePlaceholder": "e.g. Diploma in Computer Science / Certificate in Electrical Technology",
     "subjectsTitle": {
       "stpm": "STPM subject grades",
       "a_level": "A-Level subject grades"
@@ -443,19 +452,29 @@
     },
     "sideTitle": "What universities check",
     "sideBody": {
-      "after_preu": "Most public degree programmes ask for a CGPA of at least 2.00, MUET (usually Band 1–2), a credit in SPM Malay Language and a pass in SPM History. STPM also needs grade C in three subjects including General Studies.",
-      "after_diploma": "Most degree programmes ask for a diploma CGPA of at least 2.00 (some 2.50–3.00), a related diploma field, MUET, a credit in SPM Malay Language and a pass in SPM History."
+      "after_preu": "Most public degree programmes ask for a CGPA of at least 2.00 (some 2.50–3.00 for diploma holders), MUET (usually Band 1–2), a credit in SPM Malay Language and a pass in SPM History. STPM also needs grade C in three subjects including General Studies; diploma, DVM and DKM holders are judged on a related field.",
+      "after_certificate": "Most diploma programmes ask for a certificate (MQF level 3, including SKM level 3) in a related field with a CGPA of at least 2.00, a credit in SPM Malay Language and a pass in SPM History. Some also ask for an SPM Mathematics credit or a bridging programme."
     },
     "sideNote": "Actual requirements differ by programme and year. Always check with the university.",
     "errors": {
       "cgpaRequired": "Enter your CGPA.",
-      "cgpaInvalid": "CGPA is a number from 0.00 to 4.00, e.g. 3.42."
+      "cgpaInvalid": "CGPA is a number from 0.00 to 4.00, e.g. 3.42.",
+      "levelRequired": "Choose the level of your qualification."
     },
     "changeQualification": "Change qualification in your Profile",
     "chooseQualification": {
       "title": "Choose your qualification first",
       "body": "Tell us whether you have STPM, matriculation, foundation or A-Level so the right form is shown.",
       "action": "Choose in Profile"
-    }
+    },
+    "qualificationLevel": "Level",
+    "levelNames": {
+      "1": "SKM level 1",
+      "2": "SKM level 2",
+      "3": "SKM level 3",
+      "4": "DKM (level 4)",
+      "5": "DLKM (level 5)"
+    },
+    "levelPlaceholder": "Choose a level"
   }
 }

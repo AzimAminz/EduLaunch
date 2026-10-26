@@ -98,9 +98,9 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
   // ── Pre-university or diploma qualification ──
   if (showHigher) {
     const h = dict.higher;
-    const levelKey = level as 'after_preu' | 'after_diploma';
+    const levelKey = level as 'after_preu' | 'after_certificate';
     // The qualification the student chose when setting their level; only its form is shown.
-    const qualification: HigherQualification | null = level === 'after_diploma' ? 'diploma' : higherQualification;
+    const qualification: HigherQualification | null = higherQualification && (choices as readonly string[]).includes(higherQualification) ? higherQualification : null;
     if (!qualification) {
       return (
         <section className="flex flex-col items-start gap-3 rounded-[22px] bg-white p-6 lg:p-10">
@@ -148,6 +148,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
                 muetBand: record?.muetBand ?? null,
                 fieldId: record?.fieldId ?? null,
                 programmeName: record?.programmeName ?? null,
+                qualificationLevel: record?.qualificationLevel ?? null,
                 rows: hasSubjectGrades(qualification) ? toRows(record, subjects, lang) : [],
               }}
               status={record?.status ?? 'none'}

@@ -1,4 +1,5 @@
-import { GradeScales, HigherQualifications, MuetBands, hasCgpa, hasSubjectGrades, type StudentSnapshot } from '@edulaunch/contracts';
+import { GradeScales, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, qualificationLevelsFor, type HigherQualification, type StudentSnapshot } from '@edulaunch/contracts';
+import { QUALIFICATION_CHOICES } from './levels';
 import { z } from 'zod';
 
 type EducationLevel = StudentSnapshot['educationLevel'];
@@ -30,7 +31,7 @@ export function recordFormFor(level: EducationLevel): RecordForm {
   }
 }
 
-export type HistoryKind = 'school' | 'target' | 'actual' | 'stpm' | 'matriculation' | 'foundation' | 'a_level' | 'diploma';
+export type HistoryKind = 'school' | 'target' | 'actual' | HigherQualification;
 
 /** How a saved record is named in the history list. */
 export const historyKind = (record: { qualification: string; kind: string }): HistoryKind =>
@@ -127,11 +128,10 @@ export function parseRecordSubmission(
 
 // ── Results after SPM (pre-university and diploma) ──────────────────────────
 
-export type HigherQualification = (typeof HigherQualifications)[number];
+export type { HigherQualification };
 
-/** The qualifications a level chooses from: STPM, matriculation, foundation or A-Level; or a diploma. */
-export const higherChoicesFor = (level: EducationLevel): HigherQualification[] =>
-  level === 'after_diploma' ? ['diploma'] : level === 'after_preu' ? ['stpm', 'matriculation', 'foundation', 'a_level'] : [];
+/** The qualifications a level after SPM chooses from (certificate stage, or pre-university / diploma stage). */
+export const higherChoicesFor = (level: EducationLevel): readonly HigherQualification[] => QUALIFICATION_CHOICES[level] ?? [];
 
 /** Reads a typed CGPA: "3.42" or "3,42". Empty means not given. */
 export function parseCgpa(text: string): number | null | 'invalid' {
@@ -142,7 +142,7 @@ export function parseCgpa(text: string): number | null | 'invalid' {
   return value <= 4 ? value : 'invalid';
 }
 
-export type HigherFormError = RecordFormError | 'cgpaRequired' | 'cgpaInvalid';
+export type HigherFormError = RecordFormError | 'cgpaRequired' | 'cgpaInvalid' | 'levelRequired';
 
 export interface HigherSubmission {
   examYear: number;
@@ -150,10 +150,14 @@ export interface HigherSubmission {
   muetBand: number | null;
   fieldId: string | null;
   programmeName: string | null;
+  qualificationLevel: number | null;
   subjects: Array<{ subjectId: string; grade: string; customName: string | null }>;
 }
 
-/** Reads the pre-university or diploma form. CGPA is needed except for A-Level; STPM and A-Level also need subject grades. */
+/**
+ * Reads the qualification form. CGPA where the qualification has one; subject grades for STPM and A-Level;
+ * field and programme for diplomas and certificates; the level for SKM (1–3) and DKM (4–5).
+ */
 export function parseHigherSubmission(form: FormData, qualification: HigherQualification): HigherSubmission | { error: HigherFormError } {
   const year = Number(form.get('examYear'));
   if (!Number.isInteger(year) || year < 2000 || year > 2100) return { error: 'yearRequired' };
@@ -172,7 +176,11 @@ export function parseHigherSubmission(form: FormData, qualification: HigherQuali
     subjects = parsed.subjects;
   }
 
-  const fieldId = qualification === 'diploma' ? z.uuid().safeParse(form.get('fieldId')).data ?? null : null;
-  const programme = qualification === 'diploma' ? cleanSubjectName(String(form.get('programmeName') ?? '')).slice(0, 120) : '';
-  return { examYear: year, cgpa, muetBand, fieldId, programmeName: programme || null, subjects };
+  const levels = qualificationLevelsFor(qualification);
+  const level = Number(form.get('qualificationLevel'));
+  if (levels && !levels.includes(level)) return { error: 'levelRequired' };
+
+  const fieldId = hasProgramme(qualification) ? (z.uuid().safeParse(form.get('fieldId')).data ?? null) : null;
+  const programme = hasProgramme(qualification) ? cleanSubjectName(String(form.get('programmeName') ?? '')).slice(0, 120) : '';
+  return { examYear: year, cgpa, muetBand, fieldId, programmeName: programme || null, qualificationLevel: levels ? level : null, subjects };
 }

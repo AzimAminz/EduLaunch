@@ -229,22 +229,21 @@
         "body": "Masukkan keputusan SPM sebenar dan semak kelayakan.",
         "short": "Lepasan SPM"
       },
-      "after_preu": {
-        "title": "Lepasan STPM / Matrikulasi / Asasi / A-Level",
-        "body": "PNGK, MUET dan gred subjek untuk program ijazah.",
-        "short": "Lepasan pra-universiti"
+      "after_certificate": {
+        "title": "Lepasan Sijil / SVM / SKM",
+        "body": "Sijil Politeknik, Kolej Komuniti, Sijil Vokasional Malaysia atau SKM. Untuk sambung ke Diploma.",
+        "short": "lepasan Sijil"
       },
-      "after_diploma": {
-        "title": "Lepasan Diploma",
-        "body": "CGPA dan bidang diploma untuk ijazah berkaitan.",
-        "short": "Lepasan Diploma"
+      "after_preu": {
+        "title": "Lepasan STPM / Matrikulasi / Asasi / A-Level / Diploma",
+        "body": "Termasuk DVM dan DKM/DLKM. PNGK, MUET dan bidang untuk program ijazah.",
+        "short": "lepasan pra-U / Diploma"
       }
     },
     "dialog": {
       "title": "Sahkan perubahan tahap",
       "qualificationQuestion": "Kelayakan apa yang anda ada sekarang?",
       "qualificationHint": "Dokumen akademik akan memaparkan borang untuk kelayakan ini sahaja.",
-      "diplomaNote": "Dokumen akademik akan memaparkan borang kelayakan Diploma.",
       "removeTitle": "Rekod ini akan dipadam",
       "removeBody": "Rekod ini tidak sesuai dengan tahap baharu anda. Ia dipadam supaya padanan program tidak menggunakan data yang salah.",
       "noRemove": "Tiada rekod akan dipadam. Rekod lama kekal sebagai sejarah.",
@@ -368,7 +367,12 @@
         "matriculation": "Matrikulasi {year}",
         "foundation": "Asasi {year}",
         "a_level": "A-Level {year}",
-        "diploma": "Diploma {year}"
+        "diploma": "Diploma {year}",
+        "dvm": "DVM {year}",
+        "dkm": "DKM / DLKM {year}",
+        "certificate": "Sijil {year}",
+        "svm": "SVM {year}",
+        "skm": "SKM {year}"
       },
       "noYear": "(tahun belum dipilih)",
       "open": "Lihat",
@@ -402,12 +406,12 @@
   },
   "higher": {
     "titles": {
-      "after_preu": "Kelayakan pra-universiti",
-      "after_diploma": "Kelayakan Diploma"
+      "after_preu": "Kelayakan pra-universiti / Diploma",
+      "after_certificate": "Kelayakan Sijil"
     },
     "intros": {
-      "after_preu": "Untuk ijazah sarjana muda, universiti menilai jenis kelayakan, PNGK, MUET dan keputusan SPM asas anda. Gred subjek hanya diperlukan untuk STPM dan A-Level.",
-      "after_diploma": "Untuk ijazah, universiti menilai PNGK diploma, bidang diploma, MUET dan keputusan SPM asas anda, bukan gred setiap subjek diploma."
+      "after_preu": "Untuk ijazah sarjana muda, universiti menilai kelayakan anda, PNGK, bidang (untuk diploma), MUET dan keputusan SPM asas. Gred subjek hanya diperlukan untuk STPM dan A-Level.",
+      "after_certificate": "Untuk Diploma, politeknik dan universiti menilai sijil anda dalam bidang berkaitan, PNGK (atau tahap SKM) dan keputusan SPM asas."
     },
     "sectionsLabel": "Bahagian keputusan",
     "sections": {
@@ -420,7 +424,12 @@
       "matriculation": "Matrikulasi",
       "foundation": "Asasi",
       "a_level": "A-Level",
-      "diploma": "Diploma"
+      "diploma": "Diploma (universiti, politeknik, swasta)",
+      "dvm": "Diploma Vokasional Malaysia (DVM)",
+      "dkm": "Diploma Kemahiran Malaysia (DKM / DLKM)",
+      "certificate": "Sijil Politeknik / Kolej Komuniti",
+      "svm": "Sijil Vokasional Malaysia (SVM)",
+      "skm": "Sijil Kemahiran Malaysia (SKM)"
     },
     "cgpa": "PNGK / CGPA",
     "cgpaHint": "Skala 0.00 – 4.00, seperti dalam transkrip.",
@@ -428,11 +437,11 @@
     "muet": "MUET",
     "muetNone": "Belum ada",
     "year": "Tahun tamat",
-    "field": "Bidang diploma",
+    "field": "Bidang",
     "fieldPlaceholder": "Cari bidang",
     "fieldNone": "Belum dipilih",
-    "programme": "Nama program diploma",
-    "programmePlaceholder": "contoh: Diploma Sains Komputer",
+    "programme": "Nama program",
+    "programmePlaceholder": "contoh: Diploma Sains Komputer / Sijil Teknologi Elektrik",
     "subjectsTitle": {
       "stpm": "Gred subjek STPM",
       "a_level": "Gred subjek A-Level"
@@ -443,19 +452,29 @@
     },
     "sideTitle": "Apa yang universiti semak",
     "sideBody": {
-      "after_preu": "Kebanyakan program ijazah awam meminta PNGK sekurang-kurangnya 2.00, MUET (biasanya Band 1–2), kepujian Bahasa Melayu dan lulus Sejarah SPM. STPM juga memerlukan gred C dalam tiga subjek termasuk Pengajian Am.",
-      "after_diploma": "Kebanyakan program ijazah meminta PNGK diploma sekurang-kurangnya 2.00 (sesetengah 2.50–3.00), bidang diploma yang berkaitan, MUET, kepujian Bahasa Melayu dan lulus Sejarah SPM."
+      "after_preu": "Kebanyakan program ijazah awam meminta PNGK sekurang-kurangnya 2.00 (sesetengah 2.50–3.00 untuk diploma), MUET (biasanya Band 1–2), kepujian Bahasa Melayu dan lulus Sejarah SPM. STPM juga memerlukan gred C dalam tiga subjek termasuk Pengajian Am; diploma, DVM dan DKM dinilai mengikut bidang berkaitan.",
+      "after_certificate": "Kebanyakan program Diploma meminta sijil (MQF Tahap 3, termasuk SKM Tahap 3) dalam bidang berkaitan dengan PNGK sekurang-kurangnya 2.00, kepujian Bahasa Melayu dan lulus Sejarah SPM. Ada program yang juga meminta kepujian Matematik SPM atau program jambatan."
     },
     "sideNote": "Syarat sebenar berbeza mengikut program dan tahun. Sentiasa semak dengan universiti.",
     "errors": {
       "cgpaRequired": "Masukkan PNGK anda.",
-      "cgpaInvalid": "PNGK ialah nombor antara 0.00 dan 4.00, contoh 3.42."
+      "cgpaInvalid": "PNGK ialah nombor antara 0.00 dan 4.00, contoh 3.42.",
+      "levelRequired": "Pilih tahap kelayakan anda."
     },
     "changeQualification": "Tukar kelayakan di Profil",
     "chooseQualification": {
       "title": "Pilih kelayakan anda dahulu",
       "body": "Beritahu kami sama ada anda lepasan STPM, Matrikulasi, Asasi atau A-Level supaya borang yang betul dipaparkan.",
       "action": "Pilih di Profil"
-    }
+    },
+    "qualificationLevel": "Tahap",
+    "levelNames": {
+      "1": "SKM Tahap 1",
+      "2": "SKM Tahap 2",
+      "3": "SKM Tahap 3",
+      "4": "DKM (Tahap 4)",
+      "5": "DLKM (Tahap 5)"
+    },
+    "levelPlaceholder": "Pilih tahap"
   }
 }

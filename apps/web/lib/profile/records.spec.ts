@@ -20,7 +20,8 @@ describe('recordFormFor', () => {
     expect(recordFormFor('form1_3')).toEqual({ variant: 'school', qualification: 'school', kind: 'school' });
     expect(recordFormFor('form4_5')).toEqual({ variant: 'target', qualification: 'spm', kind: 'target' });
     expect(recordFormFor('after_spm')).toEqual({ variant: 'actual', qualification: 'spm', kind: 'actual' });
-    expect(recordFormFor('after_diploma').variant).toBe('basic');
+    expect(recordFormFor('after_certificate').variant).toBe('basic');
+    expect(recordFormFor('after_preu').variant).toBe('basic');
   });
 });
 
@@ -92,9 +93,9 @@ describe('matchOfficialSubject', () => {
 });
 
 describe('results after SPM', () => {
-  it('offers STPM, matriculation, foundation or A-Level after pre-university, and a diploma after diploma', () => {
-    expect(higherChoicesFor('after_preu')).toEqual(['stpm', 'matriculation', 'foundation', 'a_level']);
-    expect(higherChoicesFor('after_diploma')).toEqual(['diploma']);
+  it('offers certificates after a certificate, and pre-university or diploma qualifications for a degree', () => {
+    expect(higherChoicesFor('after_certificate')).toEqual(['certificate', 'svm', 'skm']);
+    expect(higherChoicesFor('after_preu')).toEqual(['stpm', 'matriculation', 'foundation', 'a_level', 'diploma', 'dvm', 'dkm']);
     expect(higherChoicesFor('after_spm')).toEqual([]);
   });
 
@@ -122,8 +123,16 @@ describe('results after SPM', () => {
       muetBand: 3.5,
       fieldId: field,
       programmeName: 'Diploma Sains Komputer',
+      qualificationLevel: null,
       subjects: [],
     });
+  });
+
+  it('needs the level for SKM (1–3) and DKM (4–5)', () => {
+    expect(parseHigherSubmission(form({ examYear: '2025' }), 'skm')).toEqual({ error: 'levelRequired' });
+    expect(parseHigherSubmission(form({ examYear: '2025', qualificationLevel: '4' }), 'skm')).toEqual({ error: 'levelRequired' });
+    expect(parseHigherSubmission(form({ examYear: '2025', qualificationLevel: '3' }), 'skm')).toMatchObject({ qualificationLevel: 3, cgpa: null });
+    expect(parseHigherSubmission(form({ examYear: '2025', cgpa: '3.1', qualificationLevel: '5' }), 'dkm')).toMatchObject({ qualificationLevel: 5, cgpa: 3.1 });
   });
 
   it('needs subject grades for STPM and A-Level, on their own scales', () => {

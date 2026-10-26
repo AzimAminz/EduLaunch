@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState, useTransition, type FormEv
 import type { HigherQualification } from '@edulaunch/contracts';
 import { chooseEducationLevel, previewEducationLevel } from '@/lib/auth/actions';
 import type { RecordSummary } from '@/lib/profile/api';
-import { EDUCATION_LEVELS, PRE_UNIVERSITY, asksQualification } from '@/lib/profile/levels';
+import { EDUCATION_LEVELS, QUALIFICATION_CHOICES, asksQualification } from '@/lib/profile/levels';
 import { historyKind } from '@/lib/profile/records';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, SubmitButton } from '@/components/auth/fields';
@@ -85,7 +85,7 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setCheckError(undefined);
-    if (level === 'after_preu' && !higher) {
+    if (asksQualification(level) && !higher) {
       // Ask the qualification first; the records are checked once it is chosen.
       setDialog({ remove: [] });
       return;
@@ -99,7 +99,8 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
     else save();
   }
 
-  const qualificationNeeded = level === 'after_preu' && !higher;
+  const choices = level ? QUALIFICATION_CHOICES[level] : undefined;
+  const qualificationNeeded = !!choices && !higher;
   const alert = checkError ?? (!pending && state.error ? errors[state.error] : undefined);
 
   return (
@@ -126,7 +127,8 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
                     onChange={() => {
                       setLevel(value);
                       setForm(null);
-                      if (value !== 'after_preu') setHigher(null);
+                      // A qualification belongs to one level; choosing another level asks again.
+                      if (value !== level) setHigher(null);
                     }}
                     className="mt-1 size-4 shrink-0 accent-navy"
                   />
@@ -146,7 +148,7 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
                     ))}
                   </div>
                 )}
-                {selected && value === 'after_preu' && higher && <p className="pl-6 text-[13px] font-semibold">{names.qualifications[higher]}</p>}
+                {selected && higher && QUALIFICATION_CHOICES[value]?.includes(higher) && <p className="pl-6 text-[13px] font-semibold">{names.qualifications[higher]}</p>}
               </div>
             );
           })}
@@ -172,11 +174,11 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
               {d.title}
             </h2>
 
-            {level === 'after_preu' && (
+            {choices && (
               <fieldset className="flex flex-col gap-2">
                 <legend className="mb-1 font-semibold">{d.qualificationQuestion}</legend>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  {PRE_UNIVERSITY.map((q) => (
+                  {choices.map((q) => (
                     <label key={q} className={`flex cursor-pointer items-center gap-2.5 rounded-[12px] border-2 px-3.5 py-3 ${higher === q ? 'border-navy bg-blue' : 'border-transparent bg-bg'}`}>
                       <input
                         type="radio"
@@ -195,7 +197,6 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
                 <p className="text-[13px] text-muted">{d.qualificationHint}</p>
               </fieldset>
             )}
-            {level === 'after_diploma' && <p className="rounded-[12px] bg-blue px-4 py-3 text-sm">{d.diplomaNote}</p>}
 
             {!qualificationNeeded &&
               (dialog.remove === null ? (

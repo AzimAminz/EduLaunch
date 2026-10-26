@@ -23,10 +23,11 @@ describe('parseLevelChoice', () => {
     expect(parseLevelChoice(form({ level: 'after_spm', formYear: '3' }))).toEqual({ level: 'after_spm', formYear: null, higherQualification: null });
   });
 
-  it('needs the qualification after pre-university, and uses the diploma after diploma', () => {
+  it('needs a qualification that belongs to the level after SPM', () => {
     expect(parseLevelChoice(form({ level: 'after_preu' }))).toEqual({ error: 'qualificationRequired' });
-    expect(parseLevelChoice(form({ level: 'after_preu', higherQualification: 'diploma' }))).toEqual({ error: 'qualificationRequired' });
-    expect(parseLevelChoice(form({ level: 'after_preu', higherQualification: 'stpm' }))).toEqual({ level: 'after_preu', formYear: null, higherQualification: 'stpm' });
-    expect(parseLevelChoice(form({ level: 'after_diploma' }))).toEqual({ level: 'after_diploma', formYear: null, higherQualification: 'diploma' });
+    expect(parseLevelChoice(form({ level: 'after_preu', higherQualification: 'svm' }))).toEqual({ error: 'qualificationRequired' });
+    expect(parseLevelChoice(form({ level: 'after_preu', higherQualification: 'diploma' }))).toEqual({ level: 'after_preu', formYear: null, higherQualification: 'diploma' });
+    expect(parseLevelChoice(form({ level: 'after_certificate', higherQualification: 'skm' }))).toEqual({ level: 'after_certificate', formYear: null, higherQualification: 'skm' });
+    expect(parseLevelChoice(form({ level: 'after_certificate', higherQualification: 'stpm' }))).toEqual({ error: 'qualificationRequired' });
   });
 });

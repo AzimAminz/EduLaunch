@@ -68,7 +68,7 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const levelTitle = me.educationLevel ? dict.onboarding.levels[me.educationLevel].title : t.levelNone;
   const formSuffix = me.formYear
     ? ` · ${format(dict.onboarding.levels.form1_3.short, { form: me.formYear })}`
-    : me.educationLevel === 'after_preu' && me.higherQualification
+    : me.higherQualification
       ? ` · ${dict.higher.qualifications[me.higherQualification]}`
       : '';
 

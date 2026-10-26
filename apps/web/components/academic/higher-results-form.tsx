@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MuetBands, hasCgpa, hasSubjectGrades } from '@edulaunch/contracts';
+import { MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, qualificationLevelsFor } from '@edulaunch/contracts';
 import { saveHigherResults } from '@/lib/profile/actions';
 import type { HigherQualification, SubjectOption, SubjectRow } from '@/lib/profile/records';
 import type { Dictionary, Locale } from '@/lib/i18n/locale';
@@ -21,15 +21,16 @@ interface HigherResultsFormProps {
   grades: readonly string[];
   fields: Array<{ value: string; label: string }>;
   years: number[];
-  initial: { examYear: number | null; cgpa: number | null; muetBand: number | null; fieldId: string | null; programmeName: string | null; rows: SubjectRow[] };
+  initial: { examYear: number | null; cgpa: number | null; muetBand: number | null; fieldId: string | null; programmeName: string | null; qualificationLevel: number | null; rows: SubjectRow[] };
   status: 'none' | 'draft' | 'confirmed';
 }
 
 const muetLabel = (band: number) => (band === 5.5 ? '5+' : band.toFixed(1));
 
 /**
- * Pre-university or diploma results (Figma: Kelayakan pra-universiti / Kelayakan Diploma).
- * What degree programmes check: CGPA, MUET, year, the diploma field, and subject grades only for STPM and A-Level.
+ * Results after SPM (Figma: Kelayakan pra-universiti / Kelayakan Diploma), showing only what applies:
+ * CGPA where the qualification has one, MUET, year; field and programme for diplomas and certificates;
+ * the level for SKM and DKM; subject grades only for STPM and A-Level.
  */
 export function HigherResultsForm({ locale, qualification, t, academic, subjects, grades, fields, years, initial, status }: HigherResultsFormProps) {
   const [edited, setEdited] = useState(false);
@@ -39,6 +40,8 @@ export function HigherResultsForm({ locale, qualification, t, academic, subjects
   const [muet, setMuet] = useState(initial.muetBand !== null ? String(initial.muetBand) : '');
   const [fieldId, setFieldId] = useState(initial.fieldId ?? '');
   const [programme, setProgramme] = useState(initial.programmeName ?? '');
+  const [qualificationLevel, setQualificationLevel] = useState(initial.qualificationLevel !== null ? String(initial.qualificationLevel) : '');
+  const levels = qualificationLevelsFor(qualification);
   const [rows, setRows] = useState(initial.rows);
   const change =
     <T,>(set: (value: T) => void) =>
@@ -50,7 +53,7 @@ export function HigherResultsForm({ locale, qualification, t, academic, subjects
   const withSubjects = hasSubjectGrades(qualification);
   // An old error is not shown again while the next save is on its way.
   const error = state.error && !edited && !pending ? state.error : undefined;
-  const errorText = error ? (error === 'cgpaRequired' || error === 'cgpaInvalid' ? t.errors[error] : academic.errors[error]) : undefined;
+  const errorText = error ? (error === 'cgpaRequired' || error === 'cgpaInvalid' || error === 'levelRequired' ? t.errors[error] : academic.errors[error]) : undefined;
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -62,11 +65,12 @@ export function HigherResultsForm({ locale, qualification, t, academic, subjects
       <input type="hidden" name="examYear" value={year} />
       <input type="hidden" name="muetBand" value={muet} />
       <input type="hidden" name="fieldId" value={fieldId} />
+      <input type="hidden" name="qualificationLevel" value={qualificationLevel} />
       <input type="hidden" name="subjects" value={JSON.stringify(rows)} />
 
       <FormAlert>{errorText}</FormAlert>
 
-      {qualification === 'diploma' && (
+      {hasProgramme(qualification) && (
         <div className="grid gap-4 sm:grid-cols-2">
           <Dropdown label={t.field} value={fieldId} onChange={change(setFieldId)} options={fields} placeholder={t.fieldPlaceholder} noMatchesLabel={academic.noMatches} />
           <TextField name="programmeName" label={t.programme} placeholder={t.programmePlaceholder} value={programme} onChange={(e) => change(setProgramme)(e.target.value)} maxLength={120} />
@@ -74,6 +78,18 @@ export function HigherResultsForm({ locale, qualification, t, academic, subjects
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
+        {levels && (
+          <Dropdown
+            label={t.qualificationLevel}
+            value={qualificationLevel}
+            onChange={change(setQualificationLevel)}
+            options={levels.map((l) => ({ value: String(l), label: t.levelNames[String(l) as keyof typeof t.levelNames] }))}
+            placeholder={t.levelPlaceholder}
+            noMatchesLabel={academic.noMatches}
+            searchable={false}
+            invalid={error === 'levelRequired'}
+          />
+        )}
         {hasCgpa(qualification) && (
           <TextField
             name="cgpa"
