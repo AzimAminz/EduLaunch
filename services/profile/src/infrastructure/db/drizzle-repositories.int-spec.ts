@@ -131,6 +131,16 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     expect((await records.listByStudent(s.id)).map((r) => r.toSnapshot().examYear)).toEqual([2027, 2025, 2024]);
   });
 
+  it('stores diploma results: CGPA, MUET, field and programme name', async () => {
+    const s = await newStudent();
+    const field = randomUUID();
+    const r = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'diploma', kind: 'actual', examYear: 2026 });
+    r.setResultDetails({ cgpa: 3.42, muetBand: 3.5, fieldId: field, programmeName: 'Diploma Sains Komputer' });
+    r.confirm();
+    await records.save(r);
+    expect((await records.findCurrent(s.id, 'diploma', 'actual'))?.toSnapshot()).toMatchObject({ cgpa: 3.42, muetBand: 3.5, fieldId: field, programmeName: 'Diploma Sains Komputer', status: 'confirmed' });
+  });
+
   it('stores the name of a subject that is not in the catalogue', async () => {
     const s = await newStudent();
     const custom = randomUUID();

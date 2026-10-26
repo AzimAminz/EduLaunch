@@ -38,6 +38,9 @@ export const academicRecords = profile.table('academic_record', {
   id: id(),
   studentId: uuid('student_id').notNull().references(() => students.id, { onDelete: 'cascade' }),
   diplomaProgramId: uuid('diploma_program_id'),
+  /** Diploma results: the catalogue field of study (degree programmes favour a related field) and the programme name. */
+  fieldId: uuid('field_id'),
+  programmeName: text('programme_name'),
   qualification: text('qualification').notNull(),
   recordKind: recordKind('record_kind').notNull(),
   examYear: smallint('exam_year'),

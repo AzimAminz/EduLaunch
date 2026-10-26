@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DomainError, NotFoundError } from '@edulaunch/ddd';
 import { EventBus, type Caller } from '@edulaunch/nest-kit';
-import type { Qualification } from '@edulaunch/contracts';
+import type { RecordQualification } from '@edulaunch/contracts';
 import { randomUUID } from 'node:crypto';
-import { AcademicRecord, type RecordKind } from '../domain/academic-record.js';
+import { AcademicRecord, type RecordKind, type ResultDetails } from '../domain/academic-record.js';
 import { AcademicRecordRepository } from '../domain/academic-record.repository.js';
 import { GetOrCreateMe } from '../../students/application/student.use-cases.js';
 
@@ -13,14 +13,14 @@ export type RecordChange =
   | { type: 'confirm' };
 
 export interface RecordKey {
-  qualification: Qualification;
+  qualification: RecordQualification;
   kind: RecordKind;
   /** Needed for school grades, which are kept per year. */
   examYear?: number | null;
 }
 
-export interface SaveRecordInput {
-  qualification: Qualification;
+export interface SaveRecordInput extends Partial<ResultDetails> {
+  qualification: RecordQualification;
   kind: RecordKind;
   examYear: number | null;
   subjects: Array<{ subjectId: string; grade: string; customName?: string | null }>;
@@ -35,7 +35,7 @@ export class AcademicRecordService {
     @Inject(EventBus) private readonly events: EventBus,
   ) {}
 
-  async start(caller: Caller, input: { qualification: Qualification; kind: RecordKind; examYear: number | null }) {
+  async start(caller: Caller, input: { qualification: RecordQualification; kind: RecordKind; examYear: number | null }) {
     const { studentId } = await this.me.execute(caller);
     const record = AcademicRecord.start(randomUUID(), { studentId, ...input });
     await this.records.save(record);
@@ -68,6 +68,7 @@ export class AcademicRecordService {
       AcademicRecord.start(randomUUID(), { studentId, qualification: input.qualification, kind: input.kind, examYear: null });
     record.setExamYear(input.examYear);
     record.replaceSubjects(input.subjects);
+    record.setResultDetails({ cgpa: input.cgpa ?? null, muetBand: input.muetBand ?? null, fieldId: input.fieldId ?? null, programmeName: input.programmeName ?? null });
     record.confirm();
     await this.records.save(record);
     await this.events.publish(record.pullEvents());

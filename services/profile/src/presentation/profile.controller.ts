@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Pos
 import { CurrentCaller, DRIZZLE, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
 import { and, eq } from 'drizzle-orm';
 import * as schema from '../infrastructure/db/schema.js';
-import { StudentSnapshot } from '@edulaunch/contracts';
+import { RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { GetOrCreateMe, GetStudentSnapshot, UpdateEducationLevel } from '../modules/students/application/student.use-cases.js';
 import { AcademicRecordService } from '../modules/academic-records/application/academic-record.use-cases.js';
@@ -15,7 +15,7 @@ const StartRecordBody = z.object({
 });
 const GradeBody = z.object({ grade: z.string().min(1).max(3) });
 const RecordKey = z.object({
-  qualification: z.enum(['spm', 'school', 'stpm']),
+  qualification: z.enum(RecordQualifications),
   kind: z.enum(['actual', 'target', 'school']),
   examYear: z.coerce.number().int().min(2000).max(2100).nullable().default(null),
 });
@@ -23,8 +23,11 @@ const SaveRecordBody = RecordKey.extend({
   examYear: z.number().int().min(2000).max(2100).nullable().default(null),
   subjects: z
     .array(z.object({ subjectId: z.uuid(), grade: z.string().min(1).max(3), customName: z.string().trim().min(1).max(80).nullable().default(null) }))
-    .min(1)
     .max(25),
+  cgpa: z.number().min(0).max(4).nullable().default(null),
+  muetBand: z.number().nullable().default(null),
+  fieldId: z.uuid().nullable().default(null),
+  programmeName: z.string().max(120).nullable().default(null),
 });
 
 @Controller()

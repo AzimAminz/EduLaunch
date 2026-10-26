@@ -80,6 +80,37 @@ describe('AcademicRecord', () => {
     expect(() => AcademicRecord.start('x', { studentId: 's1', qualification: 'school', kind: 'target', examYear: null })).toThrow(DomainError);
   });
 
+  it('records a diploma by CGPA, MUET and field, without subject grades', () => {
+    const r = AcademicRecord.start('d1', { studentId: 's1', qualification: 'diploma', kind: 'actual', examYear: 2026 });
+    expect(() => r.setGrade('math', 'A')).toThrow(/without subject grades/);
+    expect(() => r.confirm()).toThrow(/CGPA/);
+    r.setResultDetails({ cgpa: 3.42, muetBand: 3, fieldId: 'f1', programmeName: ' Diploma Sains Komputer ' });
+    r.confirm();
+    expect(r.toSnapshot()).toMatchObject({ cgpa: 3.42, muetBand: 3, fieldId: 'f1', programmeName: 'Diploma Sains Komputer', status: 'confirmed' });
+  });
+
+  it('checks CGPA and MUET values, and what applies to each qualification', () => {
+    const stpm = AcademicRecord.start('t1', { studentId: 's1', qualification: 'stpm', kind: 'actual', examYear: 2026 });
+    expect(() => stpm.setResultDetails({ cgpa: 4.5, muetBand: null, fieldId: null, programmeName: null })).toThrow(/0.00 to 4.00/);
+    expect(() => stpm.setResultDetails({ cgpa: 3.123, muetBand: null, fieldId: null, programmeName: null })).toThrow(/0.00 to 4.00/);
+    expect(() => stpm.setResultDetails({ cgpa: 3, muetBand: 2.2, fieldId: null, programmeName: null })).toThrow(/MUET band/);
+    expect(() => stpm.setResultDetails({ cgpa: 3, muetBand: 4, fieldId: 'f1', programmeName: null })).toThrow(/Only a diploma/);
+    expect(() => spm().setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null })).toThrow(/no CGPA/);
+    const aLevel = AcademicRecord.start('a1', { studentId: 's1', qualification: 'a_level', kind: 'actual', examYear: 2026 });
+    expect(() => aLevel.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null })).toThrow(/no CGPA/);
+    aLevel.setGrade('maths', 'a*');
+    expect(aLevel.subjects[0]?.grade).toBe('A*');
+  });
+
+  it('needs STPM subjects and CGPA before confirming', () => {
+    const stpm = AcademicRecord.start('t1', { studentId: 's1', qualification: 'stpm', kind: 'actual', examYear: 2026 });
+    stpm.setGrade('pa', 'B');
+    expect(() => stpm.confirm()).toThrow(/CGPA/);
+    stpm.setResultDetails({ cgpa: 3.1, muetBand: 3.5, fieldId: null, programmeName: null });
+    stpm.confirm();
+    expect(stpm.isConfirmed).toBe(true);
+  });
+
   it('goes back to draft when a confirmed grade is changed', () => {
     const r = spm();
     r.setGrade('math', 'B');

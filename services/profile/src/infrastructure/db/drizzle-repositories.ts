@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
-import type { Qualification } from '@edulaunch/contracts';
+import type { RecordQualification } from '@edulaunch/contracts';
 import { and, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import * as schema from './schema.js';
 import { Student } from '../../modules/students/domain/student.js';
@@ -84,7 +84,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
     return row ? this.toDomain(row) : null;
   }
 
-  async findCurrent(studentId: string, qualification: Qualification, kind: RecordKind, examYear: number | null = null) {
+  async findCurrent(studentId: string, qualification: RecordQualification, kind: RecordKind, examYear: number | null = null) {
     const conditions = [eq(academicRecords.studentId, studentId), eq(academicRecords.qualification, qualification), eq(academicRecords.recordKind, kind)];
     if (kind === 'school') conditions.push(examYear === null ? isNull(academicRecords.examYear) : eq(academicRecords.examYear, examYear));
     const [row] = await this.db
@@ -116,6 +116,8 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
         examYear: s.examYear,
         cgpa: s.cgpa === null ? null : String(s.cgpa),
         muetBand: s.muetBand === null ? null : String(s.muetBand),
+        fieldId: s.fieldId,
+        programmeName: s.programmeName,
         recordStatus: s.status,
         confirmedAt: s.confirmedAt,
       };
@@ -133,11 +135,13 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
     const subjects = await this.db.select().from(recordSubjects).where(eq(recordSubjects.recordId, row.id));
     return AcademicRecord.restore(row.id, {
       studentId: row.studentId,
-      qualification: row.qualification as Qualification,
+      qualification: row.qualification as RecordQualification,
       kind: row.recordKind as RecordKind,
       examYear: row.examYear,
       cgpa: num(row.cgpa),
       muetBand: num(row.muetBand),
+      fieldId: row.fieldId,
+      programmeName: row.programmeName,
       subjects: subjects.map((x) => ({ subjectId: x.subjectId, grade: x.grade, customName: x.customName, readConfidence: num(x.readConfidence) })),
       status: row.recordStatus,
       confirmedAt: row.confirmedAt,

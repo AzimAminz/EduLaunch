@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundError, type UseCase } from '@edulaunch/ddd';
 import type { Caller } from '@edulaunch/nest-kit';
-import type { StudentSnapshot } from '@edulaunch/contracts';
+import { HigherQualifications, type StudentSnapshot } from '@edulaunch/contracts';
 import { randomUUID } from 'node:crypto';
 import { Student, type EducationLevel } from '../domain/student.js';
 import { StudentRepository } from '../domain/student.repository.js';
@@ -61,17 +61,24 @@ export class GetStudentSnapshot implements UseCase<{ studentId: string }, Studen
   async execute({ studentId }: { studentId: string }): Promise<StudentSnapshot> {
     const student = await this.students.findById(studentId);
     if (!student) throw new NotFoundError('Student', studentId);
-    const [record, riasec] = await Promise.all([this.records.findLatestConfirmed(studentId), this.students.latestRiasec(studentId)]);
-    const r = record?.toSnapshot();
+    const [records, riasec] = await Promise.all([this.records.listByStudent(studentId), this.students.latestRiasec(studentId)]);
+    const confirmed = records.filter((r) => r.isConfirmed).map((r) => r.toSnapshot());
+    // Subject grades come from SPM (actual before targets), or school results before SPM.
+    const graded =
+      confirmed.find((r) => r.qualification === 'spm' && r.kind === 'actual') ??
+      confirmed.find((r) => r.qualification === 'spm') ??
+      confirmed.find((r) => r.qualification === 'school');
+    // CGPA and MUET come from the newest result after SPM (STPM, matriculation, foundation, A-Level, diploma).
+    const higher = confirmed.find((r) => (HigherQualifications as readonly string[]).includes(r.qualification));
     return {
       studentId,
       educationLevel: student.educationLevel ?? 'after_spm',
-      isTargetBased: r?.kind === 'target',
-      gradeScale: r?.qualification ?? 'spm',
+      isTargetBased: graded?.kind === 'target',
+      gradeScale: graded?.qualification === 'school' ? 'school' : 'spm',
       // Subjects typed by the student are not in the catalogue, so no programme requirement can refer to them.
-      grades: (r?.subjects ?? []).filter((s) => s.customName === null).map((s) => ({ subjectId: s.subjectId, grade: s.grade })),
-      cgpa: r?.cgpa ?? null,
-      muetBand: r?.muetBand ?? null,
+      grades: (graded?.subjects ?? []).filter((s) => s.customName === null).map((s) => ({ subjectId: s.subjectId, grade: s.grade })),
+      cgpa: higher?.cgpa ?? null,
+      muetBand: higher?.muetBand ?? null,
       riasec,
     };
   }
