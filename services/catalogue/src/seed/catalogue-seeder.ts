@@ -44,7 +44,7 @@ export class CatalogueSeeder {
         await tx.insert(schema.fields).values({ id: id.field(f.key), ...row }).onConflictDoUpdate({ target: schema.fields.id, set: row });
       }
       for (const s of data.subjects) {
-        const row = { name: s.name, nameEn: s.nameEn, qualification: s.qualification, category: s.category, isMandatory: s.isMandatory };
+        const row = { name: s.name, nameEn: s.nameEn, qualification: s.qualification, category: s.category, isMandatory: s.isMandatory, aliases: s.aliases ?? [] };
         await tx.insert(schema.subjects).values({ id: id.subject(s.key), ...row }).onConflictDoUpdate({ target: schema.subjects.id, set: row });
       }
       for (const p of data.programmes) {
