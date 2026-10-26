@@ -384,7 +384,8 @@
       "back": "Kembali ke dokumen akademik",
       "readOnly": "Rekod ini dipaparkan untuk rujukan. Untuk menyuntingnya, buka tahap pendidikan yang berkaitan di Profil."
     },
-    "schoolTab": "Tingkatan {form} · {year}"
+    "schoolTab": "Tingkatan {form} · {year}",
+    "limitReached": "Had {max} subjek dicapai. Buang subjek yang tidak berkenaan untuk menambah subjek lain."
   },
   "profile": {
     "eyebrow": "RUANG PERIBADI",

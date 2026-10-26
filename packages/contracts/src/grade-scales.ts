@@ -51,5 +51,8 @@ export const hasProgramme = (qualification: RecordQualification) => (ProgrammeQu
 export const qualificationLevelsFor = (qualification: RecordQualification): number[] | null =>
   qualification === 'skm' ? [1, 2, 3] : qualification === 'dkm' ? [4, 5] : null;
 
+/** Most subjects one record can hold. Some SPM candidates take 20 subjects; 30 leaves room. */
+export const MAX_SUBJECTS_PER_RECORD = 30;
+
 /** MUET bands (1.0 to 5.0 in half bands, and 5+ stored as 5.5). */
 export const MuetBands = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5] as const;

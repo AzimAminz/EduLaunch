@@ -97,4 +97,11 @@ describe('SubjectTable', () => {
     expect(screen.getByRole('columnheader', { name: 'Sasaran' })).toBeInTheDocument();
     expect(screen.getByText(/Sasaran bukan keputusan rasmi/)).toBeInTheDocument();
   });
+
+  it('stops offering more subjects at the limit, and says why', () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ subjectId: `00000000-0000-4000-8000-${String(i + 100).padStart(12, '0')}`, grade: 'A', customName: `Subjek ${i + 1}` }));
+    render(<SubjectTable locale="ms" variant="actual" t={ms.academic} subjects={subjects} grades={['A']} years={[2026]} initialYear={2026} initialRows={many} status="none" />);
+    expect(screen.queryByRole('combobox', { name: '+ Tambah subjek' })).not.toBeInTheDocument();
+    expect(screen.getByText(/Had 30 subjek dicapai/)).toBeInTheDocument();
+  });
 });

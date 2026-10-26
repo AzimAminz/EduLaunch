@@ -384,7 +384,8 @@
       "back": "Back to academic documents",
       "readOnly": "This record is shown for reference. To edit it, choose the matching education level in your Profile."
     },
-    "schoolTab": "Form {form} · {year}"
+    "schoolTab": "Form {form} · {year}",
+    "limitReached": "You have reached the limit of {max} subjects. Remove one that does not apply to add another."
   },
   "profile": {
     "eyebrow": "PERSONAL SPACE",

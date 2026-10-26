@@ -1,4 +1,4 @@
-import { GradeScales, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, qualificationLevelsFor, type HigherQualification, type StudentSnapshot } from '@edulaunch/contracts';
+import { GradeScales, MAX_SUBJECTS_PER_RECORD, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, qualificationLevelsFor, type HigherQualification, type StudentSnapshot } from '@edulaunch/contracts';
 import { QUALIFICATION_CHOICES } from './levels';
 import { z } from 'zod';
 
@@ -120,6 +120,7 @@ export function parseRecordSubmission(
   const examYear = Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : null;
   if (options.yearRequired && examYear === null) return { error: 'yearRequired' };
   if (rows.length === 0) return { error: 'noSubjects' };
+  if (rows.length > MAX_SUBJECTS_PER_RECORD) return { error: 'generic' };
   if (rows.some((r) => !grades.includes(r.grade))) return { error: 'missingGrade' };
   if (new Set(rows.map((r) => r.subjectId)).size !== rows.length) return { error: 'generic' };
 
