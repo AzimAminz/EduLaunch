@@ -146,8 +146,10 @@ Tested by: AzimAminz Date: 26 Oct 2026
 ### E. Forgot password
 
 - [ ] On the log in page click **Lupa kata laluan?**, enter your email, press **Hantar pautan pemulihan**: the "Semak peti masuk anda" page appears.
-- [ ] Open the test inbox (http://127.0.0.1:54324), open the newest email, click the link: you land on **Tetapkan kata laluan baharu**.
+- [ ] Open the test inbox (http://127.0.0.1:54324) and the newest email. It has the EduLaunch design (navy bar, yellow line, Rimau with a shield), greets you by name, and is in the language you last logged in with.
+- [ ] Click the button in the email: you land on **Tetapkan kata laluan baharu**.
 - [ ] Save a new password: you arrive in the portal. Log out and log in with the new password.
+- [ ] A second email arrives: **Kata laluan anda telah ditukar** (security notice).
 - [ ] Click the same email link again: you land on **Pulihkan akses akaun** with the message that the link has expired.
 
 ### F. Admin

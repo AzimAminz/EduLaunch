@@ -83,6 +83,7 @@ Next time, you only need: open Docker Desktop → `pnpm db:start` → `pnpm infr
 | `pnpm db:migrate` | Add any new database tables or columns your teammates created |
 | `pnpm db:seed` | Load the sample universities and programmes (safe to run again) |
 | `pnpm admin:grant <email>` | Make a local account an admin (see below) |
+| `pnpm email:build` | Rebuild the e-mail designs after changing their text |
 
 Working on one part only? Add `--filter`, for example `pnpm --filter @edulaunch/catalogue-service dev`.
 
@@ -102,6 +103,16 @@ Working on one part only? Add `--filter`, for example `pnpm --filter @edulaunch/
 To make the account a student again: `pnpm admin:grant you@example.com --revoke`.
 
 Only the database can give someone admin rights. Users cannot make themselves admin.
+
+---
+
+## Changing the e-mails
+
+The sign-up, password and security e-mails use our own design, in Bahasa Melayu and English. To change their text or look:
+
+1. Edit `tools/scripts/build-email-templates.mjs`.
+2. Run `pnpm email:build --preview` and open the files in `supabase/templates/preview/` in your browser.
+3. Restart Supabase (`pnpm db:stop`, then `pnpm db:start`) and send yourself an e-mail. It arrives in the test inbox.
 
 ---
 
