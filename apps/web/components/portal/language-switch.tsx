@@ -5,12 +5,12 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { LOCALES, LOCALE_COOKIE, localizedPath, type Dictionary, type Locale } from '@/lib/i18n/locale';
 
 /** BM | EN toggle. Keeps the current page and filters, and remembers the choice for a year. */
-export function LanguageSwitch({ locale, labels }: { locale: Locale; labels: Dictionary['language'] }) {
+export function LanguageSwitch({ locale, labels, className = 'mt-2 bg-bg' }: { locale: Locale; labels: Dictionary['language']; className?: string }) {
   const pathname = usePathname();
   const search = useSearchParams().toString();
 
   return (
-    <div role="group" aria-label={labels.label} className="mt-2 flex rounded-[10px] bg-bg p-1">
+    <div role="group" aria-label={labels.label} className={`flex rounded-[10px] p-1 ${className}`}>
       {LOCALES.map((l) => {
         const href = `${localizedPath(pathname, l)}${search ? `?${search}` : ''}`;
         const current = l === locale;

@@ -112,5 +112,140 @@
     "title": "Coming soon",
     "body": "This part is not ready yet. It will be added in a later step.",
     "back": "Go to the programme directory"
+  },
+  "auth": {
+    "show": "Show",
+    "hide": "Hide",
+    "email": "Email",
+    "emailPlaceholder": "name@example.com",
+    "password": "Password",
+    "home": "Home",
+    "signIn": "Log in",
+    "signOut": "Log out",
+    "signedInAs": "Logged in as",
+    "side": {
+      "title": "One account, one journey.",
+      "body": "Logging in is needed for your personal tools."
+    },
+    "signInPage": {
+      "eyebrow": "STUDENT ACCOUNT",
+      "title": "Welcome back",
+      "intro": "Continue your planning.",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Log in",
+      "forgot": "Forgot password?",
+      "noAccount": "No account yet?",
+      "createAccount": "Create account",
+      "heroLine1": "Save small steps.",
+      "heroLine2": "See a clearer direction.",
+      "heroBody": "Your academic profile, interests and roadmap in one journey.",
+      "terms": "By logging in, you agree to the EduLaunch terms of use and privacy notice."
+    },
+    "signUpPage": {
+      "eyebrow": "YOUR ACCOUNT",
+      "title": "Create your EduLaunch account",
+      "intro": "For secondary school students and after SPM, pre-university and Diploma.",
+      "name": "Name",
+      "namePlaceholder": "Full name",
+      "passwordPlaceholder": "Create a password",
+      "passwordHint": "At least {min} characters.",
+      "consentTitle": "Consent",
+      "consent": "I have read the privacy notice and terms of use.",
+      "submit": "Create account",
+      "haveAccount": "I already have an account"
+    },
+    "forgotPage": {
+      "eyebrow": "LOGIN HELP",
+      "title": "Recover your account",
+      "intro": "Enter your email to request a recovery link.",
+      "afterTitle": "After you send it",
+      "afterBody": "If this email is registered, we send a link to set a new password.",
+      "submit": "Send recovery link",
+      "back": "Back to log in"
+    },
+    "inboxPage": {
+      "eyebrow": "REQUEST RECEIVED",
+      "title": "Check your inbox",
+      "intro": "We have sent a link to your email. Check your spam folder too.",
+      "notReceivedTitle": "No email yet?",
+      "notReceivedBody": "Wait a minute before asking again. An expired link can be replaced with a new request.",
+      "back": "Back to log in",
+      "changeEmail": "Change email"
+    },
+    "newPasswordPage": {
+      "eyebrow": "LOGIN HELP",
+      "title": "Set a new password",
+      "intro": "Choose a new password for your account.",
+      "password": "New password",
+      "submit": "Save password"
+    },
+    "errors": {
+      "required": "Please fill in this field.",
+      "email": "Enter a valid email address.",
+      "passwordShort": "The password needs at least 8 characters.",
+      "consent": "Tick the consent box to continue.",
+      "invalidCredentials": "The email or password is not correct.",
+      "emailTaken": "This email already has an account. Try logging in.",
+      "emailNotConfirmed": "Confirm your email first with the link we sent.",
+      "rateLimited": "Too many attempts. Please try again shortly.",
+      "samePassword": "The new password must be different from the old one.",
+      "linkExpired": "This link has expired or was already used. Request a new one below.",
+      "levelRequired": "Choose your education level.",
+      "formRequired": "Choose your form.",
+      "generic": "Something went wrong. Please try again shortly."
+    }
+  },
+  "onboarding": {
+    "stepsLabel": "Sign-up steps",
+    "steps": {
+      "account": "Create account",
+      "situation": "Your situation",
+      "dashboard": "Dashboard"
+    },
+    "skip": "Skip for now",
+    "eyebrow": "WELCOME TO EDULAUNCH",
+    "title": "Start from where you are",
+    "intro": "Your account is ready. Choose the situation closest to yours — it helps us suggest a first step. You do not need to pick a career or have SPM results to start.",
+    "question": "What is your education level now?",
+    "questionHint": "We adapt the results form, modules and suggestions to your level. You can change it later.",
+    "formLabel": "Form:",
+    "continue": "Continue to dashboard",
+    "continueTo": "Continue to the {level} dashboard",
+    "sideBody": "You can change this any time in your Profile.",
+    "levels": {
+      "form1_3": {
+        "title": "Form 1–3",
+        "body": "Discover your interests, enter school exam grades and choose a Form 4 stream.",
+        "short": "Form {form}"
+      },
+      "form4_5": {
+        "title": "Form 4–5",
+        "body": "SPM subjects, current and target grades, Merit Lab simulation.",
+        "short": "Form {form}"
+      },
+      "after_spm": {
+        "title": "After SPM",
+        "body": "Enter your actual SPM results and check eligibility.",
+        "short": "after-SPM"
+      },
+      "after_preu": {
+        "title": "After STPM / Matriculation / Foundation / A-Level",
+        "body": "CGPA, MUET and subject grades for degree programmes.",
+        "short": "pre-university"
+      },
+      "after_diploma": {
+        "title": "After Diploma",
+        "body": "CGPA and diploma field for related degrees.",
+        "short": "after-Diploma"
+      }
+    }
+  },
+  "admin": {
+    "title": "Admin console",
+    "body": "You are logged in as an admin. The admin console is being built and will come in a later step."
+  },
+  "footer": {
+    "disclaimer": "Disclaimer: EduLaunch is an independent platform. Programme information refers to official sources from institutions and related agencies; please confirm with them before applying. EduLaunch does not guarantee an offer of admission.",
+    "copyright": "© 2026 EduLaunch. All rights reserved."
   }
 }

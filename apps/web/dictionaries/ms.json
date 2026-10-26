@@ -112,5 +112,140 @@
     "title": "Sedang dibina",
     "body": "Bahagian ini belum siap. Ia akan ditambah dalam langkah seterusnya.",
     "back": "Ke direktori program"
+  },
+  "auth": {
+    "show": "Tunjuk",
+    "hide": "Sembunyi",
+    "email": "E-mel",
+    "emailPlaceholder": "nama@contoh.com",
+    "password": "Kata laluan",
+    "home": "Utama",
+    "signIn": "Log masuk",
+    "signOut": "Log keluar",
+    "signedInAs": "Log masuk sebagai",
+    "side": {
+      "title": "Satu akaun, satu perjalanan.",
+      "body": "Log masuk diperlukan untuk alat peribadi."
+    },
+    "signInPage": {
+      "eyebrow": "AKAUN PELAJAR",
+      "title": "Selamat kembali",
+      "intro": "Sambung perancangan anda.",
+      "passwordPlaceholder": "Masukkan kata laluan",
+      "submit": "Log masuk",
+      "forgot": "Lupa kata laluan?",
+      "noAccount": "Belum ada akaun?",
+      "createAccount": "Cipta akaun",
+      "heroLine1": "Simpan langkah kecil.",
+      "heroLine2": "Lihat arah yang lebih jelas.",
+      "heroBody": "Profil akademik, minat dan roadmap anda dalam satu perjalanan.",
+      "terms": "Dengan log masuk, anda bersetuju dengan terma penggunaan dan notis privasi EduLaunch."
+    },
+    "signUpPage": {
+      "eyebrow": "AKAUN ANDA",
+      "title": "Cipta akaun EduLaunch",
+      "intro": "Untuk pelajar sekolah menengah serta lepasan SPM, pra-universiti dan Diploma.",
+      "name": "Nama",
+      "namePlaceholder": "Nama penuh",
+      "passwordPlaceholder": "Cipta kata laluan",
+      "passwordHint": "Sekurang-kurangnya {min} aksara.",
+      "consentTitle": "Persetujuan",
+      "consent": "Saya telah membaca notis privasi dan terma penggunaan.",
+      "submit": "Cipta akaun",
+      "haveAccount": "Sudah ada akaun"
+    },
+    "forgotPage": {
+      "eyebrow": "BANTUAN LOG MASUK",
+      "title": "Pulihkan akses akaun",
+      "intro": "Masukkan e-mel untuk meminta pautan pemulihan.",
+      "afterTitle": "Selepas dihantar",
+      "afterBody": "Jika e-mel ini berdaftar, kami hantar pautan untuk menetapkan kata laluan baharu.",
+      "submit": "Hantar pautan pemulihan",
+      "back": "Kembali log masuk"
+    },
+    "inboxPage": {
+      "eyebrow": "PERMINTAAN DITERIMA",
+      "title": "Semak peti masuk anda",
+      "intro": "Kami telah menghantar pautan ke e-mel anda. Semak juga folder spam.",
+      "notReceivedTitle": "Belum menerima e-mel?",
+      "notReceivedBody": "Tunggu seminit sebelum meminta semula. Pautan yang luput boleh diganti dengan permintaan baharu.",
+      "back": "Kembali log masuk",
+      "changeEmail": "Ubah e-mel"
+    },
+    "newPasswordPage": {
+      "eyebrow": "BANTUAN LOG MASUK",
+      "title": "Tetapkan kata laluan baharu",
+      "intro": "Pilih kata laluan baharu untuk akaun anda.",
+      "password": "Kata laluan baharu",
+      "submit": "Simpan kata laluan"
+    },
+    "errors": {
+      "required": "Ruangan ini perlu diisi.",
+      "email": "Masukkan alamat e-mel yang sah.",
+      "passwordShort": "Kata laluan perlu sekurang-kurangnya 8 aksara.",
+      "consent": "Tandakan persetujuan untuk meneruskan.",
+      "invalidCredentials": "E-mel atau kata laluan tidak betul.",
+      "emailTaken": "E-mel ini sudah mempunyai akaun. Cuba log masuk.",
+      "emailNotConfirmed": "Sahkan e-mel anda dahulu melalui pautan yang kami hantar.",
+      "rateLimited": "Terlalu banyak cubaan. Cuba lagi sebentar lagi.",
+      "samePassword": "Kata laluan baharu mesti berbeza daripada yang lama.",
+      "linkExpired": "Pautan ini sudah luput atau telah digunakan. Minta pautan baharu di bawah.",
+      "levelRequired": "Pilih tahap pendidikan anda.",
+      "formRequired": "Pilih tingkatan anda.",
+      "generic": "Sesuatu tidak kena. Cuba lagi sebentar lagi."
+    }
+  },
+  "onboarding": {
+    "stepsLabel": "Langkah pendaftaran",
+    "steps": {
+      "account": "Cipta akaun",
+      "situation": "Situasi anda",
+      "dashboard": "Dashboard"
+    },
+    "skip": "Langkau dahulu",
+    "eyebrow": "SELAMAT DATANG KE EDULAUNCH",
+    "title": "Mulakan dari situasi anda",
+    "intro": "Akaun anda sudah sedia. Pilih situasi yang paling hampir — ini membantu kami mencadangkan langkah pertama. Tidak perlu memilih kerjaya atau mempunyai keputusan SPM untuk bermula.",
+    "question": "Apakah tahap pendidikan anda sekarang?",
+    "questionHint": "Kami sesuaikan borang keputusan, modul dan cadangan mengikut tahap anda. Boleh ditukar kemudian.",
+    "formLabel": "Tingkatan:",
+    "continue": "Teruskan ke dashboard",
+    "continueTo": "Teruskan ke dashboard {level}",
+    "sideBody": "Pilihan ini boleh ditukar bila-bila masa dalam Profil.",
+    "levels": {
+      "form1_3": {
+        "title": "Tingkatan 1–3",
+        "body": "Kenali minat, isi gred peperiksaan sekolah dan pilih aliran Tingkatan 4.",
+        "short": "Tingkatan {form}"
+      },
+      "form4_5": {
+        "title": "Tingkatan 4–5",
+        "body": "Subjek SPM, gred semasa dan sasaran, simulasi Merit Lab.",
+        "short": "Tingkatan {form}"
+      },
+      "after_spm": {
+        "title": "Lepasan SPM",
+        "body": "Masukkan keputusan SPM sebenar dan semak kelayakan.",
+        "short": "Lepasan SPM"
+      },
+      "after_preu": {
+        "title": "Lepasan STPM / Matrikulasi / Asasi / A-Level",
+        "body": "PNGK, MUET dan gred subjek untuk program ijazah.",
+        "short": "Lepasan pra-universiti"
+      },
+      "after_diploma": {
+        "title": "Lepasan Diploma",
+        "body": "CGPA dan bidang diploma untuk ijazah berkaitan.",
+        "short": "Lepasan Diploma"
+      }
+    }
+  },
+  "admin": {
+    "title": "Konsol admin",
+    "body": "Anda log masuk sebagai admin. Konsol admin sedang dibina dan akan ditambah dalam langkah seterusnya."
+  },
+  "footer": {
+    "disclaimer": "Penafian: EduLaunch ialah platform bebas. Maklumat program dirujuk kepada sumber rasmi institusi dan agensi berkaitan; sila sahkan dengan pihak berkenaan sebelum membuat permohonan. EduLaunch tidak menjamin tawaran kemasukan.",
+    "copyright": "© 2026 EduLaunch. Hak cipta terpelihara."
   }
 }
