@@ -482,7 +482,8 @@ Dokumen akademik hanya memaparkan borang kelayakan yang dipilih (tiada butang ke
 ### 23.6 Skrin Figma
 - Halaman 00, section **E · Logik tahap pelajar** (jadual matriks + peraturan sokongan).
 - Website, section **3.1 · Profil akademik ikut tahap**: Profil T1–3, Dashboard T1–3, Profil T4–5, Profil lepasan pra-U, Profil lepasan Diploma, Modal kemas kini tahap. Lepasan SPM menggunakan W18 sedia ada.
-- **Perlu dikemas kini dalam Figma (26 Okt 2026):** onboarding dan modal tahap kepada 5 tahap baharu (Lepasan Sijil; pra-U & Diploma digabung), modal pilih kelayakan, modal pengesahan padam rekod, borang Lepasan Sijil (Bidang, Program, PNGK/Tahap SKM).
+- **Dikemas kini dalam Figma (26 Okt 2026), website:** `W / Onboarding · Mulakan dari situasi anda` memaparkan 5 tahap baharu; `W / Profil akademik · Lepasan pra-U / Diploma (Diploma)` (dahulu Lepasan Diploma); skrin baharu `W / Profil akademik · Lepasan Sijil (Sijil Politeknik)`, `W / Onboarding · Modal pilih kelayakan (Lepasan Sijil)` dan `W / Profil · Modal sahkan padam rekod`; komponen baharu `Pilihan / Radio` (State Default/Selected, sifat teks Label) dalam section Komponen web.
+- **Belum dikemas kini:** skrin mobile (onboarding, helaian kemas kini tahap, profil Diploma) masih memaparkan tahap lama.
 - Mobile, section **3.1**: Profil T1–3, T4–5, pra-U, Diploma, helaian kemas kini tahap. Onboarding web & mobile kini memilih 5 tahap, setiap pilihan dipautkan ke skrin tahapnya.
 
 ### 23.7 Subjek: tambah, buang dan tangkap data dengan tepat
