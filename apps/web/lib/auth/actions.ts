@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '../i18n/locale';
@@ -129,6 +130,8 @@ export async function chooseEducationLevel(_prev: FormState, form: FormData): Pr
   } catch {
     return { error: 'generic', values };
   }
+  // Every page that depends on the level (results form, profile) shows the new one straight away.
+  revalidatePath('/[lang]', 'layout');
   // Onboarding continues to the portal; the profile page sends people back to itself.
   redirect(safeNext(String(form.get('returnTo') ?? ''), homeFor(locale, 'student')));
 }

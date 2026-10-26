@@ -16,6 +16,8 @@ interface SubjectTableProps {
   years: number[];
   initialYear: number | null;
   initialRows: SubjectRow[];
+  /** The saved record's status, shown until the student edits again. */
+  status: 'none' | 'draft' | 'confirmed';
 }
 
 const SELECT = 'rounded-[9px] border border-line bg-white px-3 py-2 text-sm font-semibold text-navy outline-none focus:border-navy focus:ring-2 focus:ring-navy/15';
@@ -24,10 +26,20 @@ const SELECT = 'rounded-[9px] border border-line bg-white px-3 py-2 text-sm font
  * The results table from the Figma "Profil akademik" screens: one row per subject with a grade,
  * × to remove, "+ Add subject" from the official list. Everything is saved together.
  */
-export function SubjectTable({ locale, variant, t, subjects, grades, years, initialYear, initialRows }: SubjectTableProps) {
+export function SubjectTable({ locale, variant, t, subjects, grades, years, initialYear, initialRows, status }: SubjectTableProps) {
   const [state, action] = useActionState(saveAcademicRecord, {});
-  const [rows, setRows] = useState(initialRows);
-  const [year, setYear] = useState(initialYear ? String(initialYear) : '');
+  const [rows, setRowsState] = useState(initialRows);
+  const [year, setYearState] = useState(initialYear ? String(initialYear) : '');
+  // Any edit after loading or saving means what is on screen is not what is saved.
+  const [edited, setEdited] = useState(false);
+  const setRows = (update: (all: SubjectRow[]) => SubjectRow[]) => {
+    setRowsState(update);
+    setEdited(true);
+  };
+  const setYear = (value: string) => {
+    setYearState(value);
+    setEdited(true);
+  };
   const byId = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects]);
   const available = subjects.filter((s) => !rows.some((r) => r.subjectId === s.id));
   const missing = rows.filter((r) => !r.grade).length;
@@ -39,7 +51,10 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, init
   const categoryOf = (s: SubjectOption | undefined) => t.categories[(s?.category ?? 'other') as keyof typeof t.categories] ?? t.categories.other;
 
   return (
-    <form action={action} className="flex flex-col gap-5">
+    <form action={action} onSubmit={() => setEdited(false)} className="flex flex-col gap-5">
+      <p role="status" className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${edited ? 'bg-cream' : status === 'confirmed' ? 'bg-mint' : 'bg-bg'}`}>
+        {edited ? t.status.unsaved : t.status[status]}
+      </p>
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="variant" value={variant} />
       <input type="hidden" name="subjects" value={JSON.stringify(rows)} />
@@ -146,7 +161,7 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, init
 
       <p className={`rounded-[10px] px-4 py-3 text-[13px] ${isTarget ? 'bg-cream' : 'bg-blue'}`}>{t.notes[variant]}</p>
 
-      {state.saved && (
+      {state.saved && !edited && (
         <p role="status" className="rounded-[10px] bg-mint px-4 py-3 text-sm font-medium">
           {t.saved}
         </p>

@@ -305,7 +305,8 @@
     "status": {
       "none": "Belum diisi",
       "draft": "Draf, belum disahkan",
-      "confirmed": "Disahkan"
+      "confirmed": "Disahkan",
+      "unsaved": "Ada perubahan belum disimpan"
     },
     "errors": {
       "noSubjects": "Tambah sekurang-kurangnya satu subjek.",

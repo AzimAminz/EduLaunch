@@ -189,6 +189,8 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] **+ Tambah subjek** lists only subjects not already in the table; choosing one adds a row. × removes a row.
 - [ ] The grey line under the table counts subjects and those still without a grade; it turns green when all are graded.
 - [ ] Choose the year, give every subject a grade and save: "Disimpan dan disahkan…".
+- [ ] Without reloading, the label at the top of the form changes to **Disahkan**. Change any grade: it says **Ada perubahan belum disimpan** until you save again.
+- [ ] Click your name in the sidebar (no reload): Profil saya already shows the new number of subjects.
 - [ ] Reload the page: the same subjects, grades and year are there, and the status says **Disahkan**.
 - [ ] Switch to **EN**: subject names, headings and messages are in English.
 

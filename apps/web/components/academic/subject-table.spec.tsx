@@ -13,7 +13,7 @@ const subjects = [
   { id: id(3), name: 'Fizik', category: 'science', isMandatory: false },
 ];
 
-function setup(variant: 'target' | 'actual' = 'actual') {
+function setup(variant: 'target' | 'actual' = 'actual', status: 'none' | 'confirmed' = 'none') {
   render(
     <SubjectTable
       locale="ms"
@@ -27,6 +27,7 @@ function setup(variant: 'target' | 'actual' = 'actual') {
         { subjectId: id(1), grade: 'A' },
         { subjectId: id(2), grade: '' },
       ]}
+      status={status}
     />,
   );
 }
@@ -65,6 +66,13 @@ describe('SubjectTable', () => {
       { subjectId: id(2), grade: 'B' },
     ]);
     expect(screen.getByText('Semakan: 2 subjek · semua bergred')).toBeInTheDocument();
+  });
+
+  it('says when what is on screen differs from what is saved', async () => {
+    setup('actual', 'confirmed');
+    expect(screen.getByText('Disahkan')).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Gred Matematik' }), 'B');
+    expect(screen.getByText('Ada perubahan belum disimpan')).toBeInTheDocument();
   });
 
   it('labels target grades as targets', () => {

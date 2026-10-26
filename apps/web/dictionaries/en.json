@@ -305,7 +305,8 @@
     "status": {
       "none": "Not filled in",
       "draft": "Draft, not confirmed",
-      "confirmed": "Confirmed"
+      "confirmed": "Confirmed",
+      "unsaved": "Changes not saved yet"
     },
     "errors": {
       "noSubjects": "Add at least one subject.",

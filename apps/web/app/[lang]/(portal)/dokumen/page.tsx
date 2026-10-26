@@ -74,7 +74,6 @@ async function Academic({ lang, dict }: { lang: Locale; dict: Dictionary }) {
     .filter((s) => s.qualification === form.qualification)
     .map((s) => ({ id: s.id, name: localName(s, lang), category: s.category, isMandatory: s.isMandatory }));
   const rows = record ? sortRows(record.subjects.map((s) => ({ subjectId: s.subjectId, grade: s.grade })), subjects, lang) : startingRows(subjects, lang);
-  const status = record ? t.status[record.status] : t.status.none;
 
   return (
     <>
@@ -87,7 +86,6 @@ async function Academic({ lang, dict }: { lang: Locale; dict: Dictionary }) {
       </header>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
         <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
-          <p className="self-start rounded-full bg-bg px-3 py-1 text-xs font-semibold">{status}</p>
           <SubjectTable
             locale={lang}
             variant={form.variant}
@@ -97,6 +95,7 @@ async function Academic({ lang, dict }: { lang: Locale; dict: Dictionary }) {
             years={examYearsFor(form, new Date().getFullYear())}
             initialYear={record?.examYear ?? null}
             initialRows={rows}
+            status={record?.status ?? 'none'}
           />
         </section>
         <aside className="hidden flex-col gap-3 rounded-[18px] bg-blue p-6 lg:flex">

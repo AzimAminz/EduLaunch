@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isLocale } from '../i18n/locale';
 import { getAccessToken } from '../supabase/server';
@@ -30,5 +31,7 @@ export async function saveAcademicRecord(_prev: RecordFormState, form: FormData)
   } catch {
     return { error: 'generic' };
   }
+  // Re-render this page and any page that shows these results (status, profile summary) without a reload.
+  revalidatePath('/[lang]', 'layout');
   return { saved: true };
 }
