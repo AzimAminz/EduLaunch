@@ -21,7 +21,7 @@ export default async function DirectoryPage({ params, searchParams }: PageProps<
     <>
       <header className="flex flex-col gap-[22px]">
         <p className="text-xs font-semibold leading-tight text-muted">{t.eyebrow}</p>
-        <h1 className="text-[44px] font-bold leading-tight">{t.title}</h1>
+        <h1 className="text-[32px] font-bold leading-tight lg:text-[44px]">{t.title}</h1>
         <p className="text-[15px] leading-tight text-muted">{t.intro}</p>
       </header>
       <Suspense fallback={<div className="h-[164px] rounded-[18px] bg-navy" />}>

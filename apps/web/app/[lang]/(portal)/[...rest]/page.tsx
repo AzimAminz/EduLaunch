@@ -12,7 +12,7 @@ export default async function ComingSoon() {
   if (!isLocale(lang)) notFound();
   const t = (await getDictionary(lang)).soon;
   return (
-    <section className="flex flex-col items-start gap-4 rounded-[22px] bg-white p-10">
+    <section className="flex flex-col items-start gap-4 rounded-[22px] bg-white p-6 lg:p-10">
       <FieldIllustration world="pathway" size={180} />
       <h1 className="text-[32px] font-bold leading-tight">{t.title}</h1>
       <p className="text-[15px] text-muted">{t.body}</p>

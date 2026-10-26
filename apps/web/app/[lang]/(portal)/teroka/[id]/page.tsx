@@ -52,7 +52,7 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
     <>
       <header className="flex flex-col gap-[22px]">
         <p className="text-xs font-semibold uppercase leading-tight text-muted">{institution?.name ?? dict.card.streamProvider}</p>
-        <h1 className="text-[44px] font-bold leading-tight">{programme.name}</h1>
+        <h1 className="text-[32px] font-bold leading-tight lg:text-[44px]">{programme.name}</h1>
         <p className="text-[15px] leading-tight text-muted">{[programmeMeta(programme.studyLevel, programme.durationSemesters, dict), ...fields].join(' • ')}</p>
       </header>
 
