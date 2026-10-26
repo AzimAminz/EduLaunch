@@ -1,6 +1,6 @@
 # EduLaunch — Roadmap
 
-Version 2 · 26 Oct 2026 · current position: **end of Sprint 1**
+Version 3 · 26 Oct 2026 · current position: **middle of Sprint 2**
 
 **Assumptions:** final-year project over two semesters (about 28 weeks), one to three developers, two-week sprints. Capacity split: about 70% features, 20% testing and clean-up, 10% buffer for surprises.
 
@@ -10,12 +10,39 @@ Version 2 · 26 Oct 2026 · current position: **end of Sprint 1**
 
 ## Status overview
 
-- **Done:** 2 of 27 items. Project setup (with one-command local setup) and the eligibility engine.
-- **In Progress:** 10 items. Most back-end services exist with tests; the screens and real programme data do not yet.
-- **Not Started:** 15 items.
-- **At risk:** seed catalogue (blocks every demo) and historical admission data (blocks real offer chances).
+- **Done:** 5 of 28 items. Project setup, CI on GitHub, the eligibility engine, programme search screens, and Bahasa Melayu / English.
+- **In Progress:** 10 items. Back-end services exist with unit and integration tests; most screens and real programme data do not yet.
+- **Not Started:** 13 items.
+- **At risk:** real catalogue data (the sample data is enough for demos, not for real decisions) and historical admission data (blocks real offer chances).
 
-### Changes in this update (v1 → v2)
+### Work steps so far
+
+We build in small steps. Each step has unit tests first, then a manual check in [testing/manual-checklist.md](testing/manual-checklist.md).
+
+| Step | What | Status |
+|---|---|---|
+| 1 | Project setup, one-command bootstrap, CI | **Done** |
+| 2 | Integration tests for every service's database code | **Done** |
+| 3 | Sample catalogue (3 institutions, 14 programmes, marked "Contoh") and `pnpm db:seed` | **Done** (checked by hand) |
+| 4 | Student portal layout, programme directory and programme page, in BM and EN | **Done** (manual check waiting for sign-off) |
+| 5 | Sign up and log in screens (student and admin) | **Next** |
+| 6 | Academic profile screens: education level, subjects and grades | Planned |
+| 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
+| 8 | Admin: edit programmes and review requirements (two-admin rule) | Planned; **M1 demo** after this step |
+
+### Changes in this update (v2 → v3)
+
+| Change | Why |
+|---|---|
+| **CI on GitHub** done; integration tests for all services | Every push is now checked automatically |
+| **Seed catalogue** started with clearly marked sample data | Screens and demos needed data now; real data from official sources still to do |
+| **Programme search** screens done (directory, filters, programme page with requirements) | Step 4 |
+| **Bahasa Melayu / English** moved from "Could have" to **Done** | Team decision: the whole system is bilingual from the start, so every new screen ships in both languages |
+| Programme cards show information only, no pictures | Admins should not have to upload a picture for every programme |
+| Services keep running when RabbitMQ is down | Found during manual testing |
+| New follow-up: recommendation reasons become codes that the web app translates | Reasons are written in English by the back end today |
+
+### Changes in the previous update (v1 → v2)
 
 | Change | Why |
 |---|---|
@@ -34,12 +61,13 @@ Version 2 · 26 Oct 2026 · current position: **end of Sprint 1**
 | Item | Outcome | Status | What is left |
 |---|---|---|---|
 | Project setup | Monorepo, five services + gateway, local Supabase in Docker, one-command bootstrap, unit tests | **Done** | — |
-| CI on GitHub | Build, type-check and tests on every pull request | Not Started | GitHub Actions workflow |
-| Data model | Tables from the ERD in each service's schema, migrations | **In Progress** | Seed data; storage bucket for slips |
-| Seed catalogue | 5 universities, 30–50 programmes, Form 4 streams, a few certificate and skills programmes; requirements entered by hand and checked | Not Started | Collect from official sources; seed script |
+| CI on GitHub | Build, type-check and tests on every pull request | **Done** | — |
+| Bahasa Melayu / English | Every screen and catalogue name in both languages, `/ms` and `/en` addresses, remembered choice | **Done** | Keep adding both languages for each new screen |
+| Data model | Tables from the ERD in each service's schema, migrations | **In Progress** | Storage bucket for slips |
+| Seed catalogue | 5 universities, 30–50 programmes, Form 4 streams, a few certificate and skills programmes; requirements entered by hand and checked | **In Progress** | Real data from official sources (seed script and 14 sample programmes are done) |
 | Accounts | Sign up, log in, reset password, choose education level | **In Progress** | Sign-in screens (sessions and level API are done) |
 | Academic profile (manual) | Subjects from the catalogue, add/remove, grade validation | **In Progress** | Screens (API with grade checks is done) |
-| Programme search | University + field comboboxes, programme details | **In Progress** | Screens (search and detail API are done) |
+| Programme search | University + field comboboxes, programme details | **Done** | — |
 | Eligibility engine | Eligible / almost / not yet, with the reason for each rule | **Done** | — |
 | Admin catalogue | Create and edit institutions, programmes, requirements (draft → second-admin approval → publish) | **In Progress** | Programme/institution editing API; admin screens (requirement review workflow is done) |
 
@@ -82,9 +110,9 @@ Version 2 · 26 Oct 2026 · current position: **end of Sprint 1**
 | Sprint | Weeks | Goal | Status |
 |---|---|---|---|
 | 1 | 1–2 | Setup, database schema, auth, service skeletons | **Done** (plus early back end for Sprints 2–9) |
-| 2 | 3–4 | **Seed catalogue**; CI; programme search and detail screens; admin programme editing | Next |
-| 3 | 5–6 | Sign-in screens; academic profile screens with subject picker | |
-| 4 | 7–8 | Eligibility on screen with real data; requirement review screens; **M1 demo** | |
+| 2 | 3–4 | **Seed catalogue**; CI; programme search and detail screens; BM/EN | **In Progress** (all done except real catalogue data) |
+| 3 | 5–6 | Sign-in screens; academic profile screens with subject picker | Next |
+| 4 | 7–8 | Eligibility on screen with real data; admin programme editing; requirement review screens; **M1 demo** | |
 | 5 | 9–10 | Interest test and activities | |
 | 6 | 11–12 | Recommendation dashboard card; merit calculator | |
 | 7 | 13–14 | Slip upload, OCR, review screen | |
@@ -106,11 +134,12 @@ Version 2 · 26 Oct 2026 · current position: **end of Sprint 1**
 | Academic profile with subject add/remove | Prediction v1 | Ask AI (RAG) | Native iOS / Android apps |
 | Programme search | Interest test + activities | Content pipeline automation | Payments or applications on behalf of students |
 | Eligibility engine | Study roadmap | PWA install | Self-hosted cloud GPU |
-| Recommendation with reasons | Notifications | English / Malay switch | Coverage of every institution in Malaysia |
-| Admin catalogue with draft → publish | Merit calculator | API documentation page (Swagger) | |
+| Recommendation with reasons | Notifications | API documentation page (Swagger) | Coverage of every institution in Malaysia |
+| Admin catalogue with draft → publish | Merit calculator | | |
 | Seed catalogue | Alternative pathways for students who do not qualify yet | | |
 | Plain-language admin console: task-first home, step-by-step wizards, help on each screen | Admin practice mode (sandbox with sample data and missions) | | |
 | CI on GitHub | Staging deployment | | |
+| Bahasa Melayu and English for every screen | | | |
 
 ---
 
@@ -118,7 +147,7 @@ Version 2 · 26 Oct 2026 · current position: **end of Sprint 1**
 
 | Item | Depends on | Risk if late |
 |---|---|---|
-| Every screen and demo | Seed catalogue | Nothing meaningful to show |
+| Real decisions by students | Real catalogue data from official sources | Sample data must stay clearly marked "Contoh" |
 | Recommendation | Eligibility engine (done), interest test, seed catalogue | No core demo |
 | Alternative pathways | Certificate/skills programmes and pathways in the catalogue | Students with weak results see only "almost eligible" options |
 | Prediction | Historical cut-off data (`ADMISSION_STAT`) | Show "No data"; do not block the release |
@@ -140,6 +169,7 @@ Version 2 · 26 Oct 2026 · current position: **end of Sprint 1**
 | Teammates' machines differ (Windows/Mac) | Medium | `pnpm doctor` checks tools; setup guide covers both |
 | Free AI tier changes | Medium | Provider-agnostic AI client; local model fallback |
 | Wrong requirement data | Medium | Admin approval, quotes as evidence, golden-set checks |
+| A screen ships in one language only | Low | Tests check both dictionaries have the same keys; guideline in CONTRIBUTING |
 | Team availability around exams | Medium | 10% buffer; milestones before exam weeks |
 
 ---
