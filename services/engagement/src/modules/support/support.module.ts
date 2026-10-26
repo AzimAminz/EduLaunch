@@ -15,7 +15,7 @@ export abstract class TicketRepository {
 }
 
 @Injectable()
-class DrizzleTicketRepository extends TicketRepository {
+export class DrizzleTicketRepository extends TicketRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database<typeof schema>) {
     super();
   }
