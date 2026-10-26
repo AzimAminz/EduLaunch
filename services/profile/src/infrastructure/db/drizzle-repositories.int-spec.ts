@@ -116,7 +116,7 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     school.replaceSubjects([{ subjectId: subject.math, grade: 'B' }]);
     await records.save(school);
 
-    expect((await records.findCurrent(s.id, 'spm', 'target'))?.id).toBe(target.id);
+    expect((await records.findCurrent(s.id, 'spm', 'target', 2026))?.id).toBe(target.id);
     expect((await records.findCurrent(s.id, 'school', 'school', 2025))?.subjects).toEqual([{ subjectId: subject.math, grade: 'B', customName: null, readConfidence: null }]);
     expect(await records.findCurrent(s.id, 'spm', 'actual')).toBeNull();
   });

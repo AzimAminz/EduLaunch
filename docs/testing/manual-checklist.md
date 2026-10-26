@@ -178,7 +178,7 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 - [ ] Open **Dokumen akademik** in the sidebar. The form matches your level:
   - Tingkatan 1–3: **Prestasi sekolah anda**, grades A–F, with a tab for each year (Form 1, 2, 3).
-  - Tingkatan 4–5: **Subjek SPM & sasaran**, yellow grade boxes and the note that targets are not official results.
+  - Tingkatan 4–5: **Subjek SPM & sasaran**, white grade boxes like the other forms, and the note that targets are not official results. Form 4 shows one tab (**Tingkatan 4 · this year**); Form 5 shows **Tingkatan 5 · this year** and **Tingkatan 4 · last year**, with a note that the Form 4 tab is optional. Grades saved in Form 4 are still there after moving to Form 5.
   - Lepasan SPM: **Keputusan SPM sebenar**.
   - Lepasan Sijil / SVM / SKM, or Lepasan pra-U / Diploma: two tabs, **Kelayakan** and **SPM asas** (see D).
 - [ ] A new form starts with the compulsory subjects and no grades. The label at the top says **Belum diisi**.

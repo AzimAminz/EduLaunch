@@ -96,7 +96,8 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
 
   async findCurrent(studentId: string, qualification: RecordQualification, kind: RecordKind, examYear: number | null = null) {
     const conditions = [eq(academicRecords.studentId, studentId), eq(academicRecords.qualification, qualification), eq(academicRecords.recordKind, kind)];
-    if (kind === 'school') conditions.push(examYear === null ? isNull(academicRecords.examYear) : eq(academicRecords.examYear, examYear));
+    // School results and Form 4–5 grades are kept per year (one record per form).
+    if (kind === 'school' || kind === 'target') conditions.push(examYear === null ? isNull(academicRecords.examYear) : eq(academicRecords.examYear, examYear));
     const [row] = await this.db
       .select()
       .from(academicRecords)

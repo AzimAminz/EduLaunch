@@ -11,7 +11,7 @@ import { fieldName, getReferenceData, localName } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getCurrentRecord, getMe, listRecords, type AcademicRecord } from '@/lib/profile/api';
-import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, schoolTabsFor, sortRows, startingRows, type HigherQualification, type RecordVariant, type SubjectOption } from '@/lib/profile/records';
+import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, formTabsFor, sortRows, startingRows, type HigherQualification, type RecordVariant, type SubjectOption } from '@/lib/profile/records';
 import { getAccessToken } from '@/lib/supabase/server';
 
 const SIDE_IMAGE: Record<RecordVariant, string> = {
@@ -170,13 +170,13 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
   // ── School grades, SPM targets, actual SPM, or the basic SPM part of a higher level ──
   const form = recordFormFor(level);
   const years = examYearsFor(form, thisYear, formYear);
-  const tabs = schoolTabsFor(formYear, thisYear);
+  const tabs = formTabsFor(form, formYear, thisYear);
   const wantedYear = Number(param('tahun'));
-  // School results are kept per year: the year in the address, else the newest saved one, else this year.
-  const schoolYear =
-    form.kind === 'school'
-      ? (years.find((y) => y === wantedYear) ?? history.find((r) => r.kind === 'school' && r.examYear && years.includes(r.examYear))?.examYear ?? thisYear)
-      : null;
+  // Form 1–5 results are kept per form (year): the year in the address, else the current form (this year).
+  const schoolYear = form.kind === 'school' || form.kind === 'target' ? (years.find((y) => y === wantedYear) ?? thisYear) : null;
+  const tab = tabs.find((x) => x.year === schoolYear);
+  // An earlier form's tab is optional: fill it if you have those grades; saved ones stay as history.
+  const earlierForm = tab && tab.year !== thisYear ? tab.form : null;
   const loaded = await loadRecord(token, form.qualification, form.kind, schoolYear);
   if (!loaded.ok) return <LoadError text={t.loadError} />;
   const record = loaded.record;
@@ -190,18 +190,19 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
         <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
           {schoolYear !== null && (
             <nav aria-label={t.yearTabs} className="flex flex-wrap gap-2">
-              {tabs.map((tab) => (
+              {tabs.map((item) => (
                 <Link
-                  key={tab.year}
-                  href={`/${lang}/dokumen?tahun=${tab.year}`}
-                  aria-current={tab.year === schoolYear ? 'page' : undefined}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold ${tab.year === schoolYear ? 'bg-navy text-white' : 'bg-bg hover:bg-blue'}`}
+                  key={item.year}
+                  href={`/${lang}/dokumen?tahun=${item.year}`}
+                  aria-current={item.year === schoolYear ? 'page' : undefined}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold ${item.year === schoolYear ? 'bg-navy text-white' : 'bg-bg hover:bg-blue'}`}
                 >
-                  {format(t.schoolTab, tab)}
+                  {format(t.schoolTab, item)}
                 </Link>
               ))}
             </nav>
           )}
+          {earlierForm !== null && <p className="rounded-[10px] bg-blue px-4 py-3 text-[13px]">{format(t.earlierFormHint, { form: earlierForm })}</p>}
           <SubjectTable
             // A different form (level or year) starts from its own saved rows; saving keeps the form (and its notice).
             key={`${form.variant}-${schoolYear ?? ''}`}

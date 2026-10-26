@@ -61,7 +61,7 @@ export class AcademicRecordService {
 
   /** Saves the whole results form: creates the record the first time, replaces every row, and confirms it. */
   async saveCurrent(caller: Caller, input: SaveRecordInput) {
-    if (input.kind === 'school' && input.examYear === null) throw new DomainError('invalid_record', 'Choose the year of these school results');
+    if ((input.kind === 'school' || input.kind === 'target') && input.examYear === null) throw new DomainError('invalid_record', 'Choose the year (form) of these results');
     const { studentId } = await this.me.execute(caller);
     const record =
       (await this.records.findCurrent(studentId, input.qualification, input.kind, input.examYear)) ??

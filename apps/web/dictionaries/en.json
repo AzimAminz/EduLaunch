@@ -363,7 +363,7 @@
       "empty": "No records saved yet.",
       "labels": {
         "school": "School results {year}",
-        "target": "SPM targets {year}",
+        "target": "Form 4–5 grades {year}",
         "actual": "SPM results {year}",
         "stpm": "STPM {year}",
         "matriculation": "Matriculation {year}",
@@ -387,7 +387,8 @@
       "readOnly": "This record is shown for reference. To edit it, choose the matching education level in your Profile."
     },
     "schoolTab": "Form {form} · {year}",
-    "limitReached": "You have reached the limit of {max} subjects. Remove one that does not apply to add another."
+    "limitReached": "You have reached the limit of {max} subjects. Remove one that does not apply to add another.",
+    "earlierFormHint": "Optional: fill in your Form {form} grades if you have them. Saved grades stay as history."
   },
   "profile": {
     "eyebrow": "PERSONAL SPACE",

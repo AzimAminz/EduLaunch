@@ -363,7 +363,7 @@
       "empty": "Belum ada rekod disimpan.",
       "labels": {
         "school": "Prestasi sekolah {year}",
-        "target": "Sasaran SPM {year}",
+        "target": "Gred Tingkatan 4–5 {year}",
         "actual": "Keputusan SPM {year}",
         "stpm": "STPM {year}",
         "matriculation": "Matrikulasi {year}",
@@ -387,7 +387,8 @@
       "readOnly": "Rekod ini dipaparkan untuk rujukan. Untuk menyuntingnya, buka tahap pendidikan yang berkaitan di Profil."
     },
     "schoolTab": "Tingkatan {form} · {year}",
-    "limitReached": "Had {max} subjek dicapai. Buang subjek yang tidak berkenaan untuk menambah subjek lain."
+    "limitReached": "Had {max} subjek dicapai. Buang subjek yang tidak berkenaan untuk menambah subjek lain.",
+    "earlierFormHint": "Pilihan: isi gred Tingkatan {form} jika anda ada. Jika sudah disimpan, ia kekal sebagai sejarah."
   },
   "profile": {
     "eyebrow": "RUANG PERIBADI",

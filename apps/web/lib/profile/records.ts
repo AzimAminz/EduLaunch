@@ -40,19 +40,23 @@ export const historyKind = (record: { qualification: string; kind: string }): Hi
 export const gradesFor = (qualification: RecordForm['qualification']): readonly string[] => GradeScales[qualification];
 
 /**
- * School results have one tab per year the student has been in secondary school:
- * Form 1 this year only; Form 2 this year (Form 2) and last year (Form 1); Form 3 three years. Newest first.
+ * School results (Form 1–3) and Form 4–5 grades have one tab per form the student has been in, newest first:
+ * Form 1 this year; Form 2 this year and last year (Form 1); Form 3 three years.
+ * Form 4 this year; Form 5 this year and last year (Form 4).
  * The profile service keeps the same years when the form changes (retention.ts).
  */
-export function schoolTabsFor(formYear: number | null, thisYear: number): Array<{ form: number; year: number }> {
+export function formTabsFor(form: RecordForm, formYear: number | null, thisYear: number): Array<{ form: number; year: number }> {
+  if (form.kind === 'target') {
+    const current = formYear === 5 ? 5 : 4;
+    return Array.from({ length: current - 3 }, (_, i) => ({ form: current - i, year: thisYear - i }));
+  }
   const forms = Math.min(Math.max(formYear ?? 1, 1), 3);
   return Array.from({ length: forms }, (_, i) => ({ form: forms - i, year: thisYear - i }));
 }
 
-/** Exam years to choose from, newest first. Targets are ahead; actual results are in the past. */
+/** Years the form saves under: one per form tab for Form 1–5; for actual SPM, the past six years. */
 export function examYearsFor(form: RecordForm, thisYear: number, formYear: number | null = null): number[] {
-  if (form.kind === 'target') return [thisYear, thisYear + 1, thisYear + 2];
-  if (form.kind === 'school') return schoolTabsFor(formYear, thisYear).map((tab) => tab.year);
+  if (form.kind === 'school' || form.kind === 'target') return formTabsFor(form, formYear, thisYear).map((tab) => tab.year);
   return Array.from({ length: 6 }, (_, i) => thisYear - i);
 }
 

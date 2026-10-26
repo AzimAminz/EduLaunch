@@ -1,7 +1,7 @@
-import { recordsToRemove, schoolYearsFor, type RecordSummary } from './retention.js';
+import { recordsToRemove, schoolYearsFor, upperFormYearsFor, type RecordSummary } from './retention.js';
 
 const school = (year: number): RecordSummary => ({ id: `school-${year}`, qualification: 'school', kind: 'school', examYear: year });
-const target: RecordSummary = { id: 'target', qualification: 'spm', kind: 'target', examYear: 2027 };
+const target: RecordSummary = { id: 'target', qualification: 'spm', kind: 'target', examYear: 2026 };
 const spm: RecordSummary = { id: 'spm', qualification: 'spm', kind: 'actual', examYear: 2025 };
 const foundation: RecordSummary = { id: 'foundation', qualification: 'foundation', kind: 'actual', examYear: 2026 };
 const diploma: RecordSummary = { id: 'diploma', qualification: 'diploma', kind: 'actual', examYear: 2026 };
@@ -51,7 +51,13 @@ describe('recordsToRemove', () => {
     expect(removed([spm, svm], { level: 'after_spm', formYear: null, higherQualification: null })).toEqual(['svm']);
   });
 
-  it('keeps SPM targets when moving between Form 4 and Form 5', () => {
-    expect(removed([target], { level: 'form4_5', formYear: 4, higherQualification: null })).toEqual([]);
+  it('keeps Form 4 grades when moving up to Form 5, and removes last year when going back to Form 4', () => {
+    const f4 = { ...target, id: 'f4', examYear: 2025 };
+    const f5 = { ...target, id: 'f5', examYear: 2026 };
+    expect(upperFormYearsFor(4, 2026)).toEqual([2026]);
+    expect(upperFormYearsFor(5, 2026)).toEqual([2026, 2025]);
+    expect(removed([f4, f5], { level: 'form4_5', formYear: 5, higherQualification: null })).toEqual([]);
+    expect(removed([f4, f5], { level: 'form4_5', formYear: 4, higherQualification: null })).toEqual(['f4']);
+    expect(removed([f4, f5], { level: 'after_spm', formYear: null, higherQualification: null })).toEqual([]);
   });
 });

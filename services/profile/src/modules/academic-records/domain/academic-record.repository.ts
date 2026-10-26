@@ -5,7 +5,7 @@ export abstract class AcademicRecordRepository {
   abstract findById(id: string): Promise<AcademicRecord | null>;
   abstract findLatestConfirmed(studentId: string): Promise<AcademicRecord | null>;
   /** The student's record of this kind (for example their SPM target grades), draft or confirmed. */
-  /** School grades are kept per year (Form 1, 2, 3…), so `examYear` picks which one; SPM records ignore it. */
+  /** School grades and Form 4–5 grades are kept per year (one per form), so `examYear` picks which one; actual SPM ignores it. */
   abstract findCurrent(studentId: string, qualification: RecordQualification, kind: RecordKind, examYear?: number | null): Promise<AcademicRecord | null>;
   /** Every record of the student, newest exam year first: their academic history across levels. */
   abstract listByStudent(studentId: string): Promise<AcademicRecord[]>;

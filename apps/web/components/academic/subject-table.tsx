@@ -92,7 +92,6 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
         rows={rows}
         onChange={setRows}
         gradeColumn={t.colGrade[variant]}
-        highlight={isTarget}
         showMissing={showErrors}
       />
 

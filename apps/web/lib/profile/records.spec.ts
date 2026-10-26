@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { examYearsFor, schoolTabsFor, higherChoicesFor, matchOfficialSubject, parseCgpa, parseHigherSubmission, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
+import { examYearsFor, formTabsFor, higherChoicesFor, matchOfficialSubject, parseCgpa, parseHigherSubmission, parseRecordSubmission, recordFormFor, sortRows, startingRows } from './records';
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
 const subjects = [
@@ -27,7 +27,8 @@ describe('recordFormFor', () => {
 
 describe('examYearsFor', () => {
   it('looks ahead for targets and back for results', () => {
-    expect(examYearsFor(recordFormFor('form4_5'), 2026)).toEqual([2026, 2027, 2028]);
+    expect(examYearsFor(recordFormFor('form4_5'), 2026, 4)).toEqual([2026]);
+    expect(examYearsFor(recordFormFor('form4_5'), 2026, 5)).toEqual([2026, 2025]);
     expect(examYearsFor(recordFormFor('form1_3'), 2026, 3)).toEqual([2026, 2025, 2024]);
     expect(examYearsFor(recordFormFor('form1_3'), 2026, 1)).toEqual([2026]);
     expect(examYearsFor(recordFormFor('after_spm'), 2026)[0]).toBe(2026);
@@ -147,13 +148,23 @@ describe('results after SPM', () => {
   });
 });
 
-describe('schoolTabsFor', () => {
-  it('has one tab per year in secondary school, named by form', () => {
-    expect(schoolTabsFor(1, 2026)).toEqual([{ form: 1, year: 2026 }]);
-    expect(schoolTabsFor(2, 2026)).toEqual([
+describe('formTabsFor', () => {
+  const school = recordFormFor('form1_3');
+  it('has one tab per year in Form 1–3, named by form', () => {
+    expect(formTabsFor(school, 1, 2026)).toEqual([{ form: 1, year: 2026 }]);
+    expect(formTabsFor(school, 2, 2026)).toEqual([
       { form: 2, year: 2026 },
       { form: 1, year: 2025 },
     ]);
-    expect(schoolTabsFor(3, 2026).map((t) => `${t.form}:${t.year}`)).toEqual(['3:2026', '2:2025', '1:2024']);
+    expect(formTabsFor(school, 3, 2026).map((t) => `${t.form}:${t.year}`)).toEqual(['3:2026', '2:2025', '1:2024']);
+  });
+
+  it('shows Form 4 alone, and Form 5 with last year as Form 4', () => {
+    const upper = recordFormFor('form4_5');
+    expect(formTabsFor(upper, 4, 2026)).toEqual([{ form: 4, year: 2026 }]);
+    expect(formTabsFor(upper, 5, 2026)).toEqual([
+      { form: 5, year: 2026 },
+      { form: 4, year: 2025 },
+    ]);
   });
 });
