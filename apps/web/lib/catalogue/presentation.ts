@@ -24,21 +24,3 @@ export const WORLD_CELL: Record<World, { col: number; row: number }> = {
   documents: { col: 1, row: 1 },
   pathway: { col: 2, row: 1 },
 };
-
-// Background colours follow the Figma cards: technology on blue, science on yellow, design on mint.
-// Checked in priority order across all of a programme's fields: core sciences beat computing,
-// computing beats engineering (so software engineering shows a laptop). "Sains Sosial" is deliberately not science.
-const RULES: Array<{ match: RegExp; world: World; background: string }> = [
-  { match: /design|seni|reka bentuk/i, world: 'design', background: '#ddf4e9' },
-  { match: /pure science|sains tulen|health|kesihatan|perubatan|medic/i, world: 'science', background: '#ffd84d' },
-  { match: /comput|komputer|\bIT\b|teknologi maklumat|technical|teknikal|vokasional/i, world: 'technology', background: '#e3ecff' },
-  { match: /engineer|kejurutera/i, world: 'science', background: '#ffd84d' },
-];
-
-/** Chooses the card illustration from the programme's field names (first matching rule wins). */
-export function worldForFields(fieldNames: string[]): { world: World; background: string } {
-  for (const rule of RULES) {
-    if (fieldNames.some((name) => rule.match.test(name))) return { world: rule.world, background: rule.background };
-  }
-  return { world: 'campus', background: '#fff4c7' };
-}

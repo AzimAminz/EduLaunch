@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { SearchPanel } from '@/components/catalogue/search-panel';
 import { ProgrammeCard, type RequirementStatus } from '@/components/catalogue/programme-card';
 import { fieldName, getPublishedRequirements, getReferenceData, searchProgrammes } from '@/lib/catalogue/api';
-import { programmeMeta, worldForFields } from '@/lib/catalogue/presentation';
+import { programmeMeta } from '@/lib/catalogue/presentation';
 import { filtersToQuery, parseFilters } from '@/lib/catalogue/search-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
@@ -99,7 +99,6 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {page.items.map((p) => {
           const fields = p.fieldIds.map((id) => fieldsById.get(id)).filter((f) => f !== undefined);
-          const visual = worldForFields(fields.flatMap((f) => [f.name, f.nameEn ?? '']));
           return (
             <ProgrammeCard
               key={p.id}
@@ -108,8 +107,7 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
               programmeName={p.name}
               institutionName={p.institutionId ? (institutionName.get(p.institutionId) ?? '') : dict.card.streamProvider}
               meta={programmeMeta(p.studyLevel, p.durationSemesters, dict)}
-              world={visual.world}
-              background={visual.background}
+              fields={fields.map((f) => fieldName(f, lang))}
               requirementStatus={statusFor(p.id)}
               labels={dict.card}
             />

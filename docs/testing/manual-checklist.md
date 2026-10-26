@@ -75,10 +75,10 @@ Tested by: ____________ Date: ____________
 
 ### B. Directory (http://localhost:3000/ms/teroka)
 
-- [ ] The page looks like the Figma screen "Portal / Public directory": sidebar on the left with **Teroka program** highlighted, navy search panel, cards with illustrations.
+- [ ] Sidebar on the left with **Teroka program** highlighted, and the navy search panel as in the Figma screen "Portal / Public directory".
 - [ ] It says **14 program dijumpai**, and that the list includes sample data.
-- [ ] Stream cards say **Sekolah menengah**; other cards show the university name.
-- [ ] Illustrations: Diploma Sains Komputer shows a laptop on blue; Aliran Sains Tulen shows a microscope on yellow; Diploma Multimedia Kreatif shows the easel on mint; Aliran Sains Sosial / Sastera shows the campus.
+- [ ] Each card shows information only (no pictures): programme name as the title, the institution under it (**Sekolah menengah** for streams), level and length, field tags, and the requirement status with a coloured dot.
+- [ ] The "Lihat program & syarat" buttons line up at the bottom of each row.
 
 ### C. Searching
 
