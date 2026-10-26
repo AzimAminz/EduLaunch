@@ -60,3 +60,47 @@ Tip: in Chrome or Edge, tick **Pretty-print** at the top of a JSON page to make 
 **Result:** ☐ All passed ☐ Problems found (describe below)
 
 Tested by: ____________ Date: ____________
+
+---
+
+## Step 4 · Programme directory and programme page (BM and EN)
+
+**Before you start:** `pnpm dev` is running and `pnpm db:seed` has been run once.
+
+### A. Language
+
+- [ ] Open http://localhost:3000. It goes to **/ms/teroka** (or **/en/teroka** if your browser is set to English).
+- [ ] Click **EN** at the bottom of the sidebar. The address becomes /en/teroka and every label is in English. Click **BM** to go back.
+- [ ] Close the tab, open http://localhost:3000 again. It remembers the language you chose last.
+
+### B. Directory (http://localhost:3000/ms/teroka)
+
+- [ ] The page looks like the Figma screen "Portal / Public directory": sidebar on the left with **Teroka program** highlighted, navy search panel, cards with illustrations.
+- [ ] It says **14 program dijumpai**, and that the list includes sample data.
+- [ ] Stream cards say **Sekolah menengah**; other cards show the university name.
+- [ ] Illustrations: Diploma Sains Komputer shows a laptop on blue; Aliran Sains Tulen shows a microscope on yellow; Diploma Multimedia Kreatif shows the easel on mint; Aliran Sains Sosial / Sastera shows the campus.
+
+### C. Searching
+
+- [ ] Click **Universiti**, type `komuniti`. Only "Kolej Komuniti Contoh C" is left. Press **Enter**, then **Cari program**: 2 programmes.
+- [ ] Click **Bidang / jurusan**, use the arrow keys and Enter to choose **Kejuruteraan**, set **Peringkat** to Diploma, search: only **Diploma Kejuruteraan Elektrik**.
+- [ ] Type something that matches nothing in a dropdown: it says **Tiada padanan**. Press **Escape**: the previous choice comes back.
+- [ ] Choose filters that give no results (for example Kolej Komuniti Contoh C + Ijazah): the "Tiada program sepadan" box appears with **Kosongkan penapis**.
+- [ ] Copy the address of a filtered search into a new tab: the same results and the same filters appear.
+
+### D. Programme page
+
+- [ ] Click **Lihat program & syarat** on Diploma Sains Komputer.
+  - Header: POLITEKNIK CONTOH B, the programme name, "Diploma • 3 tahun • Komputer & Teknologi Maklumat".
+  - Requirements: Laluan kemasukan "Lepasan SPM", then Bahasa Melayu C, Matematik B, **Salah satu daripada** Fizik, Sains atau Matematik Tambahan, Bahasa Inggeris E, and "Pengesahan sumber" saying it is a sample record.
+  - Right panel lists the 4 source sentences and shows the documents illustration with no slice of another picture at its edge.
+- [ ] Switch to **EN** on this page: it stays on the same programme; subjects become Malay Language, Mathematics, Physics…; the quoted source sentences stay in Malay (they are copied from the source).
+- [ ] Open http://localhost:3000/ms/teroka/bukan-id: a "Program ini tidak dijumpai" page, not an error.
+
+### E. Sidebar
+
+- [ ] Click **Banding** (or any item other than Teroka program): a "Sedang dibina" page with a button back to the directory.
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________

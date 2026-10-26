@@ -30,6 +30,14 @@ Keep business rules out of controllers and repositories, so they can be tested w
 
 Integration tests create their own rows with new IDs and delete them at the end, so they never change anyone's data.
 
+## Two languages (Bahasa Melayu and English)
+
+EduLaunch is fully bilingual. Pages live under `/ms/...` and `/en/...`.
+
+- Never write user-facing text directly in a component. Add it to **both** `apps/web/dictionaries/ms.json` and `en.json`; a unit test fails if the two files have different keys or placeholders.
+- Data that students read (field and subject names) has a Bahasa Melayu column and an `_en` column. Official names (programmes, institutions) and quotes from official sources are shown exactly as published.
+- API error messages are for developers; the website shows its own translated messages.
+
 ## Commit messages
 
 Short and in the imperative: `Add stream suggestion scoring`, `Fix offer chance when no data`.

@@ -6,7 +6,7 @@
 
 **Know what you can study, find what suits you, and see how to get there.**
 
-An education and career planning platform for students in Malaysia.
+An education and career planning platform for students in Malaysia, in Bahasa Melayu and English.
 
 <img src="docs/design/brand/edulaunch-campus-world.png" width="720" alt="Rimau, the EduLaunch tiger mascot, standing on an open book with paths leading to a university, science, technology and design" />
 
