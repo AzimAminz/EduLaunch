@@ -107,7 +107,11 @@
       "diploma": "Lepasan Diploma",
       "form3": "Tingkatan 3 (pilihan aliran)",
       "sijil": "Lepasan Sijil",
-      "a_level": "Lepasan A-Level"
+      "a_level": "Lepasan A-Level",
+      "svm": "Lepasan SVM",
+      "skm": "Lepasan SKM",
+      "dvm": "Lepasan DVM",
+      "dkm": "Lepasan DKM / DLKM"
     }
   },
   "soon": {
@@ -255,8 +259,346 @@
     }
   },
   "admin": {
-    "title": "Konsol admin",
-    "body": "Anda log masuk sebagai admin. Konsol admin sedang dibina dan akan ditambah dalam langkah seterusnya."
+    "consoleName": "Ruang pentadbiran",
+    "nav": {
+      "home": "Laman utama",
+      "tasks": "Peti tugasan",
+      "groupWork": "Kerja hari ini",
+      "groupProgramme": "Maklumat program",
+      "programmes": "Universiti & program",
+      "institutions": "Institusi"
+    },
+    "status": {
+      "draft": "Draf",
+      "in_review": "Menunggu semakan",
+      "returned": "Dipulangkan",
+      "published": "Diterbitkan",
+      "archived": "Diarkib"
+    },
+    "you": "anda",
+    "anotherAdmin": "admin lain",
+    "seedData": "data asal",
+    "time": {
+      "justNow": "baru tadi",
+      "minutes": "{n} minit lalu",
+      "hours": "{n} jam lalu",
+      "days": "{n} hari lalu"
+    },
+    "home": {
+      "greeting": "Selamat datang, {name}",
+      "intro": "Apa yang anda mahu buat hari ini? Pilih satu, dan kami bawa anda langkah demi langkah.",
+      "review": {
+        "title": "Semak draf yang menunggu",
+        "body": "Admin lain sudah sediakan perubahan. Bandingkan yang lama dengan yang baharu, kemudian luluskan atau pulangkan.",
+        "count": "{count} menunggu anda",
+        "none": "Tiada draf menunggu",
+        "action": "Mula semak"
+      },
+      "requirements": {
+        "title": "Kemas kini syarat program",
+        "body": "Ada prospektus atau pekeliling baharu? Pilih program dan laluan, tunjukkan sumber, kemudian tulis syarat.",
+        "hint": "Biasanya 5 minit",
+        "action": "Pilih program"
+      },
+      "programme": {
+        "title": "Tambah program baharu",
+        "body": "Isi institusi, nama, peringkat dan bidang. Pelajar hanya nampak selepas admin lain meluluskannya.",
+        "action": "Tambah program"
+      },
+      "yourWork": "Kerja anda",
+      "returned": "Dipulangkan kepada anda",
+      "drafts": "Draf anda",
+      "waiting": "Menunggu admin lain",
+      "empty": "Tiada kerja tertunggak. Mulakan dengan salah satu tugas di atas.",
+      "catalogue": "Katalog",
+      "published": "{count} program diterbitkan",
+      "withoutRequirements": "{count} belum ada syarat diterbitkan",
+      "how": {
+        "title": "Cara ruang admin berfungsi",
+        "steps": [
+          "Anda sediakan draf. Pelajar belum nampak apa-apa.",
+          "Admin lain menyemak. Anda tidak boleh meluluskan kerja sendiri.",
+          "Selepas diluluskan, pelajar terus nampak versi baharu."
+        ]
+      }
+    },
+    "tasks": {
+      "title": "Peti tugasan",
+      "intro": "Semua draf yang belum diterbitkan. Yang paling lama menunggu berada di atas.",
+      "tabs": {
+        "toReview": "Untuk saya",
+        "returned": "Dipulangkan",
+        "myDrafts": "Draf saya",
+        "waiting": "Menunggu admin lain"
+      },
+      "columns": {
+        "record": "Rekod",
+        "status": "Status",
+        "updated": "Dikemas kini"
+      },
+      "programme": "Program baharu atau disunting",
+      "requirement": "Syarat {route} · versi {version}",
+      "review": "Semak",
+      "open": "Buka",
+      "reason": "Sebab dipulangkan: {reason}",
+      "empty": {
+        "toReview": "Tiada draf menunggu semakan anda.",
+        "returned": "Tiada draf dipulangkan kepada anda.",
+        "myDrafts": "Anda tiada draf yang belum dihantar.",
+        "waiting": "Tiada draf anda yang sedang menunggu."
+      }
+    },
+    "programmes": {
+      "title": "Universiti & program",
+      "intro": "{total} program. Perubahan disimpan sebagai draf dan hanya kelihatan kepada pelajar selepas admin lain meluluskannya.",
+      "add": "Tambah program",
+      "search": "Cari program atau institusi",
+      "searchButton": "Cari",
+      "allStatus": "Semua status",
+      "columns": {
+        "programme": "Program",
+        "institution": "Institusi",
+        "level": "Peringkat",
+        "requirements": "Syarat diterbitkan",
+        "status": "Status"
+      },
+      "noRequirements": "Belum ada",
+      "openDrafts": "{count} draf",
+      "empty": "Tiada program sepadan.",
+      "how": {
+        "title": "Cara modul ini berfungsi",
+        "steps": [
+          "Anda menambah atau menyunting program sebagai draf.",
+          "Draf masuk ke Peti tugasan admin lain. Anda tidak meluluskan draf sendiri.",
+          "Selepas diluluskan, pelajar nampak program ini dalam direktori."
+        ]
+      }
+    },
+    "programmeForm": {
+      "newTitle": "Tambah program baharu",
+      "newIntro": "Program baharu disimpan sebagai draf. Pelajar tidak nampak sehingga admin lain meluluskannya.",
+      "institution": "Institusi",
+      "institutionPlaceholder": "Pilih institusi",
+      "noInstitution": "Institusi tiada dalam senarai? Tambah di halaman Institusi dahulu.",
+      "name": "Nama program",
+      "namePlaceholder": "cth. Diploma Sains Komputer",
+      "level": "Peringkat",
+      "levelPlaceholder": "Pilih peringkat",
+      "duration": "Tempoh (semester)",
+      "durationHint": "Contoh: 6 semester untuk diploma 3 tahun.",
+      "fields": "Bidang",
+      "fieldsPlaceholder": "Cari bidang",
+      "fieldsHint": "Pilih satu atau lebih bidang (sehingga 10). Bidang digunakan untuk cadangan kepada pelajar.",
+      "create": "Simpan draf",
+      "save": "Simpan perubahan",
+      "saved": "Disimpan.",
+      "errors": {
+        "nameRequired": "Tulis nama program (3 hingga 160 aksara).",
+        "institutionRequired": "Pilih institusi.",
+        "levelRequired": "Pilih peringkat.",
+        "durationInvalid": "Tempoh ialah nombor bulat 1 hingga 16."
+      }
+    },
+    "programme": {
+      "back": "← Semua program",
+      "details": "Maklumat program",
+      "preparedBy": "Disediakan oleh {who}",
+      "approvedBy": "Diluluskan oleh {who}",
+      "notes": {
+        "ownDraft": "Anda sedang menyediakan draf ini. Hantar untuk semakan apabila siap. Admin lain perlu meluluskannya.",
+        "otherDraft": "Draf ini disediakan oleh admin lain. Hanya penyedia boleh mengubah atau menghantarnya.",
+        "ownReview": "Menunggu admin lain menyemak. Tidak boleh diubah sehingga diluluskan atau dipulangkan.",
+        "review": "Admin lain menghantar program ini untuk semakan. Semak maklumatnya, kemudian luluskan atau pulangkan.",
+        "returned": "Dipulangkan: {reason}",
+        "published": "Pelajar nampak program ini. Pembetulan kecil (nama, tempoh, bidang) disimpan terus.",
+        "archived": "Program ini disembunyikan daripada pelajar."
+      },
+      "actions": {
+        "submit": "Hantar untuk semakan",
+        "approve": "Luluskan & terbitkan",
+        "return": "Pulangkan dengan sebab",
+        "reasonLabel": "Apa yang perlu dibetulkan?",
+        "reasonPlaceholder": "cth. Tempoh pengajian dalam prospektus ialah 5 semester.",
+        "archive": "Arkibkan",
+        "archiveHint": "Sembunyikan daripada pelajar, contohnya program tidak ditawarkan lagi.",
+        "reopen": "Buka semula sebagai draf",
+        "cancel": "Batal",
+        "confirmArchive": "Ya, arkibkan"
+      },
+      "requirements": {
+        "title": "Syarat kemasukan ikut laluan",
+        "intro": "Setiap laluan ada syarat sendiri. Pelajar disemak dengan laluan yang sepadan dengan kelayakan mereka (contoh lepasan SPM, lepasan STPM).",
+        "suggested": "Laluan biasa untuk peringkat ini",
+        "other": "Laluan lain",
+        "published": "Diterbitkan · versi {version}",
+        "none": "Belum ada syarat",
+        "add": "Tambah syarat",
+        "update": "Kemas kini syarat",
+        "openDraft": "Buka draf",
+        "draftBy": "{status} · versi {version} · oleh {who}",
+        "history": "Versi lama",
+        "view": "Lihat"
+      }
+    },
+    "institutions": {
+      "title": "Institusi",
+      "intro": "Universiti, politeknik dan kolej yang menawarkan program. Perubahan di sini terus digunakan.",
+      "add": "Tambah institusi",
+      "edit": "Sunting",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "saved": "Disimpan.",
+      "name": "Nama",
+      "namePlaceholder": "cth. Universiti Teknologi Contoh",
+      "shortName": "Singkatan",
+      "shortNamePlaceholder": "cth. UTC",
+      "type": "Jenis",
+      "typePlaceholder": "Pilih jenis",
+      "website": "Laman web rasmi",
+      "websitePlaceholder": "https://",
+      "columns": {
+        "name": "Nama",
+        "type": "Jenis",
+        "website": "Laman web"
+      },
+      "types": {
+        "public_university": "Universiti awam",
+        "private_university": "Universiti swasta",
+        "polytechnic": "Politeknik",
+        "community_college": "Kolej komuniti",
+        "matriculation_college": "Kolej matrikulasi",
+        "vocational_college": "Kolej vokasional",
+        "skills_institute": "Institut kemahiran (ILKA, IKBN, ADTEC)",
+        "private_college": "Kolej swasta"
+      },
+      "errors": {
+        "nameRequired": "Tulis nama institusi (3 hingga 160 aksara).",
+        "typeRequired": "Pilih jenis institusi.",
+        "websiteInvalid": "Laman web mesti bermula dengan https://"
+      }
+    },
+    "requirement": {
+      "titleEdit": "Kemas kini syarat: {programme}",
+      "titleReview": "Semak draf: {programme}",
+      "titleView": "Syarat {route} · versi {version}",
+      "meta": "{institution} · {route} · versi {version}",
+      "back": "← Kembali ke program",
+      "steps": [
+        "Pilih program",
+        "Tunjukkan sumber",
+        "Tulis syarat",
+        "Semak & hantar"
+      ],
+      "source": {
+        "title": "Tunjukkan sumber",
+        "body": "Pautan ke halaman web atau PDF rasmi institusi tempat syarat ini ditulis.",
+        "label": "Pautan sumber rasmi",
+        "placeholder": "https://…/prospektus.pdf",
+        "open": "Buka sumber ↗",
+        "missing": "Tiada pautan sumber."
+      },
+      "write": {
+        "title": "Apa syarat yang pelajar perlu?",
+        "body": "Tulis setiap syarat seperti ayat biasa dan pilih daripada senarai. Satu baris yang ada beberapa pilihan bermaksud pelajar perlu salah satu daripadanya."
+      },
+      "sentence": {
+        "needs": "Pelajar perlu",
+        "minimum": "minimum",
+        "in": "dalam",
+        "oneOf": "SALAH SATU daripada:",
+        "or": "atau",
+        "cgpa": "PNGK sekurang-kurangnya",
+        "muet": "MUET sekurang-kurangnya Band",
+        "creditsGrade": "gred",
+        "creditsOrBetter": "atau lebih baik dalam sekurang-kurangnya",
+        "subjects": "subjek"
+      },
+      "types": {
+        "min_grade": "Gred subjek",
+        "min_credits": "Bilangan kepujian",
+        "min_cgpa": "PNGK",
+        "min_muet": "MUET"
+      },
+      "typeLabel": "Jenis syarat",
+      "chooseSubject": "Pilih subjek",
+      "searchSubject": "Cari subjek",
+      "grade": "Gred",
+      "value": "Nilai",
+      "quote": "Ayat daripada sumber",
+      "quotePlaceholder": "Tampal ayat tepat daripada prospektus…",
+      "addRule": "+ Tambah syarat",
+      "addAlternative": "+ atau pilihan lain",
+      "removeLine": "Buang syarat ini",
+      "removeAlternative": "Buang pilihan ini",
+      "problems": {
+        "subjectRequired": "Pilih subjek.",
+        "gradeRequired": "Pilih gred.",
+        "cgpaRange": "PNGK ialah nombor antara 0.00 dan 4.00.",
+        "muetRange": "Band MUET antara 1 dan 6.",
+        "creditsRange": "Bilangan kepujian ialah nombor bulat 1 hingga 20.",
+        "quoteRequired": "Tampal ayat sumber (sekurang-kurangnya 5 aksara)."
+      },
+      "problemsSummary": "Betulkan {count} perkara yang ditanda merah.",
+      "preview": {
+        "title": "Apa pelajar nampak",
+        "body": "Begini syarat ini dipaparkan di halaman program.",
+        "empty": "Tambah syarat untuk melihat pratonton."
+      },
+      "why": {
+        "title": "Kenapa langkah ini penting?",
+        "body": "Syarat inilah yang menentukan sama ada pelajar nampak \"Layak\" atau \"Belum memenuhi syarat\". Anda tidak boleh merosakkan apa-apa, kerana admin lain akan menyemak sebelum pelajar nampak."
+      },
+      "summary": "{count} syarat ditulis",
+      "save": "Simpan draf",
+      "saved": "Draf disimpan.",
+      "unsaved": "Ada perubahan belum disimpan",
+      "submit": "Hantar untuk semakan",
+      "submitHint": "Simpan dahulu. Selepas dihantar, draf dikunci sehingga admin lain menyemaknya.",
+      "discard": "Buang draf",
+      "discardConfirm": "Buang draf ini? Versi yang sudah diterbitkan tidak berubah.",
+      "discardYes": "Ya, buang",
+      "notes": {
+        "waiting": "Menunggu admin lain menyemak. Anda tidak boleh meluluskan draf sendiri.",
+        "returned": "Dipulangkan oleh admin lain: {reason}",
+        "otherDraft": "Draf ini disediakan oleh admin lain. Hanya penyedia boleh mengubahnya.",
+        "published": "Versi ini sudah diterbitkan. Untuk menukarnya, buat versi baharu di halaman program.",
+        "archived": "Versi lama, digantikan oleh versi yang lebih baharu."
+      },
+      "review": {
+        "changed": "1. Apa yang berubah?",
+        "now": "Sekarang · pelajar nampak",
+        "next": "Draf baharu · selepas diluluskan",
+        "versionOf": "Versi {version}",
+        "nothingPublished": "Belum ada versi diterbitkan untuk laluan ini. Ini syarat pertama.",
+        "added": "Baharu",
+        "removed": "Dibuang",
+        "source": "2. Semak sumber",
+        "sourceBody": "Buka sumber dan pastikan setiap syarat sepadan dengan ayatnya.",
+        "quotes": "Ayat sumber yang dipetik",
+        "decide": "3. Keputusan anda",
+        "effect": "Jika anda luluskan, pelajar yang menyemak program ini melalui laluan {route} terus disemak dengan syarat baharu.",
+        "approve": "Luluskan & terbitkan",
+        "return": "Pulangkan dengan soalan",
+        "reasonLabel": "Apa yang perlu dibetulkan atau ditanya?",
+        "reasonPlaceholder": "cth. Prospektus 2027 menyebut gred B, bukan C, untuk Matematik.",
+        "send": "Pulangkan",
+        "cancel": "Batal"
+      }
+    },
+    "errors": {
+      "generic": "Tidak dapat disimpan. Cuba lagi sebentar.",
+      "forbidden": "Tindakan ini tidak dibenarkan untuk anda. Contohnya, admin tidak boleh meluluskan draf sendiri.",
+      "conflict": "Status rekod ini sudah berubah. Muat semula halaman.",
+      "draft_exists": "Sudah ada draf untuk laluan ini. Buka draf itu di halaman program.",
+      "invalid_rule": "Ada syarat yang tidak lengkap atau gred yang bukan untuk subjek itu. Semak semula.",
+      "missing_evidence": "Tambah pautan sumber rasmi, dan ayat sumber bagi setiap syarat, sebelum menghantar.",
+      "invalid_source": "Pautan sumber mesti bermula dengan https://",
+      "invalid_program": "Semak maklumat program: institusi, nama, peringkat dan tempoh.",
+      "invalid_institution": "Semak maklumat institusi.",
+      "reason_required": "Terangkan apa yang perlu dibetulkan (sekurang-kurangnya 5 aksara).",
+      "not_found": "Rekod ini tidak dijumpai. Mungkin sudah dibuang.",
+      "noRules": "Tambah sekurang-kurangnya satu syarat."
+    }
   },
   "footer": {
     "disclaimer": "Penafian: EduLaunch ialah platform bebas. Maklumat program dirujuk kepada sumber rasmi institusi dan agensi berkaitan; sila sahkan dengan pihak berkenaan sebelum membuat permohonan. EduLaunch tidak menjamin tawaran kemasukan.",

@@ -7,6 +7,7 @@ const nav = vi.hoisted(() => ({ pathname: '/ms/teroka' }));
 vi.mock('next/navigation', () => ({ usePathname: () => nav.pathname, useSearchParams: () => new URLSearchParams() }));
 vi.mock('@/lib/auth/actions', () => ({ signOut: vi.fn() }));
 const { Sidebar } = await import('./sidebar');
+const { studentNav } = await import('./student-nav');
 
 // Node's own localStorage hides jsdom's in this test environment, so use a small in-memory one.
 const store = new Map<string, string>();
@@ -16,7 +17,13 @@ vi.stubGlobal('localStorage', {
   clear: () => store.clear(),
 });
 
-const props = { locale: 'ms' as const, nav: ms.nav, language: ms.language, auth: ms.auth };
+const props = {
+  locale: 'ms' as const,
+  ...studentNav('ms', ms.nav),
+  homeHref: '/ms/teroka',
+  labels: { toggleSidebar: ms.nav.toggleSidebar, signOut: ms.auth.signOut, signedInAs: ms.auth.signedInAs },
+  language: ms.language,
+};
 
 describe('Sidebar', () => {
   beforeEach(() => localStorage.clear());
@@ -27,7 +34,7 @@ describe('Sidebar', () => {
   });
 
   it('shows who is logged in, linking to their profile, with a log out button', () => {
-    render(<Sidebar {...props} account={{ name: 'Aina', email: 'aina@contoh.com' }} />);
+    render(<Sidebar {...props} account={{ name: 'Aina', email: 'aina@contoh.com', href: '/ms/profil' }} />);
     expect(screen.getByRole('link', { name: /Aina/ })).toHaveAttribute('href', '/ms/profil');
     expect(screen.getByRole('button', { name: 'Log keluar' })).toBeInTheDocument();
   });

@@ -1,4 +1,4 @@
-import { cacheLife } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 import { ProgramSummary, PublishedRequirement } from '@edulaunch/contracts';
 import { z } from 'zod';
 import type { Locale } from '../i18n/locale';
@@ -39,10 +39,11 @@ export function localName(item: { name: string; nameEn: string | null }, locale:
 
 export const fieldName = (field: Field, locale: Locale) => localName(field, locale);
 
-/** Universities, fields and subjects change rarely, so they are cached for a few minutes. */
+/** Universities, fields and subjects change rarely, so they are cached for a few minutes (admins refresh the tag). */
 export async function getReferenceData() {
   'use cache';
   cacheLife('minutes');
+  cacheTag('catalogue-reference');
   const [institutions, fields, subjects] = await Promise.all([
     get('/institutions', z.array(Institution)),
     get('/fields', z.array(Field)),

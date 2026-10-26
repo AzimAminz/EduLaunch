@@ -28,7 +28,13 @@ export class ReferenceQueries {
 
   institutions() {
     return this.db
-      .select({ id: schema.institutions.id, name: schema.institutions.name, shortName: schema.institutions.shortName, type: schema.institutions.type })
+      .select({
+        id: schema.institutions.id,
+        name: schema.institutions.name,
+        shortName: schema.institutions.shortName,
+        type: schema.institutions.type,
+        websiteUrl: schema.institutions.websiteUrl,
+      })
       .from(schema.institutions)
       .orderBy(schema.institutions.name);
   }

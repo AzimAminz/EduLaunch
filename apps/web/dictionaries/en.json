@@ -107,7 +107,11 @@
       "diploma": "After Diploma",
       "form3": "Form 3 (stream choice)",
       "sijil": "After a certificate",
-      "a_level": "After A-Level"
+      "a_level": "After A-Level",
+      "svm": "After SVM",
+      "skm": "After SKM",
+      "dvm": "After DVM",
+      "dkm": "After DKM / DLKM"
     }
   },
   "soon": {
@@ -255,8 +259,346 @@
     }
   },
   "admin": {
-    "title": "Admin console",
-    "body": "You are logged in as an admin. The admin console is being built and will come in a later step."
+    "consoleName": "Admin workspace",
+    "nav": {
+      "home": "Home",
+      "tasks": "Task inbox",
+      "groupWork": "Today's work",
+      "groupProgramme": "Programme data",
+      "programmes": "Universities & programmes",
+      "institutions": "Institutions"
+    },
+    "status": {
+      "draft": "Draft",
+      "in_review": "Waiting for review",
+      "returned": "Returned",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "you": "you",
+    "anotherAdmin": "another admin",
+    "seedData": "seed data",
+    "time": {
+      "justNow": "just now",
+      "minutes": "{n} min ago",
+      "hours": "{n} h ago",
+      "days": "{n} days ago"
+    },
+    "home": {
+      "greeting": "Welcome, {name}",
+      "intro": "What would you like to do today? Pick one and we will guide you step by step.",
+      "review": {
+        "title": "Review waiting drafts",
+        "body": "Another admin has prepared changes. Compare old with new, then approve or return them.",
+        "count": "{count} waiting for you",
+        "none": "No drafts waiting",
+        "action": "Start reviewing"
+      },
+      "requirements": {
+        "title": "Update programme requirements",
+        "body": "New prospectus or circular? Pick the programme and route, show the source, then write the requirements.",
+        "hint": "Usually 5 minutes",
+        "action": "Choose programme"
+      },
+      "programme": {
+        "title": "Add a new programme",
+        "body": "Fill in the institution, name, level and fields. Students see it only after another admin approves it.",
+        "action": "Add programme"
+      },
+      "yourWork": "Your work",
+      "returned": "Returned to you",
+      "drafts": "Your drafts",
+      "waiting": "Waiting for another admin",
+      "empty": "Nothing pending. Start with one of the tasks above.",
+      "catalogue": "Catalogue",
+      "published": "{count} programmes published",
+      "withoutRequirements": "{count} without published requirements",
+      "how": {
+        "title": "How the admin workspace works",
+        "steps": [
+          "You prepare a draft. Students do not see anything yet.",
+          "Another admin reviews it. You cannot approve your own work.",
+          "Once approved, students see the new version straight away."
+        ]
+      }
+    },
+    "tasks": {
+      "title": "Task inbox",
+      "intro": "Every draft not yet published. The longest waiting is at the top.",
+      "tabs": {
+        "toReview": "For me",
+        "returned": "Returned",
+        "myDrafts": "My drafts",
+        "waiting": "Waiting for others"
+      },
+      "columns": {
+        "record": "Record",
+        "status": "Status",
+        "updated": "Updated"
+      },
+      "programme": "New or edited programme",
+      "requirement": "{route} requirements · version {version}",
+      "review": "Review",
+      "open": "Open",
+      "reason": "Returned because: {reason}",
+      "empty": {
+        "toReview": "No drafts are waiting for your review.",
+        "returned": "No drafts have been returned to you.",
+        "myDrafts": "You have no unsent drafts.",
+        "waiting": "None of your drafts are waiting."
+      }
+    },
+    "programmes": {
+      "title": "Universities & programmes",
+      "intro": "{total} programmes. Changes are saved as drafts and students see them only after another admin approves them.",
+      "add": "Add programme",
+      "search": "Search programme or institution",
+      "searchButton": "Search",
+      "allStatus": "All statuses",
+      "columns": {
+        "programme": "Programme",
+        "institution": "Institution",
+        "level": "Level",
+        "requirements": "Published requirements",
+        "status": "Status"
+      },
+      "noRequirements": "None yet",
+      "openDrafts": "{count} draft(s)",
+      "empty": "No matching programmes.",
+      "how": {
+        "title": "How this works",
+        "steps": [
+          "You add or edit a programme as a draft.",
+          "The draft goes to another admin's task inbox. You do not approve your own drafts.",
+          "Once approved, students see the programme in the directory."
+        ]
+      }
+    },
+    "programmeForm": {
+      "newTitle": "Add a new programme",
+      "newIntro": "A new programme is saved as a draft. Students do not see it until another admin approves it.",
+      "institution": "Institution",
+      "institutionPlaceholder": "Choose institution",
+      "noInstitution": "Institution not listed? Add it on the Institutions page first.",
+      "name": "Programme name",
+      "namePlaceholder": "e.g. Diploma in Computer Science",
+      "level": "Level",
+      "levelPlaceholder": "Choose level",
+      "duration": "Duration (semesters)",
+      "durationHint": "For example, 6 semesters for a 3-year diploma.",
+      "fields": "Fields",
+      "fieldsPlaceholder": "Search fields",
+      "fieldsHint": "Choose one or more fields (up to 10). Fields are used to recommend programmes to students.",
+      "create": "Save draft",
+      "save": "Save changes",
+      "saved": "Saved.",
+      "errors": {
+        "nameRequired": "Write the programme name (3 to 160 characters).",
+        "institutionRequired": "Choose an institution.",
+        "levelRequired": "Choose a level.",
+        "durationInvalid": "Duration is a whole number from 1 to 16."
+      }
+    },
+    "programme": {
+      "back": "← All programmes",
+      "details": "Programme details",
+      "preparedBy": "Prepared by {who}",
+      "approvedBy": "Approved by {who}",
+      "notes": {
+        "ownDraft": "You are preparing this draft. Send it for review when ready; another admin must approve it.",
+        "otherDraft": "This draft was prepared by another admin. Only they can change or send it.",
+        "ownReview": "Waiting for another admin to review. It cannot be changed until it is approved or returned.",
+        "review": "Another admin sent this programme for review. Check the details, then approve or return it.",
+        "returned": "Returned: {reason}",
+        "published": "Students can see this programme. Small corrections (name, duration, fields) are saved directly.",
+        "archived": "This programme is hidden from students."
+      },
+      "actions": {
+        "submit": "Send for review",
+        "approve": "Approve & publish",
+        "return": "Return with a reason",
+        "reasonLabel": "What needs fixing?",
+        "reasonPlaceholder": "e.g. The prospectus says the duration is 5 semesters.",
+        "archive": "Archive",
+        "archiveHint": "Hide it from students, for example when it is no longer offered.",
+        "reopen": "Reopen as a draft",
+        "cancel": "Cancel",
+        "confirmArchive": "Yes, archive"
+      },
+      "requirements": {
+        "title": "Entry requirements by route",
+        "intro": "Each route has its own requirements. Students are checked against the route that matches their qualification (for example after SPM, after STPM).",
+        "suggested": "Usual routes for this level",
+        "other": "Other routes",
+        "published": "Published · version {version}",
+        "none": "No requirements yet",
+        "add": "Add requirements",
+        "update": "Update requirements",
+        "openDraft": "Open draft",
+        "draftBy": "{status} · version {version} · by {who}",
+        "history": "Older versions",
+        "view": "View"
+      }
+    },
+    "institutions": {
+      "title": "Institutions",
+      "intro": "Universities, polytechnics and colleges that offer programmes. Changes here apply straight away.",
+      "add": "Add institution",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saved": "Saved.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Universiti Teknologi Contoh",
+      "shortName": "Short name",
+      "shortNamePlaceholder": "e.g. UTC",
+      "type": "Type",
+      "typePlaceholder": "Choose type",
+      "website": "Official website",
+      "websitePlaceholder": "https://",
+      "columns": {
+        "name": "Name",
+        "type": "Type",
+        "website": "Website"
+      },
+      "types": {
+        "public_university": "Public university",
+        "private_university": "Private university",
+        "polytechnic": "Polytechnic",
+        "community_college": "Community college",
+        "matriculation_college": "Matriculation college",
+        "vocational_college": "Vocational college",
+        "skills_institute": "Skills institute (ILKA, IKBN, ADTEC)",
+        "private_college": "Private college"
+      },
+      "errors": {
+        "nameRequired": "Write the institution name (3 to 160 characters).",
+        "typeRequired": "Choose the institution type.",
+        "websiteInvalid": "The website must start with https://"
+      }
+    },
+    "requirement": {
+      "titleEdit": "Update requirements: {programme}",
+      "titleReview": "Review draft: {programme}",
+      "titleView": "{route} requirements · version {version}",
+      "meta": "{institution} · {route} · version {version}",
+      "back": "← Back to programme",
+      "steps": [
+        "Choose programme",
+        "Show the source",
+        "Write requirements",
+        "Review & send"
+      ],
+      "source": {
+        "title": "Show the source",
+        "body": "Link to the institution's official page or PDF where these requirements are written.",
+        "label": "Link to the official source",
+        "placeholder": "https://…/prospectus.pdf",
+        "open": "Open source ↗",
+        "missing": "No source link."
+      },
+      "write": {
+        "title": "What do students need?",
+        "body": "Write each requirement like a normal sentence and choose from the lists. A line with several options means students need at least one of them."
+      },
+      "sentence": {
+        "needs": "Students need",
+        "minimum": "at least",
+        "in": "in",
+        "oneOf": "AT LEAST ONE of:",
+        "or": "or",
+        "cgpa": "a CGPA of at least",
+        "muet": "MUET of at least Band",
+        "creditsGrade": "grade",
+        "creditsOrBetter": "or better in at least",
+        "subjects": "subjects"
+      },
+      "types": {
+        "min_grade": "Subject grade",
+        "min_credits": "Number of credits",
+        "min_cgpa": "CGPA",
+        "min_muet": "MUET"
+      },
+      "typeLabel": "Requirement type",
+      "chooseSubject": "Choose subject",
+      "searchSubject": "Search subject",
+      "grade": "Grade",
+      "value": "Value",
+      "quote": "Sentence from the source",
+      "quotePlaceholder": "Paste the exact sentence from the prospectus…",
+      "addRule": "+ Add requirement",
+      "addAlternative": "+ or another option",
+      "removeLine": "Remove this requirement",
+      "removeAlternative": "Remove this option",
+      "problems": {
+        "subjectRequired": "Choose a subject.",
+        "gradeRequired": "Choose a grade.",
+        "cgpaRange": "CGPA is a number from 0.00 to 4.00.",
+        "muetRange": "MUET band is from 1 to 6.",
+        "creditsRange": "Number of credits is a whole number from 1 to 20.",
+        "quoteRequired": "Paste the source sentence (at least 5 characters)."
+      },
+      "problemsSummary": "Fix {count} thing(s) marked in red.",
+      "preview": {
+        "title": "What students see",
+        "body": "This is how the requirements appear on the programme page.",
+        "empty": "Add a requirement to see the preview."
+      },
+      "why": {
+        "title": "Why does this step matter?",
+        "body": "These requirements decide whether students see \"Eligible\" or \"Not yet eligible\". You cannot break anything: another admin reviews before students see it."
+      },
+      "summary": "{count} requirement(s) written",
+      "save": "Save draft",
+      "saved": "Draft saved.",
+      "unsaved": "Unsaved changes",
+      "submit": "Send for review",
+      "submitHint": "Save first. Once sent, the draft is locked until another admin reviews it.",
+      "discard": "Discard draft",
+      "discardConfirm": "Discard this draft? The published version does not change.",
+      "discardYes": "Yes, discard",
+      "notes": {
+        "waiting": "Waiting for another admin to review. You cannot approve your own draft.",
+        "returned": "Returned by another admin: {reason}",
+        "otherDraft": "This draft was prepared by another admin. Only they can change it.",
+        "published": "This version is published. To change it, start a new version on the programme page.",
+        "archived": "An old version, replaced by a newer one."
+      },
+      "review": {
+        "changed": "1. What changed?",
+        "now": "Now · students see",
+        "next": "New draft · after approval",
+        "versionOf": "Version {version}",
+        "nothingPublished": "No version is published for this route yet. These are the first requirements.",
+        "added": "New",
+        "removed": "Removed",
+        "source": "2. Check the source",
+        "sourceBody": "Open the source and make sure every requirement matches its sentence.",
+        "quotes": "Quoted source sentences",
+        "decide": "3. Your decision",
+        "effect": "If you approve, students checking this programme through the {route} route are checked against the new requirements straight away.",
+        "approve": "Approve & publish",
+        "return": "Return with a question",
+        "reasonLabel": "What needs fixing or answering?",
+        "reasonPlaceholder": "e.g. The 2027 prospectus says grade B, not C, for Mathematics.",
+        "send": "Return",
+        "cancel": "Cancel"
+      }
+    },
+    "errors": {
+      "generic": "Could not save. Please try again shortly.",
+      "forbidden": "You are not allowed to do this. For example, admins cannot approve their own drafts.",
+      "conflict": "This record's status has changed. Reload the page.",
+      "draft_exists": "There is already a draft for this route. Open it on the programme page.",
+      "invalid_rule": "A requirement is incomplete, or a grade does not belong to that subject. Please check again.",
+      "missing_evidence": "Add the link to the official source, and the source sentence for each requirement, before sending.",
+      "invalid_source": "The source link must start with https://",
+      "invalid_program": "Check the programme details: institution, name, level and duration.",
+      "invalid_institution": "Check the institution details.",
+      "reason_required": "Explain what needs fixing (at least 5 characters).",
+      "not_found": "This record was not found. It may have been removed.",
+      "noRules": "Add at least one requirement."
+    }
   },
   "footer": {
     "disclaimer": "Disclaimer: EduLaunch is an independent platform. Programme information refers to official sources from institutions and related agencies; please confirm with them before applying. EduLaunch does not guarantee an offer of admission.",
