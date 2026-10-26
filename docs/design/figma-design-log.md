@@ -456,32 +456,40 @@ Navbar tetap → hero dengan pratonton UI → banner nama universiti awam yang b
 | Tingkatan 1–3 | Pilihan: **gred peperiksaan sekolah** (skala A–F, boleh dikonfigurasi admin) bagi subjek yang diambil; pelajar tambah/buang subjek daripada katalog. Boleh muat naik slip sekolah dengan persetujuan ibu bapa/penjaga. | "Gred sekolah — bukan peperiksaan awam" | Ujian minat, aktiviti bidang, teroka bidang, pemilih aliran T4, roadmap awal. **Merit Lab & Semakan kelayakan disembunyikan**; "Dokumen akademik" menjadi "Prestasi sekolah". | Aliran T4: Sains Tulen, Sains Sosial/Sastera, STEM Teknikal, Kolej Vokasional (TVET) | Tiada merit; gred sekolah tidak ditukar kepada gred SPM — digunakan untuk kekuatan kategori subjek |
 | Tingkatan 4–5 | Subjek SPM daripada katalog (wajib disenaraikan dahulu, boleh dibuang; elektif ditambah ikut aliran), gred semasa (ujian/percubaan) + gred sasaran | Semasa (kelabu) / Sasaran (kuning) | Semua modul | Asasi, Matrikulasi, STPM, Diploma, Politeknik, TVET | Simulasi, sentiasa berlabel "berdasarkan sasaran" |
 | Lepasan SPM | Keputusan SPM sebenar (manual / slip), pilihan SVM/SKM | "Disahkan oleh anda" / "Dibaca daripada slip" | Semua modul | Asasi, Matrikulasi, STPM, Diploma, Politeknik, KV/ILKA | Sebenar, formula laluan lepasan SPM |
-| Lepasan STPM / Matrikulasi / Asasi / A-Level | PNGK 0.00–4.00, MUET band, tahun tamat, kokurikulum; STPM gred subjek A–F; A-Level A*–E; SPM asas daripada profil | A-Level/luar negara: "perlu pengesahan kesetaraan" | Teroka Ijazah, Banding, Kelayakan, Roadmap, Dokumen | Ijazah Sarjana Muda | Formula ikut laluan (STPM vs Matrikulasi/Asasi) |
-| Lepasan Diploma | Institusi & bidang diploma (combobox), program, CGPA, MUET, tahun graduasi; SPM asas | Pindahan kredit: "anggaran" | Teroka Ijazah (bidang berkaitan dahulu), anggaran pindahan kredit | Ijazah — mungkin semester lanjutan | Ikut bidang diploma; bidang lain "tidak berkaitan" |
+| Lepasan Sijil / SVM / SKM *(baharu, 26 Okt 2026)* | Pilih kelayakan dalam modal: Sijil Politeknik / Kolej Komuniti, SVM atau SKM. Bidang & nama program; PNGK (Sijil, SVM); tahap SKM 1–3; MUET (pilihan); tahun tamat; SPM asas | — | Teroka Diploma (bidang berkaitan dahulu), Kelayakan, Roadmap, Dokumen | Diploma, DKM/DLKM | Sijil MQF Tahap 3 dalam bidang berkaitan, PNGK ≥ 2.00, SPM asas |
+| Lepasan pra-U / Diploma / setaraf *(digabung, 26 Okt 2026)* | Pilih kelayakan dalam modal: STPM, Matrikulasi, Asasi, A-Level, Diploma, DVM atau DKM/DLKM. PNGK (kecuali A-Level), MUET, tahun tamat; STPM gred subjek A–F; A-Level A*–E; Diploma/DVM/DKM: bidang & program, tahap DKM 4 / DLKM 5; SPM asas | A-Level/luar negara: "perlu pengesahan kesetaraan"; pindahan kredit: "anggaran" | Teroka Ijazah (bidang berkaitan dahulu untuk diploma), Banding, Kelayakan, Roadmap, Dokumen | Ijazah Sarjana Muda | Ikut laluan: STPM / Matrikulasi-Asasi / Diploma (bidang berkaitan) |
+
+Dokumen akademik hanya memaparkan borang kelayakan yang dipilih (tiada butang kelayakan lain); kelayakan ditukar di Profil. Kajian syarat: syarat am UA (kepujian BM, lulus Sejarah, PNGK 2.00, MUET Band 1–2), lepasan Sijil/SKM Tahap 3 ke Diploma (bidang berkaitan, PNGK 2.00), SVM ke DVM/Diploma, DVM/DKM/DLKM ke Sarjana Muda Teknologi.
 
 ### 23.3 Peralihan tahap
 - Pelajar boleh tukar tahap sendiri; sistem mencadangkan peralihan pada tarikh yang ditetapkan admin: setiap Januari ("Sudah naik tingkatan?") dan pada tarikh pengumuman SPM/STPM (helaian "Sudah dapat keputusan SPM?").
 - T3 → T4 meminta aliran dan subjek elektif. T5 → Lepasan SPM menukar sasaran kepada keputusan sebenar.
-- Data tahap lama **tidak dipadam** — disimpan sebagai sejarah (contoh: sasaran vs sebenar). Roadmap dan pilihan disimpan dikekalkan; yang tidak relevan ditanda "semak semula".
+- **Peraturan rekod (dikemas kini 26 Okt 2026)**, peringkat: T1–3 → T4–5 → Lepasan SPM → Lepasan Sijil → Lepasan pra-U/Diploma.
+  - **Naik peringkat:** semua rekod dikekalkan sebagai sejarah (contoh: sasaran vs sebenar, Sijil → Diploma).
+  - **Turun peringkat** (lazimnya tersalah pilih): rekod peringkat lebih tinggi dipadam (T5 → T3 memadam sasaran SPM; Lepasan SPM → T5 memadam SPM sebenar). T1–3 hanya menyimpan tahun mengikut tingkatan (T1: tahun ini; T2: dua tahun; T3: tiga tahun), jadi T2 → T1 memadam gred tahun lepas.
+  - **Tukar kelayakan dalam peringkat yang sama** (Asasi → Diploma, SVM → SKM): rekod kelayakan lama dipadam; SPM dikekalkan.
+  - Rekod yang akan dipadam disenaraikan dalam modal; pelajar mesti mengesahkan dahulu. Peraturan dikira oleh servis profil (sama untuk web dan mobile).
+- Roadmap dan pilihan disimpan dikekalkan; yang tidak relevan ditanda "semak semula".
 
 ### 23.4 Privasi bawah 18 tahun
 - Tingkatan 1–5 lazimnya bawah 18 tahun: minta persetujuan ibu bapa/penjaga sebelum muat naik dokumen dan pautan akaun. Tiada keputusan peperiksaan awam diminta untuk T1–3; muat naik slip sekolah hanya dengan persetujuan ibu bapa/penjaga. **Perlu disahkan dengan penasihat undang-undang (PDPA 2010).**
 
 ### 23.5 Kesan kepada admin
-- Syarat kemasukan disimpan ikut **laluan kemasukan**: Lepasan SPM, Lepasan STPM, Lepasan Matrikulasi/Asasi, Lepasan Diploma, Setaraf.
+- Syarat kemasukan disimpan ikut **laluan kemasukan**: Lepasan SPM, Lepasan Sijil/SKM/SVM, Lepasan STPM, Lepasan Matrikulasi/Asasi, Lepasan Diploma/DVM/DKM, Setaraf.
 - Formula merit berversi ikut laluan. Skala gred diurus: gred sekolah A–F (T1–3), SPM A+–G, STPM A–F, PNGK/CGPA 0–4, A-Level A*–E.
 - Admin mengurus senarai aliran & subjek elektif, tarikh pengumuman SPM/STPM, institusi dan bidang berdaftar.
 
 ### 23.6 Skrin Figma
 - Halaman 00, section **E · Logik tahap pelajar** (jadual matriks + peraturan sokongan).
 - Website, section **3.1 · Profil akademik ikut tahap**: Profil T1–3, Dashboard T1–3, Profil T4–5, Profil lepasan pra-U, Profil lepasan Diploma, Modal kemas kini tahap. Lepasan SPM menggunakan W18 sedia ada.
+- **Perlu dikemas kini dalam Figma (26 Okt 2026):** onboarding dan modal tahap kepada 5 tahap baharu (Lepasan Sijil; pra-U & Diploma digabung), modal pilih kelayakan, modal pengesahan padam rekod, borang Lepasan Sijil (Bidang, Program, PNGK/Tahap SKM).
 - Mobile, section **3.1**: Profil T1–3, T4–5, pra-U, Diploma, helaian kemas kini tahap. Onboarding web & mobile kini memilih 5 tahap, setiap pilihan dipautkan ke skrin tahapnya.
 
 ### 23.7 Subjek: tambah, buang dan tangkap data dengan tepat
 - **Tiada TP.** Tingkatan 1–3 menggunakan gred peperiksaan sekolah (lalai A–F; skala & julat markah ditetapkan admin kerana boleh berbeza).
 - **Senarai subjek tidak tetap.** Setiap tahap bermula dengan subjek lazim (T4–5: wajib SPM disenaraikan dahulu). Pelajar **buang** subjek yang tidak diambil (×) — contoh Pendidikan Islam ↔ Pendidikan Moral, Sains ↔ elektif sains — dan **tambah** melalui `Combobox / Subjek` (carian + pilih berbilang).
-- **Subjek hanya daripada katalog admin** (bukan teks bebas) supaya padanan tepat. Katalog: kod, nama rasmi, alias (contoh "Add Math" → Matematik Tambahan), kategori, tahap & aliran yang sah, wajib/elektif, skala gred.
-- Subjek tiada dalam katalog → "Mohon tambah" → baris gilir admin; tidak digunakan untuk padanan sehingga dipetakan.
+- **Subjek dicari daripada katalog admin** supaya padanan tepat. Katalog: kod, nama rasmi, alias (contoh "Add Math" → Matematik Tambahan), kategori, tahap & aliran yang sah, wajib/elektif, skala gred.
+- **Subjek tiada dalam katalog** (contoh Tasawwuf): pelajar menambahnya dengan nama sendiri ("+ Tambah sebagai subjek lain"), berlabel *Subjek lain*; tidak digunakan untuk padanan sehingga admin memetakannya. Had 30 subjek (ada calon SPM mengambil 20 subjek).
 - **Rekod gred pelajar:** subjek, tahap, jenis gred (sekolah / semasa / sasaran / sebenar), gred, sumber (manual / slip OCR), tarikh, status semakan. Satu rekod setiap subjek setiap jenis gred.
 - **Validasi semasa simpan:** gred mesti sah untuk skala (SPM: A+, A, A-, B+, B, C+, C, D, E, G; STPM: A, A-, B+, B, B-, C+, C, C-, D+, D, F); tiada pendua; subjek wajib yang dibuang diberi amaran (bukan sekatan); ringkasan semakan dipaparkan ("8 subjek · semua bergred · BM kredit ✓ · Sejarah lulus ✓").
 - **Peraturan Malaysia yang dikira oleh sistem (dikonfigurasi admin, perlu disahkan dengan sumber rasmi):** kredit SPM = C ke atas; lulus = E ke atas; syarat lazim BM kredit & Sejarah lulus; nilai mata STPM 4.00 → 0.00; PNGK/CGPA 0–4; MUET band.

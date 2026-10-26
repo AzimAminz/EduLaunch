@@ -180,7 +180,7 @@ Tested by: AzimAminz Date: 26 Oct 2026
   - Tingkatan 1–3: **Prestasi sekolah anda**, grades A–F, with a tab for each year (Form 1, 2, 3).
   - Tingkatan 4–5: **Subjek SPM & sasaran**, yellow grade boxes and the note that targets are not official results.
   - Lepasan SPM: **Keputusan SPM sebenar**.
-  - Lepasan pra-universiti or Diploma: two tabs, **Kelayakan** and **SPM asas** (see D).
+  - Lepasan Sijil / SVM / SKM, or Lepasan pra-U / Diploma: two tabs, **Kelayakan** and **SPM asas** (see D).
 - [ ] A new form starts with the compulsory subjects and no grades. The label at the top says **Belum diisi**.
 
 ### B. Subjects and grades (all dropdowns use the EduLaunch design)
@@ -200,12 +200,16 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] **Lihat** opens an older record read only (subjects and grades, or CGPA and MUET).
 - [ ] Tingkatan 1–3: save results for two different year tabs; both appear in the list and each tab shows its own grades.
 
-### D. After pre-university or Diploma
+### D. After a certificate, pre-university or diploma
 
-- [ ] **Lepasan Diploma**, tab **Kelayakan**: Bidang diploma (searchable), Nama program, PNGK, MUET and Tahun tamat. There is no subject table.
+- [ ] Onboarding lists five levels: Tingkatan 1–3, Tingkatan 4–5, Lepasan SPM, **Lepasan Sijil / SVM / SKM**, **Lepasan STPM / Matrikulasi / Asasi / A-Level / Diploma**.
+- [ ] Choosing one of the last two opens a dialog asking which qualification: Sijil Politeknik / Kolej Komuniti, SVM or SKM; or STPM, Matrikulasi, Asasi, A-Level, Diploma, DVM or DKM/DLKM.
+- [ ] Dokumen akademik shows only the chosen qualification ("Jenis kelayakan: …") with a link to change it in Profil.
+- [ ] **SKM**: Bidang, Nama program, Tahap (SKM Tahap 1–3), MUET, Tahun tamat; no PNGK. **Sijil** and **SVM**: Bidang, Nama program, PNGK, MUET, Tahun tamat.
+- [ ] **Diploma / DVM / DKM**: Bidang, Nama program, PNGK, MUET, Tahun tamat (DKM also asks DKM Tahap 4 or DLKM Tahap 5). No subject table.
 - [ ] Save without a year: "Pilih tahun keputusan." With PNGK `4.5`: "PNGK ialah nombor antara 0.00 dan 4.00…". With `3,42` (comma): it saves.
-- [ ] **Lepasan pra-universiti** (qualification chosen in the level dialog): Matrikulasi and Asasi ask for PNGK and MUET only; STPM also has a subject table starting with Pengajian Am; A-Level has subjects (A*–E) but no PNGK.
-- [ ] The blue box "Apa yang universiti semak" summarises the usual requirements.
+- [ ] **Matrikulasi** and **Asasi** ask for PNGK and MUET only; **STPM** also has a subject table starting with Pengajian Am; **A-Level** has subjects (A*–E) but no PNGK.
+- [ ] The blue box "Apa yang universiti semak" summarises the usual requirements for the level.
 - [ ] Tab **SPM asas**: the SPM form, with a note on why SPM still matters.
 
 ### E. Profile (click your name at the bottom of the sidebar)
@@ -220,7 +224,8 @@ Tested by: AzimAminz Date: 26 Oct 2026
 - [ ] Moving up (Tingkatan 1 → 2, Tingkatan 3 → 4–5, Tingkatan 5 → Lepasan SPM): no dialog, and all saved records stay in Rekod tersimpan.
 - [ ] Moving down (for example Tingkatan 2 → 1 with results saved for last year): a dialog lists **Prestasi sekolah (last year)** under "Rekod ini akan dipadam". **Batal** changes nothing; **Sahkan & simpan** deletes it.
 - [ ] Choosing **Lepasan STPM / Matrikulasi / Asasi / A-Level**: a dialog asks which qualification. After choosing Asasi, Dokumen akademik shows the Asasi form only (no buttons for the others), with a link to change it in Profil.
-- [ ] Asasi (with results saved) → **Lepasan Diploma**: the dialog lists **Asasi** to be deleted; after confirming, the diploma form shows and Asasi is gone from Rekod tersimpan. The SPM results stay.
+- [ ] Asasi (with results saved) → Diploma (same level, other qualification): the dialog lists **Asasi** to be deleted; after confirming, the diploma form shows and Asasi is gone from Rekod tersimpan. The SPM results stay.
+- [ ] SKM (saved) → Diploma: no records are deleted; Rekod tersimpan shows both. Then Diploma → SVM: the dialog lists Diploma and SKM to be deleted.
 - [ ] A student can save up to 30 subjects (for example 20 SPM subjects).
 
 ### G. Phone

@@ -29,8 +29,18 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 6 | Academic profile: results form per level (school grades, SPM targets, actual SPM), add/remove subjects, save & confirm; profile page with level change | **Done** (manual check waiting) |
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (manual check waiting, together with Step 6) |
 | 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
-| 8 | Admin: edit programmes and review requirements (two-admin rule) | Planned; **M1 demo** after this step |
+| 8 | Admin: edit programmes and review requirements (two-admin rule), including entry routes for certificate, SVM, SKM, DVM and DKM holders | Planned; **M1 demo** after this step |
 | 9 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
+
+### Changes since v3 (levels revised, 26 Oct 2026)
+
+| Change | Why |
+|---|---|
+| New level **after certificate** (Sijil Politeknik / Kolej Komuniti, SVM, SKM 1–3); target studies: diploma, DKM/DLKM | These students continue to a diploma; they were missing |
+| **Pre-university and diploma merged** into one level, with the qualification chosen in a dialog: STPM, matriculation, foundation, A-Level, diploma, DVM, DKM/DLKM | All lead to a degree and are judged on CGPA, MUET and (for diplomas) a related field |
+| Record rules cover five stages: certificate → diploma keeps the certificate; moving down or switching within a stage deletes what no longer fits, after confirming | Matching must not use results entered by mistake |
+| Admin entry routes (Step 8) and the catalogue need certificate, SVM, SKM, DVM and DKM routes | Requirements are stored per entry route |
+| Figma onboarding, level dialog and certificate form to be updated | The design still shows the old five levels |
 
 ### Changes since v3 (Step 6)
 
@@ -107,7 +117,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Alternative pathways | Certificate/skills programmes, stepping-stone pathways, what-if "improve a result", supportive wording | Not Started | Pathway table exists |
 | Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma "work now or continue" with careers | Not Started | Tables exist |
 | Notifications | Requirement change alerts, result-release prompts | **In Progress** | Result-release prompts; screens (change alerts are done) |
-| All education levels | Form 1–3, Form 4–5, after SPM, after STPM/Matric/Foundation/A-Level, after Diploma | **In Progress** | Screens per level (level rules and target levels are done) |
+| All education levels | Form 1–3, Form 4–5, after SPM, after certificate (Sijil/SVM/SKM), after pre-university or diploma (STPM, matriculation, foundation, A-Level, diploma, DVM, DKM) | **In Progress** | Results forms per level are done; dashboards and recommendations per level still to do |
 | Staging deployment | The whole system online for supervisors and testers | Not Started | Choose free hosting; production compose file; deployment guide |
 
 **Milestone M2 (Week 18):** end-to-end demo for every education level: upload a slip, get explained recommendations with offer chances, save a roadmap.
