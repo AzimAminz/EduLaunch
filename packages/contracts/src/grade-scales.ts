@@ -5,6 +5,9 @@ export const GradeScales = {
   school: ['A', 'B', 'C', 'D', 'E', 'F'],
   stpm: ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'F'],
   a_level: ['A*', 'A', 'B', 'C', 'D', 'E'],
+  /** Matriculation (KPM) and foundation courses: letter grades on the 4.00 point scale. Admins may adjust later. */
+  matriculation: ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'E'],
+  foundation: ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'E'],
 } as const;
 
 /** Qualifications recorded subject by subject, each with its own grade scale. */
@@ -22,6 +25,16 @@ export const RecordQualifications = ['school', 'spm', 'stpm', 'a_level', 'matric
 export type RecordQualification = (typeof RecordQualifications)[number];
 
 export const hasSubjectGrades = (qualification: RecordQualification): qualification is Qualification => qualification in GradeScales;
+
+/**
+ * Results that must list subjects to be saved. Matriculation and foundation subject grades are optional
+ * (they matter for some degree requirements, e.g. "B in Biology"), but their CGPA is required.
+ */
+export const requiresSubjects = (qualification: RecordQualification) => ['school', 'spm', 'stpm', 'a_level'].includes(qualification);
+
+/** Matriculation (KPM) streams: Science modules I–III, Engineering, Accounting, Professional Accounting. */
+export const MatriculationStreams = ['science_1', 'science_2', 'science_3', 'engineering', 'accounting', 'professional_accounting'] as const;
+export type MatriculationStream = (typeof MatriculationStreams)[number];
 
 /**
  * After SPM, level "after certificate": Sijil Politeknik / Kolej Komuniti, Sijil Vokasional Malaysia (SVM)
@@ -43,8 +56,11 @@ export type HigherQualification = (typeof HigherQualifications)[number];
 export const hasCgpa = (qualification: RecordQualification) =>
   ['stpm', 'matriculation', 'foundation', 'diploma', 'dvm', 'dkm', 'certificate', 'svm'].includes(qualification);
 
-/** Qualifications tied to a programme: the field of study matters ("related field") and the programme has a name. */
-export const ProgrammeQualifications = ['diploma', 'dvm', 'dkm', 'certificate', 'svm', 'skm'] as const satisfies readonly RecordQualification[];
+/**
+ * Qualifications tied to a programme: the field of study matters ("related field") and the programme has a name.
+ * Foundation is one too ("Asasi Sains Hayat"); matriculation uses a fixed stream instead.
+ */
+export const ProgrammeQualifications = ['diploma', 'dvm', 'dkm', 'certificate', 'svm', 'skm', 'foundation'] as const satisfies readonly RecordQualification[];
 export const hasProgramme = (qualification: RecordQualification) => (ProgrammeQualifications as readonly string[]).includes(qualification);
 
 /** MQF levels a qualification can be at: SKM 1–3; DKM 4 or DLKM 5. Others have one level and record none. */

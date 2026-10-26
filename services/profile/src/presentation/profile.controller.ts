@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Pos
 import { CurrentCaller, DRIZZLE, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
 import { and, eq } from 'drizzle-orm';
 import * as schema from '../infrastructure/db/schema.js';
-import { HigherQualifications, MAX_SUBJECTS_PER_RECORD, RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
+import { HigherQualifications, MAX_SUBJECTS_PER_RECORD, MatriculationStreams, RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { GetOrCreateMe, GetStudentSnapshot, PreviewLevelChange, UpdateEducationLevel } from '../modules/students/application/student.use-cases.js';
 import { AcademicRecordService } from '../modules/academic-records/application/academic-record.use-cases.js';
@@ -33,6 +33,7 @@ const SaveRecordBody = RecordKey.extend({
   fieldId: z.uuid().nullable().default(null),
   programmeName: z.string().max(120).nullable().default(null),
   qualificationLevel: z.number().int().nullable().default(null),
+  stream: z.enum(MatriculationStreams).nullable().default(null),
 });
 
 @Controller()

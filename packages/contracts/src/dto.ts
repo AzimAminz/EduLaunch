@@ -47,7 +47,7 @@ export const StudentSnapshot = z.object({
   /** Scale of the main subject grades (SPM, or school grades before SPM); used for "credits" rules. */
   gradeScale: z.enum(['spm', 'school', 'stpm']),
   /** SPM (or school) grades, plus STPM or A-Level grades after pre-university; `scale` says which. */
-  grades: z.array(z.object({ subjectId: z.uuid(), grade: z.string(), scale: z.enum(['spm', 'school', 'stpm', 'a_level']).optional() })),
+  grades: z.array(z.object({ subjectId: z.uuid(), grade: z.string(), scale: z.enum(['spm', 'school', 'stpm', 'a_level', 'matriculation', 'foundation']).optional() })),
   /** After SPM: the qualification (certificate, svm, skm, stpm, matriculation, foundation, a_level, diploma, dvm, dkm). */
   higherQualification: z.enum(HigherQualifications).nullable().optional(),
   cgpa: z.number().nullable(),

@@ -1,5 +1,5 @@
 import { AggregateRoot, DomainError, createEvent } from '@edulaunch/ddd';
-import { Events, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, isValidGrade, qualificationLevelsFor, type RecordQualification } from '@edulaunch/contracts';
+import { Events, MatriculationStreams, MuetBands, hasCgpa, hasProgramme, hasSubjectGrades, isValidGrade, qualificationLevelsFor, requiresSubjects, type RecordQualification } from '@edulaunch/contracts';
 
 export type RecordKind = 'actual' | 'target' | 'school';
 
@@ -21,6 +21,8 @@ export interface ResultDetails {
   programmeName: string | null;
   /** SKM 1–3, DKM 4 / DLKM 5. */
   qualificationLevel?: number | null;
+  /** Matriculation only: its stream (science_1…3, engineering, accounting, professional_accounting). */
+  stream?: string | null;
 }
 
 interface AcademicRecordProps {
@@ -33,6 +35,7 @@ interface AcademicRecordProps {
   fieldId: string | null;
   programmeName: string | null;
   qualificationLevel: number | null;
+  stream: string | null;
   subjects: SubjectGrade[];
   status: 'draft' | 'confirmed';
   confirmedAt: Date | null;
@@ -48,7 +51,7 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
       throw new DomainError('invalid_record', 'School grades use the school grade scale, and only school records use it');
     }
     if (input.kind === 'target' && input.qualification !== 'spm') throw new DomainError('invalid_record', 'Only SPM has target grades');
-    return new AcademicRecord(id, { ...input, cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: null, subjects: [], status: 'draft', confirmedAt: null });
+    return new AcademicRecord(id, { ...input, cgpa: null, muetBand: null, fieldId: null, programmeName: null, qualificationLevel: null, stream: null, subjects: [], status: 'draft', confirmedAt: null });
   }
 
   static restore(id: string, props: AcademicRecordProps): AcademicRecord {
@@ -109,6 +112,9 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
     const q = this.props.qualification;
     const { cgpa, muetBand, fieldId } = details;
     const qualificationLevel = details.qualificationLevel ?? null;
+    const stream = details.stream ?? null;
+    if (stream !== null && q !== 'matriculation') throw new DomainError('invalid_record', 'Only matriculation has a stream');
+    if (stream !== null && !(MatriculationStreams as readonly string[]).includes(stream)) throw new DomainError('invalid_record', 'Choose a matriculation stream from the list');
     const levels = qualificationLevelsFor(q);
     if (qualificationLevel !== null && !levels?.includes(qualificationLevel)) throw new DomainError('invalid_record', levels ? `Choose a level from ${levels.join(', ')}` : `${q} has no level to choose`);
     const programmeName = details.programmeName?.trim() || null;
@@ -119,8 +125,13 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
     if ((fieldId !== null || programmeName !== null) && !hasProgramme(q)) throw new DomainError('invalid_record', 'Only a diploma or certificate has a field and programme name');
     if (programmeName !== null && programmeName.length > 120) throw new DomainError('invalid_record', 'A programme name can have at most 120 characters');
     const changed =
-      cgpa !== this.props.cgpa || muetBand !== this.props.muetBand || fieldId !== this.props.fieldId || programmeName !== this.props.programmeName || qualificationLevel !== this.props.qualificationLevel;
-    Object.assign(this.props, { cgpa, muetBand, fieldId, programmeName, qualificationLevel });
+      cgpa !== this.props.cgpa ||
+      muetBand !== this.props.muetBand ||
+      fieldId !== this.props.fieldId ||
+      programmeName !== this.props.programmeName ||
+      qualificationLevel !== this.props.qualificationLevel ||
+      stream !== this.props.stream;
+    Object.assign(this.props, { cgpa, muetBand, fieldId, programmeName, qualificationLevel, stream });
     if (changed) this.reopen();
   }
 
@@ -131,11 +142,12 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
     this.reopen();
   }
 
-  /** Subject-graded results need subjects; results with a CGPA need it; SKM and DKM need their level. */
+  /** SPM, school, STPM and A-Level need subjects; results with a CGPA need it; SKM and DKM need their level; matriculation its stream. */
   confirm(): void {
     const q = this.props.qualification;
     if (qualificationLevelsFor(q) && this.props.qualificationLevel === null) throw new DomainError('invalid_record', 'Choose the level before confirming');
-    if (hasSubjectGrades(q) && this.props.subjects.length === 0) throw new DomainError('invalid_record', 'Add at least one subject before confirming');
+    if (requiresSubjects(q) && this.props.subjects.length === 0) throw new DomainError('invalid_record', 'Add at least one subject before confirming');
+    if (q === 'matriculation' && this.props.stream === null) throw new DomainError('invalid_record', 'Choose the matriculation stream before confirming');
     if (hasCgpa(q) && this.props.cgpa === null) throw new DomainError('invalid_record', 'Enter the CGPA before confirming');
     this.props.status = 'confirmed';
     this.props.confirmedAt = new Date();

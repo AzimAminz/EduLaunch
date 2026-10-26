@@ -47,6 +47,8 @@ export const academicRecords = profile.table('academic_record', {
   programmeName: text('programme_name'),
   /** MQF level where a qualification has several: SKM 1–3, DKM 4 / DLKM 5. */
   qualificationLevel: smallint('qualification_level'),
+  /** Matriculation stream (science_1…3, engineering, accounting, professional_accounting). */
+  stream: text('stream'),
   qualification: text('qualification').notNull(),
   recordKind: recordKind('record_kind').notNull(),
   examYear: smallint('exam_year'),

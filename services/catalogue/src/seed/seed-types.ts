@@ -7,7 +7,7 @@ export interface SeedDataset {
   institutions: Array<{ key: string; name: string; shortName: string; type: string; websiteUrl: string | null }>;
   fields: Array<{ key: string; name: string; nameEn: string; riasec: Riasec }>;
   /** `aliases`: other names students type, such as "Add Maths" (used for search). */
-  subjects: Array<{ key: string; name: string; nameEn: string; qualification: 'spm' | 'school' | 'stpm' | 'a_level'; category: string; isMandatory: boolean; aliases?: string[] }>;
+  subjects: Array<{ key: string; name: string; nameEn: string; qualification: 'spm' | 'school' | 'stpm' | 'a_level' | 'matriculation'; category: string; isMandatory: boolean; aliases?: string[] }>;
   programmes: Array<{ key: string; name: string; institutionKey: string | null; studyLevel: StudyLevel; durationSemesters: number | null; fieldKeys: string[] }>;
   requirements: Array<{
     programmeKey: string;

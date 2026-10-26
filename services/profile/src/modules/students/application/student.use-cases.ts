@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundError, type UseCase } from '@edulaunch/ddd';
 import type { Caller } from '@edulaunch/nest-kit';
-import { HigherQualifications, type HigherQualification, type StudentSnapshot } from '@edulaunch/contracts';
+import { HigherQualifications, hasSubjectGrades, type HigherQualification, type StudentSnapshot } from '@edulaunch/contracts';
 import { randomUUID } from 'node:crypto';
 import { Student, type EducationLevel } from '../domain/student.js';
 import { StudentRepository } from '../domain/student.repository.js';
@@ -118,10 +118,10 @@ export class GetStudentSnapshot implements UseCase<{ studentId: string }, Studen
       // Subjects typed by the student are not in the catalogue, so no programme requirement can refer to them.
       grades: [
         ...(graded?.subjects ?? []).filter((s) => s.customName === null).map((s) => ({ subjectId: s.subjectId, grade: s.grade, scale: graded!.qualification as 'spm' | 'school' })),
-        // STPM and A-Level subject grades, for degree requirements on those subjects.
-        ...(higher && (higher.qualification === 'stpm' || higher.qualification === 'a_level') ? higher.subjects : [])
+        // STPM, A-Level, matriculation and foundation subject grades, for degree requirements on those subjects.
+        ...(higher && hasSubjectGrades(higher.qualification) ? higher.subjects : [])
           .filter((s) => s.customName === null)
-          .map((s) => ({ subjectId: s.subjectId, grade: s.grade, scale: higher!.qualification as 'stpm' | 'a_level' })),
+          .map((s) => ({ subjectId: s.subjectId, grade: s.grade, scale: higher!.qualification as 'stpm' | 'a_level' | 'matriculation' | 'foundation' })),
       ],
       higherQualification: student.higherQualification,
       cgpa: higher?.cgpa ?? null,

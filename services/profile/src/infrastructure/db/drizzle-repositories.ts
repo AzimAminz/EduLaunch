@@ -134,6 +134,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
         fieldId: s.fieldId,
         programmeName: s.programmeName,
         qualificationLevel: s.qualificationLevel,
+        stream: s.stream,
         recordStatus: s.status,
         confirmedAt: s.confirmedAt,
       };
@@ -159,6 +160,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       fieldId: row.fieldId,
       programmeName: row.programmeName,
       qualificationLevel: row.qualificationLevel,
+      stream: row.stream,
       subjects: subjects.map((x) => ({ subjectId: x.subjectId, grade: x.grade, customName: x.customName, readConfidence: num(x.readConfidence) })),
       status: row.recordStatus,
       confirmedAt: row.confirmedAt,

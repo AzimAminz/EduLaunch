@@ -74,6 +74,7 @@ export class AcademicRecordService {
       fieldId: input.fieldId ?? null,
       programmeName: input.programmeName ?? null,
       qualificationLevel: input.qualificationLevel ?? null,
+      stream: input.stream ?? null,
     });
     record.confirm();
     await this.records.save(record);

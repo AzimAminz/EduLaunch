@@ -123,6 +123,26 @@ describe('AcademicRecord', () => {
     expect(dkm.isConfirmed).toBe(true);
   });
 
+  it('records a matriculation stream and optional subject grades', () => {
+    const m = AcademicRecord.start('m1', { studentId: 's1', qualification: 'matriculation', kind: 'actual', examYear: 2026 });
+    expect(() => m.setResultDetails({ cgpa: 3.5, muetBand: 4, fieldId: null, programmeName: null, stream: 'medicine' })).toThrow(/stream from the list/);
+    m.setResultDetails({ cgpa: 3.5, muetBand: 4, fieldId: null, programmeName: null, stream: null });
+    expect(() => m.confirm()).toThrow(/stream/);
+    m.setResultDetails({ cgpa: 3.5, muetBand: 4, fieldId: null, programmeName: null, stream: 'science_1' });
+    m.confirm();
+    expect(m.isConfirmed).toBe(true);
+    m.setGrade('bio', 'b+');
+    expect(m.subjects[0]?.grade).toBe('B+');
+  });
+
+  it('records a foundation programme by field and name, with optional subject grades', () => {
+    const f = AcademicRecord.start('f1', { studentId: 's1', qualification: 'foundation', kind: 'actual', examYear: 2026 });
+    expect(() => f.setResultDetails({ cgpa: 3, muetBand: null, fieldId: null, programmeName: null, stream: 'science_1' })).toThrow(/Only matriculation/);
+    f.setResultDetails({ cgpa: 3.2, muetBand: null, fieldId: 'f1', programmeName: 'Asasi Sains Hayat' });
+    f.confirm();
+    expect(f.toSnapshot()).toMatchObject({ programmeName: 'Asasi Sains Hayat', status: 'confirmed' });
+  });
+
   it('needs STPM subjects and CGPA before confirming', () => {
     const stpm = AcademicRecord.start('t1', { studentId: 's1', qualification: 'stpm', kind: 'actual', examYear: 2026 });
     stpm.setGrade('pa', 'B');
