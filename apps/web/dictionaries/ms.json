@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "EduLaunch",
+    "description": "Platform perancangan pendidikan dan kerjaya yang berpandukan maklumat rasmi."
+  },
+  "language": {
+    "label": "Bahasa",
+    "ms": "Bahasa Melayu",
+    "en": "English",
+    "switchTo": "English"
+  },
+  "nav": {
+    "quickSearch": "Cari apa sahaja",
+    "home": "Utama",
+    "groupExplore": "Teroka",
+    "recommendations": "Cadangan saya",
+    "newBadge": "Baru",
+    "explore": "Teroka program",
+    "compare": "Banding",
+    "saved": "Pilihan disimpan",
+    "groupPlan": "Rancang",
+    "eligibility": "Semakan kelayakan",
+    "meritLab": "Merit Lab",
+    "roadmap": "Roadmap saya",
+    "groupSelf": "Kenali diri",
+    "interest": "Penilaian minat",
+    "activities": "Aktiviti penerokaan",
+    "groupHelp": "Dokumen & bantuan",
+    "documents": "Dokumen akademik",
+    "askAi": "Tanya AI bersumber",
+    "updates": "Kemas kini",
+    "help": "Bantuan",
+    "toggleSidebar": "Togol sidebar"
+  },
+  "levels": {
+    "form4_stream": "Aliran Tingkatan 4",
+    "certificate": "Sijil",
+    "skills": "Sijil kemahiran (SKM)",
+    "foundation": "Asasi",
+    "matriculation": "Matrikulasi",
+    "stpm": "STPM",
+    "diploma": "Diploma",
+    "degree": "Ijazah sarjana muda"
+  },
+  "duration": "{years} tahun",
+  "directory": {
+    "eyebrow": "DIREKTORI PROGRAM",
+    "title": "Universiti & program",
+    "intro": "Cari program mengikut universiti, bidang dan peringkat. Rekod yang ditanda \"contoh\" bukan syarat sebenar.",
+    "searchTitle": "Cari pilihan pengajian",
+    "university": "Universiti",
+    "allUniversities": "Semua universiti",
+    "field": "Bidang / jurusan",
+    "allFields": "Semua bidang",
+    "level": "Peringkat",
+    "allLevels": "Semua peringkat",
+    "search": "Cari program",
+    "noMatches": "Tiada padanan",
+    "resultCount": "{count} program dijumpai",
+    "sampleNote": "termasuk data contoh • sumber rasmi belum disahkan",
+    "emptyTitle": "Tiada program sepadan",
+    "emptyBody": "Cuba pilih \"Semua\" pada salah satu penapis.",
+    "clearFilters": "Kosongkan penapis",
+    "previous": "Sebelumnya",
+    "next": "Seterusnya",
+    "pageOf": "Halaman {page} daripada {pages}",
+    "loading": "Memuatkan program…",
+    "errorTitle": "Senarai program tidak dapat dimuatkan",
+    "errorBody": "Bahagian ini tidak dapat dihubungi buat sementara. Cuba lagi sebentar lagi."
+  },
+  "card": {
+    "view": "Lihat program & syarat",
+    "statusSample": "Syarat: data contoh, belum disahkan",
+    "statusPublished": "Syarat kemasukan tersedia",
+    "statusMissing": "Syarat: belum tersedia",
+    "streamProvider": "Sekolah menengah"
+  },
+  "detail": {
+    "back": "Kembali ke direktori",
+    "requirementsTitle": "Syarat kemasukan",
+    "entryRoute": "Laluan kemasukan",
+    "noRequirement": "Syarat kemasukan untuk program ini belum tersedia.",
+    "sourceTitle": "Pengesahan sumber",
+    "sourceSample": "Rekod contoh: belum disahkan. Jangan gunakan untuk keputusan sebenar.",
+    "sourcePublished": "Diterbitkan selepas disemak oleh dua admin.",
+    "evidenceTitle": "Bukti & sumber",
+    "evidenceIntro": "Ayat daripada sumber yang menjadi asas setiap syarat.",
+    "notFound": "Program ini tidak dijumpai."
+  },
+  "requirements": {
+    "atLeastGrade": "Sekurang-kurangnya gred {grade}",
+    "oneOf": "Salah satu daripada",
+    "sameGrade": "{subjects} — sekurang-kurangnya gred {grade}",
+    "subjectGrade": "{subject} gred {grade}",
+    "or": "atau",
+    "credits": "Kepujian",
+    "creditsDetail": "Sekurang-kurangnya {count} subjek dengan gred {grade} atau lebih baik",
+    "cgpa": "PNGK",
+    "muet": "MUET",
+    "atLeast": "Sekurang-kurangnya {value}",
+    "atLeastBand": "Sekurang-kurangnya Band {value}",
+    "otherSubject": "Subjek lain",
+    "routes": {
+      "spm": "Lepasan SPM",
+      "stpm": "Lepasan STPM",
+      "matrikulasi": "Lepasan Matrikulasi",
+      "diploma": "Lepasan Diploma",
+      "form3": "Tingkatan 3 (pilihan aliran)"
+    }
+  },
+  "soon": {
+    "title": "Sedang dibina",
+    "body": "Bahagian ini belum siap. Ia akan ditambah dalam langkah seterusnya.",
+    "back": "Ke direktori program"
+  }
+}

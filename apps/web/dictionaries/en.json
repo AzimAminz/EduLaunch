@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "EduLaunch",
+    "description": "An education and career planning platform based on official information."
+  },
+  "language": {
+    "label": "Language",
+    "ms": "Bahasa Melayu",
+    "en": "English",
+    "switchTo": "Bahasa Melayu"
+  },
+  "nav": {
+    "quickSearch": "Search anything",
+    "home": "Home",
+    "groupExplore": "Explore",
+    "recommendations": "Recommendations",
+    "newBadge": "New",
+    "explore": "Explore programmes",
+    "compare": "Compare",
+    "saved": "Saved choices",
+    "groupPlan": "Plan",
+    "eligibility": "Eligibility check",
+    "meritLab": "Merit Lab",
+    "roadmap": "My roadmap",
+    "groupSelf": "Know yourself",
+    "interest": "Interest quiz",
+    "activities": "Explore activities",
+    "groupHelp": "Documents & help",
+    "documents": "Academic documents",
+    "askAi": "Ask AI with sources",
+    "updates": "Updates",
+    "help": "Help",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "levels": {
+    "form4_stream": "Form 4 stream",
+    "certificate": "Certificate",
+    "skills": "Skills certificate (SKM)",
+    "foundation": "Foundation",
+    "matriculation": "Matriculation",
+    "stpm": "STPM",
+    "diploma": "Diploma",
+    "degree": "Bachelor's degree"
+  },
+  "duration": "{years} years",
+  "directory": {
+    "eyebrow": "PROGRAMME DIRECTORY",
+    "title": "Universities & programmes",
+    "intro": "Find programmes by university, field and level. Records marked \"sample\" are not real requirements.",
+    "searchTitle": "Find study options",
+    "university": "University",
+    "allUniversities": "All universities",
+    "field": "Field of study",
+    "allFields": "All fields",
+    "level": "Level",
+    "allLevels": "All levels",
+    "search": "Search programmes",
+    "noMatches": "No matches",
+    "resultCount": "{count} programmes found",
+    "sampleNote": "includes sample data • official sources not yet verified",
+    "emptyTitle": "No programmes match",
+    "emptyBody": "Try choosing \"All\" in one of the filters.",
+    "clearFilters": "Clear filters",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {pages}",
+    "loading": "Loading programmes…",
+    "errorTitle": "The programme list could not be loaded",
+    "errorBody": "This part is temporarily unavailable. Please try again shortly."
+  },
+  "card": {
+    "view": "View programme & requirements",
+    "statusSample": "Requirements: sample data, not verified",
+    "statusPublished": "Entry requirements available",
+    "statusMissing": "Requirements: not available yet",
+    "streamProvider": "Secondary schools"
+  },
+  "detail": {
+    "back": "Back to directory",
+    "requirementsTitle": "Entry requirements",
+    "entryRoute": "Entry route",
+    "noRequirement": "Entry requirements for this programme are not available yet.",
+    "sourceTitle": "Source check",
+    "sourceSample": "Sample record: not verified. Do not use it for real decisions.",
+    "sourcePublished": "Published after review by two admins.",
+    "evidenceTitle": "Evidence & sources",
+    "evidenceIntro": "The source sentences each requirement is based on.",
+    "notFound": "This programme was not found."
+  },
+  "requirements": {
+    "atLeastGrade": "At least grade {grade}",
+    "oneOf": "One of",
+    "sameGrade": "{subjects} — at least grade {grade}",
+    "subjectGrade": "{subject} grade {grade}",
+    "or": "or",
+    "credits": "Credits",
+    "creditsDetail": "At least {count} subjects at grade {grade} or better",
+    "cgpa": "CGPA",
+    "muet": "MUET",
+    "atLeast": "At least {value}",
+    "atLeastBand": "At least Band {value}",
+    "otherSubject": "Other subject",
+    "routes": {
+      "spm": "After SPM",
+      "stpm": "After STPM",
+      "matrikulasi": "After Matriculation",
+      "diploma": "After Diploma",
+      "form3": "Form 3 (stream choice)"
+    }
+  },
+  "soon": {
+    "title": "Coming soon",
+    "body": "This part is not ready yet. It will be added in a later step.",
+    "back": "Go to the programme directory"
+  }
+}
