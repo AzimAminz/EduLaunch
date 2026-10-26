@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { CurrentCaller, DRIZZLE, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
 import { and, eq } from 'drizzle-orm';
 import * as schema from '../infrastructure/db/schema.js';
@@ -14,6 +14,11 @@ const StartRecordBody = z.object({
   examYear: z.number().int().min(2000).max(2100).nullable().default(null),
 });
 const GradeBody = z.object({ grade: z.string().min(1).max(3) });
+const RecordKey = z.object({ qualification: z.enum(['spm', 'school', 'stpm']), kind: z.enum(['actual', 'target', 'school']) });
+const SaveRecordBody = RecordKey.extend({
+  examYear: z.number().int().min(2000).max(2100).nullable().default(null),
+  subjects: z.array(z.object({ subjectId: z.uuid(), grade: z.string().min(1).max(3) })).min(1).max(20),
+});
 
 @Controller()
 export class ProfileController {
@@ -35,6 +40,20 @@ export class ProfileController {
   @Patch('me/education-level')
   setLevel(@CurrentCaller() caller: Caller, @Body(new ZodPipe(LevelBody)) body: z.infer<typeof LevelBody>) {
     return this.updateLevel.execute({ caller, level: body.level, formYear: body.formYear });
+  }
+
+  /** The results form for one kind of record, e.g. ?qualification=spm&kind=target. `record` is null until first saved. */
+  @Roles('student')
+  @Get('me/records/current')
+  async currentRecord(@CurrentCaller() caller: Caller, @Query(new ZodPipe(RecordKey)) query: z.infer<typeof RecordKey>) {
+    // Wrapped, because Nest sends an empty body for a bare null.
+    return { record: await this.records.current(caller, query) };
+  }
+
+  @Roles('student')
+  @Put('me/records/current')
+  saveCurrentRecord(@CurrentCaller() caller: Caller, @Body(new ZodPipe(SaveRecordBody)) body: z.infer<typeof SaveRecordBody>) {
+    return this.records.saveCurrent(caller, body);
   }
 
   @Roles('student')

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
 import type { Qualification } from '@edulaunch/contracts';
-import { and, desc, eq, isNotNull } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, sql } from 'drizzle-orm';
 import * as schema from './schema.js';
 import { Student } from '../../modules/students/domain/student.js';
 import { StudentRepository } from '../../modules/students/domain/student.repository.js';
@@ -80,6 +80,16 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       .from(academicRecords)
       .where(and(eq(academicRecords.studentId, studentId), eq(academicRecords.recordStatus, 'confirmed')))
       .orderBy(desc(academicRecords.confirmedAt))
+      .limit(1);
+    return row ? this.toDomain(row) : null;
+  }
+
+  async findCurrent(studentId: string, qualification: Qualification, kind: RecordKind) {
+    const [row] = await this.db
+      .select()
+      .from(academicRecords)
+      .where(and(eq(academicRecords.studentId, studentId), eq(academicRecords.qualification, qualification), eq(academicRecords.recordKind, kind)))
+      .orderBy(sql`${academicRecords.confirmedAt} desc nulls first`, academicRecords.id)
       .limit(1);
     return row ? this.toDomain(row) : null;
   }

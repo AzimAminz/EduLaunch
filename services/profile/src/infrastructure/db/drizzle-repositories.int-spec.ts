@@ -97,4 +97,20 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
 
     expect((await records.findLatestConfirmed(s.id))?.id).toBe(newer.id);
   });
+
+  it('finds the current record of one kind only', async () => {
+    const s = await newStudent();
+    expect(await records.findCurrent(s.id, 'spm', 'target')).toBeNull();
+
+    const target = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'spm', kind: 'target', examYear: 2026 });
+    target.replaceSubjects([{ subjectId: subject.bm, grade: 'A' }]);
+    await records.save(target);
+    const school = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'school', kind: 'school', examYear: 2025 });
+    school.replaceSubjects([{ subjectId: subject.math, grade: 'B' }]);
+    await records.save(school);
+
+    expect((await records.findCurrent(s.id, 'spm', 'target'))?.id).toBe(target.id);
+    expect((await records.findCurrent(s.id, 'school', 'school'))?.subjects).toEqual([{ subjectId: subject.math, grade: 'B', readConfidence: null }]);
+    expect(await records.findCurrent(s.id, 'spm', 'actual')).toBeNull();
+  });
 });

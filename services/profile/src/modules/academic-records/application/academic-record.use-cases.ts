@@ -12,6 +12,13 @@ export type RecordChange =
   | { type: 'remove_subject'; subjectId: string }
   | { type: 'confirm' };
 
+export interface SaveRecordInput {
+  qualification: Qualification;
+  kind: RecordKind;
+  examYear: number | null;
+  subjects: Array<{ subjectId: string; grade: string }>;
+}
+
 /** All edits go through the aggregate; the caller can only touch their own records. */
 @Injectable()
 export class AcademicRecordService {
@@ -25,6 +32,27 @@ export class AcademicRecordService {
     const { studentId } = await this.me.execute(caller);
     const record = AcademicRecord.start(randomUUID(), { studentId, ...input });
     await this.records.save(record);
+    return record.toSnapshot();
+  }
+
+  /** The caller's record of this kind, or null when they have not saved one yet. */
+  async current(caller: Caller, input: { qualification: Qualification; kind: RecordKind }) {
+    const { studentId } = await this.me.execute(caller);
+    const record = await this.records.findCurrent(studentId, input.qualification, input.kind);
+    return record ? record.toSnapshot() : null;
+  }
+
+  /** Saves the whole results form: creates the record the first time, replaces every row, and confirms it. */
+  async saveCurrent(caller: Caller, input: SaveRecordInput) {
+    const { studentId } = await this.me.execute(caller);
+    const record =
+      (await this.records.findCurrent(studentId, input.qualification, input.kind)) ??
+      AcademicRecord.start(randomUUID(), { studentId, qualification: input.qualification, kind: input.kind, examYear: null });
+    record.setExamYear(input.examYear);
+    record.replaceSubjects(input.subjects);
+    record.confirm();
+    await this.records.save(record);
+    await this.events.publish(record.pullEvents());
     return record.toSnapshot();
   }
 
