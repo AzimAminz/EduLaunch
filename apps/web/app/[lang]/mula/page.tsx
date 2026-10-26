@@ -55,7 +55,7 @@ export default async function OnboardingPage({ params }: PageProps<'/[lang]/mula
             <LevelPicker locale={lang} t={t} errors={dict.auth.errors} />
           </section>
           <aside className="hidden flex-col gap-3 rounded-[18px] bg-blue p-6 lg:flex">
-            <Image src="/illustrations/rimau-compass.png" alt="" width={300} height={300} priority className="mx-auto size-[260px] object-contain" />
+            <Image src="/illustrations/rimau-compass.png" alt="" width={300} height={300} loading="eager" className="mx-auto size-[260px] object-contain" />
             <p className="text-xl font-semibold">{dict.auth.side.title}</p>
             <p className="text-sm text-muted">{t.sideBody}</p>
           </aside>

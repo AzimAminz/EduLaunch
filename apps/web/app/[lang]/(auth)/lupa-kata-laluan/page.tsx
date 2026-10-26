@@ -13,7 +13,7 @@ export default async function ForgotPasswordPage({ params }: PageProps<'/[lang]/
   return (
     <AuthTwoColumn
       heading={<AuthHeading eyebrow={p.eyebrow} title={p.title} intro={p.intro} />}
-      side={<AuthSidePanel image="/illustrations/rimau-shield.png" title={t.side.title} body={t.side.body} priority />}
+      side={<AuthSidePanel image="/illustrations/rimau-shield.png" title={t.side.title} body={t.side.body} eager />}
     >
       <AuthCard>
         {/* The form reads ?ralat=pautan (an expired e-mail link), which is request-time data. */}

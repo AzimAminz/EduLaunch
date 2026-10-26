@@ -14,7 +14,7 @@ export default async function CheckInboxPage({ params }: PageProps<'/[lang]/sema
   return (
     <AuthTwoColumn
       heading={<AuthHeading eyebrow={p.eyebrow} title={p.title} intro={p.intro} />}
-      side={<AuthSidePanel image="/illustrations/documents-check.png" title={t.side.title} body={t.side.body} priority />}
+      side={<AuthSidePanel image="/illustrations/documents-check.png" title={t.side.title} body={t.side.body} eager />}
     >
       <AuthCard>
         <div className="flex flex-col gap-5">

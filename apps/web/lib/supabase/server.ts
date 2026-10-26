@@ -1,12 +1,15 @@
 import 'server-only';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { AUTH_PAGES, homeFor, type Role } from '../auth/routes';
 import type { Locale } from '../i18n/locale';
 
 /** Supabase client for Server Components, Server Actions and Route Handlers. The session lives in cookies. */
 export async function createClient() {
+  // Supabase reads the clock (Date.now) to check the session, which Next only allows at request time.
+  await connection();
   const store = await cookies();
   return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
     cookies: {
@@ -42,6 +45,13 @@ export async function getAccount(): Promise<Account | null> {
     name: meta.full_name?.trim() || null,
     role: claims.app_metadata?.role === 'admin' ? 'admin' : 'student',
   };
+}
+
+/** The signed-in user's access token, to call the API gateway on their behalf. */
+export async function getAccessToken(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
 }
 
 /**

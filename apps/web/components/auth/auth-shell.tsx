@@ -18,10 +18,10 @@ export function AuthCard({ children }: { children: ReactNode }) {
 }
 
 /** Light-blue panel with Rimau. Hidden on phones to keep the screen short. */
-export function AuthSidePanel({ image, title, body, priority }: { image: string; title: string; body: string; priority?: boolean }) {
+export function AuthSidePanel({ image, title, body, eager }: { image: string; title: string; body: string; eager?: boolean }) {
   return (
     <aside className="hidden flex-col gap-3 rounded-[18px] bg-blue p-6 lg:flex">
-      <Image src={image} alt="" width={220} height={220} priority={priority} className="size-[220px] object-contain" />
+      <Image src={image} alt="" width={220} height={220} loading={eager ? 'eager' : undefined} className="size-[220px] object-contain" />
       <p className="text-xl font-semibold">{title}</p>
       <p className="text-sm text-muted">{body}</p>
     </aside>

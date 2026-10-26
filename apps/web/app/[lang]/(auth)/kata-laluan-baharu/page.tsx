@@ -13,7 +13,7 @@ export default async function NewPasswordPage({ params }: PageProps<'/[lang]/kat
   return (
     <AuthTwoColumn
       heading={<AuthHeading eyebrow={p.eyebrow} title={p.title} intro={p.intro} />}
-      side={<AuthSidePanel image="/illustrations/rimau-shield.png" title={t.side.title} body={t.side.body} priority />}
+      side={<AuthSidePanel image="/illustrations/rimau-shield.png" title={t.side.title} body={t.side.body} eager />}
     >
       <AuthCard>
         <NewPasswordForm locale={lang} t={t} />

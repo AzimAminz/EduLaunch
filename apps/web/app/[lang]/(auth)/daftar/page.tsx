@@ -12,7 +12,7 @@ export default async function SignUpPage({ params }: PageProps<'/[lang]/daftar'>
   return (
     <AuthTwoColumn
       heading={<AuthHeading eyebrow={p.eyebrow} title={p.title} intro={p.intro} />}
-      side={<AuthSidePanel image="/illustrations/rimau-waving.png" title={t.side.title} body={t.side.body} priority />}
+      side={<AuthSidePanel image="/illustrations/rimau-waving.png" title={t.side.title} body={t.side.body} eager />}
     >
       <AuthCard>
         <SignUpForm locale={lang} t={t} />

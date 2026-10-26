@@ -14,7 +14,7 @@ export default async function SignInPage({ params }: PageProps<'/[lang]/log-masu
   return (
     <div className="grid items-start gap-8 lg:grid-cols-2">
       <aside className="hidden flex-col gap-4 rounded-[22px] bg-blue px-12 pb-16 pt-6 lg:flex">
-        <Image src="/illustrations/rimau-waving.png" alt="" width={271} height={271} priority className="mx-auto size-[271px] object-contain" />
+        <Image src="/illustrations/rimau-waving.png" alt="" width={271} height={271} loading="eager" className="mx-auto size-[271px] object-contain" />
         <p className="mt-16 text-[30px] font-bold leading-tight">
           {p.heroLine1}
           <br />
