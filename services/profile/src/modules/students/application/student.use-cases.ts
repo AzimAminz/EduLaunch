@@ -116,7 +116,14 @@ export class GetStudentSnapshot implements UseCase<{ studentId: string }, Studen
       isTargetBased: graded?.kind === 'target',
       gradeScale: graded?.qualification === 'school' ? 'school' : 'spm',
       // Subjects typed by the student are not in the catalogue, so no programme requirement can refer to them.
-      grades: (graded?.subjects ?? []).filter((s) => s.customName === null).map((s) => ({ subjectId: s.subjectId, grade: s.grade })),
+      grades: [
+        ...(graded?.subjects ?? []).filter((s) => s.customName === null).map((s) => ({ subjectId: s.subjectId, grade: s.grade, scale: graded!.qualification as 'spm' | 'school' })),
+        // STPM and A-Level subject grades, for degree requirements on those subjects.
+        ...(higher && (higher.qualification === 'stpm' || higher.qualification === 'a_level') ? higher.subjects : [])
+          .filter((s) => s.customName === null)
+          .map((s) => ({ subjectId: s.subjectId, grade: s.grade, scale: higher!.qualification as 'stpm' | 'a_level' })),
+      ],
+      higherQualification: student.higherQualification,
       cgpa: higher?.cgpa ?? null,
       muetBand: higher?.muetBand ?? null,
       riasec,

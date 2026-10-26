@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { HigherQualifications } from './grade-scales.js';
 
 export const StudyLevel = z.enum(['form4_stream', 'certificate', 'skills', 'foundation', 'matriculation', 'stpm', 'diploma', 'degree']);
 export type StudyLevel = z.infer<typeof StudyLevel>;
@@ -43,8 +44,12 @@ export const StudentSnapshot = z.object({
   /** after_certificate: Sijil / SVM / SKM. after_preu: STPM, matriculation, foundation, A-Level, diploma, DVM or DKM. */
   educationLevel: z.enum(['form1_3', 'form4_5', 'after_spm', 'after_certificate', 'after_preu']),
   isTargetBased: z.boolean(),
+  /** Scale of the main subject grades (SPM, or school grades before SPM); used for "credits" rules. */
   gradeScale: z.enum(['spm', 'school', 'stpm']),
-  grades: z.array(z.object({ subjectId: z.uuid(), grade: z.string() })),
+  /** SPM (or school) grades, plus STPM or A-Level grades after pre-university; `scale` says which. */
+  grades: z.array(z.object({ subjectId: z.uuid(), grade: z.string(), scale: z.enum(['spm', 'school', 'stpm', 'a_level']).optional() })),
+  /** After SPM: the qualification (certificate, svm, skm, stpm, matriculation, foundation, a_level, diploma, dvm, dkm). */
+  higherQualification: z.enum(HigherQualifications).nullable().optional(),
   cgpa: z.number().nullable(),
   muetBand: z.number().nullable(),
   riasec: z.record(z.enum(['R', 'I', 'A', 'S', 'E', 'C']), z.number()).nullable(),
