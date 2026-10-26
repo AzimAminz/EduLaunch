@@ -24,7 +24,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 1 | Project setup, one-command bootstrap, CI | **Done** |
 | 2 | Integration tests for every service's database code | **Done** |
 | 3 | Sample catalogue (3 institutions, 14 programmes, marked "Contoh") and `pnpm db:seed` | **Done** (checked by hand) |
-| 4 | Student portal layout, programme directory and programme page, in BM and EN | **Done** (manual check waiting for sign-off) |
+| 4 | Student portal layout, programme directory and programme page, in BM and EN | **Done** (checked by hand) |
 | 5 | Sign up and log in screens (student and admin) | **Next** |
 | 6 | Academic profile screens: education level, subjects and grades | Planned |
 | 7 | Eligibility on screen: "Can I enter this programme?" on the programme page | Planned |
