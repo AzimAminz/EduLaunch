@@ -9,7 +9,7 @@ import { AdminHeading, Card, LoadError } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listSpecialRequirements, type ProgrammeDetail } from '@/lib/admin/api';
 import { groupCategories } from '@/lib/admin/epanduan-text';
 import { getDictionary } from '@/lib/i18n/dictionaries';
-import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
 
 type Props = PageProps<'/[lang]/admin/program/[id]/tambah-syarat'>;
@@ -18,22 +18,22 @@ type Props = PageProps<'/[lang]/admin/program/[id]/tambah-syarat'>;
  * Step 1 of adding requirements: which route they are for. Routes ePanduan lists come first, each with the category
  * its text comes from (the editor is filled from it); then the routes usual for the level, then the rest.
  */
-export default async function AddRequirementPage({ params }: Props) {
+export default async function AddRequirementPage({ params, searchParams }: Props) {
   const lang = await rootLang();
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
     <Suspense fallback={<p className="text-sm text-muted">…</p>}>
       {/* The programme id is only known at request time. */}
-      <Choose locale={lang} dict={dict} params={params} />
+      <Choose locale={lang} dict={dict} params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
 const OPEN = new Set(['draft', 'returned', 'in_review']);
 
-async function Choose({ locale, dict, params }: { locale: Locale; dict: Dictionary; params: Props['params'] }) {
-  const { id } = await params;
+async function Choose({ locale, dict, params, searchParams }: { locale: Locale; dict: Dictionary; params: Props['params']; searchParams: Props['searchParams'] }) {
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   if (!z.uuid().safeParse(id).success) notFound();
   await requireRole(locale, 'admin');
   const t = dict.admin;
@@ -72,14 +72,14 @@ async function Choose({ locale, dict, params }: { locale: Locale; dict: Dictiona
         route,
         fill: `${own[0]!.jenprog}:${own[0]!.category}`,
         label: routes[route] ?? route,
-        detail: format(c.fromEpanduan, { categories: own.map((x) => categoryLabels[`${x.jenprog}:${x.category}`] ?? x.category).join(' · ') }),
+        detail: own.map((x) => categoryLabels[`${x.jenprog}:${x.category}`] ?? x.category).join(' · '),
         state: stateOf(route),
       });
     }
   }
   const covered = new Set(fromEpanduan.map((x) => x.route));
   const suggested = EntryRoutesByLevel[programme.studyLevel] as readonly string[];
-  const manual = (route: string): RouteChoice => ({ key: route, route, label: routes[route] ?? route, detail: c.manual, state: stateOf(route) });
+  const manual = (route: string): RouteChoice => ({ key: route, route, label: routes[route] ?? route, detail: null, state: stateOf(route) });
   const usual = suggested.filter((r) => !covered.has(r)).map(manual);
   const rest = EntryRoutes.filter((r) => !covered.has(r) && !suggested.includes(r)).map(manual);
 
@@ -96,6 +96,8 @@ async function Choose({ locale, dict, params }: { locale: Locale; dict: Dictiona
             { title: c.groupUsual, choices: usual },
             { title: c.groupOther, choices: rest },
           ]}
+          // From a route's tab: that route is chosen already.
+          initial={typeof sp.laluan === 'string' ? [...fromEpanduan, ...usual, ...rest].find((x) => x.route === sp.laluan)?.key : undefined}
           t={c}
           errors={t.errors}
         />

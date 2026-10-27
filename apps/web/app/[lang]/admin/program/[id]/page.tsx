@@ -7,7 +7,7 @@ import { EntryRoutes } from '@edulaunch/contracts';
 import { FoundDetailsBody } from '@/components/admin/epanduan-details';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
-import { CategoryTabs, type TabManage, type TabState } from '@/components/admin/category-tabs';
+import { RouteTabs, type RouteTab } from '@/components/admin/route-tabs';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail } from '@/lib/admin/api';
@@ -192,10 +192,8 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
  * the lines as Syarat Am and Syarat Khas.
  */
 /**
- * The requirements tab in one card: what ePanduan lists for the programme (facts, then a tab per candidate category
- * with its Syarat Am and Syarat Khas). Each tab is one of the programme's routes and shows the state of the
- * requirements written for it; the tab row ends with edit (remove a route with its draft) and add requirements.
- * Routes written without ePanduan get a tab of their own.
+ * The requirements tab in one card: the programme's facts from ePanduan, then a tab per route with where its
+ * requirements stand and the ePanduan text it is written from (see RouteTabs).
  */
 async function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string }) {
   const t = dict.admin;
@@ -215,47 +213,42 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
   }
   // Only the programme's routes (a removed route's categories are hidden); programmes from before routes were kept show all.
   const kept = new Set(programme.entryRoutes);
-  const categories = (found?.categories ?? []).filter((c) => kept.size === 0 || (c.route && kept.has(c.route)));
-  const groups = groupCategories(categories, special);
-  const covered = new Set(groups.flatMap((g) => g.categories.map((c) => c.route)));
-  for (const route of new Set(programme.requirements.map((v) => v.entryRoute))) {
-    if (!covered.has(route) && (EntryRoutes as readonly string[]).includes(route)) groups.push({ key: `route:${route}`, categories: [], general: null, special: null, route });
-  }
-
-  const states: Record<string, TabState> = {};
-  for (const g of groups) {
-    const route = g.categories.find((c) => c.route)?.route ?? g.route;
-    if (!route) continue;
+  const categories = (found?.categories ?? []).filter((c) => c.route && (kept.size === 0 || kept.has(c.route)));
+  const written = new Set(programme.requirements.map((v) => v.entryRoute));
+  // A tab per route, in route order: those ePanduan lists for the programme, and those written without it.
+  const tabs: RouteTab[] = EntryRoutes.filter((route) => categories.some((c) => c.route === route) || written.has(route)).map((route) => {
     const versions = programme.requirements.filter((v) => v.entryRoute === route);
     const published = versions.find((v) => v.status === 'published');
     const open = versions.find((v) => OPEN.has(v.status));
     const target = open ?? published;
     const name = routes[route] ?? route;
-    states[g.key] = {
-      label: g.categories.length ? undefined : name,
-      status: open ? (open.status as TabState['status']) : published ? 'published' : null,
-      statusText: `${name}: ${
-        open
-          ? format(published ? r.chipChange : r.chipOpen, { status: t.status[open.status], who: who(open.preparedBy, me, t) })
-          : published
-            ? format(r.chipPublished, { version: published.versionNo })
-            : r.none
-      }`,
+    return {
+      route,
+      name,
+      status: open ? (open.status as RouteTab['status']) : published ? 'published' : null,
+      statusText:
+        published && open
+          ? format(r.tabChange, { version: published.versionNo, status: t.status[open.status].toLowerCase() })
+          : open
+            ? format(r.tabOpen, { status: t.status[open.status], who: who(open.preparedBy, me, t) })
+            : published
+              ? format(r.chipPublished, { version: published.versionNo })
+              : r.none,
       href: target ? `/${locale}/admin/syarat/${target.id}` : null,
+      startHref: `/${locale}/admin/program/${programme.id}/tambah-syarat?laluan=${route}`,
+      groups: groupCategories(
+        categories.filter((c) => c.route === route),
+        special,
+      ),
       removable:
         !published && (!open || (open.status !== 'in_review' && open.preparedBy === me))
           ? { draftId: open?.id ?? null, programId: programme.id, entryRoute: route, name }
           : null,
     };
-  }
-  const manage: TabManage = {
-    locale,
-    states,
-    addHref: `/${locale}/admin/program/${programme.id}/tambah-syarat`,
-    texts: r.manage,
-    modal: r.removeModal,
-    errors: t.errors,
-  };
+  });
+  const byRoute = (
+    <RouteTabs locale={locale} tabs={tabs} addHref={`/${locale}/admin/program/${programme.id}/tambah-syarat`} t={r} m={m} errors={t.errors} />
+  );
 
   return (
     <Card>
@@ -266,11 +259,7 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
         </h2>
         <p className="text-sm text-muted">{found ? r.intro : r.introManual}</p>
       </div>
-      {found ? (
-        <FoundDetailsBody programme={found} special={special} m={m} groups={groups} manage={manage} empty={m.noRequirementText} />
-      ) : (
-        <CategoryTabs groups={groups} m={m} manage={manage} empty={r.writtenNone} />
-      )}
+      {found ? <FoundDetailsBody programme={found} special={special} m={m} requirements={byRoute} /> : byRoute}
     </Card>
   );
 }

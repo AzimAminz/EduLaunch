@@ -537,21 +537,13 @@
         "removeYes": "Yes, remove",
         "cancel": "Cancel",
         "introManual": "This programme has no ePanduan data. Choose a route below to write its requirements yourself.",
-        "routeUnsupported": "This category has no route in the system yet, so its requirements cannot be written.",
-        "writtenCount": "{count} routes have requirements",
-        "writtenTitle": "Requirements by route",
         "writtenNone": "No requirements written yet. Press \"Add requirements\" to start.",
         "chipPublished": "Published · v{version}",
-        "chipChange": "Change: {status} · by {who}",
-        "chipOpen": "{status} · by {who}",
         "manage": {
           "edit": "Edit",
           "done": "Done",
           "add": "Add requirements",
-          "open": "Open",
           "remove": "Delete",
-          "noSource": "This route has no ePanduan text. Open its requirements to view or edit them.",
-          "legend": "Published|Draft|Awaiting review|Returned|No requirements yet",
           "editHint": "Press the delete icon on a tab to remove that route with its draft. Only routes not yet published, with your own unsent draft, can be deleted."
         },
         "removeModal": {
@@ -559,7 +551,10 @@
           "body": "This route is removed from the programme with its requirement draft, and its tab is no longer shown. This cannot be undone.",
           "yes": "Yes, delete",
           "cancel": "Cancel"
-        }
+        },
+        "routeHeading": "{route} requirements",
+        "tabOpen": "{status} · {who}",
+        "tabChange": "v{version} · change {status}"
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
@@ -1088,8 +1083,6 @@
       "chooser": {
         "title": "Add entry requirements",
         "intro": "Choose the route to write requirements for. Routes from ePanduan are filled from the official text for you to check.",
-        "fromEpanduan": "ePanduan text: {categories}",
-        "manual": "No ePanduan text, write it yourself",
         "hasDraft": "Has a draft, it will be continued",
         "hasPublished": "Already published, a new version is made",
         "next": "Next",
