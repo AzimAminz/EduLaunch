@@ -49,10 +49,10 @@ export type ProgrammeAction = { action: 'submit' | 'approve' | 'withdraw' | 'dis
 
 /** Publishing workflow: one entry point so the rules stay in the aggregate. */
 @Injectable()
-export class ReviewProgramme implements UseCase<{ id: string; adminId: string } & ProgrammeAction, { status: string }> {
+export class ReviewProgramme implements UseCase<{ id: string; adminId: string; superAdmin?: boolean } & ProgrammeAction, { status: string }> {
   constructor(private readonly programs: ProgramRepository) {}
 
-  async execute(input: { id: string; adminId: string } & ProgrammeAction) {
+  async execute(input: { id: string; adminId: string; superAdmin?: boolean } & ProgrammeAction) {
     const program = await this.programs.findById(input.id);
     if (!program) throw new NotFoundError('Programme', input.id);
     switch (input.action) {
@@ -60,7 +60,7 @@ export class ReviewProgramme implements UseCase<{ id: string; adminId: string } 
         program.submitForReview(input.adminId);
         break;
       case 'approve':
-        program.approve(input.adminId);
+        program.approve(input.adminId, input.superAdmin ? 'allowed' : 'forbidden');
         break;
       case 'return':
         program.returnToPreparer(input.adminId, input.reason);

@@ -68,7 +68,7 @@ export class RequirementsController {
   @Roles('admin')
   @Post(':id/review')
   reviewDraft(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(ReviewBody)) body: z.infer<typeof ReviewBody>, @CurrentCaller() caller: Caller) {
-    return this.review.execute({ id, adminId: caller.userId, ...body });
+    return this.review.execute({ id, adminId: caller.userId, superAdmin: caller.superAdmin, ...body });
   }
 
   @Roles('admin')

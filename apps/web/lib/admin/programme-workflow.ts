@@ -14,11 +14,13 @@ export type WorkflowMessage =
   | 'returned'
   | 'reviewMine'
   | 'reviewOther'
+  | 'reviewSuper'
   | 'published'
   | 'changeDraft'
   | 'changeReturned'
   | 'changeReviewMine'
   | 'changeReviewOther'
+  | 'changeReviewSuper'
   | 'archived';
 
 export interface Workflow {
@@ -39,13 +41,15 @@ interface ProgrammeState {
   pendingPreparedBy: string | null;
 }
 
-export function programmeWorkflow(p: ProgrammeState, me: string): Workflow {
+/** `superAdmin`: may approve their own work, so their own draft or change in review offers "approve" too. */
+export function programmeWorkflow(p: ProgrammeState, me: string, superAdmin = false): Workflow {
   switch (p.status) {
     case 'draft':
       return { track: 'new', step: 0, message: !p.preparedBy || p.preparedBy === me ? 'draftMine' : 'draftOther', actions: ['submit', 'edit', 'delete'], canEdit: true };
     case 'returned':
       return { track: 'new', step: 0, message: 'returned', actions: ['edit', 'submit', 'delete'], canEdit: true };
     case 'in_review':
+      if (superAdmin && p.preparedBy === me) return { track: 'new', step: 1, message: 'reviewSuper', actions: ['approve', 'withdraw'], canEdit: false };
       return p.preparedBy === me
         ? { track: 'new', step: 1, message: 'reviewMine', actions: ['withdraw'], canEdit: false }
         : { track: 'new', step: 1, message: 'reviewOther', actions: ['approve', 'return'], canEdit: false };
@@ -58,6 +62,7 @@ export function programmeWorkflow(p: ProgrammeState, me: string): Workflow {
         case 'returned':
           return { track: 'change', step: 0, message: 'changeReturned', actions: ['edit', 'submit', 'discard'], canEdit: true };
         case 'in_review':
+          if (superAdmin && p.pendingPreparedBy === me) return { track: 'change', step: 1, message: 'changeReviewSuper', actions: ['approve', 'withdraw'], canEdit: false };
           return p.pendingPreparedBy === me
             ? { track: 'change', step: 1, message: 'changeReviewMine', actions: ['withdraw'], canEdit: false }
             : { track: 'change', step: 1, message: 'changeReviewOther', actions: ['approve', 'return'], canEdit: false };

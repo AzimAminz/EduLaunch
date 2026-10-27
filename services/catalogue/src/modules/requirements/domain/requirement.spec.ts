@@ -27,6 +27,13 @@ describe('Requirement', () => {
     expect(() => req.approve('aina')).toThrow(/Another admin/);
   });
 
+  it('lets a super admin approve their own draft', () => {
+    const req = draft();
+    req.submitForReview('aina');
+    req.approve('aina', 'allowed');
+    expect(req.status).toBe('published');
+  });
+
   it('publishes when another admin approves, and raises an event', () => {
     const req = draft();
     req.submitForReview('aina');

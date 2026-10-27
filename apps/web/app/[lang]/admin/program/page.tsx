@@ -12,7 +12,6 @@ import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/local
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
 
 type Search = Promise<Record<string, string | string[] | undefined>>;
-const PAGE_SIZE = 20;
 
 /**
  * Programme list (Figma A5): search, filter by institution, status or "no published requirements", sort by a column,
@@ -49,7 +48,7 @@ async function Programmes({ locale, dict, searchParams }: { locale: Locale; dict
   try {
     const token = (await getAccessToken())!;
     [page, institutions] = await Promise.all([
-      listProgrammes(token, { query, status, institutionId, missingRequirements: missing, sort: list.sort, direction: list.direction, page: list.page, pageSize: PAGE_SIZE }),
+      listProgrammes(token, { query, status, institutionId, missingRequirements: missing, sort: list.sort, direction: list.direction, page: list.page, pageSize: list.pageSize }),
       listAdminInstitutions(token),
     ]);
   } catch {
@@ -92,6 +91,7 @@ async function Programmes({ locale, dict, searchParams }: { locale: Locale; dict
           {missing && <input type="hidden" name="syarat" value="tiada" />}
           {list.sort !== 'name' && <input type="hidden" name="susun" value={list.sort} />}
           {list.direction === 'desc' && <input type="hidden" name="arah" value="desc" />}
+          {list.pageSize !== 20 && <input type="hidden" name="saiz" value={list.pageSize} />}
           <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-line bg-white px-3 text-muted transition-colors focus-within:border-navy/50 focus-within:ring-2 focus-within:ring-navy/15">
             <AdminIcon name="search" size={18} />
             <span className="sr-only">{t.programmes.search}</span>
@@ -153,9 +153,9 @@ async function Programmes({ locale, dict, searchParams }: { locale: Locale; dict
         dict={dict}
         now={new Date().getTime()}
         showInstitution={!institutionId}
-        sort={{ sort: list.sort, direction: list.direction, href: (sort, direction) => href({}, { sort, direction, page: 1 }) }}
+        sort={{ sort: list.sort, direction: list.direction, href: (sort, direction) => href({}, { ...list, sort, direction, page: 1 }) }}
       />
-      <Pagination page={page.page} pageSize={page.pageSize} total={page.total} href={(p) => href({}, { ...list, page: p })} t={t.pagination} />
+      <Pagination page={page.page} pageSize={page.pageSize} total={page.total} href={(p) => href({}, { ...list, page: p })} sizeHref={(pageSize) => href({}, { ...list, pageSize, page: 1 })} t={t.pagination} />
 
       <HowItWorks title={t.programmes.how.title} steps={t.programmes.how.steps} />
     </>

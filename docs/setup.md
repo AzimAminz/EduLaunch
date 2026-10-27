@@ -83,6 +83,7 @@ Next time, you only need: open Docker Desktop → `pnpm db:start` → `pnpm infr
 | `pnpm db:migrate` | Add any new database tables or columns your teammates created |
 | `pnpm db:seed` | Load the sample universities and programmes (safe to run again) |
 | `pnpm admin:grant <email>` | Make a local account an admin (see below) |
+| `pnpm db:seed:demo` | Create the demo super admin again (also part of `pnpm db:seed`) |
 | `pnpm email:build` | Rebuild the e-mail designs after changing their text |
 
 Working on one part only? Add `--filter`, for example `pnpm --filter @edulaunch/catalogue-service dev`.
@@ -105,6 +106,20 @@ To make the account a student again: `pnpm admin:grant you@example.com --revoke`
 Only the database can give someone admin rights. Users cannot make themselves admin.
 
 To try the review workflow you need **two** admin accounts: the admin who prepares a draft cannot approve it. Create a second account, run `pnpm admin:grant` for it too, and use it in another browser or a private window.
+
+### Demo super admin (one account for demos)
+
+`pnpm db:seed` also creates a **super admin** on your local Supabase:
+
+| Email | Password |
+|---|---|
+| `superadmin@edulaunch.test` | `EduLaunch@2026` |
+
+A super admin is still an admin (same pages), but may also **approve their own work**: their own programme, change, requirement draft or institution delete shows **Luluskan** as well as **Tarik balik**, and appears under **Peti tugasan → Untuk saya**. The approval is recorded as theirs, so the history stays honest. Ordinary admins still need a second admin.
+
+- Change the login with `DEMO_ADMIN_EMAIL` and `DEMO_ADMIN_PASSWORD` before running `pnpm db:seed:demo`.
+- Make any local account a super admin: `pnpm admin:grant you@example.com --super`.
+- The seeder only runs against a local Supabase (127.0.0.1 or localhost) and refuses anything else. Do not create a super admin with a known password on a shared or public server.
 
 ---
 

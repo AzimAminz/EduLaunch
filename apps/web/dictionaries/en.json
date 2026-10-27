@@ -525,7 +525,9 @@
         "changeReturned": "The change was returned: {reason}. Students still see the current version.",
         "changeReviewMine": "Change sent. Every other admin sees it in their task inbox, and any of them can approve it. Students still see the current version.",
         "changeReviewOther": "Another admin proposed a change. Compare below, then approve or return it.",
-        "archived": "This programme is hidden from students. Reopen it as a draft to edit and publish it again."
+        "archived": "This programme is hidden from students. Reopen it as a draft to edit and publish it again.",
+        "reviewSuper": "Sent. As a super admin you may approve it yourself (recorded as your approval), or leave it for another admin. To change something, withdraw it first.",
+        "changeReviewSuper": "Changes sent. As a super admin you may approve them yourself. Students see the current version until then."
       },
       "steps": {
         "new": [
@@ -842,12 +844,17 @@
       "range": "{from}–{to} of {total}",
       "previous": "Previous page",
       "next": "Next page",
-      "page": "Page {page}"
+      "page": "Page {page}",
+      "perPage": "Rows per page"
     },
     "sort": {
       "label": "Sort",
       "ascending": "ascending",
       "descending": "descending"
+    },
+    "superAdmin": {
+      "tag": "Super admin",
+      "selfApprove": "You are a super admin: you may approve this draft yourself."
     }
   },
   "footer": {

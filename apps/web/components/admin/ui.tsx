@@ -167,10 +167,27 @@ export function LoadError({ text }: { text: string }) {
 }
 
 /**
- * Page links for a long list: previous, the pages around the current one (with gaps), next, and "x–y of z".
- * `href(page)` builds each page's address, keeping the list's filters and sort.
+ * Page links under a list: "x–y of z", previous, the pages around the current one (with gaps), next, and how many
+ * rows a page shows. Always shown, so readers know where the list ends; arrows with nowhere to go are dimmed.
+ * `href(page)` and `sizeHref(size)` build the addresses, keeping the list's filters and sort.
  */
-export function Pagination({ page, pageSize, total, href, t }: { page: number; pageSize: number; total: number; href: (page: number) => string; t: AdminDict['pagination'] }) {
+export function Pagination({
+  page,
+  pageSize,
+  total,
+  href,
+  sizeHref,
+  sizes = [10, 20, 50],
+  t,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  href: (page: number) => string;
+  sizeHref?: (size: number) => string;
+  sizes?: readonly number[];
+  t: AdminDict['pagination'];
+}) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (total === 0) return null;
   const from = (page - 1) * pageSize + 1;
@@ -183,25 +200,45 @@ export function Pagination({ page, pageSize, total, href, t }: { page: number; p
       aria-label={aria}
       aria-current={current ? 'page' : undefined}
       className={`inline-flex min-w-9 items-center justify-center rounded-[9px] px-2.5 py-1.5 text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
-        current ? 'bg-navy text-white' : 'text-navy hover:bg-white'
+        current ? 'bg-navy text-white' : 'text-navy hover:bg-bg'
       }`}
     >
       {label}
     </Link>
   );
+  const dimmed = (label: ReactNode, aria: string) => (
+    <span aria-label={aria} aria-disabled="true" className="inline-flex min-w-9 cursor-not-allowed items-center justify-center rounded-[9px] px-2.5 py-1.5 text-muted/50">
+      {label}
+    </span>
+  );
   return (
-    <nav aria-label={t.label} className="flex flex-wrap items-center justify-between gap-3">
+    <nav aria-label={t.label} className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-line bg-white px-4 py-2.5">
       <p className="text-[13px] text-muted">{format(t.range, { from, to, total })}</p>
-      {pages > 1 && (
-        <div className="flex items-center gap-1">
-          {page > 1 ? link(page - 1, <AdminIcon name="arrowLeft" size={16} />, t.previous) : null}
-          {shown.map((p, i) => (
-            <span key={p} className="flex items-center gap-1">
-              {i > 0 && p - shown[i - 1]! > 1 && <span className="px-1 text-muted">…</span>}
-              {link(p, p, format(t.page, { page: p }), p === page)}
-            </span>
+      <div className="flex items-center gap-1">
+        {page > 1 ? link(page - 1, <AdminIcon name="arrowLeft" size={16} />, t.previous) : dimmed(<AdminIcon name="arrowLeft" size={16} />, t.previous)}
+        {shown.map((p, i) => (
+          <span key={p} className="flex items-center gap-1">
+            {i > 0 && p - shown[i - 1]! > 1 && <span className="px-1 text-muted">…</span>}
+            {link(p, p, format(t.page, { page: p }), p === page)}
+          </span>
+        ))}
+        {page < pages ? link(page + 1, <AdminIcon name="arrowRight" size={16} />, t.next) : dimmed(<AdminIcon name="arrowRight" size={16} />, t.next)}
+      </div>
+      {sizeHref && (
+        <div className="flex items-center gap-1 text-[13px]">
+          <span className="mr-1 text-muted">{t.perPage}</span>
+          {sizes.map((size) => (
+            <Link
+              key={size}
+              href={sizeHref(size)}
+              aria-current={size === pageSize ? 'true' : undefined}
+              className={`rounded-[8px] px-2 py-1 font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                size === pageSize ? 'bg-navy text-white' : 'text-navy hover:bg-bg'
+              }`}
+            >
+              {size}
+            </Link>
           ))}
-          {page < pages ? link(page + 1, <AdminIcon name="arrowRight" size={16} />, t.next) : null}
         </div>
       )}
     </nav>

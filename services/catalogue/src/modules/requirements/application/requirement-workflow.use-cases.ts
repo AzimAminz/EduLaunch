@@ -98,18 +98,18 @@ export type ReviewAction = { action: 'submit' } | { action: 'approve' } | { acti
 
 /** One entry point for the review workflow so the rules stay in the aggregate. */
 @Injectable()
-export class ReviewRequirement implements UseCase<{ id: string; adminId: string } & ReviewAction, { status: string }> {
+export class ReviewRequirement implements UseCase<{ id: string; adminId: string; superAdmin?: boolean } & ReviewAction, { status: string }> {
   constructor(
     private readonly requirements: RequirementRepository,
     @Inject(EventBus) private readonly events: EventBus,
   ) {}
 
-  async execute(input: { id: string; adminId: string } & ReviewAction) {
+  async execute(input: { id: string; adminId: string; superAdmin?: boolean } & ReviewAction) {
     const req = await this.requirements.findById(input.id);
     if (!req) throw new NotFoundError('Requirement', input.id);
 
     if (input.action === 'submit') req.submitForReview(input.adminId);
-    else if (input.action === 'approve') req.approve(input.adminId);
+    else if (input.action === 'approve') req.approve(input.adminId, input.superAdmin ? 'allowed' : 'forbidden');
     else req.returnToPreparer(input.adminId, input.reason);
 
     await this.requirements.save(req);

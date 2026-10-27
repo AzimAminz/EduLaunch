@@ -85,7 +85,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
   }
 
   const me = account.id;
-  const workflow = programmeWorkflow(programme, me);
+  const workflow = programmeWorkflow(programme, me, account.superAdmin);
   const w = t.programme.workflow;
   const message =
     workflow.message === 'returned'

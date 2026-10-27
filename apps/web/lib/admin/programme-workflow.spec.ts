@@ -21,6 +21,14 @@ describe('programmeWorkflow', () => {
     expect(programmeWorkflow(state({ status: 'in_review', preparedBy: other }), me)).toMatchObject({ message: 'reviewOther', actions: ['approve', 'return'] });
   });
 
+  it('lets a super admin approve their own draft or change, and still withdraw it', () => {
+    expect(programmeWorkflow(state({ status: 'in_review' }), me, true)).toMatchObject({ message: 'reviewSuper', actions: ['approve', 'withdraw'] });
+    const change = state({ status: 'published', preparedBy: null, pendingStatus: 'in_review', pendingPreparedBy: me });
+    expect(programmeWorkflow(change, me, true)).toMatchObject({ track: 'change', message: 'changeReviewSuper', actions: ['approve', 'withdraw'] });
+    // Someone else's work is reviewed as usual.
+    expect(programmeWorkflow(state({ status: 'in_review', preparedBy: other }), me, true).message).toBe('reviewOther');
+  });
+
   it('edits a published programme through a change that follows the same steps', () => {
     const live = state({ status: 'published', preparedBy: null });
     expect(programmeWorkflow(live, me)).toEqual({ track: 'none', step: 2, message: 'published', actions: ['edit', 'archive'], canEdit: true });

@@ -167,8 +167,9 @@ export class Program extends AggregateRoot<string, ProgramProps> {
     throw new DomainError('conflict', 'Nothing is waiting for review');
   }
 
-  approve(by: string): void {
-    const target = this.reviewTarget(by);
+  /** `ownWork`: a super admin may approve what they prepared themselves; everyone else needs another admin. */
+  approve(by: string, ownWork: 'allowed' | 'forbidden' = 'forbidden'): void {
+    const target = this.reviewTarget(by, ownWork);
     if (target === 'draft') {
       this.props = { ...this.props, publishStatus: 'published', approvedBy: by };
       return;
@@ -223,13 +224,13 @@ export class Program extends AggregateRoot<string, ProgramProps> {
   }
 
   /** What an approve or return acts on, after checking that someone other than its preparer is reviewing it. */
-  private reviewTarget(by: string): 'draft' | 'change' {
+  private reviewTarget(by: string, ownWork: 'allowed' | 'forbidden' = 'forbidden'): 'draft' | 'change' {
     if (this.props.publishStatus === 'in_review') {
-      if (by === this.props.preparedBy) throw new DomainError('forbidden', 'Another admin must review this programme');
+      if (ownWork === 'forbidden' && by === this.props.preparedBy) throw new DomainError('forbidden', 'Another admin must review this programme');
       return 'draft';
     }
     if (this.props.pending?.status === 'in_review') {
-      if (by === this.props.pending.preparedBy) throw new DomainError('forbidden', 'Another admin must review these changes');
+      if (ownWork === 'forbidden' && by === this.props.pending.preparedBy) throw new DomainError('forbidden', 'Another admin must review these changes');
       return 'change';
     }
     throw new DomainError('conflict', 'This programme is not waiting for review');

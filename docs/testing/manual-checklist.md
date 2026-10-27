@@ -276,6 +276,8 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 **Before you start:** `pnpm dev` is running, and `pnpm db:migrate` has been run after pulling. You need **two admin accounts** (the person who prepares a draft cannot approve it): sign up twice in the web app, then run `pnpm admin:grant <email>` for each. Use two browsers (or one normal and one private window), one per admin. Below they are called **Admin A** and **Admin B**.
 
+**Quick demo with one account:** log in as the demo super admin (`superadmin@edulaunch.test` / `EduLaunch@2026`, created by `pnpm db:seed`). The sidebar shows a yellow **Super admin** tag. After **Hantar untuk semakan**, the panel offers **Luluskan** on your own programme, and it appears under **Peti tugasan → Untuk saya**. Admin A and Admin B (ordinary admins) still cannot approve their own work; check that too.
+
 ### A. Admin pages are for admins only
 
 - [ ] Admin A logs in and lands on **Laman utama** ("Selamat datang, …") with three tasks: **Semak draf yang menunggu**, **Kemas kini syarat program**, **Tambah program baharu**.

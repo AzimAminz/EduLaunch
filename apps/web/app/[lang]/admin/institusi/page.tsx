@@ -13,7 +13,7 @@ import { getAccessToken, requireRole } from '@/lib/supabase/server';
 type Search = Promise<Record<string, string | string[] | undefined>>;
 const SORTS = ['name', 'programmes', 'state'] as const;
 type Sort = (typeof SORTS)[number];
-const PAGE_SIZE = 15;
+const DEFAULT_SIZE = 10;
 
 /** Institutions: reference data that admins add and correct directly (no review step). */
 export default async function InstitutionsPage({ params, searchParams }: PageProps<'/[lang]/admin/institusi'>) {
@@ -47,7 +47,7 @@ async function Institutions({ locale, dict, searchParams }: { locale: Locale; di
   const i = t.institutions;
   const sp = await searchParams;
   const query = first(sp.q)?.trim().slice(0, 100) ?? '';
-  const list = readListParams<Sort>(sp, SORTS, 'name');
+  const list = readListParams<Sort>(sp, SORTS, 'name', DEFAULT_SIZE);
   const base = `/${locale}/admin/institusi`;
 
   let rows;
@@ -58,10 +58,10 @@ async function Institutions({ locale, dict, searchParams }: { locale: Locale; di
   }
   const needle = query.toLocaleLowerCase(locale);
   const found = needle ? rows.filter((r) => [r.name, r.shortName, r.state].some((x) => x?.toLocaleLowerCase(locale).includes(needle))) : rows;
-  const shown = pageOf(sortInstitutions(found, list, locale), list.page, PAGE_SIZE);
+  const shown = pageOf(sortInstitutions(found, list, locale), list.page, list.pageSize);
 
   const href = (next: ListParams<Sort>) => {
-    const qs = new URLSearchParams([...(query ? [['q', query] as [string, string]] : []), ...listParamEntries(next, 'name')]).toString();
+    const qs = new URLSearchParams([...(query ? [['q', query] as [string, string]] : []), ...listParamEntries(next, 'name', DEFAULT_SIZE)]).toString();
     return qs ? `${base}?${qs}` : base;
   };
   // Pressing the current sort flips it; a new sort starts with the natural order (most programmes first).
@@ -71,7 +71,7 @@ async function Institutions({ locale, dict, searchParams }: { locale: Locale; di
     return (
       <Link
         key={key}
-        href={href({ sort: key, direction, page: 1 })}
+        href={href({ ...list, sort: key, direction, page: 1 })}
         aria-current={active ? 'true' : undefined}
         className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
           active ? 'border-navy bg-navy text-white' : 'border-line bg-white hover:border-navy/30 hover:bg-bg'
@@ -88,6 +88,7 @@ async function Institutions({ locale, dict, searchParams }: { locale: Locale; di
       <form action={base} className="flex min-w-0 gap-2 lg:w-[460px]">
         {list.sort !== 'name' && <input type="hidden" name="susun" value={list.sort} />}
         {list.direction === 'desc' && <input type="hidden" name="arah" value="desc" />}
+        {list.pageSize !== DEFAULT_SIZE && <input type="hidden" name="saiz" value={list.pageSize} />}
         <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-line bg-white px-3 text-muted transition-colors focus-within:border-navy/50 focus-within:ring-2 focus-within:ring-navy/15">
           <AdminIcon name="search" size={18} />
           <span className="sr-only">{i.search}</span>
@@ -113,7 +114,16 @@ async function Institutions({ locale, dict, searchParams }: { locale: Locale; di
         noMatches={dict.directory.noMatches}
         toolbar={toolbar}
         empty={query ? format(i.noResults, { query }) : i.empty}
-        footer={<Pagination page={shown.page} pageSize={PAGE_SIZE} total={found.length} href={(page) => href({ ...list, page })} t={t.pagination} />}
+        footer={
+          <Pagination
+            page={shown.page}
+            pageSize={list.pageSize}
+            total={found.length}
+            href={(page) => href({ ...list, page })}
+            sizeHref={(pageSize) => href({ ...list, pageSize, page: 1 })}
+            t={t.pagination}
+          />
+        }
       />
       <HowItWorks title={i.how.title} steps={i.how.steps} />
     </>

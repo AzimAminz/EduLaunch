@@ -40,6 +40,19 @@ describe('Program', () => {
       expect(p.toSnapshot().approvedBy).toBe('admin-b');
     });
 
+    it('may be approved by the super admin who prepared it, recorded as their approval', () => {
+      const p = draft('super');
+      p.submitForReview('super');
+      expect(() => p.returnToPreparer('super', 'Semak semula gred')).toThrow('Another admin');
+      p.approve('super', 'allowed');
+      expect(p.toSnapshot()).toMatchObject({ publishStatus: 'published', preparedBy: 'super', approvedBy: 'super' });
+
+      p.edit('super', { campus: 'Kampus Induk' });
+      p.submitForReview('super');
+      p.approve('super', 'allowed');
+      expect(p.toSnapshot().campus).toBe('Kampus Induk');
+    });
+
     it('can be edited by any admin, who then becomes its preparer and cannot approve it', () => {
       const p = draft('admin-a');
       p.edit('admin-b', { name: 'Diploma Sains Komputer (Rangkaian)' });

@@ -70,6 +70,13 @@ describe('DeleteInstitution', () => {
     expect(repo.deleted).toEqual(['i1']);
   });
 
+  it('lets a super admin approve the delete they asked for', async () => {
+    const repo = new FakeRepo(utem(), 3);
+    const { use } = run(repo);
+    await use.execute({ id: 'i1', adminId: 'a', superAdmin: true, action: 'request', confirm: 'UTeM' });
+    expect(await use.execute({ id: 'i1', adminId: 'a', superAdmin: true, action: 'approve' })).toEqual({ status: 'deleted' });
+  });
+
   it('can cancel a waiting delete', async () => {
     const repo = new FakeRepo(utem(), 3);
     const { use } = run(repo);

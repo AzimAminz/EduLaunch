@@ -20,7 +20,6 @@ type Tab = (typeof TABS)[number];
 type Props = PageProps<'/[lang]/admin/institusi/[id]'>;
 type Sort = (typeof ProgrammeSorts)[number];
 const TAB_ICON: Record<Tab, AdminIconName> = { ringkasan: 'dashboard', program: 'programme', sumber: 'link', tetapan: 'sliders' };
-const PAGE_SIZE = 20;
 
 /**
  * An institution's profile, the home of its data: summary, programmes (added by hand now, found from its sources
@@ -55,7 +54,7 @@ async function Institution({ locale, dict, params, searchParams }: { locale: Loc
     const token = (await getAccessToken())!;
     [institution, programmes] = await Promise.all([
       getInstitutionDetail(token, id),
-      tab === 'program' ? listProgrammes(token, { institutionId: id, sort: list.sort, direction: list.direction, page: list.page, pageSize: PAGE_SIZE }) : null,
+      tab === 'program' ? listProgrammes(token, { institutionId: id, sort: list.sort, direction: list.direction, page: list.page, pageSize: list.pageSize }) : null,
     ]);
   } catch (err) {
     if (err instanceof AdminApiError && err.status === 404) notFound();
@@ -104,9 +103,9 @@ async function Institution({ locale, dict, params, searchParams }: { locale: Loc
             dict={dict}
             now={new Date().getTime()}
             showInstitution={false}
-            sort={{ sort: list.sort, direction: list.direction, href: (sort, direction) => programmeHref({ sort, direction, page: 1 }) }}
+            sort={{ sort: list.sort, direction: list.direction, href: (sort, direction) => programmeHref({ ...list, sort, direction, page: 1 }) }}
           />
-          <Pagination page={programmes.page} pageSize={programmes.pageSize} total={programmes.total} href={(page) => programmeHref({ ...list, page })} t={t.pagination} />
+          <Pagination page={programmes.page} pageSize={programmes.pageSize} total={programmes.total} href={(page) => programmeHref({ ...list, page })} sizeHref={(pageSize) => programmeHref({ ...list, pageSize, page: 1 })} t={t.pagination} />
         </>
       )}
       {tab === 'sumber' && (
@@ -126,7 +125,7 @@ async function Institution({ locale, dict, params, searchParams }: { locale: Loc
             <InstitutionForm locale={locale} t={t} noMatches={dict.directory.noMatches} values={institution} />
           </Card>
           <div className="max-w-[760px]">
-            <InstitutionDangerZone locale={locale} institution={institution} confirmationText={institution.shortName ?? institution.name} me={account.id} t={t} />
+            <InstitutionDangerZone locale={locale} institution={institution} confirmationText={institution.shortName ?? institution.name} me={account.id} superAdmin={account.superAdmin} t={t} />
           </div>
         </>
       )}

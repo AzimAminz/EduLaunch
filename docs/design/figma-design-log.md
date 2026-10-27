@@ -635,3 +635,7 @@ Belum dibina (langkah kemudian): mod latihan, lawatan berpandu, carian bantuan, 
 - **Jadual program**: kepala lajur boleh disusun (`aria-sort`), lajur baharu Dikemas kini, 20 baris setiap halaman dengan pautan halaman. Susunan dan halaman disimpan dalam alamat (`?susun=&arah=&halaman=`).
 - **Senarai institusi**: carian, susun ikut Nama / Bilangan program / Negeri, 15 setiap halaman.
 - Figma belum dikemas kini untuk skrin ini.
+
+### 25.4 Super admin dan bar halaman (27 Okt 2026)
+- **Super admin** untuk demo: tag kuning "Super admin" di bawah nama dalam sidebar. Panel status menunjukkan Luluskan pada kerja sendiri dengan ayat yang menerangkan kelulusan direkodkan sebagai miliknya.
+- **Bar halaman sentiasa kelihatan** di bawah jadual Program, senarai Institusi dan tab Program profil institusi: "x–y daripada N", anak panah (dimalapkan bila tiada halaman lain), nombor halaman, dan "Baris setiap halaman" 10 / 20 / 50 (`?saiz=`).

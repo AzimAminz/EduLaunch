@@ -21,7 +21,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:migrate": "turbo run db:migrate",
-    "db:seed": "turbo run db:seed",
+    "db:seed": "turbo run db:seed && node tools/scripts/seed-demo-accounts.mjs",
+    "db:seed:demo": "node tools/scripts/seed-demo-accounts.mjs",
     "env:setup": "node tools/scripts/setup-env.mjs",
     "admin:grant": "node tools/scripts/make-admin.mjs",
     "email:build": "node tools/scripts/build-email-templates.mjs"

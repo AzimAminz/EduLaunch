@@ -43,11 +43,13 @@ const TONE: Record<Workflow['message'], string> = {
   returned: 'bg-red/10',
   reviewMine: 'bg-cream',
   reviewOther: 'bg-cream',
+  reviewSuper: 'bg-cream',
   published: 'bg-mint',
   changeDraft: 'bg-blue',
   changeReturned: 'bg-red/10',
   changeReviewMine: 'bg-cream',
   changeReviewOther: 'bg-cream',
+  changeReviewSuper: 'bg-cream',
   archived: 'bg-line',
 };
 

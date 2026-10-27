@@ -49,7 +49,8 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
   const me = account.id;
   const isDraft = req.status === 'draft' || req.status === 'returned';
   const editing = isDraft && req.preparedBy === me;
-  const reviewing = req.status === 'in_review' && req.preparedBy !== me;
+  // A super admin may also approve a draft they prepared.
+  const reviewing = req.status === 'in_review' && (req.preparedBy !== me || account.superAdmin);
   const meta = format(t.requirement.meta, { institution: req.institutionName ?? '—', route, version: req.versionNo });
   const back = { href: `/${locale}/admin/program/${req.programmeId}`, label: t.requirement.back };
   const subjectNames = new Map(reference.subjects.map((s) => [s.id, localName(s, locale)]));
@@ -73,7 +74,9 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
   }
 
   const note = reviewing
-    ? undefined
+    ? req.preparedBy === me
+      ? t.superAdmin.selfApprove
+      : undefined
     : req.status === 'in_review'
       ? t.requirement.notes.waiting
       : isDraft

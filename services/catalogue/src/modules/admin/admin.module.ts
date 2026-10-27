@@ -37,7 +37,8 @@ export class AdminQueries {
   constructor(@Inject(DRIZZLE) private readonly db: Database<typeof schema>) {}
 
   /** Everything not yet published, as tasks for the signed-in admin. */
-  async tasks(adminId: string) {
+  /** A super admin may approve their own work, so it shows under "to review" instead of "waiting for others". */
+  async tasks(adminId: string, superAdmin = false) {
     const [programmeRows, changeRows, requirementRows, deletionRows] = await Promise.all([
       this.db
         .select({
@@ -127,10 +128,10 @@ export class AdminQueries {
     ]);
     return {
       // Oldest first: the longest waiting comes first.
-      toReview: all.filter((t) => t.status === 'in_review' && !mine(t)),
+      toReview: all.filter((t) => t.status === 'in_review' && (superAdmin || !mine(t))),
       returned: all.filter((t) => t.status === 'returned' && mine(t)),
       myDrafts: all.filter((t) => t.status === 'draft' && (mine(t) || t.preparedBy === null)),
-      waiting: all.filter((t) => t.status === 'in_review' && mine(t)),
+      waiting: superAdmin ? [] : all.filter((t) => t.status === 'in_review' && mine(t)),
       counts: { published: published[0]?.n ?? 0, withoutRequirements: withoutRequirements[0]?.n ?? 0 },
     };
   }
@@ -409,7 +410,7 @@ export class AdminController {
 
   @Get('tasks')
   tasks(@CurrentCaller() caller: Caller) {
-    return this.queries.tasks(caller.userId);
+    return this.queries.tasks(caller.userId, caller.superAdmin);
   }
 
   @Get('programmes')

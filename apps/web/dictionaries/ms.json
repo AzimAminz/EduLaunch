@@ -525,7 +525,9 @@
         "changeReturned": "Perubahan dipulangkan: {reason}. Pelajar masih nampak versi semasa.",
         "changeReviewMine": "Perubahan dihantar. Semua admin lain nampak dalam Peti tugasan mereka, dan sesiapa antara mereka boleh meluluskannya. Pelajar masih nampak versi semasa.",
         "changeReviewOther": "Admin lain mencadangkan perubahan. Bandingkan di bawah, kemudian luluskan atau pulangkan.",
-        "archived": "Program ini disembunyikan daripada pelajar. Buka semula sebagai draf untuk menyunting dan menerbitkannya semula."
+        "archived": "Program ini disembunyikan daripada pelajar. Buka semula sebagai draf untuk menyunting dan menerbitkannya semula.",
+        "reviewSuper": "Dihantar. Sebagai super admin, anda boleh meluluskannya sendiri (direkodkan sebagai kelulusan anda), atau biar admin lain menyemaknya. Untuk mengubah sesuatu, tarik balik dahulu.",
+        "changeReviewSuper": "Perubahan dihantar. Sebagai super admin, anda boleh meluluskannya sendiri. Pelajar masih nampak versi semasa sehingga diluluskan."
       },
       "steps": {
         "new": [
@@ -842,12 +844,17 @@
       "range": "{from}–{to} daripada {total}",
       "previous": "Halaman sebelumnya",
       "next": "Halaman seterusnya",
-      "page": "Halaman {page}"
+      "page": "Halaman {page}",
+      "perPage": "Baris setiap halaman"
     },
     "sort": {
       "label": "Susun",
       "ascending": "menaik",
       "descending": "menurun"
+    },
+    "superAdmin": {
+      "tag": "Super admin",
+      "selfApprove": "Anda super admin: anda boleh meluluskan draf ini sendiri."
     }
   },
   "footer": {

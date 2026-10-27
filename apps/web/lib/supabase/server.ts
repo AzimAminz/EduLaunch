@@ -30,6 +30,8 @@ export interface Account {
   email: string;
   name: string | null;
   role: Role;
+  /** An admin who may approve their own work (demos, one-person team); set only by the service key. */
+  superAdmin: boolean;
 }
 
 /** The signed-in user, checked with Supabase Auth, or null. */
@@ -44,6 +46,7 @@ export async function getAccount(): Promise<Account | null> {
     email: claims.email ?? '',
     name: meta.full_name?.trim() || null,
     role: claims.app_metadata?.role === 'admin' ? 'admin' : 'student',
+    superAdmin: claims.app_metadata?.role === 'admin' && claims.app_metadata?.super_admin === true,
   };
 }
 

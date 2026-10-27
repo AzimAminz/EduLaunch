@@ -149,8 +149,9 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
     this.props.returnReason = reason.trim();
   }
 
-  approve(by: string): void {
-    this.assertInReview(by);
+  /** `ownWork`: a super admin may approve what they prepared themselves; everyone else needs another admin. */
+  approve(by: string, ownWork: 'allowed' | 'forbidden' = 'forbidden'): void {
+    this.assertInReview(by, ownWork);
     this.props.status = 'published';
     this.props.approvedBy = by;
     this.record(createEvent(Events.RequirementPublished, { programId: this.props.programId, requirementId: this.id, versionNo: this.props.versionNo }));
@@ -172,8 +173,8 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
     }
   }
 
-  private assertInReview(by: string): void {
+  private assertInReview(by: string, ownWork: 'allowed' | 'forbidden' = 'forbidden'): void {
     if (this.props.status !== 'in_review') throw new DomainError('conflict', 'This draft is not waiting for review');
-    if (by === this.props.preparedBy) throw new DomainError('forbidden', 'Another admin must review this draft');
+    if (ownWork === 'forbidden' && by === this.props.preparedBy) throw new DomainError('forbidden', 'Another admin must review this draft');
   }
 }

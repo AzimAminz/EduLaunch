@@ -34,13 +34,13 @@ export type DeletionAction = { action: 'request'; confirm: string } | { action: 
  * Without published programmes it happens at once; otherwise another admin approves first.
  */
 @Injectable()
-export class DeleteInstitution implements UseCase<{ id: string; adminId: string } & DeletionAction, { status: 'deleted' | 'requested' | 'cancelled' }> {
+export class DeleteInstitution implements UseCase<{ id: string; adminId: string; superAdmin?: boolean } & DeletionAction, { status: 'deleted' | 'requested' | 'cancelled' }> {
   constructor(
     private readonly institutions: InstitutionRepository,
     @Inject(EventBus) private readonly events: EventBus,
   ) {}
 
-  async execute(input: { id: string; adminId: string } & DeletionAction) {
+  async execute(input: { id: string; adminId: string; superAdmin?: boolean } & DeletionAction) {
     const institution = await this.institutions.findById(input.id);
     if (!institution) throw new NotFoundError('Institution', input.id);
 
@@ -56,7 +56,7 @@ export class DeleteInstitution implements UseCase<{ id: string; adminId: string 
         return { status: 'requested' as const };
       }
     } else {
-      institution.approveDeletion(input.adminId);
+      institution.approveDeletion(input.adminId, input.superAdmin ? 'allowed' : 'forbidden');
     }
     const programIds = await this.institutions.deleteWithProgrammes(input.id);
     await this.events.publish([createEvent(Events.InstitutionDeleted, { institutionId: input.id, programIds })]);
@@ -120,7 +120,7 @@ export class InstitutionsController {
   /** Request, approve or cancel deleting the institution and everything under it. */
   @Post(':id/deletion')
   delete(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(DeletionBody)) body: z.infer<typeof DeletionBody>, @CurrentCaller() caller: Caller) {
-    return this.deletion.execute({ id, adminId: caller.userId, ...body });
+    return this.deletion.execute({ id, adminId: caller.userId, superAdmin: caller.superAdmin, ...body });
   }
 
   @Post(':id/sources')

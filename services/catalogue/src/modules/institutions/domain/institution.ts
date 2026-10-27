@@ -64,10 +64,10 @@ export class Institution extends AggregateRoot<string, InstitutionProps> {
     return 'requested';
   }
 
-  /** Another admin agrees to a waiting delete. */
-  approveDeletion(by: string): void {
+  /** Another admin agrees to a waiting delete (a super admin may approve their own request). */
+  approveDeletion(by: string, ownWork: 'allowed' | 'forbidden' = 'forbidden'): void {
     if (!this.props.deletionRequestedBy) throw new DomainError('conflict', 'No delete is waiting for approval');
-    if (by === this.props.deletionRequestedBy) throw new DomainError('forbidden', 'Another admin must approve this delete');
+    if (ownWork === 'forbidden' && by === this.props.deletionRequestedBy) throw new DomainError('forbidden', 'Another admin must approve this delete');
   }
 
   cancelDeletion(): void {

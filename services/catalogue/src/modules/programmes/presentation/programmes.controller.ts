@@ -88,7 +88,7 @@ export class ProgrammesController {
   @Roles('admin')
   @Post(':id/review')
   review(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(ReviewBody)) body: z.infer<typeof ReviewBody>, @CurrentCaller() caller: Caller) {
-    return this.reviewProgramme.execute({ id, adminId: caller.userId, ...body });
+    return this.reviewProgramme.execute({ id, adminId: caller.userId, superAdmin: caller.superAdmin, ...body });
   }
 
   /** Deletes a draft or archived programme, with its requirements. */

@@ -41,7 +41,7 @@ export class ProxyController {
     }
 
     const headers: Record<string, string> = { [InternalHeaders.token]: this.internalToken, 'x-request-id': req.header('x-request-id') ?? crypto.randomUUID() };
-    if (caller) Object.assign(headers, { [InternalHeaders.userId]: caller.userId, [InternalHeaders.role]: caller.role });
+    if (caller) Object.assign(headers, { [InternalHeaders.userId]: caller.userId, [InternalHeaders.role]: caller.role, [InternalHeaders.superAdmin]: String(!!caller.superAdmin) });
     const hasBody = !['GET', 'HEAD'].includes(req.method) && req.body !== undefined;
     if (hasBody) headers['content-type'] = 'application/json';
 

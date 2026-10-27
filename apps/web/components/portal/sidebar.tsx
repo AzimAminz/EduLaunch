@@ -26,6 +26,8 @@ export interface SidebarAccount {
   email: string;
   /** The account page (the student profile, or the admin home). */
   href: string;
+  /** A short tag under the name, such as "Super admin". */
+  tag?: string;
 }
 
 interface SidebarProps {
@@ -162,6 +164,7 @@ export function Sidebar({ locale, groups, footer, homeHref, labels, language, ac
               <p className="truncate text-sm font-semibold" title={account.email}>
                 {account.name ?? account.email} ›
               </p>
+              {account.tag && <p className="mt-1 inline-flex rounded-full bg-yellow px-2 py-0.5 text-[11px] font-semibold">{account.tag}</p>}
             </Link>
             <button type="submit" title={narrow ? labels.signOut : undefined} className={`flex w-full items-center gap-3 rounded-[10px] py-[7px] pl-3 pr-2.5 text-[15px] font-medium hover:bg-bg ${narrow ? 'lg:justify-center lg:px-0' : ''}`}>
               <Icon src="/icons/log-out.svg" size={20} className="shrink-0" />

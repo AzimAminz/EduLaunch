@@ -64,7 +64,7 @@ async function AdminSidebar({ locale, dict }: { locale: Locale; dict: Dictionary
       homeHref={base}
       labels={{ toggleSidebar: dict.nav.toggleSidebar, signOut: dict.auth.signOut, signedInAs: dict.auth.signedInAs }}
       language={dict.language}
-      account={{ name: account.name, email: account.email, href: base }}
+      account={{ name: account.name, email: account.email, href: base, tag: account.superAdmin ? dict.admin.superAdmin.tag : undefined }}
     />
   );
 }

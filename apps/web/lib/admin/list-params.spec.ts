@@ -5,22 +5,23 @@ const sorts = ['name', 'updated'] as const;
 
 describe('readListParams', () => {
   it('reads sort, direction and page from the address', () => {
-    expect(readListParams({ susun: 'updated', arah: 'desc', halaman: '3' }, sorts, 'name')).toEqual({ sort: 'updated', direction: 'desc', page: 3 });
+    expect(readListParams({ susun: 'updated', arah: 'desc', halaman: '3', saiz: '50' }, sorts, 'name')).toEqual({ sort: 'updated', direction: 'desc', page: 3, pageSize: 50 });
   });
 
   it('falls back to the defaults for unknown or broken values', () => {
-    expect(readListParams({ susun: 'drop table', arah: 'up', halaman: '-2' }, sorts, 'name')).toEqual({ sort: 'name', direction: 'asc', page: 1 });
+    expect(readListParams({ susun: 'drop table', arah: 'up', halaman: '-2', saiz: '9999' }, sorts, 'name')).toEqual({ sort: 'name', direction: 'asc', page: 1, pageSize: 20 });
     expect(readListParams({ halaman: 'abc' }, sorts, 'name').page).toBe(1);
   });
 });
 
 describe('listParamEntries', () => {
   it('leaves the defaults out of the address', () => {
-    expect(listParamEntries({ sort: 'name', direction: 'asc', page: 1 }, 'name')).toEqual([]);
-    expect(listParamEntries({ sort: 'updated', direction: 'desc', page: 2 }, 'name')).toEqual([
+    expect(listParamEntries({ sort: 'name', direction: 'asc', page: 1, pageSize: 20 }, 'name')).toEqual([]);
+    expect(listParamEntries({ sort: 'updated', direction: 'desc', page: 2, pageSize: 50 }, 'name')).toEqual([
       ['susun', 'updated'],
       ['arah', 'desc'],
       ['halaman', '2'],
+      ['saiz', '50'],
     ]);
   });
 });

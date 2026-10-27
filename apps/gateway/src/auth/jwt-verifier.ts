@@ -4,13 +4,14 @@ import { createRemoteJWKSet, decodeProtectedHeader, jwtVerify, type JWTPayload }
 
 interface SupabaseClaims extends JWTPayload {
   role?: string;
-  app_metadata?: { role?: string };
+  app_metadata?: { role?: string; super_admin?: boolean };
 }
 
 /**
  * Verifies Supabase access tokens.
  * Asymmetric keys (cloud default) are checked against the project's JWKS; HS256 (local CLI) uses the shared secret.
- * The admin role comes from `app_metadata.role`, which only the service key can set — users cannot grant it to themselves.
+ * The admin role comes from `app_metadata.role` (and a super admin from `app_metadata.super_admin`), which only the
+ * service key can set — users cannot grant them to themselves.
  */
 @Injectable()
 export class JwtVerifier {
@@ -29,7 +30,8 @@ export class JwtVerifier {
       const { payload } = await this.verifySignature(token);
 
       if (!payload.sub || payload.role !== 'authenticated') throw new Error('Not a signed-in user token');
-      return { userId: payload.sub, role: payload.app_metadata?.role === 'admin' ? 'admin' : 'student' };
+      const admin = payload.app_metadata?.role === 'admin';
+      return { userId: payload.sub, role: admin ? 'admin' : 'student', superAdmin: admin && payload.app_metadata?.super_admin === true };
     } catch (err) {
       throw new UnauthorizedException(err instanceof Error ? `Invalid session: ${err.message}` : 'Invalid session');
     }

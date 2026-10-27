@@ -52,7 +52,7 @@ async function Edit({ locale, dict, params }: { locale: Locale; dict: Dictionary
   const heading = <AdminHeading back={{ href: back, label: `← ${programme.name}` }} title={t.programmeForm.editTitle} />;
 
   // Nothing to fill in while it is with a reviewer or archived; the programme page says what to do instead.
-  if (!programmeWorkflow(programme, account.id).canEdit) {
+  if (!programmeWorkflow(programme, account.id, account.superAdmin).canEdit) {
     return (
       <>
         {heading}

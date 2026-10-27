@@ -16,6 +16,8 @@ interface DangerZoneProps {
   /** What the admin types to confirm: the short name, or the name when there is none. */
   confirmationText: string;
   me: string;
+  /** A super admin may approve a delete they asked for. */
+  superAdmin?: boolean;
   t: Dictionary['admin'];
 }
 
@@ -23,7 +25,7 @@ interface DangerZoneProps {
  * Deleting an institution removes everything under it. The admin sees what will go, types the institution's short
  * name, and (when students can see some of its programmes) another admin approves before anything is deleted.
  */
-export function InstitutionDangerZone({ locale, institution, confirmationText, me, t }: DangerZoneProps) {
+export function InstitutionDangerZone({ locale, institution, confirmationText, me, superAdmin = false, t }: DangerZoneProps) {
   const d = t.institutions.danger;
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState('');
@@ -44,6 +46,7 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
   const impact = institution.impact;
   const needsApproval = impact.published > 0;
   const requester = institution.deletionRequestedBy;
+  const mayApprove = !!requester && (requester !== me || superAdmin);
   const error = !pending && state.error ? t.errors[state.error] : undefined;
   const hidden = (action: string) => (
     <>
@@ -76,10 +79,10 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
         // A delete is waiting: the requester may cancel; another admin may approve or cancel.
         <div className="flex flex-col gap-3 rounded-[12px] bg-red/10 p-4">
           <p className="text-sm">{requester === me ? d.requestedByYou : d.requestedByOther}</p>
-          {requester !== me && impactList}
+          {mayApprove && impactList}
           <FormAlert>{error}</FormAlert>
           <div className="flex flex-wrap gap-2">
-            {requester !== me && (
+            {mayApprove && (
               <form onSubmit={onSubmit}>
                 {hidden('approve')}
                 <button type="submit" disabled={pending} className={buttonClass('dangerSolid')}>

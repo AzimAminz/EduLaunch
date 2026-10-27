@@ -8,6 +8,11 @@ export type Role = 'student' | 'admin';
 export interface Caller {
   userId: string;
   role: Role;
+  /**
+   * An admin who may also approve their own work, for demos and a one-person team. Still the admin role everywhere;
+   * only the "another admin must review" rule is relaxed, and the approval is recorded as theirs.
+   */
+  superAdmin?: boolean;
 }
 
 /** Headers the gateway sets after verifying the Supabase JWT. Services are never exposed directly. */
@@ -15,6 +20,7 @@ export const InternalHeaders = {
   token: 'x-internal-token',
   userId: 'x-user-id',
   role: 'x-user-role',
+  superAdmin: 'x-user-super-admin',
 } as const;
 
 const ROLES_KEY = 'edulaunch:roles';
@@ -46,7 +52,7 @@ export class InternalAuthGuard implements CanActivate {
     const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [ctx.getHandler(), ctx.getClass()]);
     const userId = req.header(InternalHeaders.userId);
     const role = req.header(InternalHeaders.role) as Role | undefined;
-    if (userId && (role === 'student' || role === 'admin')) req.caller = { userId, role };
+    if (userId && (role === 'student' || role === 'admin')) req.caller = { userId, role, superAdmin: role === 'admin' && req.header(InternalHeaders.superAdmin) === 'true' };
     if (isPublic) return true;
     if (!req.caller) throw new UnauthorizedException('Sign in required');
 
