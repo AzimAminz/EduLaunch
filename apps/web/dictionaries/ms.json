@@ -1090,6 +1090,30 @@
         "groupEpanduan": "Ada dalam ePanduan",
         "groupUsual": "Biasa untuk peringkat ini",
         "groupOther": "Laluan lain"
+      },
+      "sections": {
+        "label": "Bahagian",
+        "general": "Umum",
+        "add": "Tambah bahagian",
+        "addLine": "Tambah baris {section}",
+        "remove": "Buang bahagian",
+        "removeButton": "Buang bahagian {section}",
+        "removeConfirm": "Buang bahagian {section} bersama {count} barisnya?",
+        "yes": "Ya, buang",
+        "cancel": "Batal",
+        "empty": "Bahagian ini belum ada baris."
+      },
+      "phrase": {
+        "title": "Apa yang sistem semak",
+        "grade": "Gred",
+        "forSubject": "bagi matapelajaran",
+        "in": "dalam",
+        "subjectsFollowing": "matapelajaran berikut:",
+        "anySubject": "dalam mana-mana matapelajaran",
+        "cgpa": "Purata Nilai Gred Kumulatif (PNGK) sekurang-kurangnya",
+        "muetBefore": "Sekurang-kurangnya BAND",
+        "muetAfter": "dalam MUET",
+        "official": "Ayat rasmi (seperti di ePanduan)"
       }
     },
     "errors": {

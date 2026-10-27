@@ -142,7 +142,8 @@ const number = (text: string) => {
 
 /**
  * Editor lines → rules to save, with every problem found (the catalogue service checks again). Lines joined by ATAU
- * share a group; a note or declaration always starts its own group, and so does the first line of each part.
+ * share a group; a note or declaration always starts its own group, and so does the first line of each part and
+ * of each section (sections are joined by DAN, as on the official page).
  */
 export function checkLines(lines: EditorLine[]): CheckedLines {
   const problems: CheckedLines['problems'] = [];
@@ -153,7 +154,7 @@ export function checkLines(lines: EditorLine[]): CheckedLines {
     const index = lines.indexOf(line);
     const problem = (p: LineProblem) => problems.push({ line: index, problem: p });
     const previous = ordered[position - 1];
-    const alternative = line.join === 'or' && previous && previous.part === line.part && !isUnchecked(line.type) && !isUnchecked(previous.type);
+    const alternative = line.join === 'or' && previous && previous.part === line.part && previous.section === line.section && !isUnchecked(line.type) && !isUnchecked(previous.type);
     if (!alternative) group += 1;
     const text = line.text.trim();
     if (text.length < 2) problem('textRequired');

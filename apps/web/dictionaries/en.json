@@ -1090,6 +1090,30 @@
         "groupEpanduan": "On ePanduan",
         "groupUsual": "Usual for this level",
         "groupOther": "Other routes"
+      },
+      "sections": {
+        "label": "Sections",
+        "general": "General",
+        "add": "Add section",
+        "addLine": "Add {section} line",
+        "remove": "Remove section",
+        "removeButton": "Remove {section} section",
+        "removeConfirm": "Remove the {section} section with its {count} lines?",
+        "yes": "Yes, remove",
+        "cancel": "Cancel",
+        "empty": "This section has no lines yet."
+      },
+      "phrase": {
+        "title": "What the system checks",
+        "grade": "Grade",
+        "forSubject": "for the subject",
+        "in": "in",
+        "subjectsFollowing": "of these subjects:",
+        "anySubject": "in any subjects",
+        "cgpa": "Cumulative Grade Point Average (CGPA) of at least",
+        "muetBefore": "At least BAND",
+        "muetAfter": "in MUET",
+        "official": "Official sentence (as on ePanduan)"
       }
     },
     "errors": {

@@ -132,7 +132,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
   const move = (key: string, by: -1 | 1) =>
     setLines((list) => {
       const line = list.find((l) => l.key === key)!;
-      const same = list.filter((l) => l.part === line.part);
+      const same = list.filter((l) => l.part === line.part && l.section === line.section);
       const target = same[same.indexOf(line) + by];
       if (!target) return list;
       const a = list.indexOf(line);
@@ -141,12 +141,16 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
       [next[a], next[b]] = [next[b]!, next[a]!];
       return next;
     });
-  const add = (part: RequirementPart) => {
-    const last = [...lines].reverse().find((l) => l.part === part);
-    const line = newLine(part, { section: last?.section ?? '' });
-    setLines((list) => [...list, line]);
+  /** A new line at the end of one section (the tab it was added from). */
+  const add = (part: RequirementPart, section: string) => {
+    const line = newLine(part, { section });
+    setLines((list) => {
+      const last = list.findLastIndex((l) => l.part === part && l.section === section);
+      return last < 0 ? [...list, line] : [...list.slice(0, last + 1), line, ...list.slice(last + 1)];
+    });
     setOpen(line.key);
   };
+  const removeSection = (part: RequirementPart, section: string) => setLines((list) => list.filter((l) => l.part !== part || l.section !== section));
   /** Fills both parts from one ePanduan group (replacing what is there), with its page as the source. */
   const fill = (index: number) => {
     const next = fromGroup(index);
@@ -291,7 +295,8 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
                 onChange={update}
                 onRemove={remove}
                 onMove={move}
-                onAdd={() => add(part)}
+                onAdd={(section) => add(part, section)}
+                onRemoveSection={(section) => removeSection(part, section)}
               />
             </div>
           ))}
@@ -442,66 +447,156 @@ interface PartProps {
   onChange: (key: string, change: Partial<EditorLine>) => void;
   onRemove: (key: string) => void;
   onMove: (key: string, by: -1 | 1) => void;
-  onAdd: () => void;
+  onAdd: (section: string) => void;
+  onRemoveSection: (section: string) => void;
 }
 
-/** One part (Syarat Am or Syarat Khas): its lines under their headings, with DAN / ATAU between them. */
-function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, subjectById, problemsOf, onChange, onRemove, onMove, onAdd }: PartProps) {
+/**
+ * One part (Syarat Am or Syarat Khas), laid out as the official page groups it: a tab per section (SPM, STPM, MUET…,
+ * or "general" for lines under no heading), each with its lines joined by DAN or ATAU. Sections follow one another
+ * with DAN. A line is added to the open section; sections can be added and removed.
+ */
+function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, subjectById, problemsOf, onChange, onRemove, onMove, onAdd, onRemoveSection }: PartProps) {
+  const present = [...new Set(lines.map((l) => l.section))];
+  // Sections added but not given a line yet.
+  const [added, setAdded] = useState<string[]>([]);
+  const sections = [...present, ...added.filter((x) => !present.includes(x))];
+  if (sections.length === 0) sections.push('');
+  const [chosen, setChosen] = useState<string>(sections[0]!);
+  const current = sections.includes(chosen) ? chosen : sections[0]!;
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const own = lines.filter((l) => l.section === current);
+  const label = (section: string) => section || t.sections.general;
+  const addSection = (section: string) => {
+    const name = section.trim().toUpperCase();
+    if (!name) return;
+    if (!sections.includes(name)) setAdded((list) => [...list, name]);
+    setChosen(name);
+    setConfirmRemove(false);
+  };
+  const problemCount = (section: string) => lines.filter((l) => l.section === section && problemsOf(l).length).length;
+
   return (
-    <section className="flex flex-col gap-2 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+    <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
       {/* Laid out like the official page, so what is written here reads as students and the system will see it. */}
       <div className="flex flex-col gap-1">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">{t.parts[part]}</h2>
         <p className="text-sm text-muted">{part === 'general' ? t.parts.generalHint : t.parts.specialHint}</p>
       </div>
-      {lines.length === 0 && <p className="rounded-[12px] bg-bg px-4 py-3 text-sm text-muted">{t.parts.empty}</p>}
-      {lines.map((line, i) => {
-        const previous = lines[i - 1];
-        const canOr = !!previous && !isUnchecked(line.type) && !isUnchecked(previous.type);
-        const or = canOr && line.join === 'or';
-        return (
-          <div key={line.key} className="flex flex-col gap-2">
-            {previous && (
-              <div className="flex items-center gap-2 py-0.5">
-                <span className={`h-px flex-1 ${or ? 'bg-[#e0a800]/50' : 'bg-line'}`} />
+
+      <div className="flex flex-col gap-2 border-b border-line pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div role="tablist" aria-label={t.sections.label} className="flex flex-wrap gap-1.5">
+          {sections.map((section) => {
+            const on = section === current;
+            const count = lines.filter((l) => l.section === section).length;
+            const bad = problemCount(section);
+            return (
+              <button
+                key={section || '-'}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => {
+                  setChosen(section);
+                  setConfirmRemove(false);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-[9px] border px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                  on ? 'border-navy bg-navy text-white' : 'border-line bg-white text-navy hover:bg-bg'
+                }`}
+              >
+                {label(section)}
+                <span className={`rounded-full px-1.5 text-[11px] font-semibold normal-case ${bad ? 'bg-red text-white' : on ? 'bg-white/20' : 'bg-bg text-muted'}`}>{bad || count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <Dropdown
+          label={t.sections.add}
+          size="sm"
+          value=""
+          onChange={addSection}
+          options={SectionSuggestions.filter((x) => !sections.includes(x)).map((x) => ({ value: x, label: x }))}
+          placeholder={`+ ${t.sections.add}`}
+          noMatchesLabel={noMatches}
+          resetAfterChoice
+          hideLabel
+          className="w-full sm:w-[220px]"
+        />
+      </div>
+
+      <div role="tabpanel" aria-label={label(current)} className="flex flex-col gap-2">
+        {own.length === 0 && <p className="rounded-[12px] bg-bg px-4 py-3 text-sm text-muted">{lines.length ? t.sections.empty : t.parts.empty}</p>}
+        {own.map((line, i) => {
+          const previous = own[i - 1];
+          const canOr = !!previous && !isUnchecked(line.type) && !isUnchecked(previous.type);
+          const or = canOr && line.join === 'or';
+          return (
+            <div key={line.key} className="flex flex-col gap-2">
+              {previous && (
+                <div className="flex items-center gap-2 py-0.5">
+                  <span className={`h-px flex-1 ${or ? 'bg-[#e0a800]/50' : 'bg-line'}`} />
+                  <button
+                    type="button"
+                    disabled={!canOr}
+                    onClick={() => onChange(line.key, { join: or ? 'and' : 'or' })}
+                    title={canOr ? t.join.toggle : t.join.alone}
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 disabled:cursor-default ${
+                      or ? 'bg-yellow text-navy hover:bg-yellow/80' : 'bg-bg text-muted enabled:hover:bg-line'
+                    }`}
+                  >
+                    {or ? t.join.or : t.join.and}
+                  </button>
+                  <span className={`h-px flex-1 ${or ? 'bg-[#e0a800]/50' : 'bg-line'}`} />
+                </div>
+              )}
+              <LineCard
+                line={line}
+                first={i === 0}
+                last={i === own.length - 1}
+                open={open === line.key}
+                onOpen={() => setOpen(open === line.key ? null : line.key)}
+                t={t}
+                noMatches={noMatches}
+                subjectOptions={subjectOptions}
+                subjectById={subjectById}
+                problems={problemsOf(line)}
+                onChange={(change) => onChange(line.key, change)}
+                onRemove={() => onRemove(line.key)}
+                onMove={(by) => onMove(line.key, by)}
+              />
+            </div>
+          );
+        })}
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+          <button type="button" onClick={() => onAdd(current)} className={buttonClass('secondary', 'sm')}>
+            <IconText icon="plus">{format(t.sections.addLine, { section: label(current) })}</IconText>
+          </button>
+          {(own.length > 0 || current) &&
+            (confirmRemove ? (
+              <span role="alertdialog" aria-label={t.sections.remove} className="flex flex-wrap items-center gap-2 rounded-[10px] bg-red/5 px-3 py-1.5 text-[13px]">
+                {format(t.sections.removeConfirm, { section: label(current), count: own.length })}
+                <button type="button" onClick={() => setConfirmRemove(false)} className={buttonClass('secondary', 'sm')}>
+                  {t.sections.cancel}
+                </button>
                 <button
                   type="button"
-                  disabled={!canOr}
-                  onClick={() => onChange(line.key, { join: or ? 'and' : 'or' })}
-                  title={canOr ? t.join.toggle : t.join.alone}
-                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 disabled:cursor-default ${
-                    or ? 'bg-yellow text-navy hover:bg-yellow/80' : 'bg-bg text-muted enabled:hover:bg-line'
-                  }`}
+                  onClick={() => {
+                    onRemoveSection(current);
+                    setAdded((list) => list.filter((x) => x !== current));
+                    setConfirmRemove(false);
+                  }}
+                  className={buttonClass('dangerSolid', 'sm')}
                 >
-                  {or ? t.join.or : t.join.and}
+                  {t.sections.yes}
                 </button>
-                <span className={`h-px flex-1 ${or ? 'bg-[#e0a800]/50' : 'bg-line'}`} />
-              </div>
-            )}
-            {line.section && line.section !== previous?.section && (
-              <p className="self-start rounded-md bg-navy/90 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">{line.section}</p>
-            )}
-            <LineCard
-              line={line}
-              first={i === 0}
-              last={i === lines.length - 1}
-              open={open === line.key}
-              onOpen={() => setOpen(open === line.key ? null : line.key)}
-              t={t}
-              noMatches={noMatches}
-              subjectOptions={subjectOptions}
-              subjectById={subjectById}
-              problems={problemsOf(line)}
-              onChange={(change) => onChange(line.key, change)}
-              onRemove={() => onRemove(line.key)}
-              onMove={(by) => onMove(line.key, by)}
-            />
-          </div>
-        );
-      })}
-      <button type="button" onClick={onAdd} className={`${buttonClass('secondary', 'sm')} mt-1 self-start`}>
-        <IconText icon="plus">{t.line.add}</IconText>
-      </button>
+              </span>
+            ) : (
+              <button type="button" onClick={() => setConfirmRemove(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
+                <IconText icon="trash">{format(t.sections.removeButton, { section: label(current) })}</IconText>
+              </button>
+            ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -522,12 +617,18 @@ interface LineProps {
   onMove: (by: -1 | 1) => void;
 }
 
-/** One line: the official sentence and what it checks; opens to edit its kind, values, heading and sentence. */
+/**
+ * One line, shown as on the official page (the sentence, and what the system checks). Opened, it is written the way
+ * the official text phrases it: "Gred [C] bagi matapelajaran [Bahasa Melayu]", "[2] Gred [C] dalam mana-mana
+ * matapelajaran", "BAND [1.0] dalam MUET", with the official sentence kept underneath.
+ */
 function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOptions, subjectById, problems, onChange, onRemove, onMove }: LineProps) {
   const bad = problems.length > 0;
   const unchecked = isUnchecked(line.type);
+  const p = t.phrase;
   const gradeSubject = line.type === 'min_grade' ? line.subjectId : line.subjectIds[0];
   const grades = gradesFor(gradeSubject ? subjectById.get(gradeSubject)?.qualification : undefined);
+  const word = (text: string) => <span className="text-sm text-navy">{text}</span>;
   const gradeDropdown = (
     <Dropdown
       label={t.grade}
@@ -539,21 +640,20 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
       noMatchesLabel={noMatches}
       searchable={false}
       invalid={problems.includes('gradeRequired')}
-      className="w-[110px]"
+      hideLabel
+      className="w-[96px]"
     />
   );
-  const numberInput = (label: string, value: string, change: (v: string) => void, problem: LineProblem) => (
-    <label className="flex flex-col gap-1 text-[13px] font-semibold">
-      {label}
-      <input
-        value={value}
-        onChange={(e) => change(e.target.value)}
-        inputMode="decimal"
-        maxLength={6}
-        aria-invalid={problems.includes(problem) || undefined}
-        className={`w-24 rounded-[10px] border bg-white px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-navy/15 ${problems.includes(problem) ? 'border-red' : 'border-line'}`}
-      />
-    </label>
+  const numberInput = (label: string, value: string, change: (v: string) => void, problem: LineProblem, width = 'w-20') => (
+    <input
+      aria-label={label}
+      value={value}
+      onChange={(e) => change(e.target.value)}
+      inputMode="decimal"
+      maxLength={6}
+      aria-invalid={problems.includes(problem) || undefined}
+      className={`${width} rounded-[10px] border bg-white px-3 py-2 text-center text-sm font-semibold outline-none focus:ring-2 focus:ring-navy/15 ${problems.includes(problem) ? 'border-red' : 'border-[#9aa3b2]'}`}
+    />
   );
   const action = (label: string, onClick: () => void, children: React.ReactNode, { disabled = false, danger = false } = {}) => (
     <button
@@ -575,7 +675,7 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
         <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 flex-col items-start gap-1 text-left">
           <span className="text-[13px] leading-relaxed">{line.text || <span className="text-muted">{t.line.noText}</span>}</span>
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${unchecked ? 'bg-bg text-muted' : 'bg-blue text-navy'}`}>{lineSummary(line, (id) => (id && subjectById.get(id)?.label) || '?', t)}</span>
-          {bad && <span className="text-[12px] text-red">{problems.map((p) => t.problems[p]).join(' ')}</span>}
+          {bad && <span className="text-[12px] text-red">{problems.map((x) => t.problems[x]).join(' ')}</span>}
         </button>
         <span className="flex shrink-0 items-center">
           {action(open ? t.line.done : t.line.edit, onOpen, <AdminIcon name={open ? 'check' : 'pencil'} size={15} />)}
@@ -585,108 +685,129 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
         </span>
       </div>
       {open && (
-        <div className="flex flex-col gap-3 border-t border-line px-3 py-3">
-          <div className="flex flex-wrap items-end gap-3">
-            <Dropdown
-              label={t.typeLabel}
-              size="sm"
-              value={line.type}
-              onChange={(type) => onChange({ type: type as EditorLine['type'], join: isUnchecked(type as EditorLine['type']) ? 'and' : line.join })}
-              options={EditorRuleTypes.map((x) => ({ value: x, label: t.kinds[x] }))}
-              placeholder={t.typeLabel}
-              noMatchesLabel={noMatches}
-              searchable={false}
-              className="w-[230px]"
-            />
-            {line.type === 'min_grade' && (
-              <>
-                {gradeDropdown}
-                <Dropdown
-                  label={t.chooseSubject}
-                  size="sm"
-                  value={line.subjectId ?? ''}
-                  onChange={(subjectId) => onChange({ subjectId })}
-                  options={subjectOptions}
-                  placeholder={t.searchSubject}
-                  noMatchesLabel={noMatches}
-                  invalid={problems.includes('subjectRequired')}
-                  className="min-w-[220px] flex-1"
-                />
-              </>
-            )}
-            {line.type === 'subjects_from_list' && (
-              <>
-                {gradeDropdown}
-                {numberInput(t.line.count, line.count, (count) => onChange({ count }), 'countRange')}
-              </>
-            )}
-            {line.type === 'min_credits' && (
-              <>
-                {gradeDropdown}
-                {numberInput(t.line.credits, line.value, (value) => onChange({ value }), 'creditsRange')}
-              </>
-            )}
-            {line.type === 'min_cgpa' && numberInput(t.types.min_cgpa, line.value, (value) => onChange({ value }), 'cgpaRange')}
-            {line.type === 'min_muet' && numberInput(t.line.band, line.value, (value) => onChange({ value }), 'muetRange')}
+        <div className="flex flex-col gap-4 border-t border-line px-3 py-3">
+          <div className="flex flex-col gap-2">
+            <p className="text-[12px] font-bold uppercase tracking-wide text-muted">{t.typeLabel}</p>
+            <div role="radiogroup" aria-label={t.typeLabel} className="flex flex-wrap gap-1.5">
+              {EditorRuleTypes.map((x) => (
+                <button
+                  key={x}
+                  type="button"
+                  role="radio"
+                  aria-checked={line.type === x}
+                  onClick={() => onChange({ type: x, join: isUnchecked(x) ? 'and' : line.join })}
+                  className={`rounded-full border px-3 py-1 text-[12px] font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                    line.type === x ? 'border-navy bg-navy text-white' : 'border-line bg-white text-navy hover:bg-bg'
+                  }`}
+                >
+                  {t.kinds[x]}
+                </button>
+              ))}
+            </div>
           </div>
-          {line.type === 'subjects_from_list' && (
+
+          {!unchecked && (
             <div className="flex flex-col gap-2">
-              <Dropdown
-                label={t.line.subjects}
-                size="sm"
-                value=""
-                onChange={(subjectId) => subjectId && !line.subjectIds.includes(subjectId) && onChange({ subjectIds: [...line.subjectIds, subjectId] })}
-                options={subjectOptions.filter((o) => !line.subjectIds.includes(o.value))}
-                placeholder={t.line.addSubject}
-                noMatchesLabel={noMatches}
-                invalid={problems.includes('subjectsRequired')}
-                resetAfterChoice
-              />
-              {line.subjectIds.length > 0 && (
-                <ul className="flex flex-wrap gap-1.5">
-                  {line.subjectIds.map((sid) => (
-                    <li key={sid} className="flex items-center gap-1 rounded-full border border-line bg-white py-0.5 pl-2.5 pr-1 text-[12px]">
-                      {subjectById.get(sid)?.label ?? sid}
-                      <button
-                        type="button"
-                        onClick={() => onChange({ subjectIds: line.subjectIds.filter((x) => x !== sid) })}
-                        aria-label={`${t.line.remove}: ${subjectById.get(sid)?.label ?? ''}`}
-                        className="rounded-full px-1 hover:bg-bg"
-                      >
-                        ×
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              <p className="text-[12px] font-bold uppercase tracking-wide text-muted">{p.title}</p>
+              {/* Written as the official text phrases it. */}
+              <div className="flex flex-wrap items-center gap-2 rounded-[12px] border border-dashed border-navy/25 bg-white px-3 py-3">
+                {line.type === 'min_grade' && (
+                  <>
+                    {word(p.grade)}
+                    {gradeDropdown}
+                    {word(p.forSubject)}
+                    <Dropdown
+                      label={t.chooseSubject}
+                      size="sm"
+                      value={line.subjectId ?? ''}
+                      onChange={(subjectId) => onChange({ subjectId })}
+                      options={subjectOptions}
+                      placeholder={t.searchSubject}
+                      noMatchesLabel={noMatches}
+                      invalid={problems.includes('subjectRequired')}
+                      hideLabel
+                      className="min-w-[220px] flex-1"
+                    />
+                  </>
+                )}
+                {line.type === 'subjects_from_list' && (
+                  <>
+                    {word(p.grade)}
+                    {gradeDropdown}
+                    {word(p.in)}
+                    {numberInput(t.line.count, line.count, (count) => onChange({ count }), 'countRange', 'w-16')}
+                    {word(p.subjectsFollowing)}
+                  </>
+                )}
+                {line.type === 'min_credits' && (
+                  <>
+                    {numberInput(t.line.credits, line.value, (value) => onChange({ value }), 'creditsRange', 'w-16')}
+                    {word(p.grade)}
+                    {gradeDropdown}
+                    {word(p.anySubject)}
+                  </>
+                )}
+                {line.type === 'min_cgpa' && (
+                  <>
+                    {word(p.cgpa)}
+                    {numberInput(t.types.min_cgpa, line.value, (value) => onChange({ value }), 'cgpaRange')}
+                  </>
+                )}
+                {line.type === 'min_muet' && (
+                  <>
+                    {word(p.muetBefore)}
+                    {numberInput(t.line.band, line.value, (value) => onChange({ value }), 'muetRange', 'w-16')}
+                    {word(p.muetAfter)}
+                  </>
+                )}
+              </div>
+              {line.type === 'subjects_from_list' && (
+                <div className="flex flex-col gap-2 pl-1">
+                  {line.subjectIds.length > 0 && (
+                    <ul className="flex flex-col gap-1">
+                      {line.subjectIds.map((sid) => (
+                        <li key={sid} className="flex items-center gap-2 text-[13px]">
+                          <span aria-hidden className="text-muted">–</span>
+                          <span className="flex-1">{subjectById.get(sid)?.label ?? sid}</span>
+                          <button
+                            type="button"
+                            onClick={() => onChange({ subjectIds: line.subjectIds.filter((x) => x !== sid) })}
+                            aria-label={`${t.line.remove}: ${subjectById.get(sid)?.label ?? ''}`}
+                            className="rounded-md p-1 text-muted hover:bg-red/10 hover:text-[#b33a35]"
+                          >
+                            <AdminIcon name="x" size={14} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <Dropdown
+                    label={t.line.subjects}
+                    size="sm"
+                    value=""
+                    onChange={(subjectId) => subjectId && !line.subjectIds.includes(subjectId) && onChange({ subjectIds: [...line.subjectIds, subjectId] })}
+                    options={subjectOptions.filter((o) => !line.subjectIds.includes(o.value))}
+                    placeholder={t.line.addSubject}
+                    noMatchesLabel={noMatches}
+                    invalid={problems.includes('subjectsRequired')}
+                    resetAfterChoice
+                    hideLabel
+                  />
+                </div>
               )}
             </div>
           )}
-          <label className="flex flex-col gap-1 text-[13px] font-semibold">
-            {t.line.section}
-            <input
-              value={line.section}
-              onChange={(e) => onChange({ section: e.target.value.toUpperCase() })}
-              list="requirement-sections"
-              maxLength={60}
-              placeholder={t.line.sectionPlaceholder}
-              className="rounded-[10px] border border-line bg-white px-3 py-2 text-sm font-normal outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
-            />
-            <datalist id="requirement-sections">
-              {SectionSuggestions.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
-          </label>
-          <label className="flex flex-col gap-1 text-[13px] font-semibold">
-            {unchecked ? t.line.textOnly : t.line.text}
+
+          <label className="flex flex-col gap-1 text-[12px] font-bold uppercase tracking-wide text-muted">
+            {unchecked ? t.line.textOnly : p.official}
             <textarea
               value={line.text}
               onChange={(e) => onChange({ text: e.target.value })}
-              rows={2}
+              rows={unchecked ? 3 : 2}
               maxLength={1500}
               placeholder={t.quotePlaceholder}
               aria-invalid={problems.includes('textRequired') || undefined}
-              className={`rounded-[10px] border bg-white px-3 py-2 text-sm font-normal outline-none focus:border-navy ${problems.includes('textRequired') ? 'border-red' : 'border-line'}`}
+              className={`rounded-[10px] border bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-navy outline-none focus:border-navy ${problems.includes('textRequired') ? 'border-red' : 'border-line'}`}
             />
           </label>
         </div>
