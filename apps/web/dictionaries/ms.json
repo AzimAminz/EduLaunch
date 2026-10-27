@@ -538,7 +538,12 @@
         "cancel": "Batal",
         "introManual": "Program ini tiada data ePanduan. Pilih laluan di bawah untuk menulis syaratnya sendiri.",
         "routeUnsupported": "Kategori ini belum ada laluan dalam sistem, jadi syaratnya belum boleh ditulis.",
-        "writtenCount": "{count} laluan sudah ada syarat"
+        "writtenCount": "{count} laluan sudah ada syarat",
+        "writtenTitle": "Syarat ikut laluan",
+        "writtenNone": "Belum ada syarat ditulis. Tekan \"Tambah syarat\" untuk bermula.",
+        "chipPublished": "Diterbitkan · v{version}",
+        "chipOpen": "{status} · oleh {who}",
+        "chipChange": "Perubahan: {status} · oleh {who}"
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",

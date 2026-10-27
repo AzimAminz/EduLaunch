@@ -538,7 +538,12 @@
         "cancel": "Cancel",
         "introManual": "This programme has no ePanduan data. Choose a route below to write its requirements yourself.",
         "routeUnsupported": "This category has no route in the system yet, so its requirements cannot be written.",
-        "writtenCount": "{count} routes have requirements"
+        "writtenCount": "{count} routes have requirements",
+        "writtenTitle": "Requirements by route",
+        "writtenNone": "No requirements written yet. Press \"Add requirements\" to start.",
+        "chipPublished": "Published · v{version}",
+        "chipChange": "Change: {status} · by {who}",
+        "chipOpen": "{status} · by {who}"
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
