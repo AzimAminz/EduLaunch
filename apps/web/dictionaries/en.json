@@ -863,7 +863,8 @@
           "stpm:E2": "DVM"
         },
         "referenceTitle": "Reference from ePanduan",
-        "referenceIntro": "The requirement text as JPT ePanduan writes it for each candidate category. Copy the relevant sentence as evidence while writing the requirements."
+        "referenceIntro": "The requirement text as JPT ePanduan writes it for each candidate category. Copy the relevant sentence as evidence while writing the requirements.",
+        "noRequirementText": "No ePanduan requirement text for this programme yet. Open the institution's Import tab and press \"Check again\" to read it."
       }
     },
     "requirement": {

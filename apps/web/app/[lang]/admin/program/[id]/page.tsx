@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
 import { EntryRoutes, EntryRoutesByLevel } from '@edulaunch/contracts';
-import { FoundDetailsBody } from '@/components/admin/epanduan-details';
+import { FoundRequirements } from '@/components/admin/epanduan-details';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
 import { RequirementLinesView } from '@/components/admin/requirement-lines-view';
@@ -369,7 +369,7 @@ async function EpanduanReference({ code, dict }: { code: string; dict: Dictionar
         </h2>
         <p className="text-sm text-muted">{m.referenceIntro}</p>
       </div>
-      <FoundDetailsBody programme={found} special={special} m={m} />
+      <FoundRequirements programme={found} special={special} m={m} />
     </Card>
   );
 }
