@@ -464,9 +464,14 @@
       },
       "steps": {
         "admission": "Admission & source",
-        "next": "Next →",
-        "back": "← Back",
+        "next": "Next",
+        "back": "Back",
         "of": "Step {n} of {total}"
+      },
+      "leave": {
+        "message": "What you have entered is not saved and will be lost.",
+        "stay": "Keep editing",
+        "discard": "Discard and leave"
       }
     },
     "programme": {

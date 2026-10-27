@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { StudyModes, UPU_CODE_PATTERN } from '@edulaunch/contracts';
 import { createProgramme, updateProgramme, type AdminFormState } from '@/lib/admin/actions';
 import type { PendingDetails } from '@/lib/admin/api';
@@ -59,6 +59,15 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   const [step, setStep] = useState(0);
   /** Problems found before moving to the next step, by field name, as keys of `f.errors`. */
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
+  const [leaving, setLeaving] = useState(false);
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  // What the form held when it opened, to tell whether leaving would lose anything.
+  const initial = useRef<string | null>(null);
+  const snapshot = () => (formRef.current ? JSON.stringify([...new FormData(formRef.current).entries()]) : '');
+  useEffect(() => {
+    initial.current = snapshot();
+  }, []);
 
   const canPlace = mode !== 'change';
   const isStream = level === 'form4_stream';
@@ -99,6 +108,32 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
     setStep(target);
   };
 
+  /**
+   * Only the last step sends the form. On earlier steps Enter (or any other submit) moves to the next step instead,
+   * so nothing is saved before the admin has seen every step.
+   */
+  const submit = (e: FormEvent<HTMLFormElement>) => {
+    if (!last) {
+      e.preventDefault();
+      goTo(step + 1);
+      return;
+    }
+    // The earlier steps are checked again before the form is sent.
+    const firstProblem = steps.map((_, n) => n).find((n) => Object.keys(problemsIn(n)).length);
+    if (firstProblem !== undefined) {
+      e.preventDefault();
+      setStepErrors(problemsIn(firstProblem));
+      setStep(firstProblem);
+      return;
+    }
+    onSubmit(e);
+  };
+  /** Cancel asks first only when something was typed or chosen. */
+  const cancel = () => {
+    if (initial.current !== null && snapshot() !== initial.current) setLeaving(true);
+    else router.push(cancelHref);
+  };
+
   // A refusal from the server opens the step that holds the first problem.
   const [seenErrors, setSeenErrors] = useState(state.fieldErrors);
   if (state.fieldErrors !== seenErrors) {
@@ -123,7 +158,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   const required = (label: string) => `${label} *`;
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
+    <form ref={formRef} onSubmit={submit} className="flex flex-col gap-6" noValidate>
       <input type="hidden" name="locale" value={locale} />
       {values && <input type="hidden" name="id" value={values.id} />}
       {canPlace && <input type="hidden" name="studyLevel" value={level} />}
@@ -304,41 +339,46 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
-        {step > 0 && (
-          <button type="button" onClick={() => goTo(step - 1)} className={buttonClass('secondary')}>
-            <IconText icon="arrowLeft">{f.steps.back}</IconText>
-          </button>
-        )}
-        {last ? (
-          <button
-            type="submit"
-            disabled={pending}
-            // The earlier steps are checked again before the form is sent.
-            onClick={(e) => {
-              const first = [0, 1, 2].find((n) => Object.keys(problemsIn(n)).length);
-              if (first !== undefined) {
-                e.preventDefault();
-                setStepErrors(problemsIn(first));
-                setStep(first);
-              }
-            }}
-            className={buttonClass('primary')}
-          >
-            <IconText icon={mode === 'new' ? 'plus' : 'save'} busy={pending}>
-              {mode === 'new' ? f.create : mode === 'change' ? f.saveChange : f.save}
-            </IconText>
-          </button>
+      {/* One bar on every step: going back on the left, going forward on the right, so nothing moves under the pointer. */}
+      <div className="sticky bottom-0 z-10 -mx-5 -mb-5 rounded-b-[18px] border-t border-line bg-white/95 px-5 py-4 backdrop-blur lg:-mx-6 lg:-mb-6 lg:px-6">
+        {leaving ? (
+          <div role="alertdialog" aria-label={f.leave.message} className="flex flex-wrap items-center gap-3">
+            <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
+            <p className="flex-1 text-sm">{f.leave.message}</p>
+            <button type="button" onClick={() => setLeaving(false)} className={buttonClass('secondary')} autoFocus>
+              {f.leave.stay}
+            </button>
+            <button type="button" onClick={() => router.push(cancelHref)} className={buttonClass('danger')}>
+              <IconText icon="trash">{f.leave.discard}</IconText>
+            </button>
+          </div>
         ) : (
-          <button type="button" onClick={() => goTo(step + 1)} className={`${buttonClass('primary')} group`}>
-            <span>{f.steps.next}</span>
-            <AdminIcon name="arrowRight" size={16} className="transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Each button has its own key, so a click on "Next" can never land on the "Save" button that replaces it. */}
+            {step === 0 ? (
+              <button key="cancel" type="button" onClick={cancel} className={buttonClass('ghost')}>
+                {f.cancel}
+              </button>
+            ) : (
+              <button key="back" type="button" onClick={() => goTo(step - 1)} className={buttonClass('secondary')}>
+                <IconText icon="arrowLeft">{f.steps.back}</IconText>
+              </button>
+            )}
+            <span className="ml-auto hidden text-[13px] text-muted sm:inline">{format(f.steps.of, { n: step + 1, total: steps.length })}</span>
+            {last ? (
+              <button key="save" type="submit" disabled={pending} className={`${buttonClass('primary')} ml-auto sm:ml-0`}>
+                <IconText icon={mode === 'new' ? 'plus' : 'save'} busy={pending}>
+                  {mode === 'new' ? f.create : mode === 'change' ? f.saveChange : f.save}
+                </IconText>
+              </button>
+            ) : (
+              <button key="next" type="button" onClick={() => goTo(step + 1)} className={`${buttonClass('primary')} group ml-auto sm:ml-0`}>
+                <span>{f.steps.next}</span>
+                <AdminIcon name="arrowRight" size={16} className="transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+              </button>
+            )}
+          </div>
         )}
-        <span className="text-[13px] text-muted">{format(f.steps.of, { n: step + 1, total: steps.length })}</span>
-        <Link href={cancelHref} className={`${buttonClass('ghost')} ml-auto`}>
-          <IconText icon="x">{f.cancel}</IconText>
-        </Link>
       </div>
     </form>
   );

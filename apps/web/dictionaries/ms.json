@@ -464,9 +464,14 @@
       },
       "steps": {
         "admission": "Kemasukan & sumber",
-        "next": "Seterusnya →",
-        "back": "← Kembali",
+        "next": "Seterusnya",
+        "back": "Kembali",
         "of": "Langkah {n} daripada {total}"
+      },
+      "leave": {
+        "message": "Maklumat yang anda isi belum disimpan dan akan hilang.",
+        "stay": "Teruskan mengisi",
+        "discard": "Buang dan keluar"
       }
     },
     "programme": {
