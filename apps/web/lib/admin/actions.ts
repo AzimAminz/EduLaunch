@@ -1,6 +1,6 @@
 'use server';
 
-import { InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, UPU_CODE_PATTERN, isEntryRoute } from '@edulaunch/contracts';
+import { InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '../i18n/locale';
@@ -147,7 +147,8 @@ export async function removeInstitutionSource(_prev: AdminFormState, form: FormD
   return { savedAt: Date.now() };
 }
 
-function programmeDetails(form: FormData) {
+/** The programme form's fields. `isStream`: a Form 4 stream has no programme code. */
+function programmeDetails(form: FormData, isStream: boolean) {
   const name = text(form, 'name');
   const durationText = text(form, 'durationSemesters');
   const duration = durationText ? Number(durationText) : null;
@@ -156,7 +157,9 @@ function programmeDetails(form: FormData) {
   if (name.length < 3 || name.length > 160) fieldErrors.name = 'nameRequired';
   if (duration !== null && (!Number.isInteger(duration) || duration < 1 || duration > 16)) fieldErrors.durationSemesters = 'durationInvalid';
   const upuCode = text(form, 'upuCode').toUpperCase() || null;
-  if (upuCode && !UPU_CODE_PATTERN.test(upuCode)) fieldErrors.upuCode = 'upuInvalid';
+  // Required, with no fixed format yet (the official guideline for these codes is still being checked).
+  if (!isStream && !upuCode) fieldErrors.upuCode = 'upuRequired';
+  if (upuCode && upuCode.length > 30) fieldErrors.upuCode = 'upuTooLong';
   const sourceUrl = text(form, 'sourceUrl') || null;
   if (sourceUrl && !/^https?:\/\/\S+$/.test(sourceUrl)) fieldErrors.sourceUrl = 'sourceInvalid';
   const flag = (name: string) => form.get(name) === 'on';
@@ -183,12 +186,12 @@ function programmeDetails(form: FormData) {
 
 export async function createProgramme(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
-  const { details, fieldErrors } = programmeDetails(form);
   const institutionId = text(form, 'institutionId');
   const level = StudyLevel.safeParse(text(form, 'studyLevel'));
-  if (!level.success) fieldErrors.studyLevel = 'levelRequired';
   // Form 4 streams belong to no institution; every other programme needs one.
   const isStream = level.success && level.data === 'form4_stream';
+  const { details, fieldErrors } = programmeDetails(form, isStream);
+  if (!level.success) fieldErrors.studyLevel = 'levelRequired';
   if (!isStream && !institutionId) fieldErrors.institutionId = 'institutionRequired';
   if (Object.keys(fieldErrors).length || !level.success) return { fieldErrors };
 
@@ -207,7 +210,8 @@ export async function createProgramme(_prev: AdminFormState, form: FormData): Pr
 export async function updateProgramme(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
   const id = text(form, 'id');
-  const { details, fieldErrors } = programmeDetails(form);
+  // The form has no programme code field for a Form 4 stream.
+  const { details, fieldErrors } = programmeDetails(form, !form.has('upuCode'));
   // A draft that was never published may still move to another institution or level.
   const level = StudyLevel.safeParse(text(form, 'studyLevel'));
   const institutionId = text(form, 'institutionId');
@@ -302,7 +306,8 @@ export async function saveRequirement(_prev: AdminFormState, form: FormData): Pr
     return { error: errorKey(err) };
   }
   refresh();
-  return { savedAt: Date.now() };
+  // Back to the programme's requirements, which say what was done ("draft saved" or "sent for review").
+  redirect(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat&selesai=${submit ? 'hantar' : 'draf'}`);
 }
 
 /** The reviewing admin approves (publishes) or returns a requirement draft. */

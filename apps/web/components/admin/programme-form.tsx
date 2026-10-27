@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { StudyModes, UPU_CODE_PATTERN } from '@edulaunch/contracts';
+import { StudyModes } from '@edulaunch/contracts';
 import { createProgramme, updateProgramme, type AdminFormState } from '@/lib/admin/actions';
 import type { PendingDetails } from '@/lib/admin/api';
 import { STUDY_LEVEL_OPTIONS } from '@/lib/catalogue/presentation';
@@ -88,7 +88,8 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
       if (canPlace && !level) found.studyLevel = 'levelRequired';
       if (canPlace && !isStream && !institutionId) found.institutionId = 'institutionRequired';
       if (name.trim().length < 3 || name.trim().length > 160) found.name = 'nameRequired';
-      if (!isStream && upu.trim() && !UPU_CODE_PATTERN.test(upu.trim())) found.upuCode = 'upuInvalid';
+      // Required, with no fixed format yet (the official guideline for these codes is still being checked).
+      if (!isStream && !upu.trim()) found.upuCode = 'upuRequired';
     }
     if (n === 1 && duration && (Number(duration) < 1 || Number(duration) > 16)) found.durationSemesters = 'durationInvalid';
     if (n === 2 && source.trim() && !URL_PATTERN.test(source.trim())) found.sourceUrl = 'sourceInvalid';
@@ -142,7 +143,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
     if (withProblems.length) setStep(Math.min(...withProblems));
   }
   // Checked on leaving the field, before the form is sent.
-  const upuError = touched.upuCode && upu.trim() && !UPU_CODE_PATTERN.test(upu.trim().toUpperCase()) ? f.errors.upuInvalid : fieldError('upuCode');
+  const upuError = touched.upuCode && !upu.trim() ? f.errors.upuRequired : fieldError('upuCode');
   const sourceError = touched.sourceUrl && source.trim() && !URL_PATTERN.test(source.trim()) ? f.errors.sourceInvalid : fieldError('sourceUrl');
   const semesters = Number(duration);
   const durationHint = Number.isInteger(semesters) && semesters > 0 ? format(f.yearsHint, { years: semesters / 2 }) : f.durationHint;
@@ -238,12 +239,12 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
             <div className="grid gap-4 sm:grid-cols-2">
               <TextField
                 name="upuCode"
-                label={f.upuCode}
+                label={required(f.upuCode)}
                 placeholder={f.upuPlaceholder}
                 value={upu}
                 onChange={(e) => setUpu(e.target.value.toUpperCase())}
                 onBlur={() => setTouched({ ...touched, upuCode: true })}
-                maxLength={9}
+                maxLength={30}
                 hint={f.upuHint}
                 error={upuError}
               />

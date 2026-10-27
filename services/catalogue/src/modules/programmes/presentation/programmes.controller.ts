@@ -19,7 +19,7 @@ const DetailsBody = z.object({
   name: z.string().max(200),
   durationSemesters: z.number().int().nullable().default(null),
   fieldIds: z.array(z.uuid()).max(10).default([]),
-  upuCode: z.string().max(20).nullable().optional(),
+  upuCode: z.string().max(30).nullable().optional(),
   internalCode: z.string().max(40).nullable().optional(),
   faculty: z.string().max(200).nullable().optional(),
   necCode: z.string().max(4).nullable().optional(),

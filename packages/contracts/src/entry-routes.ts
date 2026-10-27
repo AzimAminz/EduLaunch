@@ -55,9 +55,6 @@ export type InstitutionType = (typeof InstitutionTypes)[number];
 export const StudyModes = ['conventional', 'work_based', 'distance'] as const;
 export type StudyMode = (typeof StudyModes)[number];
 
-/** JPT / UPU programme codes: two letters for the institution, then seven digits (for example UC6522001). */
-export const UPU_CODE_PATTERN = /^[A-Z]{2}\d{7}$/;
-
 /** Malaysian states and federal territories, for an institution's location. */
 export const MalaysianStates = [
   'Johor',

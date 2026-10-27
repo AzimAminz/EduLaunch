@@ -408,8 +408,9 @@
         "institutionRequired": "Pilih institusi.",
         "levelRequired": "Pilih peringkat.",
         "durationInvalid": "Tempoh ialah nombor bulat 1 hingga 16.",
-        "upuInvalid": "Kod program mesti seperti UC6522001.",
-        "sourceInvalid": "Pautan mesti bermula dengan https://"
+        "sourceInvalid": "Pautan mesti bermula dengan https://",
+        "upuRequired": "Isi kod program seperti yang tertulis dalam ePanduan atau prospektus.",
+        "upuTooLong": "Kod program terlalu panjang (paling banyak 30 aksara)."
       },
       "sections": {
         "identity": "Identiti",
@@ -419,7 +420,7 @@
       },
       "upuCode": "Kod program (JPT / UPU)",
       "upuPlaceholder": "cth. UC6522001",
-      "upuHint": "Dua huruf dan tujuh digit, seperti dalam ePanduan atau prospektus.",
+      "upuHint": "Salin kod seperti yang tertulis dalam ePanduan atau prospektus, contohnya UC6522001.",
       "internalCode": "Kod universiti",
       "internalPlaceholder": "cth. BELG",
       "faculty": "Fakulti / pusat pengajian",
@@ -517,7 +518,11 @@
         "addButton": "Mula",
         "routePlaceholder": "Pilih laluan",
         "suggestedSuffix": "(biasa untuk peringkat ini)",
-        "empty": "Belum ada syarat. Pilih laluan di bawah untuk bermula."
+        "empty": "Belum ada syarat. Pilih laluan di bawah untuk bermula.",
+        "done": {
+          "draft": "Draf syarat disimpan. Anda boleh sambung bila-bila masa dengan \"Buka draf\".",
+          "sent": "Syarat dihantar untuk semakan. Admin lain akan nampak dalam Peti tugasan mereka."
+        }
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
@@ -769,7 +774,7 @@
       "value": "Nilai",
       "quote": "Ayat daripada sumber",
       "quotePlaceholder": "Tampal ayat tepat daripada prospektus…",
-      "addRule": "+ Tambah syarat",
+      "addRule": "Tambah syarat",
       "addAlternative": "+ atau pilihan lain",
       "removeLine": "Buang syarat ini",
       "removeAlternative": "Buang pilihan ini",

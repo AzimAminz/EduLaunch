@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
+import { FreshOnNavigate } from '@/components/admin/fresh';
 import { ProgrammeForm } from '@/components/admin/programme-form';
 import { AdminHeading, Card, LoadError } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listInstitutions, listNecFields, type ProgrammeDetail } from '@/lib/admin/api';
@@ -73,18 +74,23 @@ async function Edit({ locale, dict, params }: { locale: Locale; dict: Dictionary
       {heading}
       <p className={`rounded-[14px] px-4 py-3 text-sm ${published ? 'bg-blue' : 'bg-white'}`}>{published ? t.programmeForm.editIntroPublished : t.programmeForm.editIntroDraft}</p>
       <Card className="max-w-[760px]">
-        <ProgrammeForm
-          locale={locale}
-          t={t}
-          levels={dict.levels}
-          noMatches={dict.directory.noMatches}
-          institutions={institutions.map((i) => ({ value: i.id, label: i.name, keywords: i.shortName ? [i.shortName] : [] }))}
-          fields={reference.fields.map((f) => ({ value: f.id, label: fieldName(f, locale) })).sort((a, b) => a.label.localeCompare(b.label, locale))}
-          necFields={necOptions(nec)}
-          mode={published ? 'change' : 'draft'}
-          values={values}
-          cancelHref={back}
-        />
+        {/* Every new visit (and every saved change) starts from the stored values; back/forward keeps the draft. */}
+        <FreshOnNavigate>
+          <ProgrammeForm
+            // The form starts from the stored values; after a save it starts again from the new ones.
+            key={programme.updatedAt.getTime()}
+            locale={locale}
+            t={t}
+            levels={dict.levels}
+            noMatches={dict.directory.noMatches}
+            institutions={institutions.map((i) => ({ value: i.id, label: i.name, keywords: i.shortName ? [i.shortName] : [] }))}
+            fields={reference.fields.map((f) => ({ value: f.id, label: fieldName(f, locale) })).sort((a, b) => a.label.localeCompare(b.label, locale))}
+            necFields={necOptions(nec)}
+            mode={published ? 'change' : 'draft'}
+            values={values}
+            cancelHref={back}
+          />
+        </FreshOnNavigate>
       </Card>
     </>
   );

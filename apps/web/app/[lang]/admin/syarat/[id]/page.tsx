@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
+import { FreshOnNavigate } from '@/components/admin/fresh';
 import { RequirementEditor } from '@/components/admin/requirement-editor';
 import { ReviewActions } from '@/components/admin/review-actions';
 import { AdminIcon } from '@/components/admin/icons';
@@ -60,15 +61,19 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
       <>
         <AdminHeading back={back} title={format(t.requirement.titleEdit, { programme: req.programmeName })} intro={meta} />
         {req.status === 'returned' && req.returnReason && <p className="rounded-[14px] bg-red/10 px-4 py-3 text-sm">{format(t.requirement.notes.returned, { reason: req.returnReason })}</p>}
-        <RequirementEditor
-          locale={locale}
-          id={req.id}
-          programmeId={req.programmeId}
-          entryRoute={req.entryRoute}
-          initial={{ sourceUrl: req.sourceUrl ?? '', groups: groupsFromRules(req.rules) }}
-          subjects={reference.subjects.map((s) => ({ id: s.id, label: localName(s, locale), qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }))}
-          dict={{ admin: t, requirements: dict.requirements, directory: dict.directory }}
-        />
+        <FreshOnNavigate>
+          <RequirementEditor
+            // A newer saved version (after a save elsewhere) starts the editor again from what is stored.
+            key={req.updatedAt.getTime()}
+            locale={locale}
+            id={req.id}
+            programmeId={req.programmeId}
+            entryRoute={req.entryRoute}
+            initial={{ sourceUrl: req.sourceUrl ?? '', groups: groupsFromRules(req.rules) }}
+            subjects={reference.subjects.map((s) => ({ id: s.id, label: localName(s, locale), qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }))}
+            dict={{ admin: t, requirements: dict.requirements, directory: dict.directory }}
+          />
+        </FreshOnNavigate>
       </>
     );
   }

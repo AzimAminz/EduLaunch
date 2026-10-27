@@ -118,6 +118,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="state" value={snapshot} />
+          <input type="hidden" name="programId" value={programmeId} />
 
           <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
             <h2 className="text-lg font-semibold">{t.source.title}</h2>

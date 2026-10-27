@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { AdminIcon } from '@/components/admin/icons';
+import { FreshOnNavigate } from '@/components/admin/fresh';
 import { InstitutionManager } from '@/components/admin/institution-manager';
 import { HowItWorks, IconText, LoadError, Pagination, buttonClass } from '@/components/admin/ui';
 import { listAdminInstitutions, type AdminInstitution } from '@/lib/admin/api';
@@ -107,24 +108,27 @@ async function Institutions({ locale, dict, searchParams }: { locale: Locale; di
 
   return (
     <>
-      <InstitutionManager
-        locale={locale}
-        rows={shown.items}
-        t={t}
-        noMatches={dict.directory.noMatches}
-        toolbar={toolbar}
-        empty={query ? format(i.noResults, { query }) : i.empty}
-        footer={
-          <Pagination
-            page={shown.page}
-            pageSize={list.pageSize}
-            total={found.length}
-            href={(page) => href({ ...list, page })}
-            sizeHref={(pageSize) => href({ ...list, pageSize, page: 1 })}
-            t={t.pagination}
-          />
-        }
-      />
+      {/* A new visit closes an "add institution" form left open earlier. */}
+      <FreshOnNavigate>
+        <InstitutionManager
+          locale={locale}
+          rows={shown.items}
+          t={t}
+          noMatches={dict.directory.noMatches}
+          toolbar={toolbar}
+          empty={query ? format(i.noResults, { query }) : i.empty}
+          footer={
+            <Pagination
+              page={shown.page}
+              pageSize={list.pageSize}
+              total={found.length}
+              href={(page) => href({ ...list, page })}
+              sizeHref={(pageSize) => href({ ...list, pageSize, page: 1 })}
+              t={t.pagination}
+            />
+          }
+        />
+      </FreshOnNavigate>
       <HowItWorks title={i.how.title} steps={i.how.steps} />
     </>
   );

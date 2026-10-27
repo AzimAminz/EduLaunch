@@ -122,10 +122,17 @@ async function Institution({ locale, dict, params, searchParams }: { locale: Loc
         <>
           <Card className="max-w-[760px]">
             <h2 className="text-lg font-semibold">{i.settingsTitle}</h2>
-            <InstitutionForm locale={locale} t={t} noMatches={dict.directory.noMatches} values={institution} />
+            {/* Keyed on the stored values, so a change saved elsewhere shows when the tab opens again. */}
+            <InstitutionForm
+              key={JSON.stringify([institution.name, institution.shortName, institution.type, institution.state, institution.websiteUrl])}
+              locale={locale}
+              t={t}
+              noMatches={dict.directory.noMatches}
+              values={institution}
+            />
           </Card>
           <div className="max-w-[760px]">
-            <InstitutionDangerZone locale={locale} institution={institution} confirmationText={institution.shortName ?? institution.name} me={account.id} superAdmin={account.superAdmin} t={t} />
+            <InstitutionDangerZone key={institution.deletionRequestedBy ?? 'none'} locale={locale} institution={institution} confirmationText={institution.shortName ?? institution.name} me={account.id} superAdmin={account.superAdmin} t={t} />
           </div>
         </>
       )}

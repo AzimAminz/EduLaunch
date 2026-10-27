@@ -47,6 +47,11 @@ Identity itself is **Supabase Auth**. `profile.account.id` is the Supabase user 
 
 4. **Only the gateway is public.** Services reject calls without the internal token (constant-time comparison).
 5. **Same layers everywhere:** domain → application → infrastructure → presentation (see [setup.md](setup.md#where-things-are)).
+6. **Web forms and Cache Components.** With `cacheComponents`, Next.js keeps up to three pages the user has left (hidden with React `<Activity>`) and shows them again with their old state. In `apps/web`:
+   - A server action that saves calls `revalidatePath('/[lang]', 'layout')` and then `redirect()` to the page that shows the result (the record, or its list with a short "saved" note via `?selesai=…`). Settings forms that stay on screen show "Disimpan" instead.
+   - Forms submit through `useFormAction` (`components/ui/use-form-action.ts`), which clears the last result (an error, "Saved") when the page is hidden, so a return never shows an old message.
+   - A form that starts from server data gets a `key` from that data (for example `updatedAt`), so a newer stored version replaces what the form held.
+   - "Add" and "edit" pages wrap their form in `FreshOnNavigate` (`components/admin/fresh.tsx`, keyed on `useRouter().bfcacheId`): a link or redirect starts the form afresh, while the browser's back and forward buttons return to what was left.
 
 ## Local vs cloud
 

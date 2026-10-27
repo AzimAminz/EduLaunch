@@ -1,11 +1,11 @@
 import { AggregateRoot, DomainError } from '@edulaunch/ddd';
-import { StudyModes, UPU_CODE_PATTERN, type StudyLevel, type StudyMode } from '@edulaunch/contracts';
+import { StudyModes, type StudyLevel, type StudyMode } from '@edulaunch/contracts';
 
 export type PublishStatus = 'draft' | 'in_review' | 'returned' | 'published' | 'archived';
 
 /** The details JPT and university prospectuses publish for every programme, so all programmes share one standard. */
 export interface ProgramFacts {
-  /** JPT / UPU code, for example UC6522001. */
+  /** JPT / UPU code as the official source writes it (for example UC6522001); no fixed format is enforced yet. */
   upuCode: string | null;
   /** The university's own code, for example BELG. */
   internalCode: string | null;
@@ -253,8 +253,7 @@ export class Program extends AggregateRoot<string, ProgramProps> {
       if (t && t.length > max) throw new DomainError('invalid_program', `${what} must be at most ${max} characters`);
       return t;
     };
-    const upuCode = text(d.upuCode, 9, 'Programme code')?.toUpperCase() ?? null;
-    if (upuCode && !UPU_CODE_PATTERN.test(upuCode)) throw new DomainError('invalid_program', 'Programme code must look like UC6522001');
+    const upuCode = text(d.upuCode, 30, 'Programme code')?.toUpperCase() ?? null;
     if (d.necCode && !/^\d{4}$/.test(d.necCode)) throw new DomainError('invalid_program', 'NEC code has four digits');
     if (d.studyMode && !(StudyModes as readonly string[]).includes(d.studyMode)) throw new DomainError('invalid_program', `Unknown study mode ${d.studyMode}`);
     const sourceUrl = text(d.sourceUrl, 500, 'Source link');

@@ -24,7 +24,9 @@ describe('Program', () => {
   it('keeps the standard details in a clean form', () => {
     const p = Program.create('p', { ...details, upuCode: ' uc6522001 ', internalCode: ' BELG ', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true });
     expect(p.toSnapshot()).toMatchObject({ upuCode: 'UC6522001', internalCode: 'BELG', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true, hasInterview: false });
-    expect(() => Program.create('p', { ...details, upuCode: 'BELG' })).toThrow('UC6522001');
+    // No fixed format yet: any code up to 30 characters is kept as written (upper case).
+    expect(Program.create('p', { ...details, upuCode: ' belg-01 ' }).toSnapshot().upuCode).toBe('BELG-01');
+    expect(() => Program.create('p', { ...details, upuCode: 'X'.repeat(31) })).toThrow('at most 30');
     expect(() => Program.create('p', { ...details, necCode: '712' })).toThrow('four digits');
     expect(() => Program.create('p', { ...details, sourceUrl: 'prospektus.pdf' })).toThrow('web link');
   });

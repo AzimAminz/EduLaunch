@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
+import { FreshOnNavigate } from '@/components/admin/fresh';
 import { ProgrammeForm } from '@/components/admin/programme-form';
 import { AdminHeading, Card, LoadError } from '@/components/admin/ui';
 import { listInstitutions, listNecFields } from '@/lib/admin/api';
@@ -45,18 +46,20 @@ async function NewProgramme({ locale, dict, searchParams }: { locale: Locale; di
         back={from ? { href: `/${locale}/admin/institusi/${from.id}?tab=program`, label: `← ${from.name}` } : { href: `/${locale}/admin/program`, label: t.programme.back }}
       />
       <Card className="max-w-[760px]">
-        <ProgrammeForm
-          locale={locale}
-          t={t}
-          levels={dict.levels}
-          noMatches={dict.directory.noMatches}
-          institutions={institutions.map((i) => ({ value: i.id, label: i.name, keywords: i.shortName ? [i.shortName] : [] }))}
-          necFields={necOptions(nec)}
-          initialInstitutionId={from?.id}
-          mode="new"
-          cancelHref={from ? `/${locale}/admin/institusi/${from.id}?tab=program` : `/${locale}/admin/program`}
-          fields={reference.fields.map((f) => ({ value: f.id, label: fieldName(f, locale) })).sort((a, b) => a.label.localeCompare(b.label, locale))}
-        />
+        <FreshOnNavigate>
+          <ProgrammeForm
+            locale={locale}
+            t={t}
+            levels={dict.levels}
+            noMatches={dict.directory.noMatches}
+            institutions={institutions.map((i) => ({ value: i.id, label: i.name, keywords: i.shortName ? [i.shortName] : [] }))}
+            necFields={necOptions(nec)}
+            initialInstitutionId={from?.id}
+            mode="new"
+            cancelHref={from ? `/${locale}/admin/institusi/${from.id}?tab=program` : `/${locale}/admin/program`}
+            fields={reference.fields.map((f) => ({ value: f.id, label: fieldName(f, locale) })).sort((a, b) => a.label.localeCompare(b.label, locale))}
+          />
+        </FreshOnNavigate>
       </Card>
     </>
   );

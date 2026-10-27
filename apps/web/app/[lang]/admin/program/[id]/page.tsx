@@ -64,8 +64,10 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
   // A malformed link is treated like a programme that does not exist.
   if (!z.uuid().safeParse(id).success) notFound();
   const account = await requireRole(locale, 'admin');
-  const asked = (await searchParams).tab;
-  const tab: Tab = TABS.find((x) => x === asked) ?? 'maklumat';
+  const sp = await searchParams;
+  const tab: Tab = TABS.find((x) => x === sp.tab) ?? 'maklumat';
+  // Set by the requirement editor after saving: what was just done.
+  const done = sp.selesai === 'draf' ? 'draft' : sp.selesai === 'hantar' ? 'sent' : null;
   const t = dict.admin;
 
   let programme: ProgrammeDetail;
@@ -117,6 +119,8 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
       />
 
       <ProgrammeWorkflowPanel
+        // A new status starts the panel afresh (no question box left open from before).
+        key={`${programme.status}:${programme.pendingStatus ?? ''}`}
         locale={locale}
         programmeId={programme.id}
         workflow={workflow}
@@ -126,6 +130,12 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         t={t}
       />
 
+      {done && tab === 'syarat' && (
+        <p role="status" className="flex items-center gap-2 rounded-[14px] bg-mint px-4 py-3 text-sm font-medium text-[#1f6b47]">
+          <AdminIcon name="checkCircle" size={18} />
+          {t.programme.requirements.done[done]}
+        </p>
+      )}
       <AdminTabs
         label={programme.name}
         items={[

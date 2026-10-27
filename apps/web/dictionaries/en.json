@@ -408,8 +408,9 @@
         "institutionRequired": "Choose an institution.",
         "levelRequired": "Choose a level.",
         "durationInvalid": "Duration is a whole number from 1 to 16.",
-        "upuInvalid": "The programme code must look like UC6522001.",
-        "sourceInvalid": "The link must start with https://"
+        "sourceInvalid": "The link must start with https://",
+        "upuRequired": "Enter the programme code as written in ePanduan or the prospectus.",
+        "upuTooLong": "The programme code is too long (30 characters at most)."
       },
       "sections": {
         "identity": "Identity",
@@ -419,7 +420,7 @@
       },
       "upuCode": "Programme code (JPT / UPU)",
       "upuPlaceholder": "e.g. UC6522001",
-      "upuHint": "Two letters and seven digits, as in ePanduan or the prospectus.",
+      "upuHint": "Copy the code as written in ePanduan or the prospectus, for example UC6522001.",
       "internalCode": "University code",
       "internalPlaceholder": "e.g. BELG",
       "faculty": "Faculty / school",
@@ -517,7 +518,11 @@
         "addButton": "Start",
         "routePlaceholder": "Choose a route",
         "suggestedSuffix": "(usual for this level)",
-        "empty": "No requirements yet. Choose a route below to start."
+        "empty": "No requirements yet. Choose a route below to start.",
+        "done": {
+          "draft": "Requirement draft saved. Continue any time with \"Open draft\".",
+          "sent": "Requirements sent for review. Other admins will see them in their task inbox."
+        }
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
@@ -769,7 +774,7 @@
       "value": "Value",
       "quote": "Sentence from the source",
       "quotePlaceholder": "Paste the exact sentence from the prospectus…",
-      "addRule": "+ Add requirement",
+      "addRule": "Add requirement",
       "addAlternative": "+ or another option",
       "removeLine": "Remove this requirement",
       "removeAlternative": "Remove this option",
