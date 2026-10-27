@@ -416,10 +416,11 @@
         "upuTooLong": "Kod program terlalu panjang (paling banyak 30 aksara)."
       },
       "sections": {
-        "identity": "Identiti",
-        "academic": "Akademik",
+        "identity": "Program",
+        "academic": "Pengajian",
         "admission": "Kemasukan",
-        "source": "Sumber"
+        "source": "Sumber",
+        "more": "Maklumat lanjut"
       },
       "upuCode": "Kod program (JPT / UPU)",
       "upuPlaceholder": "cth. UC6522001",
@@ -438,8 +439,6 @@
         "work_based": "2U2I / 3U1I (berasaskan kerja)",
         "distance": "Pembelajaran jarak jauh"
       },
-      "campus": "Kampus",
-      "campusPlaceholder": "cth. Kampus Induk, Durian Tunggal",
       "interview": "Ada temu duga atau ujian",
       "stem": "Program STEM",
       "tvet": "Program TVET",
@@ -467,7 +466,6 @@
         "form4_stream": "4"
       },
       "steps": {
-        "admission": "Kemasukan & sumber",
         "next": "Seterusnya",
         "back": "Kembali",
         "of": "Langkah {n} daripada {total}"
@@ -476,6 +474,29 @@
         "message": "Maklumat yang anda isi belum disimpan dan akan hilang.",
         "stay": "Teruskan mengisi",
         "discard": "Buang dan keluar"
+      },
+      "campuses": "Kampus",
+      "campusesPlaceholder": "cth. UTM Johor Bahru, Johor",
+      "campusesHint": "Senaraikan setiap kampus yang menawarkan program ini, seperti di ePanduan. Tekan Enter untuk tambah.",
+      "jointDegree": "Ijazah bersama dengan universiti lain",
+      "feeder": "Program pengumpan (membawa ke ijazah tertentu)",
+      "careers": "Kerjaya",
+      "careersPlaceholder": "cth. Jurutera awam",
+      "careersHint": "Satu kerjaya bagi setiap item. Digunakan untuk memadankan program dengan minat kerjaya pelajar.",
+      "fees": "Yuran",
+      "feesPlaceholder": "cth. Yuran ditetapkan oleh universiti dan dinyatakan dalam surat tawaran.",
+      "note": "Catatan",
+      "notePlaceholder": "Maklumat lain tentang program, seperti di bahagian Catatan ePanduan.",
+      "addItem": "Tambah",
+      "removeItem": "Buang {item}",
+      "fill": {
+        "button": "Isi dari ePanduan",
+        "needCode": "Taip kod program dahulu.",
+        "done": "Diisi dari ePanduan ({year}). Semak setiap langkah, kemudian simpan.",
+        "doneNoYear": "Diisi dari ePanduan. Semak setiap langkah, kemudian simpan.",
+        "notFound": "Kod ini belum ada dalam data ePanduan yang dibaca. Buka tab Import pada institusinya dan tekan \"Semak semula\", atau isi sendiri.",
+        "unavailable": "Data ePanduan tidak dapat dibuka sekarang. Cuba lagi sebentar, atau isi sendiri.",
+        "institution": "Institusi dipilih daripada kod program."
       }
     },
     "programme": {
@@ -805,12 +826,17 @@
           "durationSemesters": "tempoh",
           "necCode": "bidang NEC",
           "studyMode": "mod",
-          "campus": "kampus",
           "hasInterview": "temu duga",
           "isStem": "STEM",
           "isTvet": "TVET",
           "bumiputeraOnly": "Bumiputera",
-          "entryRoutes": "laluan masuk"
+          "entryRoutes": "laluan masuk",
+          "campuses": "kampus",
+          "jointDegree": "ijazah bersama",
+          "feeder": "program pengumpan",
+          "careers": "kerjaya",
+          "fees": "yuran",
+          "note": "catatan"
         },
         "problems": {
           "no_level": "Peringkat tidak dikenali; tambah secara manual",

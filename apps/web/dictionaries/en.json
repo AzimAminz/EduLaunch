@@ -416,10 +416,11 @@
         "upuTooLong": "The programme code is too long (30 characters at most)."
       },
       "sections": {
-        "identity": "Identity",
-        "academic": "Academic",
+        "identity": "Programme",
+        "academic": "Study",
         "admission": "Admission",
-        "source": "Source"
+        "source": "Source",
+        "more": "More details"
       },
       "upuCode": "Programme code (JPT / UPU)",
       "upuPlaceholder": "e.g. UC6522001",
@@ -438,8 +439,6 @@
         "work_based": "2U2I / 3U1I (work-based)",
         "distance": "Distance learning"
       },
-      "campus": "Campus",
-      "campusPlaceholder": "e.g. Main campus, Durian Tunggal",
       "interview": "Has an interview or test",
       "stem": "STEM programme",
       "tvet": "TVET programme",
@@ -467,7 +466,6 @@
         "form4_stream": "4"
       },
       "steps": {
-        "admission": "Admission & source",
         "next": "Next",
         "back": "Back",
         "of": "Step {n} of {total}"
@@ -476,6 +474,29 @@
         "message": "What you have entered is not saved and will be lost.",
         "stay": "Keep editing",
         "discard": "Discard and leave"
+      },
+      "campuses": "Campuses",
+      "campusesPlaceholder": "e.g. UTM Johor Bahru, Johor",
+      "campusesHint": "List every campus that offers this programme, as on ePanduan. Press Enter to add.",
+      "jointDegree": "Joint degree with another university",
+      "feeder": "Feeder programme (leads to a set degree)",
+      "careers": "Careers",
+      "careersPlaceholder": "e.g. Civil engineer",
+      "careersHint": "One career per item. Used to match programmes to students' career interests.",
+      "fees": "Fees",
+      "feesPlaceholder": "e.g. Fees are set by the university and stated in the offer letter.",
+      "note": "Note",
+      "notePlaceholder": "Anything else about the programme, as in the ePanduan note.",
+      "addItem": "Add",
+      "removeItem": "Remove {item}",
+      "fill": {
+        "button": "Fill from ePanduan",
+        "needCode": "Type the programme code first.",
+        "done": "Filled from ePanduan ({year}). Check each step, then save.",
+        "doneNoYear": "Filled from ePanduan. Check each step, then save.",
+        "notFound": "This code is not in the ePanduan data read so far. Open its institution's Import tab and press \"Check again\", or fill it in yourself.",
+        "unavailable": "ePanduan data cannot be opened right now. Try again shortly, or fill it in yourself.",
+        "institution": "Institution chosen from the programme code."
       }
     },
     "programme": {
@@ -805,12 +826,17 @@
           "durationSemesters": "duration",
           "necCode": "NEC field",
           "studyMode": "mode",
-          "campus": "campus",
           "hasInterview": "interview",
           "isStem": "STEM",
           "isTvet": "TVET",
           "bumiputeraOnly": "Bumiputera",
-          "entryRoutes": "entry routes"
+          "entryRoutes": "entry routes",
+          "campuses": "campuses",
+          "jointDegree": "joint degree",
+          "feeder": "feeder programme",
+          "careers": "careers",
+          "fees": "fees",
+          "note": "note"
         },
         "problems": {
           "no_level": "Unknown level; add it by hand",

@@ -53,11 +53,16 @@ const liveDetails = (p: ProgrammeDetail): PendingDetails => ({
   faculty: p.faculty,
   necCode: p.necCode,
   studyMode: p.studyMode,
-  campus: p.campus,
+  campuses: p.campuses,
   hasInterview: p.hasInterview,
   isStem: p.isStem,
   isTvet: p.isTvet,
   bumiputeraOnly: p.bumiputeraOnly,
+  jointDegree: p.jointDegree,
+  feeder: p.feeder,
+  careers: p.careers,
+  fees: p.fees,
+  note: p.note,
   sourceUrl: p.sourceUrl,
 });
 

@@ -1,10 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { StudyModes } from '@edulaunch/contracts';
-import { createProgramme, updateProgramme, type AdminFormState } from '@/lib/admin/actions';
+import { createProgramme, lookupEpanduanProgramme, updateProgramme, type AdminFormState } from '@/lib/admin/actions';
 import type { PendingDetails } from '@/lib/admin/api';
+import { draftFromFound } from '@/lib/admin/epanduan-import';
 import { STUDY_LEVEL_OPTIONS } from '@/lib/catalogue/presentation';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, TextField } from '@/components/auth/fields';
@@ -37,11 +38,14 @@ interface ProgrammeFormProps {
 }
 
 const URL_PATTERN = /^https?:\/\/\S+$/;
+const FLAGS = ['hasInterview', 'bumiputeraOnly', 'isStem', 'isTvet', 'jointDegree', 'feeder'] as const;
+type Flag = (typeof FLAGS)[number];
 
 /**
- * The programme form. Its fields follow what JPT ePanduan and university prospectuses publish (code, faculty, NEC
- * field, duration, mode, campus, interview), so programmes typed by hand and imported later share one standard.
- * Required fields are marked; codes and links are checked when the admin leaves the field.
+ * The programme form, in the order JPT ePanduan shows a programme: the programme (level, institution, code, name),
+ * its study (NEC field, duration, mode, campuses), admission flags, and more details (careers, fees, note, source).
+ * With a programme code, "fill from ePanduan" fills every step from the last ePanduan reading, for the admin to
+ * check; without one (a private college, a programme not on ePanduan) everything is typed in the same fields.
  */
 export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fields, necFields, mode, values, initialInstitutionId, cancelHref }: ProgrammeFormProps) {
   const f = t.programmeForm;
@@ -54,12 +58,19 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   const [duration, setDuration] = useState(values?.durationSemesters ? String(values.durationSemesters) : '');
   const [upu, setUpu] = useState(values?.upuCode ?? '');
   const [source, setSource] = useState(values?.sourceUrl ?? '');
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [name, setName] = useState(values?.name ?? '');
+  const [campuses, setCampuses] = useState<string[]>(values?.campuses ?? []);
+  const [careers, setCareers] = useState<string[]>(values?.careers ?? []);
+  const [fees, setFees] = useState(values?.fees ?? '');
+  const [note, setNote] = useState(values?.note ?? '');
+  const [flags, setFlags] = useState<Record<Flag, boolean>>(() => Object.fromEntries(FLAGS.map((k) => [k, values?.[k] ?? false])) as Record<Flag, boolean>);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [step, setStep] = useState(0);
   /** Problems found before moving to the next step, by field name, as keys of `f.errors`. */
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
   const [leaving, setLeaving] = useState(false);
+  const [filling, startFill] = useTransition();
+  const [fillNote, setFillNote] = useState<{ tone: 'ok' | 'warn'; text: string } | null>(null);
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   // What the form held when it opened, to tell whether leaving would lose anything.
@@ -76,10 +87,10 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
     return key && !pending ? f.errors[key] : undefined;
   };
 
-  // The form in short steps: identity, then academic details, then admission and source (streams have two).
-  const steps = isStream ? [f.sections.identity, f.sections.academic] : [f.sections.identity, f.sections.academic, f.steps.admission];
+  // In ePanduan's order: programme, study, admission, more details (a Form 4 stream has the first two only).
+  const steps = isStream ? [f.sections.identity, f.sections.academic] : [f.sections.identity, f.sections.academic, f.sections.admission, f.sections.more];
   const last = step >= steps.length - 1;
-  const STEP_OF: Record<string, number> = { studyLevel: 0, institutionId: 0, name: 0, upuCode: 0, durationSemesters: 1, sourceUrl: 2 };
+  const STEP_OF: Record<string, number> = { studyLevel: 0, institutionId: 0, name: 0, upuCode: 0, durationSemesters: 1, sourceUrl: 3 };
 
   /** The same checks as the server, for the fields of one step, so the admin fixes them before moving on. */
   const problemsIn = (n: number): Record<string, string> => {
@@ -92,7 +103,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
       if (!isStream && !upu.trim()) found.upuCode = 'upuRequired';
     }
     if (n === 1 && duration && (Number(duration) < 1 || Number(duration) > 16)) found.durationSemesters = 'durationInvalid';
-    if (n === 2 && source.trim() && !URL_PATTERN.test(source.trim())) found.sourceUrl = 'sourceInvalid';
+    if (n === 3 && source.trim() && !URL_PATTERN.test(source.trim())) found.sourceUrl = 'sourceInvalid';
     return found;
   };
   const goTo = (target: number) => {
@@ -150,11 +161,48 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   const placeholders: Record<string, string> = f.durationPlaceholders;
 
   const fieldLabel = (id: string) => fields.find((o) => o.value === id)?.label ?? id;
-  const chooseNec = (code: string) => {
-    setNecCode(code);
+  const suggestField = (code: string, current: string[]) => {
     // The NEC code suggests the broad field used for recommendations; the admin can still change it.
     const suggested = necFields.find((n) => n.value === code)?.fieldId;
-    if (suggested && !fieldIds.includes(suggested) && fieldIds.length < 10) setFieldIds([...fieldIds, suggested]);
+    return suggested && !current.includes(suggested) && current.length < 10 ? [...current, suggested] : current;
+  };
+  const chooseNec = (code: string) => {
+    setNecCode(code);
+    setFieldIds(suggestField(code, fieldIds));
+  };
+
+  /** Fills every step from the last ePanduan reading of this code; what ePanduan does not give is left as it is. */
+  const fill = () => {
+    if (!upu.trim()) {
+      setFillNote({ tone: 'warn', text: f.fill.needCode });
+      return;
+    }
+    startFill(async () => {
+      const result = await lookupEpanduanProgramme(locale, upu);
+      if (result.status !== 'found') {
+        setFillNote({ tone: 'warn', text: result.status === 'unavailable' ? f.fill.unavailable : f.fill.notFound });
+        return;
+      }
+      const found = result.programme;
+      const draft = draftFromFound({ ...found, level: found.level ?? (level as never) }, new Map(necFields.map((n) => [n.value, n.fieldId])));
+      setName(draft.name);
+      if (canPlace && found.level) setLevel(found.level);
+      if (canPlace && result.institutionId && !institutionId) setInstitutionId(result.institutionId);
+      if (draft.durationSemesters) setDuration(String(draft.durationSemesters));
+      if (draft.necCode) {
+        setNecCode(draft.necCode);
+        setFieldIds(suggestField(draft.necCode, fieldIds));
+      }
+      if (draft.studyMode) setStudyMode(draft.studyMode);
+      if (draft.campuses.length) setCampuses(draft.campuses);
+      if (draft.careers.length) setCareers(draft.careers);
+      if (draft.fees) setFees(draft.fees);
+      if (draft.note) setNote(draft.note);
+      if (draft.sourceUrl) setSource(draft.sourceUrl);
+      setFlags(Object.fromEntries(FLAGS.map((k) => [k, draft[k]])) as Record<Flag, boolean>);
+      setStepErrors({});
+      setFillNote({ tone: 'ok', text: found.year ? format(f.fill.done, { year: found.year }) : f.fill.doneNoYear });
+    });
   };
   const required = (label: string) => `${label} *`;
 
@@ -169,6 +217,19 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
       {fieldIds.map((id) => (
         <input key={id} type="hidden" name="fieldIds" value={id} />
       ))}
+      {!isStream && (
+        <>
+          {campuses.map((c) => (
+            <input key={`campus-${c}`} type="hidden" name="campuses" value={c} />
+          ))}
+          {careers.map((c) => (
+            <input key={`career-${c}`} type="hidden" name="careers" value={c} />
+          ))}
+          {FLAGS.filter((k) => flags[k]).map((k) => (
+            <input key={k} type="hidden" name={k} value="on" />
+          ))}
+        </>
+      )}
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
         {steps.map((label, i) => (
           <li key={label} className="flex items-center gap-2">
@@ -191,7 +252,6 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
       <FormAlert>{!pending && state.error ? t.errors[state.error] : undefined}</FormAlert>
 
       {/* Every step stays in the page (hidden), so the whole form is sent at the end. */}
-      {/* The step line names steps 1 and 2 already, so their sections need no heading of their own. */}
       <Section hidden={step !== 0}>
         {canPlace ? (
           <div className="grid gap-4 sm:grid-cols-2">
@@ -233,25 +293,45 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
             <Fact label={f.level} value={values ? levels[values.studyLevel] : '—'} />
           </dl>
         )}
+        {!isStream && (
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+              <div className="min-w-0 flex-1">
+                <TextField
+                  name="upuCode"
+                  label={required(f.upuCode)}
+                  placeholder={f.upuPlaceholder}
+                  value={upu}
+                  onChange={(e) => {
+                    setUpu(e.target.value.toUpperCase());
+                    setFillNote(null);
+                  }}
+                  onBlur={() => setTouched({ ...touched, upuCode: true })}
+                  maxLength={30}
+                  hint={f.upuHint}
+                  error={upuError}
+                />
+              </div>
+              <button type="button" onClick={fill} disabled={filling} className={`${buttonClass('accent')} sm:mt-[30px]`}>
+                <IconText icon="external" busy={filling}>
+                  {f.fill.button}
+                </IconText>
+              </button>
+            </div>
+            {fillNote && (
+              <p role="status" className={`flex items-start gap-2 rounded-[12px] px-4 py-3 text-sm ${fillNote.tone === 'ok' ? 'bg-mint text-[#1f6b47]' : 'bg-cream'}`}>
+                <AdminIcon name={fillNote.tone === 'ok' ? 'checkCircle' : 'info'} size={18} className="mt-0.5 shrink-0" />
+                {fillNote.text}
+              </p>
+            )}
+          </div>
+        )}
         <TextField name="name" label={required(f.name)} placeholder={f.namePlaceholder} value={name} onChange={(e) => setName(e.target.value)} maxLength={160} error={fieldError('name')} />
         {!isStream && (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField
-                name="upuCode"
-                label={required(f.upuCode)}
-                placeholder={f.upuPlaceholder}
-                value={upu}
-                onChange={(e) => setUpu(e.target.value.toUpperCase())}
-                onBlur={() => setTouched({ ...touched, upuCode: true })}
-                maxLength={30}
-                hint={f.upuHint}
-                error={upuError}
-              />
-              <TextField name="internalCode" label={f.internalCode} placeholder={f.internalPlaceholder} defaultValue={values?.internalCode ?? ''} maxLength={20} />
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <TextField name="internalCode" label={f.internalCode} placeholder={f.internalPlaceholder} defaultValue={values?.internalCode ?? ''} maxLength={20} />
             <TextField name="faculty" label={f.faculty} placeholder={f.facultyPlaceholder} defaultValue={values?.faculty ?? ''} maxLength={160} />
-          </>
+          </div>
         )}
       </Section>
 
@@ -285,7 +365,20 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
             />
           )}
         </div>
-        {!isStream && <TextField name="campus" label={f.campus} placeholder={f.campusPlaceholder} defaultValue={values?.campus ?? ''} maxLength={120} />}
+        {!isStream && (
+          <ListInput
+            id="campuses"
+            label={f.campuses}
+            placeholder={f.campusesPlaceholder}
+            hint={f.campusesHint}
+            items={campuses}
+            onChange={setCampuses}
+            most={20}
+            max={120}
+            add={f.addItem}
+            remove={f.removeItem}
+          />
+        )}
         <div className="flex flex-col gap-2">
           <Dropdown
             label={f.fields}
@@ -301,7 +394,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
               {fieldIds.map((id) => (
                 <li key={id} className="flex items-center gap-1 rounded-full bg-blue py-1 pl-3 pr-1 text-sm font-medium">
                   {fieldLabel(id)}
-                  <button type="button" onClick={() => setFieldIds(fieldIds.filter((x) => x !== id))} aria-label={`${fieldLabel(id)} ×`} className="rounded-full px-1.5 hover:bg-white">
+                  <button type="button" onClick={() => setFieldIds(fieldIds.filter((x) => x !== id))} aria-label={format(f.removeItem, { item: fieldLabel(id) })} className="rounded-full px-1.5 hover:bg-white">
                     ×
                   </button>
                 </li>
@@ -313,31 +406,49 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
       </Section>
 
       {!isStream && (
-        <div hidden={step !== 2} className="flex flex-col gap-6">
-          <Section title={f.sections.admission}>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <Check name="hasInterview" label={f.interview} checked={values?.hasInterview} />
-              <Check name="bumiputeraOnly" label={f.bumiputera} checked={values?.bumiputeraOnly} />
-              <Check name="isStem" label={f.stem} checked={values?.isStem} />
-              <Check name="isTvet" label={f.tvet} checked={values?.isTvet} />
-            </div>
-            <p className="text-[13px] text-muted">{f.flagsHint}</p>
-          </Section>
+        <Section hidden={step !== 2}>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {FLAGS.map((k) => (
+              <Check
+                key={k}
+                label={{ hasInterview: f.interview, bumiputeraOnly: f.bumiputera, isStem: f.stem, isTvet: f.tvet, jointDegree: f.jointDegree, feeder: f.feeder }[k]}
+                checked={flags[k]}
+                onChange={(on) => setFlags({ ...flags, [k]: on })}
+              />
+            ))}
+          </div>
+          <p className="text-[13px] text-muted">{f.flagsHint}</p>
+        </Section>
+      )}
 
-          <Section title={f.sections.source}>
-            <TextField
-              name="sourceUrl"
-              label={f.sourceUrl}
-              placeholder={f.sourcePlaceholder}
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              onBlur={() => setTouched({ ...touched, sourceUrl: true })}
-              inputMode="url"
-              hint={f.sourceHint}
-              error={sourceError}
-            />
-          </Section>
-        </div>
+      {!isStream && (
+        <Section hidden={step !== 3}>
+          <ListInput
+            id="careers"
+            label={f.careers}
+            placeholder={f.careersPlaceholder}
+            hint={f.careersHint}
+            items={careers}
+            onChange={setCareers}
+            most={40}
+            max={120}
+            add={f.addItem}
+            remove={f.removeItem}
+          />
+          <Area name="fees" label={f.fees} placeholder={f.feesPlaceholder} value={fees} onChange={setFees} max={1000} />
+          <Area name="note" label={f.note} placeholder={f.notePlaceholder} value={note} onChange={setNote} max={2000} />
+          <TextField
+            name="sourceUrl"
+            label={f.sourceUrl}
+            placeholder={f.sourcePlaceholder}
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
+            onBlur={() => setTouched({ ...touched, sourceUrl: true })}
+            inputMode="url"
+            hint={f.sourceHint}
+            error={sourceError}
+          />
+        </Section>
       )}
 
       {/* One bar on every step: going back on the left, going forward on the right, so nothing moves under the pointer. */}
@@ -403,11 +514,91 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Check({ name, label, checked }: { name: string; label: string; checked?: boolean }) {
+function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2.5 rounded-[10px] bg-bg px-3.5 py-3 text-sm font-medium">
-      <input type="checkbox" name={name} defaultChecked={checked} className="size-4 accent-navy" />
+    <label className={`flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-3.5 py-3 text-sm font-medium transition-colors duration-150 ${checked ? 'border-navy/40 bg-navy/[0.05]' : 'border-transparent bg-bg'}`}>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="size-4 accent-navy" />
       {label}
     </label>
+  );
+}
+
+function Area({ name, label, placeholder, value, onChange, max }: { name: string; label: string; placeholder: string; value: string; onChange: (v: string) => void; max: number }) {
+  return (
+    <label className="flex flex-col gap-2 text-sm font-semibold">
+      {label}
+      <textarea
+        name={name}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={3}
+        maxLength={max}
+        placeholder={placeholder}
+        className="rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] font-normal outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
+      />
+    </label>
+  );
+}
+
+/** A list typed one item at a time (Enter or "add"), shown as removable chips: campuses, careers. */
+function ListInput({ id, label, placeholder, hint, items, onChange, most, max, add, remove }: {
+  id: string;
+  label: string;
+  placeholder: string;
+  hint: string;
+  items: string[];
+  onChange: (items: string[]) => void;
+  most: number;
+  max: number;
+  add: string;
+  remove: string;
+}) {
+  const [draft, setDraft] = useState('');
+  const push = () => {
+    const item = draft.trim().slice(0, max);
+    if (item && items.length < most && !items.some((x) => x.toLowerCase() === item.toLowerCase())) onChange([...items, item]);
+    setDraft('');
+  };
+  const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    // Enter adds the item here instead of moving the form on.
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      push();
+    }
+  };
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={`${id}-input`} className="text-sm font-semibold">
+        {label}
+      </label>
+      <div className="flex gap-2">
+        <input
+          id={`${id}-input`}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={onKey}
+          placeholder={placeholder}
+          maxLength={max}
+          disabled={items.length >= most}
+          className="min-w-0 flex-1 rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
+        />
+        <button type="button" onClick={push} disabled={!draft.trim()} className={buttonClass('secondary')}>
+          <IconText icon="plus">{add}</IconText>
+        </button>
+      </div>
+      {items.length > 0 && (
+        <ul className="flex flex-wrap gap-2">
+          {items.map((item) => (
+            <li key={item} className="flex items-center gap-1 rounded-full bg-blue py-1 pl-3 pr-1 text-sm font-medium">
+              {item}
+              <button type="button" onClick={() => onChange(items.filter((x) => x !== item))} aria-label={format(remove, { item })} className="rounded-full px-1.5 hover:bg-white">
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="text-[13px] text-muted">{hint}</p>
+    </div>
   );
 }

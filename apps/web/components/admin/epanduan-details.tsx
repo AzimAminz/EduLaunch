@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { FoundProgramme, SpecialRequirement } from '@/lib/admin/api';
+import { careerList } from '@/lib/admin/epanduan-import';
 import { groupCategories } from '@/lib/admin/epanduan-text';
 import { format, type Dictionary } from '@/lib/i18n/locale';
 import { CategoryTabs } from './category-tabs';
@@ -25,14 +26,6 @@ export function CategoryChips({ programme, m }: { programme: FoundProgramme; m: 
       ))}
     </span>
   );
-}
-
-/** "JURUTERA,USAHAWAN, PENDIDIK" → ["Jurutera", "Usahawan", "Pendidik"]; long prose stays one paragraph. */
-function careerList(text: string | null): string[] | null {
-  if (!text) return null;
-  const parts = text.split(/\s*[,;]\s*/).map((p) => p.trim()).filter(Boolean);
-  if (parts.length < 2 || parts.some((p) => p.length > 60)) return null;
-  return parts.map((p) => (p === p.toUpperCase() ? p.charAt(0) + p.slice(1).toLowerCase() : p));
 }
 
 /** Everything ePanduan shows for one programme, read at a glance: details, requirements by category, fees, careers. */

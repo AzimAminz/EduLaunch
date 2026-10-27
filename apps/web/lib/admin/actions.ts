@@ -169,6 +169,7 @@ function programmeDetails(form: FormData, isStream: boolean) {
   const sourceUrl = text(form, 'sourceUrl') || null;
   if (sourceUrl && !/^https?:\/\/\S+$/.test(sourceUrl)) fieldErrors.sourceUrl = 'sourceInvalid';
   const flag = (name: string) => form.get(name) === 'on';
+  const list = (name: string) => form.getAll(name).map((v) => String(v).trim()).filter(Boolean);
   return {
     details: {
       name,
@@ -179,11 +180,16 @@ function programmeDetails(form: FormData, isStream: boolean) {
       faculty: text(form, 'faculty') || null,
       necCode: /^\d{4}$/.test(text(form, 'necCode')) ? text(form, 'necCode') : null,
       studyMode: StudyModes.find((m) => m === text(form, 'studyMode')) ?? null,
-      campus: text(form, 'campus') || null,
+      campuses: list('campuses').slice(0, 20),
       hasInterview: flag('hasInterview'),
       isStem: flag('isStem'),
       isTvet: flag('isTvet'),
       bumiputeraOnly: flag('bumiputeraOnly'),
+      jointDegree: flag('jointDegree'),
+      feeder: flag('feeder'),
+      careers: list('careers').slice(0, 40),
+      fees: text(form, 'fees').slice(0, 1000) || null,
+      note: text(form, 'note').slice(0, 2000) || null,
       sourceUrl,
     },
     fieldErrors,
@@ -208,8 +214,43 @@ export async function createProgramme(_prev: AdminFormState, form: FormData): Pr
   } catch (err) {
     return { error: errorKey(err) };
   }
+  // Typed by hand with an ePanduan code: keep what an import would (entry routes, average merit), so the programme
+  // gets its route tabs and requirements from ePanduan just like an imported one.
+  if (details.upuCode) await keepEpanduanFacts(token, id, details.upuCode).catch(() => null);
   refresh();
   redirect(`/${locale}/admin/program/${id}`);
+}
+
+async function keepEpanduanFacts(token: string, id: string, code: string) {
+  const [found] = await api.listFoundProgrammes(token, [code]);
+  if (!found) return;
+  const routes = entryRoutesFromFound(found);
+  if (routes.length) await api.setEntryRoutes(token, id, routes);
+  if (found.merit !== null && found.year) await api.recordAverageMerit(token, id, { intakeYear: found.year, averageMerit: found.merit });
+  // Syarat Khas, read in the background as for accepted programmes.
+  await api.readSpecialRequirements(token, code.slice(0, 2), [code]).catch(() => null);
+}
+
+export type EpanduanLookup =
+  | { status: 'found'; programme: api.FoundProgramme; institutionId: string | null }
+  | { status: 'not_found' | 'unavailable' };
+
+/**
+ * The programme with this code as last read from ePanduan, for the programme form's "fill from ePanduan", with the
+ * institution its code belongs to when exactly one institution has that ePanduan code.
+ */
+export async function lookupEpanduanProgramme(locale: string, code: string): Promise<EpanduanLookup> {
+  const token = await adminToken(isLocale(locale) ? locale : 'ms');
+  const clean = code.trim().toUpperCase();
+  if (!/^[A-Z0-9]{4,30}$/.test(clean)) return { status: 'not_found' };
+  try {
+    const [[programme], institutions] = await Promise.all([api.listFoundProgrammes(token, [clean]), api.listAdminInstitutions(token)]);
+    if (!programme) return { status: 'not_found' };
+    const owners = institutions.filter((i) => i.epanduanCode === clean.slice(0, 2));
+    return { status: 'found', programme, institutionId: owners.length === 1 ? owners[0]!.id : null };
+  } catch {
+    return { status: 'unavailable' };
+  }
 }
 
 /** Saves the edit page and returns to the programme, which then shows what happens next. */
@@ -391,7 +432,24 @@ export async function startEpanduanImport(_prev: AdminFormState, form: FormData)
   return { savedAt: Date.now() };
 }
 
-const FACT_KEYS = ['upuCode', 'internalCode', 'faculty', 'necCode', 'studyMode', 'campus', 'hasInterview', 'isStem', 'isTvet', 'bumiputeraOnly', 'sourceUrl'] as const;
+const FACT_KEYS = [
+  'upuCode',
+  'internalCode',
+  'faculty',
+  'necCode',
+  'studyMode',
+  'campuses',
+  'hasInterview',
+  'isStem',
+  'isTvet',
+  'bumiputeraOnly',
+  'jointDegree',
+  'feeder',
+  'careers',
+  'fees',
+  'note',
+  'sourceUrl',
+] as const;
 
 /**
  * Accepts the chosen found programmes: a new one becomes a draft of this institution (with its average merit), a

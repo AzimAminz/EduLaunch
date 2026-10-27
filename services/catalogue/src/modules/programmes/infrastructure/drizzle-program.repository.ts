@@ -22,11 +22,16 @@ const facts = (p: ProgramFacts): ProgramFacts => ({
   faculty: p.faculty,
   necCode: p.necCode,
   studyMode: p.studyMode,
-  campus: p.campus,
+  campuses: p.campuses ?? [],
   hasInterview: p.hasInterview,
   isStem: p.isStem,
   isTvet: p.isTvet,
   bumiputeraOnly: p.bumiputeraOnly,
+  jointDegree: p.jointDegree ?? false,
+  feeder: p.feeder ?? false,
+  careers: p.careers ?? [],
+  fees: p.fees ?? null,
+  note: p.note ?? null,
   sourceUrl: p.sourceUrl,
 });
 

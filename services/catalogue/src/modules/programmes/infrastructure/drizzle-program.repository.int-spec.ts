@@ -74,20 +74,20 @@ describe('DrizzleProgramRepository (integration)', () => {
     const p = programme('Diploma Perakaunan');
     await repo.save(p);
     const editing = (await repo.findById(p.id))!;
-    editing.edit(maker, { campus: 'Kampus Induk', fieldIds: [fieldB] });
+    editing.edit(maker, { campuses: ['Kampus Induk'], fieldIds: [fieldB] });
     editing.submitForReview(maker);
     await repo.save(editing);
 
     const waiting = (await repo.findById(p.id))!.toSnapshot();
-    expect(waiting.campus).toBeNull();
+    expect(waiting.campuses).toEqual([]);
     expect(waiting.fieldIds).toEqual([fieldA]);
-    expect(waiting.pending).toMatchObject({ status: 'in_review', preparedBy: maker, details: { campus: 'Kampus Induk', fieldIds: [fieldB] } });
+    expect(waiting.pending).toMatchObject({ status: 'in_review', preparedBy: maker, details: { campuses: ['Kampus Induk'], fieldIds: [fieldB] } });
 
     const reviewing = (await repo.findById(p.id))!;
     reviewing.approve(checker);
     await repo.save(reviewing);
     const approved = (await repo.findById(p.id))!.toSnapshot();
-    expect(approved).toMatchObject({ campus: 'Kampus Induk', fieldIds: [fieldB], pending: null });
+    expect(approved).toMatchObject({ campuses: ['Kampus Induk'], fieldIds: [fieldB], pending: null });
   });
 
   it('keeps one average merit per intake year, replacing an older figure for the same year', async () => {

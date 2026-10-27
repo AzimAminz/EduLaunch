@@ -24,11 +24,16 @@ const DetailsBody = z.object({
   faculty: z.string().max(200).nullable().optional(),
   necCode: z.string().max(4).nullable().optional(),
   studyMode: z.enum(StudyModes).nullable().optional(),
-  campus: z.string().max(200).nullable().optional(),
+  campuses: z.array(z.string().max(200)).max(20).optional(),
   hasInterview: z.boolean().optional(),
   isStem: z.boolean().optional(),
   isTvet: z.boolean().optional(),
   bumiputeraOnly: z.boolean().optional(),
+  jointDegree: z.boolean().optional(),
+  feeder: z.boolean().optional(),
+  careers: z.array(z.string().max(200)).max(40).optional(),
+  fees: z.string().max(1000).nullable().optional(),
+  note: z.string().max(2000).nullable().optional(),
   sourceUrl: z.string().max(600).nullable().optional(),
 });
 

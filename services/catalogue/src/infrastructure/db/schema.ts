@@ -88,12 +88,23 @@ export const programs = catalogue.table('program', {
   necCode: text('nec_code').references(() => necFields.code),
   /** conventional, work_based (2U2I / 3U1I) or distance. */
   studyMode: text('study_mode'),
-  campus: text('campus'),
+  /** Every campus the programme is offered at, as the official source lists them ("UTM Johor Bahru, Johor"). */
+  campuses: text('campuses').array().notNull().default(sql`'{}'::text[]`),
   hasInterview: boolean('has_interview').notNull().default(false),
   isStem: boolean('is_stem').notNull().default(false),
   isTvet: boolean('is_tvet').notNull().default(false),
   /** Open to Bumiputera applicants only (for example some foundation programmes). */
   bumiputeraOnly: boolean('bumiputera_only').notNull().default(false),
+  /** Awarded jointly with another university. */
+  jointDegree: boolean('joint_degree').notNull().default(false),
+  /** A feeder programme (it leads to a set degree, for example a foundation for one university). */
+  feeder: boolean('feeder').notNull().default(false),
+  /** Careers the programme leads to, one per item (used for career matching). */
+  careers: text('careers').array().notNull().default(sql`'{}'::text[]`),
+  /** Fees as the official source states them (often "set by the university"). */
+  fees: text('fees'),
+  /** Anything else the official source notes about the programme. */
+  note: text('note'),
   sourceUrl: text('source_url'),
   /**
    * A change to a published programme waiting for approval: the whole proposed version, its review status

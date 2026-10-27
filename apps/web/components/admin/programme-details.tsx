@@ -27,12 +27,17 @@ function shows(dict: Dictionary, names: DetailNames): Show {
     necCode: (x) => (x ? `${x} · ${names.nec.get(String(x)) ?? ''}` : v.none),
     durationSemesters: (x) => (typeof x === 'number' ? format(v.duration, { n: x, years: x / 2 }) : v.none),
     studyMode: (x) => (x ? dict.admin.programmeForm.studyModes[x as keyof Dictionary['admin']['programmeForm']['studyModes']] : v.none),
-    campus: text,
+    campuses: (x) => ((x as string[] | undefined)?.length ? (x as string[]).join('; ') : v.none),
     fieldIds: (x) => ((x as string[]).length ? (x as string[]).map((id) => names.fields.get(id) ?? id).join(', ') : v.none),
     hasInterview: yesNo,
     bumiputeraOnly: yesNo,
     isStem: yesNo,
     isTvet: yesNo,
+    jointDegree: yesNo,
+    feeder: yesNo,
+    careers: (x) => ((x as string[] | undefined)?.length ? (x as string[]).join(', ') : v.none),
+    fees: text,
+    note: text,
     sourceUrl: text,
   };
 }
@@ -50,12 +55,17 @@ function labels(dict: Dictionary): Record<keyof PendingDetails, string> {
     necCode: f.nec,
     durationSemesters: f.duration,
     studyMode: f.studyMode,
-    campus: f.campus,
+    campuses: f.campuses,
     fieldIds: f.fields,
     hasInterview: f.interview,
     bumiputeraOnly: f.bumiputera,
     isStem: f.stem,
     isTvet: f.tvet,
+    jointDegree: f.jointDegree,
+    feeder: f.feeder,
+    careers: f.careers,
+    fees: f.fees,
+    note: f.note,
     sourceUrl: f.sourceUrl,
   };
 }
@@ -79,7 +89,7 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
       </dd>
     </div>
   );
-  const flags = (['hasInterview', 'bumiputeraOnly', 'isStem', 'isTvet'] as const).filter((k) => details[k]);
+  const flags = (['hasInterview', 'bumiputeraOnly', 'isStem', 'isTvet', 'jointDegree', 'feeder'] as const).filter((k) => details[k]);
   const stream = details.studyLevel === 'form4_stream';
   return (
     <div className="flex flex-col gap-6">
@@ -94,7 +104,7 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
         {!stream && row('necCode')}
         {row('durationSemesters')}
         {!stream && row('studyMode')}
-        {!stream && row('campus')}
+        {!stream && row('campuses')}
         {row('fieldIds')}
       </Group>
       {!stream && (
@@ -107,7 +117,25 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
           </div>
         </Group>
       )}
-      {!stream && <Group title={f.sections.source}>{row('sourceUrl')}</Group>}
+      {!stream && (
+        <Group title={f.sections.more}>
+          <div className="flex flex-col gap-0.5 sm:col-span-2">
+            <dt className="text-[13px] text-muted">{label.careers}</dt>
+            <dd className="flex flex-wrap gap-1.5 text-[15px] font-medium">
+              {details.careers?.length
+                ? details.careers.map((c) => (
+                    <span key={c} className="rounded-full bg-mint px-2.5 py-0.5 text-[13px] text-[#1f6b47]">
+                      {c}
+                    </span>
+                  ))
+                : dict.admin.programme.values.none}
+            </dd>
+          </div>
+          {row('fees')}
+          {row('note')}
+          {row('sourceUrl')}
+        </Group>
+      )}
     </div>
   );
 }

@@ -8,7 +8,24 @@ import type { FoundProgramme, InstitutionProgramme, ProgrammeBody } from './api'
 export type ImportStatus = 'new' | 'changed' | 'same';
 
 /** The details an import compares and may update. */
-export const ComparedFields = ['name', 'studyLevel', 'durationSemesters', 'necCode', 'studyMode', 'campus', 'hasInterview', 'isStem', 'isTvet', 'bumiputeraOnly', 'entryRoutes'] as const;
+export const ComparedFields = [
+  'name',
+  'studyLevel',
+  'durationSemesters',
+  'necCode',
+  'studyMode',
+  'campuses',
+  'hasInterview',
+  'isStem',
+  'isTvet',
+  'bumiputeraOnly',
+  'jointDegree',
+  'feeder',
+  'careers',
+  'fees',
+  'note',
+  'entryRoutes',
+] as const;
 export type ComparedField = (typeof ComparedFields)[number];
 
 /** Why a found programme cannot be accepted now. */
@@ -28,7 +45,23 @@ export interface ImportComparison {
   counts: Record<ImportStatus | 'missing', number>;
 }
 
-const campusText = (campuses: string[]) => (campuses.length ? campuses.join('; ') : null);
+/**
+ * "PENILAI HARTA TANAH, PENGURUS ASET, SERTA PENASIHAT PELABURAN." → ["Penilai harta tanah", "Pengurus aset",
+ * "Penasihat pelaburan"]. Null when the text is prose rather than a list.
+ */
+export function careerList(text: string | null): string[] | null {
+  if (!text) return null;
+  const parts = text
+    .split(/\s*[,;]\s*/)
+    .map((p) => p.trim().replace(/^(serta|dan|and)\s+/i, '').replace(/\.$/, '').trim())
+    .filter(Boolean);
+  if (parts.length < 2 || parts.some((p) => p.length > 60)) return null;
+  return parts.map((p) => (p === p.toUpperCase() ? p.charAt(0) + p.slice(1).toLowerCase() : p));
+}
+
+/** Careers to keep, and the text to keep as a note when ePanduan wrote them as prose. */
+const careersOf = (f: FoundProgramme) => careerList(f.careers) ?? [];
+const noteOf = (f: FoundProgramme) => [f.note, !careerList(f.careers) && f.careers ? f.careers : null].filter(Boolean).join('\n\n').slice(0, 2000) || null;
 
 /** The found programme's values in catalogue terms (unknown values are null and never count as a change). */
 function foundValues(f: FoundProgramme, knownNec: ReadonlySet<string>): Record<ComparedField, unknown> {
@@ -38,11 +71,16 @@ function foundValues(f: FoundProgramme, knownNec: ReadonlySet<string>): Record<C
     durationSemesters: f.durationSemesters,
     necCode: f.necCode && knownNec.has(f.necCode) ? f.necCode : null,
     studyMode: f.studyMode,
-    campus: campusText(f.campuses),
+    campuses: f.campuses.length ? f.campuses : null,
     hasInterview: f.hasInterview,
     isStem: f.isStem,
     isTvet: f.isTvet,
     bumiputeraOnly: f.bumiputeraOnly,
+    jointDegree: f.jointDegree,
+    feeder: f.feeder,
+    careers: careersOf(f).length ? careersOf(f) : null,
+    fees: f.fees?.slice(0, 1000) ?? null,
+    note: noteOf(f),
     // Routes the programme takes candidates from (one per category list it appears in), compared as a set.
     entryRoutes: f.routes.length ? [...new Set(f.routes)].sort() : null,
   };
@@ -99,11 +137,16 @@ export function draftFromFound(f: FoundProgramme, necField: ReadonlyMap<string, 
     faculty: null,
     necCode: nec,
     studyMode: f.studyMode,
-    campus: campusText(f.campuses),
+    campuses: f.campuses,
     hasInterview: f.hasInterview ?? false,
     isStem: f.isStem,
     isTvet: f.isTvet,
     bumiputeraOnly: f.bumiputeraOnly,
+    jointDegree: f.jointDegree ?? false,
+    feeder: f.feeder,
+    careers: careersOf(f),
+    fees: f.fees?.slice(0, 1000) ?? null,
+    note: noteOf(f),
     sourceUrl: f.sourceUrl,
   };
 }

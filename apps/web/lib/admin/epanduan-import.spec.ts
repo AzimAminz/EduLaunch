@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { FoundProgramme, InstitutionProgramme } from './api';
-import { acceptable, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
+import { acceptable, careerList, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
 
 const found = (over: Partial<FoundProgramme> = {}): FoundProgramme => ({
   code: 'UC6522001',
@@ -19,6 +19,7 @@ const found = (over: Partial<FoundProgramme> = {}): FoundProgramme => ({
   isTvet: false,
   bumiputeraOnly: false,
   feeder: false,
+  jointDegree: false,
   isNew: false,
   note: null,
   campuses: ['Kampus Induk, Melaka'],
@@ -38,11 +39,16 @@ const existing = (over: Partial<InstitutionProgramme> = {}): InstitutionProgramm
   durationSemesters: 8,
   necCode: '0712',
   studyMode: 'conventional',
-  campus: 'Kampus Induk, Melaka',
+  campuses: ['Kampus Induk, Melaka'],
   hasInterview: false,
   isStem: true,
   isTvet: false,
   bumiputeraOnly: false,
+  jointDegree: false,
+  feeder: false,
+  careers: [],
+  fees: null,
+  note: null,
   sourceUrl: null,
   status: 'published',
   pendingStatus: null,
@@ -99,7 +105,7 @@ describe('drafts and updates from ePanduan', () => {
       studyLevel: 'degree',
       necCode: '0712',
       fieldIds: ['field-engineering'],
-      campus: 'Kampus Induk, Melaka',
+      campuses: ['Kampus Induk, Melaka'],
       hasInterview: false,
     });
     expect(draftFromFound(found({ necCode: '9999' }), NEC_FIELD)).toMatchObject({ necCode: null, fieldIds: [] });
@@ -133,3 +139,20 @@ describe('entry routes from ePanduan', () => {
     expect(compareFound([many], [existing({ entryRoutes: ['matrikulasi', 'stpm'] })], NEC).rows[0]!.status).toBe('same');
   });
 });
+
+describe('careerList', () => {
+  it('splits an ePanduan career list into items, dropping the joining word and the full stop', () => {
+    expect(careerList('PENILAI HARTA TANAH, PENGURUS ASET, SERTA PENASIHAT PELABURAN HARTA TANAH.')).toEqual(['Penilai harta tanah', 'Pengurus aset', 'Penasihat pelaburan harta tanah']);
+  });
+
+  it('keeps prose as prose', () => {
+    expect(careerList('Graduan boleh bekerja dalam pelbagai sektor awam dan swasta sebagai pegawai yang menguruskan pembangunan tanah.')).toBeNull();
+  });
+
+  it('turns careers into items, and prose careers into the note, when drafting', () => {
+    expect(draftFromFound(found({ careers: 'JURUTERA, USAHAWAN' }), NEC_FIELD)).toMatchObject({ careers: ['Jurutera', 'Usahawan'], note: null });
+    const prose = 'Graduan boleh bekerja dalam pelbagai sektor awam dan swasta sebagai pegawai yang menguruskan pembangunan tanah.';
+    expect(draftFromFound(found({ careers: prose, note: 'Kampus KL.' }), NEC_FIELD)).toMatchObject({ careers: [], note: `Kampus KL.\n\n${prose}` });
+  });
+});
+
