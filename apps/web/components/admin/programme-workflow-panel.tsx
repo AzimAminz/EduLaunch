@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { decideProgramme, type AdminFormState } from '@/lib/admin/actions';
 import type { Workflow, WorkflowAction } from '@/lib/admin/programme-workflow';
@@ -73,8 +72,6 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
 
   const label = (action: WorkflowAction): string => {
     switch (action) {
-      case 'edit':
-        return change ? a.editChange : a.edit;
       case 'submit':
         return workflow.message === 'returned' || workflow.message === 'changeReturned' ? a.resubmit : change ? a.submitChange : a.submit;
       case 'approve':
@@ -155,15 +152,9 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {workflow.actions.map((action, i) => {
+            {/* Editing sits on the details tab it belongs to, so it is not read as editing every tab. */}
+            {workflow.actions.filter((action) => action !== 'edit').map((action, i) => {
               const primary = i === 0;
-              if (action === 'edit') {
-                return (
-                  <Link key={action} href={`/${locale}/admin/program/${programmeId}/sunting`} className={style(primary)}>
-                    <IconText icon={ICON[action]}>{label(action)}</IconText>
-                  </Link>
-                );
-              }
               // These ask first: a reason to return, or a confirmation before discarding, hiding or deleting.
               if (action === 'return' || action === 'discard' || action === 'archive' || action === 'delete') {
                 return (

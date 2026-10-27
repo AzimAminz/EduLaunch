@@ -565,8 +565,8 @@
         ]
       },
       "act": {
-        "edit": "Edit basic details",
-        "editChange": "Edit proposed basic details",
+        "edit": "Edit",
+        "editChange": "Edit the change",
         "submit": "Send for review",
         "submitChange": "Send the change for review",
         "resubmit": "Send again",

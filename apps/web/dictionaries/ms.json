@@ -565,8 +565,8 @@
         ]
       },
       "act": {
-        "edit": "Sunting maklumat asas",
-        "editChange": "Sunting perubahan maklumat asas",
+        "edit": "Sunting",
+        "editChange": "Sunting perubahan",
         "submit": "Hantar untuk semakan",
         "submitChange": "Hantar perubahan untuk semakan",
         "resubmit": "Hantar semula",

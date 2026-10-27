@@ -167,7 +167,14 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
                 <AdminIcon name="info" size={20} />
                 {t.programme.details}
               </h2>
-              {programme.preparedBy && <span className="text-[13px] text-muted">{format(t.programme.preparedBy, { who: who(programme.preparedBy, me, t) })}</span>}
+              <div className="flex flex-wrap items-center gap-3">
+                {programme.preparedBy && <span className="text-[13px] text-muted">{format(t.programme.preparedBy, { who: who(programme.preparedBy, me, t) })}</span>}
+                {workflow.actions.includes('edit') && (
+                  <Link href={`/${locale}/admin/program/${programme.id}/sunting`} className={buttonClass('secondary', 'sm')}>
+                    <IconText icon="pencil">{workflow.track === 'change' ? t.programme.act.editChange : t.programme.act.edit}</IconText>
+                  </Link>
+                )}
+              </div>
             </div>
             <ProgrammeDetails details={live} dict={dict} names={names} />
           </Card>
