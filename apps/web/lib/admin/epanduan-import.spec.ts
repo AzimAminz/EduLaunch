@@ -22,7 +22,10 @@ const found = (over: Partial<FoundProgramme> = {}): FoundProgramme => ({
   isNew: false,
   note: null,
   campuses: ['Kampus Induk, Melaka'],
+  careers: null,
+  fees: null,
   routes: ['stpm'],
+  categories: [{ jenprog: 'stpm', category: 'S', route: 'stpm', generalRequirements: null }],
   sourceUrl: 'https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/S',
   ...over,
 });

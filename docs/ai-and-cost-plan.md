@@ -178,7 +178,22 @@ ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-universit
 **Terms check (27 Oct 2026):** `online.mohe.gov.my` has no `robots.txt` (the address redirects to the UPU home page) and the ePanduan pages have no terms, privacy or reuse statement; the UPU portal shows "© 2023 Jabatan Pendidikan Tinggi". The ministry portal policy (mohe.gov.my, "Portal Policy") says its content may not be "altered, copied, distributed, reposted… for any commercial purpose without the express prior written consent of the Ministry of Higher Education"; it says nothing about non-commercial use. **Decision:** EduLaunch, a non-commercial final-year project, reads programme facts slowly, shows the source on every programme and has admins approve every record; a commercial launch first needs JPT's written permission (contact: upu@mohe.gov.my).
 
 **How Step 9 reads it (built 27 Oct 2026):**
-- Programme lists are per **candidate category**, and each category is an EduLaunch entry route: SPM `A` → spm; STPM `S`/`A` → stpm; `N P J K M V L U` → matrikulasi; `G1 G2 E3` → diploma; `E1` → dkm; `E2` → dvm; `F1` → a_level. Step 9 reads SPM `A` and STPM `S` and `A` (almost every foundation, diploma and degree programme).
+- Programme lists are per **candidate category**, and each category is an EduLaunch entry route. An import reads **13 categories** (owner's list, 27 Oct 2026; totals across all institutions that day):
+
+  | Category | Meaning | Programmes | Route | Merit shown |
+  |---|---|---|---|---|
+  | SPM `A` / `B` | SPM current year / earlier years | 369 / 335 | spm | yes |
+  | STPM `S` / `A` | STPM science / arts | 1,002 / 678 | stpm | yes |
+  | `V` `M` `N` `P` | Asasi TVET, Asasi Sains Sosial, Matrikulasi / Asasi Sains, Matrikulasi Perakaunan | 53, 413, 1,001, 542 | matrikulasi | yes |
+  | `T` | STAM | 439 | (no route yet) | no |
+  | `G1` / `G2` | Diploma UA / Diploma Politeknik and Kolej Komuniti | 1,106 / 1,016 | diploma | no |
+  | `E1` / `E2` | DKM / DLKM, DVM | 320 / 347 | dkm / dvm | no |
+
+- The same programme appears under every category it accepts candidates from (UPM's Bacelor Ekonomi is in S, A, M, N, P, T, G1 and G2). The average merit is one figure per programme (the same in every category that shows it).
+- **Syarat Am** is in the list page and differs by category (STPM: PNGK and Pengajian Am; diploma holders: an IPTA / ILKA / IPTS diploma). It is kept per category as plain lines (headings, "• " items, DAN / ATAU).
+- **Syarat Khas** is loaded when Syarat is pressed, from `…/ProgramPengajian/modalSyarat/{category}/{code}` (about 6 KB), with the visitor's session from the list page. It is read **only for programmes an admin accepts** (owner's choice, 27 Oct 2026), one request every 2 seconds, and kept per category with subject lists as indented items.
+- Yuran (fees), Kampus, Laluan Kerjaya and the details panel (Info) come from the list page.
+- A page cut short in transfer (seen once on category N) is detected (fewer programmes than the count says, or a programme without its details) and read again once; a second failure stops the run.
 - **Per institution**, with the site's own search form: open the category page, tick the institution (`carianIPTA[]=UC`), press Cari, then follow `?page=N` (the site keeps the filter in its session). UTeM: 39 programmes, 7 pages, 37 seconds.
 - Institution codes are two letters and start every programme code (`UC6522001` is UTeM). Politeknik (`FB`), Kolej Komuniti (`FC`) and MARA (`OP`) share one code each, so the admin picks that college's programmes by name or campus.
 - Each programme block has a card (name, institution, badges STEM / TVET / Bumiputera / Perintis, `KOD PROGRAM`, `TAHUN`, `PURATA MARKAH MERIT`) and panels titled "Maklumat Program" (level, mode, duration, NEC, interview, joint degree, notes), "Kampus", "Laluan Kerjaya" and "Bidang NEC". Labels inside the name ("BARU", "#") are kept apart from it.

@@ -372,7 +372,8 @@ Tested by: AzimAminz Date: 27 Oct 2026
 
 ### B. Finding programmes
 
-- [ ] **Import ePanduan → Cari program sekarang**: "Sedang membaca ePanduan… N halaman dibaca" appears and the page updates by itself; after about a minute it shows "Dibaca baru tadi · 7 halaman · 39 program" (numbers may change as JPT updates the site).
+- [ ] **Import ePanduan → Cari program sekarang**: "Sedang membaca ePanduan… N halaman dibaca" with "Kategori: STPM Sains (3 daripada 13)" appears and the page updates by itself; after a few minutes it shows "Dibaca baru tadi · N halaman · N program" (numbers change as JPT updates the site).
+- [ ] Each row shows the categories it was found under (for example "STPM Sains", "Matrikulasi / Asasi Sains", "Diploma UA"). **Butiran, syarat, yuran dan kerjaya** opens the details, Syarat Am for each category, fees and careers; Syarat Khas says "Dibaca selepas program ini diterima".
 - [ ] The list shows each programme's code (UC…), name in normal letters (not all capitals), campus, STEM / TVET / Bumiputera / Perintis labels, level, duration in semesters, NEC code (hover for its name), average merit and status **Baharu**.
 - [ ] The filters **Semua / Baharu / Berubah / Sama / Tiada di ePanduan** show their counts and filter the list.
 - [ ] **Semak semula** while a read is running is not possible (the button waits); a second admin pressing it sees the same run.
@@ -380,6 +381,8 @@ Tested by: AzimAminz Date: 27 Oct 2026
 ### C. Accepting
 
 - [ ] **Kosongkan pilihan**, tick two programmes, **Terima 2 sebagai draf**: "2 draf baharu dan 0 perubahan disimpan". The Program tab shows both as **Draf**, with their programme code; the two rows now say **Sama**.
+- [ ] After accepting, open the row's details again: Syarat Khas shows "Sedang dibaca dari ePanduan…" and then the text for each category (the page updates by itself).
+- [ ] Open one draft → **Syarat kemasukan**: a card **Rujukan dari ePanduan** shows each category's Syarat Am and Syarat Khas to copy as evidence.
 - [ ] Open one draft: its details (code, level, duration, NEC, mode, campus, interview, flags, source link) are filled in. It goes through **Hantar untuk semakan** and another admin approves it, as in Step 8.
 - [ ] Change one draft's name by hand, then **Semak semula**: the row says **Berubah** with "Berubah: nama"; accepting it puts the ePanduan name back and keeps the other details.
 - [ ] A programme with a change in review, or in review itself, cannot be ticked and says why.

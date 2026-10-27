@@ -4,17 +4,23 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { acceptFoundProgrammes, startEpanduanImport, type AdminFormState } from '@/lib/admin/actions';
-import type { InstitutionProgramme } from '@/lib/admin/api';
+import type { InstitutionProgramme, SpecialRequirement } from '@/lib/admin/api';
 import { acceptable, type ImportRow, type ImportStatus } from '@/lib/admin/epanduan-import';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { CategoryChips, FoundDetails, categoryLabel } from './epanduan-details';
 import { AdminIcon } from './icons';
 import { EmptyState, IconText, buttonClass } from './ui';
 
 export interface RunSummary {
   status: 'running' | 'done' | 'failed';
   pagesRead: number;
+  /** The category being read ("stpm:S"), while running. */
+  currentCategory: string | null;
+  /** Its place among the categories read (1-based) and how many there are. */
+  categoryIndex: number;
+  categoryCount: number;
   found: number;
   error: string | null;
   /** "3 minutes ago", worked out on the server. */
@@ -28,6 +34,8 @@ interface Props {
   shared: boolean;
   run: RunSummary | null;
   rows: ImportRow[];
+  /** Syarat Khas read so far for found programmes (only accepted ones are read). */
+  special: SpecialRequirement[];
   missing: InstitutionProgramme[];
   counts: Record<ImportStatus | 'missing', number>;
   t: Dictionary['admin'];
@@ -42,7 +50,7 @@ const STATUS_TONE: Record<ImportStatus, string> = { new: 'bg-blue text-navy', ch
  * "Programmes from ePanduan" on an institution's profile: start a read, watch it run, then pick found programmes
  * and accept them as drafts. Another admin approves each draft before students see it.
  */
-export function EpanduanImport({ locale, institutionId, code, shared, run, rows, missing, counts, t, levels }: Props) {
+export function EpanduanImport({ locale, institutionId, code, shared, run, rows, special, missing, counts, t, levels }: Props) {
   const m = t.institutions.import;
   const router = useRouter();
   const [startState, onStart, starting] = useFormAction<AdminFormState>(startEpanduanImport, {});
@@ -52,13 +60,20 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
   const [filter, setFilter] = useState<Filter>('all');
   const [shown, setShown] = useState(STEP);
 
-  // While a read is running, ask the server again every few seconds.
+  // While a read (or Syarat Khas for accepted programmes) is running, ask the server again every few seconds.
   const running = run?.status === 'running';
+  const readingSpecial = special.some((s) => s.status === 'pending');
   useEffect(() => {
-    if (!running) return;
-    const timer = setInterval(() => router.refresh(), 3000);
+    if (!running && !readingSpecial) return;
+    const timer = setInterval(() => router.refresh(), running ? 3000 : 5000);
     return () => clearInterval(timer);
-  }, [running, router]);
+  }, [running, readingSpecial, router]);
+  const specialByCode = useMemo(() => {
+    const map = new Map<string, SpecialRequirement[]>();
+    for (const s of special) map.set(s.code, [...(map.get(s.code) ?? []), s]);
+    return map;
+  }, [special]);
+  const [jenprog, category] = (run?.currentCategory ?? ':').split(':');
 
   const visible = useMemo(() => (filter === 'all' || filter === 'missing' ? rows : rows.filter((r) => r.status === filter)), [rows, filter]);
   const pickable = rows.filter(acceptable);
@@ -104,7 +119,14 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
         ) : run.status === 'running' ? (
           <p role="status" className="flex items-center gap-2 rounded-[12px] bg-blue px-4 py-3 text-sm">
             <AdminIcon name="spinner" size={18} />
-            {format(m.running, { pages: run.pagesRead })}
+            <span>
+              {format(m.running, { pages: run.pagesRead })}
+              {run.currentCategory && (
+                <span className="block text-[13px] text-muted">
+                  {format(m.runningCategory, { category: categoryLabel(jenprog ?? '', category ?? '', m), n: run.categoryIndex, total: run.categoryCount })}
+                </span>
+              )}
+            </span>
           </p>
         ) : run.status === 'failed' ? (
           <p role="alert" className="flex items-center gap-2 rounded-[12px] bg-red/10 px-4 py-3 text-sm">
@@ -210,6 +232,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
                         <td className="whitespace-nowrap px-4 py-3 font-mono text-[13px]">{f.code}</td>
                         <td className="px-4 py-3">
                           <p className="font-semibold">{f.name}</p>
+                          <CategoryChips programme={f} m={m} />
                           <p className="flex flex-wrap gap-x-2 text-[12px] text-muted">
                             {f.campuses.join(' · ')}
                             {f.isStem && <span>{m.flags.stem}</span>}
@@ -225,6 +248,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
                               {m.problems[row.problem]}
                             </p>
                           )}
+                          <FoundDetails programme={f} special={specialByCode.get(f.code) ?? []} m={m} />
                         </td>
                         <td className="px-4 py-3">{f.level ? levels[f.level] : (f.levelText ?? '-')}</td>
                         <td className="whitespace-nowrap px-4 py-3">{f.durationSemesters ? format(m.semesters, { n: f.durationSemesters }) : '-'}</td>

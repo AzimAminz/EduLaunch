@@ -3,11 +3,13 @@
 Every value is found by the text of its label ("KOD PROGRAM", "Tempoh Pengajian", the "Kampus" panel), never by its
 position or CSS class, so small layout changes do not shift values into the wrong fields. A page that has no result
 count, or programme blocks without a programme code, raises PageLayoutChanged so a run stops instead of storing
-half-read data.
+half-read data. A page cut short in transfer (fewer blocks than it should have, or a block without its details)
+raises PageIncomplete, so the reader can fetch it again.
 """
 
 from __future__ import annotations
 
+import html as html_lib
 import re
 from dataclasses import dataclass
 
@@ -16,6 +18,7 @@ from selectolax.lexbor import LexborNode as Node
 
 from ..domain.epanduan import (
     PROGRAMME_CODE,
+    FoundCategory,
     FoundProgramme,
     clean_text,
     parse_duration_semesters,
@@ -34,6 +37,38 @@ _RESULT_COUNT = re.compile(r"daripada\s*([\d.,]+)\s*carian", re.IGNORECASE)
 
 class PageLayoutChanged(Exception):
     """The page does not look like an ePanduan programme list any more."""
+
+
+class PageIncomplete(Exception):
+    """The page arrived cut short; reading it again usually works."""
+
+
+PAGE_SIZE = 10
+
+
+def requirement_text(fragment: str | None) -> str | None:
+    """Requirement HTML (Syarat Am or Syarat Khas) as plain lines: headings, '• ' list items, DAN / ATAU."""
+    if not fragment:
+        return None
+    s = re.sub(r"(?is)<(script|style)\b.*?</\1>", "", fragment)
+    # Line breaks in the source are only layout; lines come from the block elements below.
+    s = re.sub(r"\s+", " ", s)
+    # Subject lists are tables with a bullet cell: written as indented items under their requirement.
+    s = re.sub(r"(?i)<td\b[^>]*>\s*(?:&#8226;|&bull;|•)\s*</td>", "\n  - ", s)
+    s = re.sub(r"(?i)<li\b[^>]*>", "\n• ", s)
+    s = re.sub(r"(?i)<br\s*/?>|</(div|p|li|ol|ul|h[1-6]|tr)>", "\n", s)
+    s = html_lib.unescape(re.sub(r"<[^>]+>", " ", s))
+    lines: list[str] = []
+    for raw in s.split("\n"):
+        indent = "  " if raw.startswith("  - ") else ""
+        line = clean_text(raw)
+        if not line or line in ("•", "-"):
+            continue
+        line = re.sub(r"\s+([.,:;])", r"\1", line)
+        if lines and line == lines[-1].strip():
+            continue
+        lines.append(indent + line)
+    return "\n".join(lines) or None
 
 
 @dataclass
@@ -55,16 +90,22 @@ def result_count(html: str) -> int:
     return int(re.sub(r"[.,]", "", count.group(1)))
 
 
-def parse_listing(html: str, route: str | None = None, source_url: str | None = None) -> ListingPage:
+def parse_listing(
+    html: str, jenprog: str | None = None, category: str | None = None, source_url: str | None = None, page: int | None = None
+) -> ListingPage:
     total = result_count(html)
     blocks = html.split(_CARD_START)[1:]
     if total and not blocks:
         raise PageLayoutChanged(f"The page says {total} programmes but shows none")
-    programmes = [_programme(_CARD_START + block, route, source_url) for block in blocks]
+    if page is not None:
+        expected = max(0, min(PAGE_SIZE, total - (page - 1) * PAGE_SIZE))
+        if len(blocks) < expected:
+            raise PageIncomplete(f"Page {page} shows {len(blocks)} of {expected} programmes")
+    programmes = [_programme(_CARD_START + block, jenprog, category, source_url) for block in blocks]
     return ListingPage(total=total, programmes=programmes)
 
 
-def _programme(block_html: str, route: str | None, source_url: str | None) -> FoundProgramme:
+def _programme(block_html: str, jenprog: str | None, category: str | None, source_url: str | None) -> FoundProgramme:
     tree = HTMLParser(block_html)
     labels = _labelled_values(tree)
     code = (labels.get("KOD PROGRAM") or "").upper()
@@ -77,7 +118,10 @@ def _programme(block_html: str, route: str | None, source_url: str | None) -> Fo
     if not name:
         raise PageLayoutChanged(f"Programme {code} has no name")
     details = _details(tree)
+    if "peringkat pengajian" not in details:
+        raise PageIncomplete(f"Programme {code} arrived without its details")
     panels = _panels(tree)
+    general = tree.css_first(f'[id="syarat-am-{code}"]')
     badges = {(_text(b) or "").lower() for b in tree.css(".executive-badges-container .badge")}
     nec_code, nec_name = parse_nec(details.get("bidang nec"))
     year = labels.get("TAHUN")
@@ -104,7 +148,8 @@ def _programme(block_html: str, route: str | None, source_url: str | None) -> Fo
         note=details.get("catatan") or None,
         campuses=_campuses(panels.get("kampus")),
         careers=panels.get("laluan kerjaya"),
-        routes=[route] if route else [],
+        fees=panels.get("yuran pengajian") or None,
+        categories=[FoundCategory(jenprog, category, requirement_text(general.html if general else None))] if jenprog and category else [],
         source_url=source_url,
     )
 

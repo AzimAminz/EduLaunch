@@ -731,13 +731,13 @@
       "epanduanHint": "Untuk mencari program institusi ini di ePanduan secara automatik (tab Import ePanduan).",
       "import": {
         "title": "Program dari ePanduan JPT",
-        "intro": "Sistem membaca senarai program institusi ini dari laman awam ePanduan (kategori Lepasan SPM dan STPM). Program yang dipilih menjadi draf, dan admin lain masih perlu meluluskannya sebelum pelajar nampak.",
+        "intro": "Sistem membaca senarai program institusi ini dari laman awam ePanduan, untuk 13 kategori calon (SPM, STPM, Matrikulasi / Asasi, STAM, Diploma, DKM dan DVM). Program yang dipilih menjadi draf, dan admin lain masih perlu meluluskannya sebelum pelajar nampak. Syarat Khas dibaca selepas program diterima.",
         "noCode": "Institusi ini belum ada kod ePanduan. Tetapkan kod di tab Tetapan untuk mencari programnya secara automatik.",
         "setCode": "Tetapkan kod ePanduan",
         "shared": "Kod {code} dikongsi oleh semua kolej dalam kumpulan ini. Pilih hanya program yang ditawarkan oleh institusi ini (lihat nama dan kampus).",
         "start": "Cari program sekarang",
         "again": "Semak semula",
-        "running": "Sedang membaca ePanduan… {pages} halaman dibaca. Ini mengambil masa kira-kira seminit; halaman ini dikemas kini sendiri.",
+        "running": "Sedang membaca ePanduan… {pages} halaman dibaca. Untuk universiti besar ini mengambil masa beberapa minit; halaman ini dikemas kini sendiri.",
         "failed": "Bacaan terhenti: {reason}. Tiada data diubah. Cuba lagi sebentar nanti.",
         "never": "Belum pernah dicari. Tekan butang di atas untuk mula.",
         "lastRun": "Dibaca {when} · {pages} halaman · {found} program",
@@ -804,7 +804,51 @@
           "unavailable": "laman ePanduan tidak menjawab atau sedang sibuk",
           "stopped": "perkhidmatan dimulakan semula semasa membaca",
           "other": "ralat tidak dijangka"
-        }
+        },
+        "runningCategory": "Kategori: {category} ({n} daripada {total})",
+        "details": "Butiran, syarat, yuran dan kerjaya",
+        "requirementsFor": "Syarat kemasukan: {category}",
+        "general": "Syarat Am",
+        "special": "Syarat Khas",
+        "specialLater": "Dibaca selepas program ini diterima.",
+        "specialReading": "Sedang dibaca dari ePanduan…",
+        "specialFailed": "Tidak dapat dibaca. Terima semula program ini untuk mencuba lagi.",
+        "none": "Tiada.",
+        "fees": "Yuran",
+        "careers": "Kerjaya",
+        "info": {
+          "level": "Peringkat",
+          "mode": "Mod",
+          "duration": "Tempoh",
+          "nec": "Bidang NEC",
+          "interview": "Temu duga / ujian",
+          "year": "Tahun",
+          "note": "Catatan",
+          "yes": "Ya",
+          "no": "Tidak",
+          "modes": {
+            "conventional": "Konvensional",
+            "work_based": "Berasaskan kerja",
+            "distance": "Jarak jauh"
+          }
+        },
+        "categories": {
+          "spm:A": "SPM tahun semasa",
+          "spm:B": "SPM tahun lepas",
+          "stpm:S": "STPM Sains",
+          "stpm:A": "STPM Sastera",
+          "stpm:V": "Asasi TVET",
+          "stpm:M": "Asasi Sains Sosial",
+          "stpm:N": "Matrikulasi / Asasi Sains",
+          "stpm:P": "Matrikulasi Perakaunan",
+          "stpm:T": "STAM",
+          "stpm:G1": "Diploma UA",
+          "stpm:G2": "Diploma Politeknik / KK",
+          "stpm:E1": "DKM / DLKM",
+          "stpm:E2": "DVM"
+        },
+        "referenceTitle": "Rujukan dari ePanduan",
+        "referenceIntro": "Teks syarat seperti yang tertulis di ePanduan JPT bagi setiap kategori calon. Salin ayat yang berkaitan sebagai bukti semasa menulis syarat."
       }
     },
     "requirement": {
@@ -932,7 +976,8 @@
       "noRules": "Tambah sekurang-kurangnya satu syarat.",
       "confirmation_mismatch": "Teks pengesahan tidak sama. Taip tepat seperti yang ditunjukkan.",
       "upu_code_taken": "Kod program ini sudah digunakan oleh program lain.",
-      "run_in_progress": "ePanduan sedang dibaca untuk institusi ini. Tunggu sehingga selesai."
+      "run_in_progress": "ePanduan sedang dibaca untuk institusi ini. Tunggu sehingga selesai.",
+      "service_unavailable": "Perkhidmatan EduLaunch tidak dapat dihubungi sekarang. Pastikan Docker dan pnpm dev berjalan, kemudian cuba lagi. Tiada data diubah."
     },
     "pagination": {
       "label": "Halaman senarai",

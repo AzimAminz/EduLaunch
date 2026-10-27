@@ -20,18 +20,27 @@ const call = <T extends z.ZodType>(token: string, path: string, schema: T, init:
 
 /** Calls a service ('catalogue' or 'content') through the gateway as the signed-in admin. Never cached. */
 async function callService<T extends z.ZodType>(service: 'catalogue' | 'content', token: string, path: string, schema: T, init: RequestInit = {}): Promise<z.infer<T>> {
-  const res = await fetch(`${GATEWAY_URL}/api/${service}${path}`, {
-    ...init,
-    headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  });
+  let res: Response;
+  try {
+    res = await fetchService(service, token, path, init);
+  } catch {
+    // The gateway (or the service behind it) did not answer at all.
+    throw new AdminApiError('service_unavailable', 503, `The ${service} service did not answer for ${path}`);
+  }
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { code?: string; message?: string } | null;
-    throw new AdminApiError(body?.code ?? 'generic', res.status, body?.message ?? `Catalogue request failed (${res.status}) for ${path}`);
+    throw new AdminApiError(body?.code ?? (res.status >= 502 ? 'service_unavailable' : 'generic'), res.status, body?.message ?? `Request failed (${res.status}) for ${path}`);
   }
   if (res.status === 204) return undefined as z.infer<T>;
   return schema.parse(await res.json());
 }
+
+const fetchService = (service: 'catalogue' | 'content', token: string, path: string, init: RequestInit) =>
+  fetch(`${GATEWAY_URL}/api/${service}${path}`, {
+    ...init,
+    headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
 
 const send = (body: unknown, method = 'POST'): RequestInit => ({ method, body: JSON.stringify(body) });
 
@@ -309,6 +318,15 @@ export type InstitutionProgramme = z.infer<typeof InstitutionProgramme>;
 export const listInstitutionProgrammes = (token: string, id: string) =>
   call(token, `/admin/institutions/${encodeURIComponent(id)}/programmes`, z.array(InstitutionProgramme));
 
+/** A candidate category a programme is listed under on ePanduan, with that category's general requirements. */
+const FoundCategory = z.object({
+  jenprog: z.string(),
+  category: z.string(),
+  route: z.string().nullable(),
+  generalRequirements: z.string().nullable(),
+});
+export type FoundCategory = z.infer<typeof FoundCategory>;
+
 /** One programme as ePanduan lists it (plain cleaned values from the content service). */
 const FoundProgramme = z.object({
   code: z.string(),
@@ -330,7 +348,10 @@ const FoundProgramme = z.object({
   isNew: z.boolean().default(false),
   note: z.string().nullable(),
   campuses: z.array(z.string()),
+  careers: z.string().nullable().default(null),
+  fees: z.string().nullable().default(null),
   routes: z.array(z.string()),
+  categories: z.array(FoundCategory).default([]),
   sourceUrl: z.string().nullable(),
 });
 export type FoundProgramme = z.infer<typeof FoundProgramme>;
@@ -340,6 +361,7 @@ const EpanduanRun = z.object({
   institutionCode: z.string(),
   status: z.enum(['running', 'done', 'failed']),
   pagesRead: z.number(),
+  currentCategory: z.string().nullable().default(null),
   found: z.number(),
   error: z.string().nullable(),
   startedAt: z.coerce.date(),
@@ -353,3 +375,24 @@ export const startEpanduanRun = (token: string, institutionCode: string) =>
   callService('content', token, '/epanduan/runs', z.object({ id: z.uuid(), status: z.string() }), send({ institutionCode }));
 export const latestEpanduanRun = (token: string, institutionCode: string) =>
   callService('content', token, `/epanduan/runs/latest?institutionCode=${encodeURIComponent(institutionCode)}`, z.object({ run: EpanduanRun.nullable() }));
+
+/** Syarat Khas read from ePanduan for a programme in one category (pending while being read). */
+const SpecialRequirement = z.object({
+  code: z.string(),
+  jenprog: z.string(),
+  category: z.string(),
+  status: z.enum(['pending', 'done', 'failed']),
+  text: z.string().nullable(),
+  error: z.string().nullable(),
+  readAt: z.coerce.date().nullable(),
+});
+export type SpecialRequirement = z.infer<typeof SpecialRequirement>;
+
+/** Starts reading Syarat Khas for accepted programmes (every category each one is listed under). */
+export const readSpecialRequirements = (token: string, institutionCode: string, codes: string[]) =>
+  callService('content', token, '/epanduan/requirements', z.object({ pending: z.number() }), send({ institutionCode, codes }));
+export const listSpecialRequirements = (token: string, codes: string[]) =>
+  codes.length ? callService('content', token, `/epanduan/requirements?codes=${encodeURIComponent(codes.join(','))}`, z.array(SpecialRequirement)) : Promise.resolve([]);
+/** Programmes as the latest ePanduan read of their institution found them, by programme code. */
+export const listFoundProgrammes = (token: string, codes: string[]) =>
+  codes.length ? callService('content', token, `/epanduan/found?codes=${encodeURIComponent(codes.join(','))}`, z.array(FoundProgramme)) : Promise.resolve([]);

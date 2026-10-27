@@ -87,3 +87,34 @@ def start_epanduan_run(
 @router.get("/epanduan/runs/latest", dependencies=[Depends(require_admin)])
 def latest_epanduan_run(request: Request, institution_code: Annotated[str, Query(alias="institutionCode", pattern="^[A-Za-z]{2}$")]) -> dict:
     return {"run": request.app.state.epanduan_runs.latest(institution_code.upper())}
+
+
+class SpecialRequirementsRequest(BaseModel):
+    institution_code: str = Field(alias="institutionCode", min_length=2, max_length=2)
+    codes: list[str] = Field(min_length=1, max_length=200)
+
+
+@router.post("/epanduan/requirements", status_code=202, dependencies=[Depends(require_admin)])
+def read_special_requirements(body: SpecialRequirementsRequest, request: Request, background: BackgroundTasks) -> dict:
+    """Reads Syarat Khas for accepted programmes (every category each one is listed under), in the background."""
+    use_case = request.app.state.read_requirements
+    items = use_case.start(body.institution_code, body.codes)
+    background.add_task(use_case.run, items)
+    return {"pending": len(items)}
+
+
+@router.get("/epanduan/requirements", dependencies=[Depends(require_admin)])
+def special_requirements(request: Request, codes: Annotated[str, Query(max_length=2400)]) -> list[dict]:
+    wanted = [c.strip().upper() for c in codes.split(",") if c.strip()][:200]
+    return request.app.state.epanduan_runs.special(wanted)
+
+
+@router.get("/epanduan/found", dependencies=[Depends(require_admin)])
+def found_programmes(request: Request, codes: Annotated[str, Query(max_length=2400)]) -> list[dict]:
+    """These programmes as the newest finished run of their institution found them (the code's first two letters)."""
+    wanted = [c.strip().upper() for c in codes.split(",") if c.strip()][:200]
+    by_institution: dict[str, list[str]] = {}
+    for code in wanted:
+        by_institution.setdefault(code[:2], []).append(code)
+    runs = request.app.state.epanduan_runs
+    return [found for prefix, group in by_institution.items() for found in runs.found(prefix, group)]

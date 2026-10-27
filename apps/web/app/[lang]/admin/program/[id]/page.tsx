@@ -4,12 +4,13 @@ import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
 import { EntryRoutes, EntryRoutesByLevel } from '@edulaunch/contracts';
+import { FoundDetails } from '@/components/admin/epanduan-details';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
 import { RouteStarter, StartRequirement } from '@/components/admin/start-requirement';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, EmptyState, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
-import { AdminApiError, getProgrammeDetail, listInstitutions, listNecFields, type PendingDetails, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
+import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
 import { programmeWorkflow } from '@/lib/admin/programme-workflow';
 import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -161,7 +162,14 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
           </Card>
         </>
       ) : (
-        <Requirements locale={locale} dict={dict} programme={programme} me={me} />
+        <>
+          <Requirements locale={locale} dict={dict} programme={programme} me={me} />
+          {programme.upuCode && (
+            <Suspense fallback={null}>
+              <EpanduanReference code={programme.upuCode} dict={dict} />
+            </Suspense>
+          )}
+        </>
       )}
     </>
   );
@@ -251,5 +259,31 @@ function OlderVersions({ locale, versions, label }: { locale: Locale; versions: 
         </Link>
       ))}
     </p>
+  );
+}
+
+/** What ePanduan lists for this programme (each category's Syarat Am and Syarat Khas), to quote while writing rules. */
+async function EpanduanReference({ code, dict }: { code: string; dict: Dictionary }) {
+  const m = dict.admin.institutions.import;
+  let found, special;
+  try {
+    const token = (await getAccessToken())!;
+    [[found], special] = await Promise.all([listFoundProgrammes(token, [code]), listSpecialRequirements(token, [code])]);
+  } catch {
+    // The reference is a help, not part of the programme: without the content service the page still works.
+    return null;
+  }
+  if (!found) return null;
+  return (
+    <Card>
+      <div className="flex flex-col gap-1">
+        <h2 className="flex items-center gap-2 text-lg font-semibold">
+          <AdminIcon name="external" size={20} />
+          {m.referenceTitle}
+        </h2>
+        <p className="text-sm text-muted">{m.referenceIntro}</p>
+      </div>
+      <FoundDetails programme={found} special={special} m={m} />
+    </Card>
   );
 }

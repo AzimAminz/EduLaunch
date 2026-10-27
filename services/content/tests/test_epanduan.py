@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from content_service.domain.epanduan import (
+    FoundCategory,
     FoundProgramme,
     clean_text,
     parse_duration_semesters,
@@ -12,7 +13,12 @@ from content_service.domain.epanduan import (
     study_mode,
     title_case,
 )
-from content_service.infrastructure.epanduan_parser import PageLayoutChanged, parse_listing
+from content_service.infrastructure.epanduan_parser import (
+    PageIncomplete,
+    PageLayoutChanged,
+    parse_listing,
+    requirement_text,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -51,7 +57,7 @@ def test_levels_and_modes_map_to_edulaunch_values():
 
 def test_reads_a_degree_list_page_by_its_labels():
     html = (FIXTURES / "epanduan_stpm_S_UC_page1.html").read_text()
-    page = parse_listing(html, "stpm", "https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/S")
+    page = parse_listing(html, "stpm", "S", "https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/S")
     assert page.total == 33
     first = page.programmes[0]
     assert first.code == "UC6522001"
@@ -63,10 +69,18 @@ def test_reads_a_degree_list_page_by_its_labels():
     assert first.campuses == ["Kampus Induk, Melaka"]
     assert first.note is None
     assert first.routes == ["stpm"]
+    assert first.fees.startswith("Yuran Pengajian adalah ditetapkan oleh pihak UA/IPTA")
+    general = first.categories[0].general_requirements
+    assert general.splitlines()[:3] == [
+        "SPM",
+        "Memiliki Sijil Pelajaran Malaysia (SPM) dengan mendapat sekurang-kurangnya:-",
+        "• Gred C bagi matapelajaran BAHASA MELAYU / BAHASA MELAYU (KERTAS JULAI).",
+    ]
+    assert "• Purata Nilai Gred Kumulatif (PNGK) 2.00." in general.splitlines()
 
 
 def test_reads_badges_on_a_foundation_page():
-    page = parse_listing((FIXTURES / "epanduan_spm_A_page1.html").read_text(), "spm")
+    page = parse_listing((FIXTURES / "epanduan_spm_A_page1.html").read_text(), "spm", "A")
     asasi = page.programmes[0]
     assert page.total == 369
     assert asasi.code == "UY0000010"
@@ -84,6 +98,35 @@ def test_labels_inside_the_name_are_kept_apart_from_it():
     assert (first.is_new, first.name_marks) == (True, ["BARU", "#"])
 
 
+def test_a_diploma_holder_category_has_its_own_general_requirements():
+    page = parse_listing((FIXTURES / "epanduan_stpm_G1_page1.html").read_text(), "stpm", "G1")
+    degree = page.programmes[0]
+    assert degree.routes == ["diploma"]
+    assert degree.categories[0].general_requirements.startswith("DIPLOMA UNIVERSITI AWAM / POLITEKNIK / KOLEJ KOMUNITI")
+
+
+def test_special_requirements_keep_their_structure():
+    text = requirement_text((FIXTURES / "epanduan_syarat_khas_S_UC6522001.html").read_text())
+    assert text.splitlines()[:5] == [
+        "• Mendapat sekurang-kurangnya PNGK 2.00 pada peringkat STPM.",
+        "• Mendapat sekurang-kurangnya Gred C dalam TIGA (3) mata pelajaran di peringkat STPM:",
+        "  - Mathematics M / Mathematics T",
+        "  - Physics",
+        "  - Chemistry",
+    ]
+    assert "ATAU" in text.splitlines()
+    assert requirement_text("<div>   </div>") is None
+
+
+def test_a_page_cut_short_is_reported_so_it_can_be_read_again():
+    html = (FIXTURES / "epanduan_stpm_S_UC_page1.html").read_text()
+    with pytest.raises(PageIncomplete, match="2 of 10"):
+        parse_listing(html, page=1)  # the fixture keeps 2 of the 10 programmes page 1 should show
+    cut = html[: html.index("Peringkat Pengajian")]
+    with pytest.raises(PageIncomplete, match="without its details"):
+        parse_listing(cut)
+
+
 def test_a_changed_layout_stops_the_run():
     with pytest.raises(PageLayoutChanged, match="result count"):
         parse_listing("<html><body><p>Penyelenggaraan sistem</p></body></html>")
@@ -92,8 +135,12 @@ def test_a_changed_layout_stops_the_run():
         parse_listing(html)
 
 
-def test_the_same_programme_under_two_categories_keeps_both_routes():
-    a = FoundProgramme(code="UC6522001", name="X", routes=["stpm"])
-    a.merge(FoundProgramme(code="UC6522001", name="X", routes=["matrikulasi"]))
-    a.merge(FoundProgramme(code="UC6522001", name="X", routes=["stpm"]))
-    assert a.routes == ["stpm", "matrikulasi"]
+def test_the_same_programme_under_several_categories_keeps_each_one_and_the_merit():
+    a = FoundProgramme(code="UC6522001", name="X", merit=None, categories=[FoundCategory("stpm", "G1", "Diploma …")])
+    a.merge(FoundProgramme(code="UC6522001", name="X", merit=88.91, categories=[FoundCategory("stpm", "S", "STPM …")]))
+    a.merge(FoundProgramme(code="UC6522001", name="X", categories=[FoundCategory("stpm", "A", "STPM …")]))
+    a.merge(FoundProgramme(code="UC6522001", name="X", categories=[FoundCategory("stpm", "S", "again")]))
+    assert [c.category for c in a.categories] == ["G1", "S", "A"]
+    assert a.routes == ["diploma", "stpm"]
+    assert a.merit == 88.91
+    assert a.to_dict()["categories"][1] == {"jenprog": "stpm", "category": "S", "route": "stpm", "generalRequirements": "STPM …"}

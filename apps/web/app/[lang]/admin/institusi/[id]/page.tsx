@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
-import { SharedEpanduanCodes } from '@edulaunch/contracts';
+import { EpanduanCategories, SharedEpanduanCodes } from '@edulaunch/contracts';
 import { EpanduanImport } from '@/components/admin/epanduan-import';
 import { InstitutionDangerZone } from '@/components/admin/institution-danger-zone';
 import { InstitutionForm } from '@/components/admin/institution-form';
@@ -11,7 +11,7 @@ import { InstitutionSources } from '@/components/admin/institution-sources';
 import { AdminIcon, type AdminIconName } from '@/components/admin/icons';
 import { ProgrammeTable } from '@/components/admin/programme-table';
 import { AdminHeading, AdminTabs, ButtonLink, Card, LoadError, Pagination, timeAgo } from '@/components/admin/ui';
-import { AdminApiError, ProgrammeSorts, getInstitutionDetail, latestEpanduanRun, listInstitutionProgrammes, listNecFields, listProgrammes, type InstitutionDetail } from '@/lib/admin/api';
+import { AdminApiError, ProgrammeSorts, getInstitutionDetail, latestEpanduanRun, listInstitutionProgrammes, listNecFields, listProgrammes, listSpecialRequirements, type InstitutionDetail } from '@/lib/admin/api';
 import { compareFound } from '@/lib/admin/epanduan-import';
 import { listParamEntries, readListParams, type ListParams } from '@/lib/admin/list-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -223,11 +223,13 @@ async function ImportTab({ locale, dict, institution }: { locale: Locale; dict: 
   try {
     const token = (await getAccessToken())!;
     const [{ run }, existing, nec] = await Promise.all([latestEpanduanRun(token, code), listInstitutionProgrammes(token, institution.id), listNecFields(token)]);
-    data = { run, existing, nec };
+    // Syarat Khas is read only for accepted programmes, so only catalogue codes are asked for.
+    const special = await listSpecialRequirements(token, existing.flatMap((p) => (p.upuCode ? [p.upuCode] : [])).slice(0, 200));
+    data = { run, existing, nec, special };
   } catch {
     return <LoadError text={t.errors.generic} />;
   }
-  const { run, existing, nec } = data;
+  const { run, existing, nec, special } = data;
   const comparison = compareFound(run?.status === 'done' ? run.programmes : [], existing, new Set(nec.map((n) => n.code)));
   const now = new Date().getTime();
   return (
@@ -238,8 +240,22 @@ async function ImportTab({ locale, dict, institution }: { locale: Locale; dict: 
       institutionId={institution.id}
       code={code}
       shared={SharedEpanduanCodes.includes(code)}
-      run={run ? { status: run.status, pagesRead: run.pagesRead, found: run.found, error: run.error, when: timeAgo(run.finishedAt ?? run.startedAt, now, t) } : null}
+      run={
+        run
+          ? {
+              status: run.status,
+              pagesRead: run.pagesRead,
+              currentCategory: run.currentCategory,
+              categoryIndex: Math.max(1, (EpanduanCategories as readonly string[]).indexOf(run.currentCategory ?? '') + 1),
+              categoryCount: EpanduanCategories.length,
+              found: run.found,
+              error: run.error,
+              when: timeAgo(run.finishedAt ?? run.startedAt, now, t),
+            }
+          : null
+      }
       rows={comparison.rows}
+      special={special}
       missing={comparison.missing}
       counts={comparison.counts}
       t={t}

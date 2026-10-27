@@ -10,7 +10,8 @@ from ..domain.epanduan import FoundProgramme
 from ..domain.ports import EpanduanRuns
 
 # A run still "running" after this long was cut off (for example the service restarted) and no longer blocks.
-STALE_MINUTES = 30
+# Thirteen categories for a large university can take 15-20 minutes.
+STALE_MINUTES = 90
 # Older runs are removed; the newest few per institution are kept for comparison.
 KEEP_RUNS = 5
 
@@ -40,9 +41,12 @@ class PostgresEpanduanRuns(EpanduanRuns):
             ).fetchone()
             return row[0]
 
-    def progress(self, run_id: UUID, pages_read: int) -> None:
+    def progress(self, run_id: UUID, pages_read: int, category: str | None = None) -> None:
         with self._pool.connection() as conn:
-            conn.execute("update epanduan_run set pages_read = %s where id = %s", (pages_read, run_id))
+            conn.execute(
+                "update epanduan_run set pages_read = %s, current_category = coalesce(%s, current_category) where id = %s",
+                (pages_read, category, run_id),
+            )
 
     def finish(self, run_id: UUID, programmes: list[FoundProgramme], pages_read: int) -> None:
         with self._pool.connection() as conn, conn.transaction():
@@ -85,9 +89,69 @@ class PostgresEpanduanRuns(EpanduanRuns):
             "institutionCode": run["institution_code"],
             "status": run["status"],
             "pagesRead": run["pages_read"],
+            "currentCategory": run.get("current_category"),
             "found": run["found"],
             "error": run["error"],
             "startedAt": run["started_at"].isoformat(),
             "finishedAt": run["finished_at"].isoformat() if run["finished_at"] else None,
             "programmes": programmes,
         }
+
+    def found(self, institution_code: str, codes: list[str]) -> list[dict]:
+        if not codes:
+            return []
+        with self._pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """select f.data from epanduan_found f
+                   where f.run_id = (select id from epanduan_run where institution_code = %s and status = 'done'
+                                     order by started_at desc limit 1)
+                     and f.code = any(%s)""",
+                (institution_code, codes),
+            )
+            return [r["data"] for r in cur.fetchall()]
+
+    def request_special(self, items: list[tuple[str, str, str]]) -> None:
+        with self._pool.connection() as conn, conn.cursor() as cur:
+            cur.executemany(
+                """insert into epanduan_requirement (code, jenprog, category, status, requested_at)
+                   values (%s, %s, %s, 'pending', now())
+                   on conflict (code, category) do update set status = 'pending', error = null, requested_at = now()""",
+                [(code, jenprog, category) for jenprog, category, code in items],
+            )
+
+    def save_special(self, code: str, category: str, text: str | None) -> None:
+        with self._pool.connection() as conn:
+            conn.execute(
+                """update epanduan_requirement set status = 'done', special_text = %s, error = null, read_at = now()
+                   where code = %s and category = %s""",
+                (text, code, category),
+            )
+
+    def fail_special(self, items: list[tuple[str, str, str]], error: str) -> None:
+        with self._pool.connection() as conn, conn.cursor() as cur:
+            cur.executemany(
+                """update epanduan_requirement set status = 'failed', error = %s
+                   where code = %s and category = %s and status = 'pending'""",
+                [(error[:500], code, category) for _, category, code in items],
+            )
+
+    def special(self, codes: list[str]) -> list[dict]:
+        if not codes:
+            return []
+        with self._pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                "select * from epanduan_requirement where code = any(%s) order by code, jenprog desc, category",
+                (codes,),
+            )
+            return [
+                {
+                    "code": r["code"],
+                    "jenprog": r["jenprog"],
+                    "category": r["category"],
+                    "status": r["status"],
+                    "text": r["special_text"],
+                    "error": r["error"],
+                    "readAt": r["read_at"].isoformat() if r["read_at"] else None,
+                }
+                for r in cur.fetchall()
+            ]

@@ -33,3 +33,6 @@ export type EpanduanCode = (typeof EpanduanInstitutions)[number]['code'];
 export const EPANDUAN_CODE_PATTERN = /^[A-Z]{2}$/;
 /** Codes that cover many colleges at once: found programmes must be picked by college name or campus. */
 export const SharedEpanduanCodes: readonly string[] = ['FB', 'FC', 'OP'];
+
+/** The candidate categories an ePanduan import reads, in order, as `jenprog:category` (same list as the content service). */
+export const EpanduanCategories = ['spm:A', 'spm:B', 'stpm:S', 'stpm:A', 'stpm:V', 'stpm:M', 'stpm:N', 'stpm:P', 'stpm:T', 'stpm:G1', 'stpm:G2', 'stpm:E1', 'stpm:E2'] as const;

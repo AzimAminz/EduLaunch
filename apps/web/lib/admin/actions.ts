@@ -25,9 +25,10 @@ export type AdminErrorKey =
   | 'confirmation_mismatch'
   | 'upu_code_taken'
   | 'run_in_progress'
+  | 'service_unavailable'
   | 'noRules';
 
-const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'confirmation_mismatch', 'upu_code_taken', 'run_in_progress'];
+const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'confirmation_mismatch', 'upu_code_taken', 'run_in_progress', 'service_unavailable'];
 
 export interface AdminFormState {
   /** A new time on every successful save, to show "Saved". */
@@ -392,6 +393,7 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
   }
 
   const imported = { created: 0, updated: 0, failed: 0 };
+  const accepted: string[] = [];
   for (const row of comparison.rows.filter((r) => chosen.has(r.found.code) && acceptable(r))) {
     try {
       let id: string;
@@ -412,9 +414,15 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
         imported.updated += 1;
       }
       if (row.found.merit !== null && row.found.year) await api.recordAverageMerit(token, id, { intakeYear: row.found.year, averageMerit: row.found.merit });
+      accepted.push(row.found.code);
     } catch {
       imported.failed += 1;
     }
+  }
+  // Syarat Khas is read only for accepted programmes, in the background (a few seconds per category).
+  if (accepted.length) {
+    const institution = await api.getInstitutionDetail(token, institutionId).catch(() => null);
+    if (institution?.epanduanCode) await api.readSpecialRequirements(token, institution.epanduanCode, accepted).catch(() => null);
   }
   refresh();
   return { savedAt: Date.now(), imported };

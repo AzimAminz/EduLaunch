@@ -731,13 +731,13 @@
       "epanduanHint": "Used to find this institution's programmes on ePanduan automatically (Import ePanduan tab).",
       "import": {
         "title": "Programmes from JPT ePanduan",
-        "intro": "The system reads this institution's programme list from the public ePanduan site (SPM and STPM leaver categories). Chosen programmes become drafts, and another admin still approves them before students see them.",
+        "intro": "The system reads this institution's programme list from the public ePanduan site, for 13 candidate categories (SPM, STPM, Matriculation / Asasi, STAM, Diploma, DKM and DVM). Chosen programmes become drafts, and another admin still approves them before students see them. Programme requirements (Syarat Khas) are read after a programme is accepted.",
         "noCode": "This institution has no ePanduan code yet. Set it on the Settings tab to find its programmes automatically.",
         "setCode": "Set the ePanduan code",
         "shared": "Code {code} is shared by every college in this group. Choose only the programmes this institution offers (see the name and campus).",
         "start": "Find programmes now",
         "again": "Check again",
-        "running": "Reading ePanduan… {pages} pages read. This takes about a minute; this page updates by itself.",
+        "running": "Reading ePanduan… {pages} pages read. For a large university this takes a few minutes; this page updates by itself.",
         "failed": "Reading stopped: {reason}. No data was changed. Try again shortly.",
         "never": "Not searched yet. Press the button above to start.",
         "lastRun": "Read {when} · {pages} pages · {found} programmes",
@@ -804,7 +804,51 @@
           "unavailable": "the ePanduan site did not answer or is busy",
           "stopped": "the service restarted while reading",
           "other": "an unexpected error"
-        }
+        },
+        "runningCategory": "Category: {category} ({n} of {total})",
+        "details": "Details, requirements, fees and careers",
+        "requirementsFor": "Entry requirements: {category}",
+        "general": "General requirements (Syarat Am)",
+        "special": "Programme requirements (Syarat Khas)",
+        "specialLater": "Read after this programme is accepted.",
+        "specialReading": "Reading from ePanduan…",
+        "specialFailed": "Could not be read. Accept this programme again to retry.",
+        "none": "None.",
+        "fees": "Fees",
+        "careers": "Careers",
+        "info": {
+          "level": "Level",
+          "mode": "Mode",
+          "duration": "Duration",
+          "nec": "NEC field",
+          "interview": "Interview / test",
+          "year": "Year",
+          "note": "Notes",
+          "yes": "Yes",
+          "no": "No",
+          "modes": {
+            "conventional": "Conventional",
+            "work_based": "Work-based",
+            "distance": "Distance"
+          }
+        },
+        "categories": {
+          "spm:A": "SPM current year",
+          "spm:B": "SPM earlier years",
+          "stpm:S": "STPM Science",
+          "stpm:A": "STPM Arts",
+          "stpm:V": "Asasi TVET",
+          "stpm:M": "Asasi Social Science",
+          "stpm:N": "Matriculation / Asasi Science",
+          "stpm:P": "Matriculation Accounting",
+          "stpm:T": "STAM",
+          "stpm:G1": "Diploma (public university)",
+          "stpm:G2": "Diploma (polytechnic / CC)",
+          "stpm:E1": "DKM / DLKM",
+          "stpm:E2": "DVM"
+        },
+        "referenceTitle": "Reference from ePanduan",
+        "referenceIntro": "The requirement text as JPT ePanduan writes it for each candidate category. Copy the relevant sentence as evidence while writing the requirements."
       }
     },
     "requirement": {
@@ -932,7 +976,8 @@
       "noRules": "Add at least one requirement.",
       "confirmation_mismatch": "The confirmation text does not match. Type it exactly as shown.",
       "upu_code_taken": "Another programme already uses this programme code.",
-      "run_in_progress": "ePanduan is already being read for this institution. Wait until it finishes."
+      "run_in_progress": "ePanduan is already being read for this institution. Wait until it finishes.",
+      "service_unavailable": "An EduLaunch service cannot be reached right now. Check that Docker and pnpm dev are running, then try again. No data was changed."
     },
     "pagination": {
       "label": "List pages",

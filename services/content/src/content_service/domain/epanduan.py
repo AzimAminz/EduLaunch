@@ -31,9 +31,25 @@ CATEGORY_ROUTES: dict[tuple[str, str], str | None] = {
     ("stpm", "F1"): "a_level",
 }
 
-# Step 9 reads the categories that list almost every foundation, diploma and degree programme: current-year SPM
-# (foundation, certificate, diploma) and current-year STPM science and arts (degrees). Other routes come in Step 11.
-CATEGORIES_TO_READ: tuple[tuple[str, str], ...] = (("spm", "A"), ("stpm", "S"), ("stpm", "A"))
+# The categories an import reads (checked 27 Oct 2026): SPM current and earlier years; STPM science and arts;
+# Asasi TVET (V), Asasi Sains Sosial (M), Matrikulasi / Asasi Sains (N), Matrikulasi Perakaunan (P); STAM (T);
+# Diploma UA (G1), Diploma Politeknik / Kolej Komuniti (G2); DKM / DLKM (E1); DVM (E2). The same programme appears
+# under every category it accepts candidates from, with that category's general requirements.
+CATEGORIES_TO_READ: tuple[tuple[str, str], ...] = (
+    ("spm", "A"),
+    ("spm", "B"),
+    ("stpm", "S"),
+    ("stpm", "A"),
+    ("stpm", "V"),
+    ("stpm", "M"),
+    ("stpm", "N"),
+    ("stpm", "P"),
+    ("stpm", "T"),
+    ("stpm", "G1"),
+    ("stpm", "G2"),
+    ("stpm", "E1"),
+    ("stpm", "E2"),
+)
 
 PROGRAMME_CODE = re.compile(r"^[A-Z]{2}\d{7}$")
 
@@ -160,8 +176,29 @@ def study_mode(value: str | None) -> str | None:
 
 
 @dataclass
+class FoundCategory:
+    """One candidate category a programme is listed under, with that category's general requirements (Syarat Am)."""
+
+    jenprog: str
+    category: str
+    general_requirements: str | None = None
+
+    @property
+    def route(self) -> str | None:
+        return CATEGORY_ROUTES.get((self.jenprog, self.category))
+
+    def to_dict(self) -> dict:
+        return {
+            "jenprog": self.jenprog,
+            "category": self.category,
+            "route": self.route,
+            "generalRequirements": self.general_requirements,
+        }
+
+
+@dataclass
 class FoundProgramme:
-    """One programme read from ePanduan, cleaned. `routes` are the EduLaunch entry routes it was listed under."""
+    """One programme read from ePanduan, cleaned, with every category it was listed under."""
 
     code: str
     name: str
@@ -186,8 +223,14 @@ class FoundProgramme:
     note: str | None = None
     campuses: list[str] = field(default_factory=list)
     careers: str | None = None
-    routes: list[str] = field(default_factory=list)
+    fees: str | None = None
+    categories: list[FoundCategory] = field(default_factory=list)
     source_url: str | None = None
+
+    @property
+    def routes(self) -> list[str]:
+        """The EduLaunch entry routes of its categories, once each, in the order found."""
+        return list(dict.fromkeys(c.route for c in self.categories if c.route))
 
     @property
     def institution_code(self) -> str:
@@ -195,10 +238,14 @@ class FoundProgramme:
         return self.code[:2]
 
     def merge(self, other: FoundProgramme) -> None:
-        """The same programme found under another category: keep one record and add its route."""
-        for route in other.routes:
-            if route not in self.routes:
-                self.routes.append(route)
+        """The same programme found under another category: keep one record, add the category, fill gaps."""
+        known = {(c.jenprog, c.category) for c in self.categories}
+        self.categories.extend(c for c in other.categories if (c.jenprog, c.category) not in known)
+        # Merit is shown only in some categories (not STAM or diploma ones); keep the one that has it.
+        if self.merit is None:
+            self.merit = other.merit
+        self.careers = self.careers or other.careers
+        self.fees = self.fees or other.fees
 
     def to_dict(self) -> dict:
         return {
@@ -224,6 +271,8 @@ class FoundProgramme:
             "note": self.note,
             "campuses": self.campuses,
             "careers": self.careers,
+            "fees": self.fees,
             "routes": self.routes,
+            "categories": [c.to_dict() for c in self.categories],
             "sourceUrl": self.source_url,
         }

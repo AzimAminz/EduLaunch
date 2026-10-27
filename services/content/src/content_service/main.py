@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from psycopg_pool import ConnectionPool
 
 from .api.routes import router
-from .application.find_programmes import FindInstitutionProgrammes
+from .application.find_programmes import FindInstitutionProgrammes, ReadSpecialRequirements
 from .config import get_settings
 from .domain.source import DomainError
 from .infrastructure.epanduan_client import HttpEpanduanSource
@@ -24,10 +24,9 @@ async def lifespan(app: FastAPI):
     app.state.sources = PostgresSourceRepository(pool)
     app.state.fetcher = HttpSourceFetcher(settings.crawler_user_agent)
     app.state.epanduan_runs = PostgresEpanduanRuns(pool)
-    app.state.find_programmes = FindInstitutionProgrammes(
-        app.state.epanduan_runs,
-        HttpEpanduanSource(settings.epanduan_base_url, settings.crawler_user_agent, settings.epanduan_delay_seconds),
-    )
+    epanduan = HttpEpanduanSource(settings.epanduan_base_url, settings.crawler_user_agent, settings.epanduan_delay_seconds)
+    app.state.find_programmes = FindInstitutionProgrammes(app.state.epanduan_runs, epanduan)
+    app.state.read_requirements = ReadSpecialRequirements(app.state.epanduan_runs, epanduan)
     yield
     await app.state.fetcher.aclose()
     pool.close()
