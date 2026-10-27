@@ -530,9 +530,9 @@
         "fromCategory": "Ditulis daripada kategori ePanduan: {category}",
         "noLines": "Draf ini belum ada baris. Buka draf dan isi dari ePanduan.",
         "notStarted": "Belum ada syarat untuk laluan ini. Tekan \"Mula syarat\", kemudian isi dari ePanduan.",
-        "discardDraft": "Buang draf",
+        "discardDraft": "Buang",
         "discardDraftConfirm": "Buang draf syarat ini? Syarat yang sudah diterbitkan tidak berubah.",
-        "removeRoute": "Buang laluan",
+        "removeRoute": "Buang",
         "removeRouteConfirm": "Buang laluan ini daripada program? Pelajar dari laluan ini tidak lagi disemak untuk program ini.",
         "removeYes": "Ya, buang",
         "cancel": "Batal"

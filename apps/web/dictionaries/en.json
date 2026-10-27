@@ -530,9 +530,9 @@
         "fromCategory": "Written from the ePanduan category: {category}",
         "noLines": "This draft has no lines yet. Open it and fill from ePanduan.",
         "notStarted": "No requirements for this route yet. Press \"Start requirements\", then fill from ePanduan.",
-        "discardDraft": "Discard draft",
+        "discardDraft": "Remove",
         "discardDraftConfirm": "Discard this requirement draft? Published requirements stay as they are.",
-        "removeRoute": "Remove route",
+        "removeRoute": "Remove",
         "removeRouteConfirm": "Remove this route from the programme? Students from this route will no longer be checked for it.",
         "removeYes": "Yes, remove",
         "cancel": "Cancel"
