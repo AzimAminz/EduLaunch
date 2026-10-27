@@ -21,6 +21,8 @@ export abstract class ProgramRepository {
   abstract delete(id: string): Promise<void>;
   /** Replaces the entry routes a programme takes candidates from. */
   abstract replaceEntryRoutes(programId: string, routes: Array<{ entryRoute: string; sourceCategory: string | null }>): Promise<void>;
+  /** Stops taking candidates from one entry route (every source category of it). */
+  abstract removeEntryRoute(programId: string, entryRoute: string): Promise<void>;
   /** Entry routes and the newest average merit for these programmes, for summaries and recommendations. */
   abstract admissionFacts(programIds: string[]): Promise<Map<string, { entryRoutes: string[]; averageMerit: { intakeYear: number; value: number } | null }>>;
   /** The average merit of one intake year (from ePanduan), replacing an earlier figure for that year. */

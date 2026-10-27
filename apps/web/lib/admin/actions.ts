@@ -342,7 +342,21 @@ export async function discardRequirement(_prev: AdminFormState, form: FormData):
     return { error: errorKey(err) };
   }
   refresh();
-  redirect(`/${locale}/admin/program/${text(form, 'programId')}`);
+  redirect(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat`);
+}
+
+/** Removes an entry route that has no requirements yet from a programme. */
+export async function removeEntryRoute(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const token = await adminToken(locale);
+  const programId = text(form, 'programId');
+  try {
+    await api.removeEntryRoute(token, programId, text(form, 'entryRoute'));
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
+  refresh();
+  redirect(`/${locale}/admin/program/${programId}?tab=syarat`);
 }
 
 /** Starts reading an institution's programmes on ePanduan; the import tab shows the progress and then the result. */

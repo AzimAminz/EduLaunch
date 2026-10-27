@@ -529,7 +529,13 @@
         "start": "Start requirements",
         "fromCategory": "Written from the ePanduan category: {category}",
         "noLines": "This draft has no lines yet. Open it and fill from ePanduan.",
-        "notStarted": "No requirements for this route yet. Press \"Start requirements\", then fill from ePanduan."
+        "notStarted": "No requirements for this route yet. Press \"Start requirements\", then fill from ePanduan.",
+        "discardDraft": "Discard draft",
+        "discardDraftConfirm": "Discard this requirement draft? Published requirements stay as they are.",
+        "removeRoute": "Remove route",
+        "removeRouteConfirm": "Remove this route from the programme? Students from this route will no longer be checked for it.",
+        "removeYes": "Yes, remove",
+        "cancel": "Cancel"
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
@@ -559,8 +565,8 @@
         ]
       },
       "act": {
-        "edit": "Edit",
-        "editChange": "Edit the change",
+        "edit": "Edit basic details",
+        "editChange": "Edit proposed basic details",
         "submit": "Send for review",
         "submitChange": "Send the change for review",
         "resubmit": "Send again",

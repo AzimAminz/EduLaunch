@@ -118,6 +118,11 @@ export class DrizzleProgramRepository extends ProgramRepository {
     });
   }
 
+  async removeEntryRoute(programId: string, entryRoute: string): Promise<void> {
+    const table = schema.programEntryRoutes;
+    await this.db.delete(table).where(and(eq(table.programId, programId), eq(table.entryRoute, entryRoute)));
+  }
+
   async admissionFacts(programIds: string[]) {
     const out = new Map<string, { entryRoutes: string[]; averageMerit: { intakeYear: number; value: number } | null }>();
     if (programIds.length === 0) return out;

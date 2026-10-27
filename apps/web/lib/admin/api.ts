@@ -303,6 +303,10 @@ export const listAdminInstitutions = (token: string) => call(token, '/admin/inst
 export const listInstitutions = (token: string) =>
   call(token, '/institutions', z.array(z.object({ id: z.uuid(), name: z.string(), shortName: z.string().nullable(), type: z.string(), websiteUrl: z.string().nullable().default(null) })));
 
+/** Stops taking candidates from one entry route. */
+export const removeEntryRoute = (token: string, id: string, entryRoute: string) =>
+  call(token, `/programmes/${encodeURIComponent(id)}/entry-routes/${encodeURIComponent(entryRoute)}`, z.undefined(), { method: 'DELETE' });
+
 /** The average merit an official source published for one intake year. */
 export const recordAverageMerit = (token: string, id: string, body: { intakeYear: number; averageMerit: number }) =>
   call(token, `/programmes/${encodeURIComponent(id)}/admission-stats`, z.undefined(), send(body, 'PUT'));

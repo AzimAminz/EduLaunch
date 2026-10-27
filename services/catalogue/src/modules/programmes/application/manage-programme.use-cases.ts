@@ -97,6 +97,18 @@ export class SetEntryRoutes implements UseCase<{ id: string; routes: Array<{ ent
   }
 }
 
+/** Removes one entry route from a programme (its requirement versions, if any, are kept). */
+@Injectable()
+export class RemoveEntryRoute implements UseCase<{ id: string; entryRoute: string }, void> {
+  constructor(private readonly programs: ProgramRepository) {}
+
+  async execute({ id, entryRoute }: { id: string; entryRoute: string }) {
+    if (!(await this.programs.findById(id))) throw new NotFoundError('Programme', id);
+    if (!isEntryRoute(entryRoute)) throw new DomainError('invalid_program', `Unknown entry route ${entryRoute}`);
+    await this.programs.removeEntryRoute(id, entryRoute);
+  }
+}
+
 /** Keeps the average merit an official source published for one intake year (shown later with offer chances). */
 @Injectable()
 export class RecordAverageMerit implements UseCase<{ id: string; intakeYear: number; averageMerit: number }, void> {

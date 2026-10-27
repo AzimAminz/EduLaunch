@@ -4,7 +4,7 @@ import { EntryRoutes, StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { SearchProgrammes } from '../application/search-programmes.use-case.js';
 import { GetProgramme } from '../application/get-programme.use-case.js';
-import { CreateProgramme, DeleteProgramme, RecordAverageMerit, ReviewProgramme, SetEntryRoutes, UpdateProgramme } from '../application/manage-programme.use-cases.js';
+import { CreateProgramme, DeleteProgramme, RecordAverageMerit, RemoveEntryRoute, ReviewProgramme, SetEntryRoutes, UpdateProgramme } from '../application/manage-programme.use-cases.js';
 
 const SearchQuery = z.object({
   q: z.string().trim().max(100).optional(),
@@ -57,6 +57,7 @@ export class ProgrammesController {
     private readonly deleteProgramme: DeleteProgramme,
     private readonly recordAverageMerit: RecordAverageMerit,
     private readonly setEntryRoutes: SetEntryRoutes,
+    private readonly removeEntryRoute: RemoveEntryRoute,
   ) {}
 
   @Public()
@@ -105,6 +106,14 @@ export class ProgrammesController {
   @HttpCode(204)
   entryRoutes(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(EntryRoutesBody)) body: z.infer<typeof EntryRoutesBody>) {
     return this.setEntryRoutes.execute({ id, ...body });
+  }
+
+  /** Stops taking candidates from one entry route. */
+  @Roles('admin')
+  @Delete(':id/entry-routes/:route')
+  @HttpCode(204)
+  removeRoute(@Param('id', ParseUUIDPipe) id: string, @Param('route') route: string) {
+    return this.removeEntryRoute.execute({ id, entryRoute: route });
   }
 
   /** The average merit of one intake year, as an official source (ePanduan) published it. */

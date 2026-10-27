@@ -8,7 +8,7 @@ import { FoundDetailsBody } from '@/components/admin/epanduan-details';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
 import { RequirementLinesView } from '@/components/admin/requirement-lines-view';
-import { RouteStarter, StartRequirement } from '@/components/admin/start-requirement';
+import { RemoveFromRoute, RouteStarter, StartRequirement } from '@/components/admin/start-requirement';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, EmptyState, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, getRequirementDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
@@ -276,6 +276,25 @@ async function Requirements({ locale, dict, programme, me, chosen }: { locale: L
                     </Link>
                   ) : (
                     <StartRequirement locale={locale} programId={programme.id} entryRoute={route} label={published ? r.update : r.start} primary={!published} errors={t.errors} />
+                  )}
+                  {open && open.status !== 'in_review' && open.preparedBy === me && (
+                    <RemoveFromRoute
+                      locale={locale}
+                      programId={programme.id}
+                      entryRoute={route}
+                      draftId={open.id}
+                      texts={{ label: r.discardDraft, confirm: r.discardDraftConfirm, yes: r.removeYes, cancel: r.cancel }}
+                      errors={t.errors}
+                    />
+                  )}
+                  {!open && !published && (
+                    <RemoveFromRoute
+                      locale={locale}
+                      programId={programme.id}
+                      entryRoute={route}
+                      texts={{ label: r.removeRoute, confirm: r.removeRouteConfirm, yes: r.removeYes, cancel: r.cancel }}
+                      errors={t.errors}
+                    />
                   )}
                 </div>
               </div>

@@ -529,7 +529,13 @@
         "start": "Mula syarat",
         "fromCategory": "Ditulis daripada kategori ePanduan: {category}",
         "noLines": "Draf ini belum ada baris. Buka draf dan isi dari ePanduan.",
-        "notStarted": "Belum ada syarat untuk laluan ini. Tekan \"Mula syarat\", kemudian isi dari ePanduan."
+        "notStarted": "Belum ada syarat untuk laluan ini. Tekan \"Mula syarat\", kemudian isi dari ePanduan.",
+        "discardDraft": "Buang draf",
+        "discardDraftConfirm": "Buang draf syarat ini? Syarat yang sudah diterbitkan tidak berubah.",
+        "removeRoute": "Buang laluan",
+        "removeRouteConfirm": "Buang laluan ini daripada program? Pelajar dari laluan ini tidak lagi disemak untuk program ini.",
+        "removeYes": "Ya, buang",
+        "cancel": "Batal"
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
@@ -559,8 +565,8 @@
         ]
       },
       "act": {
-        "edit": "Sunting",
-        "editChange": "Sunting perubahan",
+        "edit": "Sunting maklumat asas",
+        "editChange": "Sunting perubahan maklumat asas",
         "submit": "Hantar untuk semakan",
         "submitChange": "Hantar perubahan untuk semakan",
         "resubmit": "Hantar semula",
