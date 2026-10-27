@@ -21,20 +21,25 @@ import { getAccessToken, requireRole } from '@/lib/supabase/server';
  * One requirement version. The admin preparing a draft edits it (wizard); another admin reviews it next to
  * the published version (before / after); everyone else sees it read only.
  */
-export default async function RequirementPage({ params }: PageProps<'/[lang]/admin/syarat/[id]'>) {
+export default async function RequirementPage({ params, searchParams }: PageProps<'/[lang]/admin/syarat/[id]'>) {
   const lang = await rootLang();
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
     <Suspense fallback={<p className="text-sm text-muted">…</p>}>
       {/* The record id is only known at request time. */}
-      <Requirement locale={lang} dict={dict} params={params} />
+      <Requirement locale={lang} dict={dict} params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dictionary; params: PageProps<'/[lang]/admin/syarat/[id]'>['params'] }) {
-  const { id } = await params;
+async function Requirement({ locale, dict, params, searchParams }: {
+  locale: Locale;
+  dict: Dictionary;
+  params: PageProps<'/[lang]/admin/syarat/[id]'>['params'];
+  searchParams: PageProps<'/[lang]/admin/syarat/[id]'>['searchParams'];
+}) {
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   // A malformed link is treated like a record that does not exist.
   if (!z.uuid().safeParse(id).success) notFound();
   const account = await requireRole(locale, 'admin');
@@ -74,6 +79,7 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
             entryRoute={req.entryRoute}
             initial={{ sourceUrl: req.sourceUrl ?? '', sourceCategory: req.sourceCategory, lines: linesFromRules(req.rules) }}
             epanduan={epanduan}
+            autoFill={typeof sp.isi === 'string' ? sp.isi : null}
             subjects={reference.subjects.map((s) => ({ id: s.id, label: localName(s, locale), qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }))}
             dict={{ admin: t, requirements: dict.requirements, directory: dict.directory }}
           />

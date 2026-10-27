@@ -505,8 +505,8 @@
         "confirmArchive": "Yes, archive"
       },
       "requirements": {
-        "title": "Entry requirements by route",
-        "intro": "Each route has its own requirements. Students are checked against the route that matches their qualification (for example after SPM, after STPM).",
+        "title": "Entry requirements",
+        "intro": "Requirements by candidate category, as on JPT ePanduan. Choose a category, then press \"Start requirements\": the form is filled from this text for you to check, edit and send for review.",
         "suggested": "Usual routes for this level",
         "other": "Other routes",
         "published": "Published · version {version}",
@@ -535,7 +535,9 @@
         "removeRoute": "Remove",
         "removeRouteConfirm": "Remove this route from the programme? Students from this route will no longer be checked for it.",
         "removeYes": "Yes, remove",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "introManual": "This programme has no ePanduan data. Choose a route below to write its requirements yourself.",
+        "routeUnsupported": "This category has no route in the system yet, so its requirements cannot be written."
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
@@ -863,7 +865,8 @@
           "stpm:E2": "DVM"
         },
         "referenceTitle": "Reference from ePanduan",
-        "referenceIntro": "The requirement text as JPT ePanduan writes it for each candidate category. Copy the relevant sentence as evidence while writing the requirements."
+        "referenceIntro": "The requirement text as JPT ePanduan writes it for each candidate category. Copy the relevant sentence as evidence while writing the requirements.",
+        "noRequirementText": "No ePanduan requirement text for this programme yet. Open the institution's Import tab and press \"Check again\" to read it."
       }
     },
     "requirement": {
@@ -1008,7 +1011,8 @@
         "button": "Fill from ePanduan",
         "fromCategory": "Fill from ePanduan: {category}",
         "replaceConfirm": "Replace the {count} lines here with the requirements from ePanduan?",
-        "replaceYes": "Yes, replace"
+        "replaceYes": "Yes, replace",
+        "autoFilled": "{count} lines filled from ePanduan. Check each line, correct it if needed, then save."
       },
       "join": {
         "and": "AND",

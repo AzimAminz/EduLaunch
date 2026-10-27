@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { FoundProgramme, SpecialRequirement } from '@/lib/admin/api';
 import { groupCategories } from '@/lib/admin/epanduan-text';
 import { format, type Dictionary } from '@/lib/i18n/locale';
@@ -35,7 +36,14 @@ function careerList(text: string | null): string[] | null {
 }
 
 /** Everything ePanduan shows for one programme, read at a glance: details, requirements by category, fees, careers. */
-export function FoundDetailsBody({ programme, special, m }: { programme: FoundProgramme; special: SpecialRequirement[]; m: ImportDict }) {
+export function FoundDetailsBody({ programme, special, m, headers, empty }: {
+  programme: FoundProgramme;
+  special: SpecialRequirement[];
+  m: ImportDict;
+  /** Above each category tab's text, by group key. */
+  headers?: Record<string, ReactNode>;
+  empty?: string;
+}) {
   const info: Array<[AdminIconName, string, string | null]> = [
     ['programme', m.info.level, programme.levelText],
     ['clock', m.info.duration, programme.durationSemesters ? format(m.semesters, { n: programme.durationSemesters }) : null],
@@ -69,7 +77,7 @@ export function FoundDetailsBody({ programme, special, m }: { programme: FoundPr
           </span>
         </p>
       )}
-      <CategoryTabs groups={groupCategories(programme.categories, special)} m={m} />
+      <CategoryTabs groups={groupCategories(programme.categories, special)} m={m} headers={headers} empty={empty} />
       {(programme.fees || programme.careers) && (
         <div className="grid gap-3 sm:grid-cols-2">
           {programme.careers && (

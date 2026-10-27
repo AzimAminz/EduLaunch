@@ -283,7 +283,9 @@ export async function startRequirement(_prev: AdminFormState, form: FormData): P
     id = existing;
   }
   refresh();
-  redirect(`/${locale}/admin/syarat/${id}`);
+  // From an ePanduan category: the editor fills an empty draft from its text, for the admin to check and save.
+  const fill = text(form, 'fill');
+  redirect(`/${locale}/admin/syarat/${id}${/^[a-z0-9]+:[A-Z0-9]+$/.test(fill) ? `?isi=${encodeURIComponent(fill)}` : ''}`);
 }
 
 /** Saves the requirement editor; with `intent=submit` it also sends the draft for review. */

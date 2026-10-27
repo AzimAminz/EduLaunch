@@ -9,13 +9,23 @@ import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
 
 /** "Add / update requirements" for one route: starts a draft (from the published rules) and opens the editor. */
-export function StartRequirement({ locale, programId, entryRoute, label, primary, errors }: { locale: Locale; programId: string; entryRoute: string; label: string; primary?: boolean; errors: Dictionary['admin']['errors'] }) {
+export function StartRequirement({ locale, programId, entryRoute, fill, label, primary, errors }: {
+  locale: Locale;
+  programId: string;
+  entryRoute: string;
+  /** ePanduan category (`jenprog:category`) the editor fills a new draft from. */
+  fill?: string;
+  label: string;
+  primary?: boolean;
+  errors: Dictionary['admin']['errors'];
+}) {
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(startRequirement, {});
   return (
     <form onSubmit={onSubmit} className="flex flex-col items-end gap-1">
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="programId" value={programId} />
       <input type="hidden" name="entryRoute" value={entryRoute} />
+      {fill && <input type="hidden" name="fill" value={fill} />}
       <button
         type="submit"
         disabled={pending}

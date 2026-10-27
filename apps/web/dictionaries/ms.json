@@ -505,8 +505,8 @@
         "confirmArchive": "Ya, arkibkan"
       },
       "requirements": {
-        "title": "Syarat kemasukan ikut laluan",
-        "intro": "Setiap laluan ada syarat sendiri. Pelajar disemak dengan laluan yang sepadan dengan kelayakan mereka (contoh lepasan SPM, lepasan STPM).",
+        "title": "Syarat kemasukan",
+        "intro": "Syarat ikut kategori calon seperti di ePanduan JPT. Pilih kategori, kemudian tekan \"Mula syarat\": borang diisi dari teks ini untuk anda semak, sunting dan hantar untuk semakan.",
         "suggested": "Laluan biasa untuk peringkat ini",
         "other": "Laluan lain",
         "published": "Diterbitkan · versi {version}",
@@ -535,7 +535,9 @@
         "removeRoute": "Buang",
         "removeRouteConfirm": "Buang laluan ini daripada program? Pelajar dari laluan ini tidak lagi disemak untuk program ini.",
         "removeYes": "Ya, buang",
-        "cancel": "Batal"
+        "cancel": "Batal",
+        "introManual": "Program ini tiada data ePanduan. Pilih laluan di bawah untuk menulis syaratnya sendiri.",
+        "routeUnsupported": "Kategori ini belum ada laluan dalam sistem, jadi syaratnya belum boleh ditulis."
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
@@ -863,7 +865,8 @@
           "stpm:E2": "DVM"
         },
         "referenceTitle": "Rujukan dari ePanduan",
-        "referenceIntro": "Teks syarat seperti yang tertulis di ePanduan JPT bagi setiap kategori calon. Salin ayat yang berkaitan sebagai bukti semasa menulis syarat."
+        "referenceIntro": "Teks syarat seperti yang tertulis di ePanduan JPT bagi setiap kategori calon. Salin ayat yang berkaitan sebagai bukti semasa menulis syarat.",
+        "noRequirementText": "ePanduan belum ada teks syarat untuk program ini. Buka tab Import pada institusinya dan tekan \"Semak semula\" untuk membacanya."
       }
     },
     "requirement": {
@@ -1008,7 +1011,8 @@
         "button": "Isi dari ePanduan",
         "fromCategory": "Isi dari ePanduan: {category}",
         "replaceConfirm": "Gantikan {count} baris yang ada dengan syarat dari ePanduan?",
-        "replaceYes": "Ya, gantikan"
+        "replaceYes": "Ya, gantikan",
+        "autoFilled": "{count} baris diisi dari ePanduan. Semak setiap baris, betulkan jika perlu, kemudian simpan."
       },
       "join": {
         "and": "DAN",

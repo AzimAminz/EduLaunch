@@ -19,16 +19,22 @@ export function CategoryTabs({
   m,
   action,
   stacked = false,
+  headers,
+  empty,
 }: {
   groups: CategoryGroup[];
   m: ImportDict;
   action?: (item: Item, index: number, part: 'general' | 'special') => ReactNode;
   /** One column (for a narrow side panel) instead of Syarat Am and Syarat Khas side by side. */
   stacked?: boolean;
+  /** Shown at the top of a tab, by group key (the state and actions of its route on the programme page). */
+  headers?: Record<string, ReactNode>;
+  /** Shown when no category has requirement text (defaults to "none"). */
+  empty?: string;
 }) {
   const [active, setActive] = useState(0);
   const group = groups[Math.min(active, groups.length - 1)];
-  if (!group) return <p className="text-[13px] text-muted">{m.none}</p>;
+  if (!group) return <p className="rounded-[12px] bg-bg px-4 py-3 text-[13px] text-muted">{empty ?? m.none}</p>;
   const special = group.special;
   return (
     <div className="flex flex-col gap-3">
@@ -53,6 +59,7 @@ export function CategoryTabs({
       {groups.length === 1 && (
         <p className="text-[12px] font-semibold text-muted">{group.categories.map((c) => labelOf(c.jenprog, c.category, m)).join(' · ')}</p>
       )}
+      {headers?.[group.key]}
       <div role="tabpanel" className={`grid gap-3 ${stacked ? '' : 'xl:grid-cols-2'}`}>
         <section className="flex flex-col gap-2 rounded-[12px] border border-line bg-white p-3">
           <h4 className="text-[12px] font-bold uppercase tracking-wide text-muted">{m.general}</h4>

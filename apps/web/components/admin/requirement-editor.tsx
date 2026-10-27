@@ -37,6 +37,8 @@ interface RequirementEditorProps {
   initial: { sourceUrl: string; sourceCategory: string | null; lines: EditorLine[] };
   subjects: EditorSubject[];
   epanduan?: EditorSource | null;
+  /** ePanduan category (`jenprog:category`) to fill an empty draft from when it opens. */
+  autoFill?: string | null;
   dict: Pick<Dictionary, 'admin' | 'requirements' | 'directory'>;
 }
 
@@ -48,13 +50,32 @@ const PARTS: RequirementPart[] = ['general', 'special'];
  * headings, joined by DAN or ATAU. Each line keeps the official sentence and, when it can be checked, the rule a
  * student's results are matched with. Lines can be filled from ePanduan, then edited, moved, added and removed.
  */
-export function RequirementEditor({ locale, id, programmeId, entryRoute, initial, subjects, epanduan, dict }: RequirementEditorProps) {
+export function RequirementEditor({ locale, id, programmeId, entryRoute, initial, subjects, epanduan, autoFill, dict }: RequirementEditorProps) {
   const t = dict.admin.requirement;
   const m = dict.admin.institutions.import;
   const errors = dict.admin.errors;
-  const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl);
-  const [sourceCategory, setSourceCategory] = useState(initial.sourceCategory);
-  const [lines, setLines] = useState<EditorLine[]>(initial.lines);
+  const subjectById = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects]);
+  const validGrade = (subjectId: string, grade: string) => gradesFor(subjectById.get(subjectId)?.qualification).includes(grade);
+  /** Both parts of one ePanduan group as lines, with its page as the source. */
+  const fromGroup = (index: number) => {
+    const group = epanduan!.groups[index]!;
+    const special = group.special?.status === 'done' ? group.special.text : null;
+    const first = group.categories[0];
+    return {
+      lines: [...linesFromText(group.general, 'general', subjects, validGrade), ...linesFromText(special, 'special', subjects, validGrade)],
+      sourceUrl: epanduan!.sourceUrls[index] ?? initial.sourceUrl,
+      sourceCategory: first ? `${first.jenprog}:${first.category}` : null,
+    };
+  };
+  // Started from an ePanduan category: an empty draft opens filled from it (nothing is saved until the admin saves).
+  const [start] = useState(() => {
+    const index = !initial.lines.length && autoFill && epanduan ? epanduan.groups.findIndex((g) => g.categories.some((c) => `${c.jenprog}:${c.category}` === autoFill)) : -1;
+    return index >= 0 ? { ...fromGroup(index), filled: true } : { ...initial, filled: false };
+  });
+  const [sourceUrl, setSourceUrl] = useState(start.sourceUrl);
+  const [sourceCategory, setSourceCategory] = useState(start.sourceCategory);
+  const [lines, setLines] = useState<EditorLine[]>(start.lines);
+  const [autoFilled, setAutoFilled] = useState(start.filled);
   const [open, setOpen] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
@@ -65,7 +86,8 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
 
   // The editing key is left out (undefined is dropped by JSON), so only real changes count.
   const snapshot = JSON.stringify({ sourceUrl, sourceCategory, lines: lines.map((l) => ({ ...l, key: undefined })) });
-  const [savedSnapshot, setSavedSnapshot] = useState(snapshot);
+  // Lines filled on opening are not saved yet.
+  const [savedSnapshot, setSavedSnapshot] = useState(start.filled ? '' : snapshot);
   const [sentSnapshot, setSentSnapshot] = useState(snapshot);
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(saveRequirement, {}, () => {
     setAttempted(true);
@@ -78,13 +100,11 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
   }
   const [discardState, onDiscard, discarding] = useFormAction<AdminFormState>(discardRequirement, {});
 
-  const subjectById = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects]);
   const allowed = subjectQualificationsFor(entryRoute);
   const subjectOptions: DropdownOption[] = useMemo(
     () => subjects.filter((s) => allowed.includes(s.qualification as never)).map((s) => ({ value: s.id, label: s.label, keywords: s.keywords })),
     [subjects, allowed],
   );
-  const validGrade = (subjectId: string, grade: string) => gradesFor(subjectById.get(subjectId)?.qualification).includes(grade);
 
   const checked = checkLines(lines);
   const shownProblems = attempted ? checked.problems : [];
@@ -125,12 +145,10 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
   };
   /** Fills both parts from one ePanduan group (replacing what is there), with its page as the source. */
   const fill = (index: number) => {
-    const group = epanduan!.groups[index]!;
-    const special = group.special?.status === 'done' ? group.special.text : null;
-    setLines([...linesFromText(group.general, 'general', subjects, validGrade), ...linesFromText(special, 'special', subjects, validGrade)]);
-    setSourceUrl(epanduan!.sourceUrls[index] ?? sourceUrl);
-    const first = group.categories[0];
-    setSourceCategory(first ? `${first.jenprog}:${first.category}` : null);
+    const next = fromGroup(index);
+    setLines(next.lines);
+    setSourceUrl(next.sourceUrl);
+    setSourceCategory(next.sourceCategory);
     setConfirmFill(null);
     setOpen(null);
   };
@@ -175,6 +193,15 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
                 </div>
               )}
             </div>
+            {autoFilled && (
+              <p role="status" className="flex items-start gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
+                <AdminIcon name="checkCircle" size={18} className="mt-0.5 shrink-0" />
+                <span className="flex-1">{format(t.fill.autoFilled, { count: lines.length })}</span>
+                <button type="button" onClick={() => setAutoFilled(false)} aria-label={dict.admin.programme.actions.cancel} className="rounded-md px-1 text-[#1f6b47] hover:bg-white/60">
+                  <AdminIcon name="x" size={16} />
+                </button>
+              </p>
+            )}
             {confirmFill !== null && (
               <div role="alertdialog" aria-label={t.fill.replaceYes} className="flex flex-wrap items-center gap-2 rounded-[12px] border border-[#e0a800]/50 bg-cream px-4 py-3">
                 <AdminIcon name="alert" size={18} />
