@@ -35,11 +35,6 @@ function careerList(text: string | null): string[] | null {
 }
 
 /** Everything ePanduan shows for one programme, read at a glance: details, requirements by category, fees, careers. */
-/** The requirement text by category, for the programme's requirements tab (the facts are on its details tab). */
-export function FoundRequirements({ programme, special, m }: { programme: FoundProgramme; special: SpecialRequirement[]; m: ImportDict }) {
-  return <CategoryTabs groups={groupCategories(programme.categories, special)} m={m} empty={m.noRequirementText} />;
-}
-
 export function FoundDetailsBody({ programme, special, m }: { programme: FoundProgramme; special: SpecialRequirement[]; m: ImportDict }) {
   const info: Array<[AdminIconName, string, string | null]> = [
     ['programme', m.info.level, programme.levelText],

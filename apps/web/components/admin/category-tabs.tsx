@@ -19,19 +19,16 @@ export function CategoryTabs({
   m,
   action,
   stacked = false,
-  empty,
 }: {
   groups: CategoryGroup[];
   m: ImportDict;
   action?: (item: Item, index: number, part: 'general' | 'special') => ReactNode;
   /** One column (for a narrow side panel) instead of Syarat Am and Syarat Khas side by side. */
   stacked?: boolean;
-  /** Shown when no category has requirement text (defaults to "none"). */
-  empty?: string;
 }) {
   const [active, setActive] = useState(0);
   const group = groups[Math.min(active, groups.length - 1)];
-  if (!group) return <p className="rounded-[12px] bg-bg px-4 py-3 text-[13px] text-muted">{empty ?? m.none}</p>;
+  if (!group) return <p className="text-[13px] text-muted">{m.none}</p>;
   const special = group.special;
   return (
     <div className="flex flex-col gap-3">
