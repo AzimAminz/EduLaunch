@@ -7,10 +7,11 @@ import { EntryRoutes } from '@edulaunch/contracts';
 import { FoundDetailsBody } from '@/components/admin/epanduan-details';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
-import { RemoveFromRoute } from '@/components/admin/start-requirement';
+import { CategoryTabs, type TabManage, type TabState } from '@/components/admin/category-tabs';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail } from '@/lib/admin/api';
+import { groupCategories } from '@/lib/admin/epanduan-text';
 import { programmeWorkflow } from '@/lib/admin/programme-workflow';
 import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -191,14 +192,16 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
  * the lines as Syarat Am and Syarat Khas.
  */
 /**
- * The requirements tab in one card: what ePanduan lists for the programme (facts, then each candidate category's
- * Syarat Am and Syarat Khas). Right under the category tabs: one "add requirements" action (which asks the route
- * first) and the requirements already written, each with its state and next action.
+ * The requirements tab in one card: what ePanduan lists for the programme (facts, then a tab per candidate category
+ * with its Syarat Am and Syarat Khas). Each tab is one of the programme's routes and shows the state of the
+ * requirements written for it; the tab row ends with edit (remove a route with its draft) and add requirements.
+ * Routes written without ePanduan get a tab of their own.
  */
 async function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string }) {
   const t = dict.admin;
   const r = t.programme.requirements;
   const m = t.institutions.import;
+  const routes: Record<string, string> = dict.requirements.routes;
   let found = null;
   let special: Awaited<ReturnType<typeof listSpecialRequirements>> = [];
   if (programme.upuCode) {
@@ -210,29 +213,49 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
       found = null;
     }
   }
-  const written = [...new Set(programme.requirements.map((v) => v.entryRoute))].filter((x) => (EntryRoutes as readonly string[]).includes(x));
-  const actions = (
-    <section aria-label={r.writtenTitle} className="rounded-[14px] border border-line bg-white">
-      <div className="flex items-center justify-between gap-3 rounded-t-[14px] border-b border-line bg-bg/40 px-4 py-2.5">
-        <h3 className="text-[12px] font-bold uppercase tracking-wide text-muted">
-          {r.writtenTitle}
-          {written.length > 0 && <span className="ml-1.5 rounded-full bg-white px-1.5 py-0.5 text-[11px] text-navy">{written.length}</span>}
-        </h3>
-        <Link href={`/${locale}/admin/program/${programme.id}/tambah-syarat`} className={buttonClass('accent', 'sm')}>
-          <IconText icon="plus">{r.add}</IconText>
-        </Link>
-      </div>
-      {written.length === 0 ? (
-        <p className="px-4 py-4 text-sm text-muted">{r.writtenNone}</p>
-      ) : (
-        <ul className="divide-y divide-line">
-          {written.map((route) => (
-            <RouteRow key={route} locale={locale} dict={dict} programme={programme} me={me} route={route} />
-          ))}
-        </ul>
-      )}
-    </section>
-  );
+  // Only the programme's routes (a removed route's categories are hidden); programmes from before routes were kept show all.
+  const kept = new Set(programme.entryRoutes);
+  const categories = (found?.categories ?? []).filter((c) => kept.size === 0 || (c.route && kept.has(c.route)));
+  const groups = groupCategories(categories, special);
+  const covered = new Set(groups.flatMap((g) => g.categories.map((c) => c.route)));
+  for (const route of new Set(programme.requirements.map((v) => v.entryRoute))) {
+    if (!covered.has(route) && (EntryRoutes as readonly string[]).includes(route)) groups.push({ key: `route:${route}`, categories: [], general: null, special: null, route });
+  }
+
+  const states: Record<string, TabState> = {};
+  for (const g of groups) {
+    const route = g.categories.find((c) => c.route)?.route ?? g.route;
+    if (!route) continue;
+    const versions = programme.requirements.filter((v) => v.entryRoute === route);
+    const published = versions.find((v) => v.status === 'published');
+    const open = versions.find((v) => OPEN.has(v.status));
+    const target = open ?? published;
+    const name = routes[route] ?? route;
+    states[g.key] = {
+      label: g.categories.length ? undefined : name,
+      status: open ? (open.status as TabState['status']) : published ? 'published' : null,
+      statusText: `${name}: ${
+        open
+          ? format(published ? r.chipChange : r.chipOpen, { status: t.status[open.status], who: who(open.preparedBy, me, t) })
+          : published
+            ? format(r.chipPublished, { version: published.versionNo })
+            : r.none
+      }`,
+      href: target ? `/${locale}/admin/syarat/${target.id}` : null,
+      removable:
+        !published && (!open || (open.status !== 'in_review' && open.preparedBy === me))
+          ? { draftId: open?.id ?? null, programId: programme.id, entryRoute: route, name }
+          : null,
+    };
+  }
+  const manage: TabManage = {
+    locale,
+    states,
+    addHref: `/${locale}/admin/program/${programme.id}/tambah-syarat`,
+    texts: r.manage,
+    modal: r.removeModal,
+    errors: t.errors,
+  };
 
   return (
     <Card>
@@ -243,67 +266,12 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
         </h2>
         <p className="text-sm text-muted">{found ? r.intro : r.introManual}</p>
       </div>
-      {found ? <FoundDetailsBody programme={found} special={special} m={m} below={actions} empty={m.noRequirementText} /> : actions}
+      {found ? (
+        <FoundDetailsBody programme={found} special={special} m={m} groups={groups} manage={manage} empty={m.noRequirementText} />
+      ) : (
+        <CategoryTabs groups={groups} m={m} manage={manage} empty={r.writtenNone} />
+      )}
     </Card>
-  );
-}
-
-/**
- * One route in the list of written requirements: its name, one status per version in play (the published one, and
- * the draft or change being worked on), and the whole row opens it. Removing the admin's own draft is a small icon.
- */
-function RouteRow({ locale, dict, programme, me, route }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string; route: string }) {
-  const t = dict.admin;
-  const r = t.programme.requirements;
-  const routes: Record<string, string> = dict.requirements.routes;
-  const versions = programme.requirements.filter((v) => v.entryRoute === route);
-  const published = versions.find((v) => v.status === 'published');
-  const open = versions.find((v) => OPEN.has(v.status));
-  const target = open ?? published ?? versions[0];
-  const mine = open && open.status !== 'in_review' && open.preparedBy === me;
-  return (
-    <li className="group relative flex items-center gap-3 px-4 py-3 transition-colors duration-150 hover:bg-bg/60">
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
-        <p className="min-w-0 font-semibold sm:w-48 sm:shrink-0">
-          {target ? (
-            // The link covers the row; the remove button sits above it.
-            <Link href={`/${locale}/admin/syarat/${target.id}`} className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-navy/40">
-              {routes[route] ?? route}
-            </Link>
-          ) : (
-            (routes[route] ?? route)
-          )}
-        </p>
-        <div className="flex flex-wrap items-center gap-1.5 text-[12px]">
-          {published && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-mint px-2 py-0.5 font-semibold text-[#1f6b47]">
-              <AdminIcon name="checkCircle" size={12} />
-              {format(r.chipPublished, { version: published.versionNo })}
-            </span>
-          )}
-          {open && (
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ${open.status === 'returned' ? 'bg-red/10 text-[#b33a35]' : open.status === 'in_review' ? 'bg-blue text-navy' : 'bg-cream text-navy'}`}>
-              <AdminIcon name={open.status === 'in_review' ? 'clock' : open.status === 'returned' ? 'alert' : 'pencil'} size={12} />
-              {format(published ? r.chipChange : r.chipOpen, { status: t.status[open.status], who: who(open.preparedBy, me, t) })}
-            </span>
-          )}
-        </div>
-      </div>
-      <span className="relative flex shrink-0 items-center gap-1">
-        {mine && (
-          <RemoveFromRoute
-            locale={locale}
-            programId={programme.id}
-            entryRoute={route}
-            draftId={open.id}
-            compact
-            texts={{ label: r.discardDraft, confirm: r.discardDraftConfirm, yes: r.removeYes, cancel: r.cancel }}
-            errors={t.errors}
-          />
-        )}
-        <AdminIcon name="chevronRight" size={18} className="text-muted transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
-      </span>
-    </li>
   );
 }
 

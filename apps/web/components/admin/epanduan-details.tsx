@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import type { FoundProgramme, SpecialRequirement } from '@/lib/admin/api';
-import { groupCategories } from '@/lib/admin/epanduan-text';
+import { groupCategories, type CategoryGroup } from '@/lib/admin/epanduan-text';
 import { format, type Dictionary } from '@/lib/i18n/locale';
-import { CategoryTabs } from './category-tabs';
+import { CategoryTabs, type TabManage } from './category-tabs';
 import { AdminIcon, type AdminIconName } from './icons';
 
 type ImportDict = Dictionary['admin']['institutions']['import'];
@@ -36,10 +36,13 @@ function careerList(text: string | null): string[] | null {
 }
 
 /** Everything ePanduan shows for one programme, read at a glance: details, requirements by category, fees, careers. */
-export function FoundDetailsBody({ programme, special, m, below, empty }: {
+export function FoundDetailsBody({ programme, special, m, below, empty, groups, manage }: {
   programme: FoundProgramme;
   special: SpecialRequirement[];
   m: ImportDict;
+  /** The tabs to show, when not every category of the programme (the programme page shows only its routes). */
+  groups?: CategoryGroup[];
+  manage?: TabManage;
   /** Under the category tab row. */
   below?: ReactNode;
   empty?: string;
@@ -77,7 +80,7 @@ export function FoundDetailsBody({ programme, special, m, below, empty }: {
           </span>
         </p>
       )}
-      <CategoryTabs groups={groupCategories(programme.categories, special)} m={m} below={below} empty={empty} />
+      <CategoryTabs groups={groups ?? groupCategories(programme.categories, special)} m={m} below={below} empty={empty} manage={manage} />
       {(programme.fees || programme.careers) && (
         <div className="grid gap-3 sm:grid-cols-2">
           {programme.careers && (

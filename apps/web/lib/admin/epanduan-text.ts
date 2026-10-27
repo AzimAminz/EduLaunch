@@ -167,6 +167,8 @@ export interface CategoryGroup {
   categories: Array<{ jenprog: string; category: string; route: string | null }>;
   general: string | null;
   special: { status: 'pending' | 'done' | 'failed'; text: string | null } | null;
+  /** The route of a tab with no ePanduan categories (requirements written without ePanduan). */
+  route?: string;
 }
 
 /** Categories with identical requirement text are shown once ("STPM Sains · STPM Sastera"), in the order found. */

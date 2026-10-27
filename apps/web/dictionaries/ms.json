@@ -543,7 +543,23 @@
         "writtenNone": "Belum ada syarat ditulis. Tekan \"Tambah syarat\" untuk bermula.",
         "chipPublished": "Diterbitkan · v{version}",
         "chipOpen": "{status} · oleh {who}",
-        "chipChange": "Perubahan: {status} · oleh {who}"
+        "chipChange": "Perubahan: {status} · oleh {who}",
+        "manage": {
+          "edit": "Sunting",
+          "done": "Selesai",
+          "add": "Tambah syarat",
+          "open": "Buka",
+          "remove": "Padam",
+          "noSource": "Laluan ini tiada teks ePanduan. Buka syaratnya untuk melihat atau menyunting.",
+          "legend": "Diterbitkan|Draf|Menunggu semakan|Dipulangkan|Belum ada syarat",
+          "editHint": "Tekan ikon padam pada tab untuk membuang laluan itu bersama drafnya. Hanya laluan yang belum diterbitkan, dan draf anda sendiri yang belum dihantar, boleh dipadam."
+        },
+        "removeModal": {
+          "title": "Padam {name}?",
+          "body": "Laluan ini dibuang daripada program bersama draf syaratnya, dan tabnya tidak lagi dipaparkan. Tindakan ini tidak boleh dibuat asal.",
+          "yes": "Ya, padam",
+          "cancel": "Batal"
+        }
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",

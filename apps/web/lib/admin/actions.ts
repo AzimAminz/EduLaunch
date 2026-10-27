@@ -348,12 +348,26 @@ export async function discardRequirement(_prev: AdminFormState, form: FormData):
 }
 
 /** Removes an entry route that has no requirements yet from a programme. */
+/**
+ * Removes one route from a programme with everything written for it: the admin's own draft (`draftId`), then the
+ * route itself, so its tab no longer shows. Published requirements are not removed this way (another admin approves
+ * every change students see). Programmes accepted before routes were kept get theirs from ePanduan first.
+ */
 export async function removeEntryRoute(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
   const token = await adminToken(locale);
   const programId = text(form, 'programId');
+  const entryRoute = text(form, 'entryRoute');
+  const draftId = text(form, 'draftId');
   try {
-    await api.removeEntryRoute(token, programId, text(form, 'entryRoute'));
+    if (draftId) await api.discardRequirementDraft(token, draftId);
+    const programme = await api.getProgrammeDetail(token, programId);
+    if (programme.entryRoutes.length === 0 && programme.upuCode) {
+      const [found] = await api.listFoundProgrammes(token, [programme.upuCode]);
+      await api.setEntryRoutes(token, programId, found ? entryRoutesFromFound(found).filter((r) => r.entryRoute !== entryRoute) : []);
+    } else {
+      await api.removeEntryRoute(token, programId, entryRoute);
+    }
   } catch (err) {
     return { error: errorKey(err) };
   }
