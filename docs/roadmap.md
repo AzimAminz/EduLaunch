@@ -38,10 +38,20 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (checked by hand) |
 | 8 | Admin console: home with today's tasks, task inbox, institutions, programmes (draft → another admin approves → published), requirement wizard by entry route (including SVM, SKM, DVM and DKM routes) with a second-admin review | **Done** (accepted; refined as needs come up); **M1 demo** ready |
 | 9 | **Programmes found from each institution (institution first):** an admin adds an institution with its official sources (website, programme page, prospectus PDFs, its ePanduan university code) → the system reads that institution's programmes (code, name, level, NEC field, duration, year, merit average) → a "programmes found" list for that institution, which an admin accepts (in bulk) as drafts → another admin publishes. Merit averages go to `ADMISSION_STAT`; the 157 NEC codes become the field list. Weekly re-check: new programmes are offered, missing ones are flagged (never archived automatically). Adding a programme by hand stays as a fallback. Reading ePanduan starts only after its terms of use are checked | **Done** (manual check waiting); weekly re-check still manual ("Semak semula") |
-| 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | Planned |
+| 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | **In progress:** Syarat Am / Khas parts, sections, N subjects from a list, declarations and notes, fill from ePanduan, entry routes per programme are done (27 Oct 2026); diploma field by NEC code, A-Level/IB points and "use for other programmes" remain |
 | 11 | **JPT import, part 2 (requirements):** read each programme's Syarat Am and Syarat Khas with a headless browser, parse with rules first and Claude for what rules cannot read, validate (exact quotes, known subjects, valid grades), create requirement drafts that an admin approves | Planned |
 | 12 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
 | 13 | **Career data and study roadmap:** careers with MASCO code, qualification level and source; after-Diploma branches (work now, degree, professional qualification, work first); "being prepared" state and data-gap tasks; AI drafts for missing fields from whitelisted Malaysian sources, approved by admins | Planned |
+
+### Changes since v3 (requirement model v2 started, 27 Oct 2026)
+
+| Change | Why |
+|---|---|
+| Requirements are stored and edited like ePanduan: **Syarat Am** and **Syarat Khas**, lines under SPM / STPM / MUET headings, DAN / ATAU, the official sentence on every line | Owner's request: the ePanduan layout is clearer, and the same structure lets results be matched line by line |
+| New line kinds: **N subjects from a list**, **declaration** (student confirms: interview, citizenship, health), **note** (context) | Common in Syarat Khas; without them most real requirements could not be written |
+| **Fill from ePanduan**: a draft is filled from the fetched text in one press (rules recognised by pattern: grades, lists, credits, CGPA, MUET, conditions); the admin corrects and another admin approves | Typing every line by hand is slow; recognising by pattern costs nothing and keeps AI for what patterns cannot read (Step 11) |
+| **Entry routes per programme** (`PROGRAM_ENTRY_ROUTE`) and the newest average merit are in the programme summary | Recommendations can keep programmes the student's route can enter, and estimate offer chances, before rules are written |
+| The eligibility result lists **conditions to confirm** instead of failing the student on them | The system cannot check an interview or health condition from results |
 
 ### Changes since v3 (Step 9 built, 27 Oct 2026)
 

@@ -396,3 +396,32 @@ Tested by: AzimAminz Date: 27 Oct 2026
 **Result:** ☐ All passed ☐ Problems found (describe below)
 
 Tested by: ____________ Date: ____________
+
+---
+
+## Step 10 (part) · Requirements shaped like ePanduan
+
+**Before you start:** pull, `pnpm install`, `pnpm --filter @edulaunch/contracts build`, `pnpm db:migrate` (catalogue 0007, 0008; content 0003), restart `pnpm dev`. Use a programme that came from the ePanduan import (for example a UTM programme), logged in as the admin who will prepare the requirements.
+
+### A. Programme page
+
+- [ ] **Syarat kemasukan** shows a tab per entry route (the routes the programme takes on ePanduan, and any route with requirements), each with ✓ when published or ⚠ when not. The old one-card-per-route list is gone.
+- [ ] The chosen route shows its status, **Mula syarat** / **Buka draf** / **Kemas kini syarat**, and its lines as **Syarat Am** and **Syarat Khas** with SPM / STPM / MUET headings, DAN / ATAU, and what each line checks ("Bahasa Melayu ≥ C", "PNGK ≥ 2.00", "2 daripada [...] ≥ B-", "Perakuan").
+- [ ] Below, **Rujukan dari ePanduan** shows the source text by category.
+
+### B. Editor
+
+- [ ] Start a route, then **Isi dari ePanduan**: both parts fill with lines and headings, the source link is set, and existing lines are only replaced after **Ya, gantikan**.
+- [ ] Each line shows the official sentence and a chip; **Sunting** opens its kind (grade in one subject, N from a list, credits, CGPA, MUET, declaration, note), values, heading and sentence. Up / down move it; the bin deletes it; **Tambah baris** adds one.
+- [ ] Press the DAN pill between two checkable lines: it becomes **ATAU** (yellow). Between a note or declaration it stays DAN.
+- [ ] For a list line, add and remove subjects, set the grade and how many; a count larger than the list is marked red on save.
+- [ ] **Apa pelajar nampak** shows the requirement as students will read it; notes are not shown, declarations appear as "Perlu disahkan".
+- [ ] **Simpan draf** returns to the programme with the lines shown in the same layout; another admin approves the version as in Step 8.
+
+### C. Student
+
+- [ ] After approval, a student on that route sees **Boleh ke saya masuk?** checked line by line, including "Gred B- dalam 2 subjek daripada: …", and a yellow box **Perlu disahkan sendiri** for declarations (for example the interview).
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________

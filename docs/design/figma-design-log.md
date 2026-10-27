@@ -648,3 +648,9 @@ Belum dibina (langkah kemudian): mod latihan, lawatan berpandu, carian bantuan, 
 - Bar tindakan melekat di bawah: Pilih semua / Kosongkan, dan **Terima N sebagai draf**; mesej hijau selepas diterima.
 - Kod dikongsi (Politeknik, Kolej Komuniti): nota kuning, tiada yang dipilih pada mulanya.
 - Figma belum dikemas kini untuk skrin ini.
+
+## 27. Syarat kemasukan mengikut format ePanduan (Step 10, 27 Okt 2026)
+- **Halaman program, tab Syarat kemasukan:** kad satu-laluan-satu-kad dibuang. Kini ada cip tab bagi setiap laluan (✓ diterbitkan, ⚠ belum), dan laluan dipilih menunjukkan status, butang (Mula syarat / Buka draf / Kemas kini syarat) dan baris dalam format rujukan ePanduan: Syarat Am dan Syarat Khas sebelah-menyebelah, tajuk SPM / STPM / MUET, pemisah DAN / ATAU, dan cip apa yang disemak.
+- **Editor:** kad sumber (pautan, butang "Isi dari ePanduan"), kemudian dua kad bahagian (Syarat Am, Syarat Khas). Setiap baris: ayat rasmi, cip ringkasan (biru = disemak, kelabu = nota / perakuan), ikon sunting, naik, turun, padam. Pill DAN / ATAU di antara baris boleh ditekan. Panel tepi: tab "Sumber ePanduan" (satu lajur) dan "Apa pelajar nampak".
+- **Pelajar:** kotak kuning "Perlu disahkan sendiri" untuk perakuan (temu duga, warganegara, kesihatan) dalam kad "Boleh ke saya masuk?".
+- Figma belum dikemas kini untuk skrin ini.

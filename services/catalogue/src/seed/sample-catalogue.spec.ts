@@ -1,6 +1,6 @@
 import { isValidGrade } from '@edulaunch/contracts';
 import { Program } from '../modules/programmes/domain/program.js';
-import { Requirement } from '../modules/requirements/domain/requirement.js';
+import { LINE_DEFAULTS, Requirement } from '../modules/requirements/domain/requirement.js';
 import { sampleCatalogue as data } from './sample-catalogue.js';
 import { seedId } from './seed-id.js';
 
@@ -92,6 +92,8 @@ describe('sample catalogue', () => {
             minGrade: rule.minGrade ?? null,
             minValue: rule.minValue ?? null,
             evidenceQuote: rule.evidenceQuote,
+            ...LINE_DEFAULTS,
+            subjectIds: [],
           })),
         }),
       ).not.toThrow();

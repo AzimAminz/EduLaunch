@@ -8,8 +8,42 @@ erDiagram
         ​ last_checked_at
         ​ crawl_status
     }
+    EPANDUAN_RUN {
+        ​PK run_id
+        ​FK requested_by
+        ​ institution_code
+        ​ status
+        ​ current_category
+        ​ pages_read
+        ​ found
+        ​ error
+        ​ started_at
+    }
+    EPANDUAN_FOUND {
+        ​PK,FK run_id
+        ​PK code
+        ​ data
+    }
+    EPANDUAN_REQUIREMENT {
+        ​PK code
+        ​PK category
+        ​ jenprog
+        ​ status
+        ​ special_text
+        ​ read_at
+    }
     INSTITUTION {
         ​PK institution_id
     }
+    PROGRAM {
+        ​PK program_id
+    }
+    USER {
+        ​PK user_id
+    }
 
     INSTITUTION ||--o{ DATA_SOURCE : "publishes"
+    USER |o..o{ EPANDUAN_RUN : "starts"
+    EPANDUAN_RUN ||--o{ EPANDUAN_FOUND : "finds"
+    PROGRAM |o..o{ EPANDUAN_FOUND : "matched by code"
+    PROGRAM |o..o{ EPANDUAN_REQUIREMENT : "matched by code"

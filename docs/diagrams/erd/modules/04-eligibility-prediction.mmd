@@ -3,11 +3,13 @@ erDiagram
         ​PK requirement_id
         ​FK program_id
         ​FK source_id
+        ​FK prepared_by
         ​FK approved_by
         ​ entry_route
+        ​ source_category
+        ​ source_url
         ​ version_no
         ​ review_status
-        ​ effective_from
     }
     REQUIREMENT_RULE {
         ​PK rule_id
@@ -15,8 +17,13 @@ erDiagram
         ​FK subject_id
         ​FK related_field_id
         ​ rule_type
+        ​ part
+        ​ section
         ​ min_grade
         ​ min_value
+        ​ subject_ids
+        ​ min_count
+        ​ position
         ​ evidence_quote
     }
     MERIT_FORMULA {

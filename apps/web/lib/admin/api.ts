@@ -172,6 +172,7 @@ const ProgrammeDetail = ProgrammeFacts.extend({
   updatedAt: z.coerce.date(),
   fieldIds: z.array(z.uuid()),
   requirements: z.array(RequirementVersion),
+  entryRoutes: z.array(z.string()).default([]),
 });
 export type ProgrammeDetail = z.infer<typeof ProgrammeDetail>;
 
@@ -182,8 +183,13 @@ export const AdminRule = z.object({
   ruleType: RuleType,
   subjectId: z.uuid().nullable(),
   minGrade: z.string().nullable(),
-  minValue: z.number().nullable(),
+  minValue: z.coerce.number().nullable(),
   evidenceQuote: z.string().nullable(),
+  part: z.enum(['general', 'special']).default('special'),
+  section: z.string().nullable().default(null),
+  subjectIds: z.array(z.uuid()).default([]),
+  minCount: z.number().nullable().default(null),
+  position: z.number().default(0),
 });
 export type AdminRule = z.infer<typeof AdminRule>;
 
@@ -200,6 +206,7 @@ const RequirementDetail = z.object({
   approvedBy: z.uuid().nullable(),
   returnReason: z.string().nullable(),
   sourceUrl: z.string().nullable(),
+  sourceCategory: z.string().nullable().default(null),
   updatedAt: z.coerce.date(),
   rules: z.array(AdminRule),
   previous: z.object({ versionNo: z.number(), sourceUrl: z.string().nullable(), rules: z.array(AdminRule) }).nullable(),
@@ -249,7 +256,11 @@ export const reviewProgramme = (token: string, id: string, body: ReviewAction) =
 
 export const createRequirementDraft = (token: string, body: { programId: string; entryRoute: string }) =>
   call(token, '/requirements', z.object({ id: z.uuid(), versionNo: z.number() }), send(body));
-export const saveRequirementDraft = (token: string, id: string, body: { sourceUrl: string | null; rules: Array<Omit<AdminRule, 'evidenceQuote'> & { evidenceQuote: string }> }) =>
+export const saveRequirementDraft = (
+  token: string,
+  id: string,
+  body: { sourceUrl: string | null; sourceCategory: string | null; rules: Array<Omit<AdminRule, 'evidenceQuote'> & { evidenceQuote: string }> },
+) =>
   call(token, `/requirements/${encodeURIComponent(id)}`, Status, send(body, 'PUT'));
 export const reviewRequirement = (token: string, id: string, body: Exclude<ReviewAction, { action: 'archive' | 'reopen' | 'withdraw' | 'discard' }>) =>
   call(token, `/requirements/${encodeURIComponent(id)}/review`, Status, send(body));
@@ -313,6 +324,7 @@ const InstitutionProgramme = z.object({
   sourceUrl: z.string().nullable(),
   status: ReviewStatus,
   pendingStatus: z.enum(['draft', 'in_review', 'returned']).nullable(),
+  entryRoutes: z.array(z.string()).default([]),
 });
 export type InstitutionProgramme = z.infer<typeof InstitutionProgramme>;
 export const listInstitutionProgrammes = (token: string, id: string) =>
@@ -396,3 +408,7 @@ export const listSpecialRequirements = (token: string, codes: string[]) =>
 /** Programmes as the latest ePanduan read of their institution found them, by programme code. */
 export const listFoundProgrammes = (token: string, codes: string[]) =>
   codes.length ? callService('content', token, `/epanduan/found?codes=${encodeURIComponent(codes.join(','))}`, z.array(FoundProgramme)) : Promise.resolve([]);
+
+/** The entry routes a programme takes candidates from, with the ePanduan category each came from. */
+export const setEntryRoutes = (token: string, id: string, routes: Array<{ entryRoute: string; sourceCategory: string | null }>) =>
+  call(token, `/programmes/${encodeURIComponent(id)}/entry-routes`, z.undefined(), send({ routes }, 'PUT'));

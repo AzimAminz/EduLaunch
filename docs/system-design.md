@@ -102,7 +102,8 @@ Each module owns its tables. Other modules read through its API, never by writin
 ### 3.3 Programme Catalogue
 - **Purpose:** the trusted list of institutions and programmes.
 - **Functions:** search by university and field (combobox), filter by study level, view programme details, compare programmes, save programmes.
-- **Owns:** `INSTITUTION`, `PROGRAM`, `FIELD`, `PROGRAM_FIELD`, `SAVED_PROGRAM`, `PROGRAM_PATHWAY`.
+- **Owns:** `INSTITUTION`, `INSTITUTION_SOURCE`, `PROGRAM`, `PROGRAM_ENTRY_ROUTE`, `NEC_FIELD`, `FIELD`, `PROGRAM_FIELD`, `SAVED_PROGRAM`, `PROGRAM_PATHWAY`.
+- **Data for recommendations:** every programme keeps the facts a recommendation is built on, as official sources publish them: study level, duration, NEC field (mapped to an EduLaunch field), mode, campus, STEM / TVET / Bumiputera / interview flags, the **entry routes it takes candidates from** (`PROGRAM_ENTRY_ROUTE`, one row per route and ePanduan category, indexed by route) and the newest **average merit** (`ADMISSION_STAT`). The public programme summary (`ProgramSummary`) carries `entryRoutes` and `averageMerit`, so the recommendation service can first keep programmes the student's route can enter, then rank them, before any requirement rule is written.
 - **Coverage:** the catalogue includes certificate (Sijil) and skills (SKM) programmes, for example at community colleges and skills institutes, not only diplomas and degrees. Without them the system has nothing to offer students with weaker results.
 - **Pathways:** `PROGRAM_PATHWAY` records stepping stones, for example "Certificate X leads to Diploma Y if CGPA ≥ 2.50", entered by admins from official sources.
 
@@ -110,7 +111,8 @@ Each module owns its tables. Other modules read through its API, never by writin
 - **Purpose:** answer "Do I qualify?" and "How likely is an offer?".
 - **Functions:** check entry requirements; calculate merit; list what is missing; estimate offer chance; label results as target or actual.
 - **Owns:** `REQUIREMENT`, `REQUIREMENT_RULE`, `MERIT_FORMULA`, `ADMISSION_STAT`.
-- **Eligibility engine:** each rule is checked in code (minimum grade in a subject, number of credits, CGPA, MUET band, stream, related diploma field). The output is *Eligible*, *Almost eligible* (at most one rule missed), or *Not yet eligible*, with the rule that failed.
+- **Requirement model v2 (shaped like JPT ePanduan, 27 Oct 2026):** a requirement version holds one route's lines in two parts, **Syarat Am** (`part = general`, the university's general requirements for that route) and **Syarat Khas** (`part = special`, the programme's own). Each line keeps the official sentence (`evidence_quote`), its heading (`section`: SPM, STPM, MUET, Matrikulasi / Asasi, Diploma) and its order (`position`). Lines in the same `group_no` are alternatives (ATAU); groups must all pass (DAN). Line kinds: `min_grade` (one subject), `subjects_from_list` (grade in N subjects from a list: `subject_ids`, `min_count`), `min_credits` (credits in any subjects), `min_cgpa`, `min_muet`, `declaration` (something the student confirms or the university checks: interview, citizenship, health) and `note` (context, never checked). The version records the ePanduan category it was written from (`source_category`). Admins fill a draft from the fetched ePanduan text in one press, then add, edit, move and delete lines; another admin approves.
+- **Eligibility engine:** each checkable line is checked in code (minimum grade in a subject, N subjects from a list, number of credits, CGPA, MUET band). Declarations do not decide eligibility; they are returned as **"to confirm yourself"** and shown to the student. Notes are skipped. The output is *Eligible*, *Almost eligible* (at most one rule missed), or *Not yet eligible*, with the rule that failed.
 - **What-if simulation:** re-runs the same rules with one grade raised by one step, to show which subject opens the most programmes ("If Mathematics goes from D to C, 14 more programmes open"). No AI, no cost.
 - **Alternative pathways:** when a student has fewer than five eligible programmes at the level they aim for, the system switches to alternative-pathway mode (see `ai-and-cost-plan.md` §3). The student never sees an empty result.
 
@@ -157,7 +159,7 @@ Each module owns its tables. Other modules read through its API, never by writin
 ### 3.8 Content Pipeline
 - **Purpose:** keep programme data fresh and correct.
 - **Functions:** register official sources; crawl on a schedule (first source: the JPT ePanduan site); detect changes; extract requirements with AI into a draft; fill career and pathway data gaps from whitelisted Malaysian sources (MASCO, MyCOL, MQA, professional bodies, JPT); prepare text chunks for search and Q&A.
-- **Owns:** `DATA_SOURCE`. Search chunks and embeddings (`CONTENT_CHUNK`) are a technical table, left out of the documentation ERD.
+- **Owns:** `DATA_SOURCE`, `EPANDUAN_RUN` (one read of an institution's programmes), `EPANDUAN_FOUND` (what a run found, cleaned plain values, per programme code) and `EPANDUAN_REQUIREMENT` (Syarat Khas per programme code and category, read for accepted programmes). They are staging and evidence: the catalogue changes only when an admin accepts. Links to `PROGRAM` are by programme code, without a foreign key across services. Search chunks and embeddings (`CONTENT_CHUNK`) are a technical table, left out of the documentation ERD.
 - **Rule:** the pipeline only creates **drafts**. An admin approves before anything reaches students.
 
 ### 3.9 Notifications & Support

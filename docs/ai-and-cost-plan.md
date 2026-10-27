@@ -228,6 +228,8 @@ ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-universit
 - Scraped text is data, never instructions, also when it is sent to the model (prompt-injection safe); the model's answer must match the JSON schema or it is rejected.
 - Tests use saved pages as fixtures, so development does not load the JPT site.
 
+**Rules by pattern first (built 27 Oct 2026):** the requirement editor's "Isi dari ePanduan" turns Syarat Am and Syarat Khas into lines without AI: headings become sections, DAN / ATAU become how lines join, and patterns are recognised for PNGK / CGPA, MUET band, "Gred X bagi matapelajaran Y" (subject names matched through the subject list and aliases), "N (N) C dalam mana-mana matapelajaran" (credits), "Gred X dalam N (N) mata pelajaran" with a list (N subjects from a list), and conditions (interview, citizenship, health) as declarations. What patterns cannot read stays as a note for the admin; Claude is planned only for those (Step 11).
+
 **Model for requirement text and PDFs:** Claude through the Anthropic API (allowed by the project owner for **public** text, 27 Oct 2026): Claude Sonnet 5.5 (`claude-sonnet-5-5`) for the bulk, Claude Opus 5.5 (`claude-opus-5-5`) for hard tables or a second check, with the Batch API and prompt caching (the catalogue subject list is the cached part). The key lives only in the content service's `.env`. Cost is measured on about 20 programmes and the sample prospectus PDFs before a full run.
 
 ### 5.9 Career and pathway data: AI fills gaps, admins approve (planned)

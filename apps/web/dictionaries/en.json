@@ -112,7 +112,10 @@
       "skm": "After SKM",
       "dvm": "After DVM",
       "dkm": "After DKM / DLKM"
-    }
+    },
+    "fromList": "Any {count} subjects",
+    "fromListDetail": "At least grade {grade} in {count} of: {subjects}",
+    "toConfirm": "To confirm"
   },
   "soon": {
     "title": "Coming soon",
@@ -522,7 +525,11 @@
         "done": {
           "draft": "Requirement draft saved. Continue any time with \"Open draft\".",
           "sent": "Requirements sent for review. Other admins will see them in their task inbox."
-        }
+        },
+        "start": "Start requirements",
+        "fromCategory": "Written from the ePanduan category: {category}",
+        "noLines": "This draft has no lines yet. Open it and fill from ePanduan.",
+        "notStarted": "No requirements for this route yet. Press \"Start requirements\", then fill from ePanduan."
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
@@ -589,7 +596,8 @@
         "none": "—",
         "duration": "{n} semesters (± {years} years)"
       },
-      "flags": "Admission features"
+      "flags": "Admission features",
+      "entryRoutes": "Entry routes"
     },
     "institutions": {
       "title": "Institutions",
@@ -776,7 +784,8 @@
           "hasInterview": "interview",
           "isStem": "STEM",
           "isTvet": "TVET",
-          "bumiputeraOnly": "Bumiputera"
+          "bumiputeraOnly": "Bumiputera",
+          "entryRoutes": "entry routes"
         },
         "problems": {
           "no_level": "Unknown level; add it by hand",
@@ -912,7 +921,10 @@
         "cgpaRange": "CGPA is a number from 0.00 to 4.00.",
         "muetRange": "MUET band is from 1 to 6.",
         "creditsRange": "Number of credits is a whole number from 1 to 20.",
-        "quoteRequired": "Paste the source sentence (at least 5 characters)."
+        "quoteRequired": "Paste the source sentence (at least 5 characters).",
+        "subjectsRequired": "Choose at least one subject for the list.",
+        "countRange": "The number of subjects must be between 1 and the number listed.",
+        "textRequired": "Enter the official sentence."
       },
       "problemsSummary": "Fix {count} thing(s) marked in red.",
       "preview": {
@@ -958,7 +970,79 @@
         "reasonLabel": "What needs fixing or answering?",
         "reasonPlaceholder": "e.g. The 2027 prospectus says grade B, not C, for Mathematics.",
         "send": "Return",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "lines": "Requirements in this version"
+      },
+      "and": "AND",
+      "lineTitle": "Requirement {n}",
+      "chip": {
+        "grade": "{subject} ≥ {grade}",
+        "credits": "{n} credits at grade {grade}",
+        "cgpa": "CGPA ≥ {value}",
+        "muet": "MUET ≥ Band {value}"
+      },
+      "suggest": {
+        "title": "ePanduan source",
+        "intro": "The requirements as ePanduan writes them for this route. Press Add to turn a line into a requirement, with its evidence sentence and source link. Check each one before saving.",
+        "add": "Add",
+        "added": "Added",
+        "manual": "Write it yourself",
+        "n_of_list": "\"N subjects from a list\" cannot be written as one requirement yet; the new requirement model (Step 10) will support it. Write the most important subject as a requirement for now.",
+        "subject": "A subject in this sentence is not in the EduLaunch subject list. Add this requirement by hand."
+      },
+      "parts": {
+        "general": "General requirements (Syarat Am)",
+        "special": "Programme requirements (Syarat Khas)",
+        "generalHint": "The university's general requirements for this route (for example SPM, STPM, MUET).",
+        "specialHint": "This programme's own requirements (subjects, grades, CGPA, interview).",
+        "empty": "No lines yet. Fill from ePanduan or add a line.",
+        "none": "None."
+      },
+      "fill": {
+        "button": "Fill from ePanduan",
+        "fromCategory": "Fill from ePanduan: {category}",
+        "replaceConfirm": "Replace the {count} lines here with the requirements from ePanduan?",
+        "replaceYes": "Yes, replace"
+      },
+      "join": {
+        "and": "AND",
+        "or": "OR",
+        "toggle": "Press to switch AND / OR",
+        "alone": "Notes and declarations always stand alone (AND)"
+      },
+      "line": {
+        "add": "Add a line",
+        "edit": "Edit line",
+        "done": "Done",
+        "up": "Move up",
+        "down": "Move down",
+        "remove": "Delete line",
+        "noText": "(no official sentence)",
+        "count": "How many subjects",
+        "credits": "Number of credits",
+        "band": "MUET band",
+        "subjects": "Subjects in the list",
+        "addSubject": "Add a subject to the list",
+        "section": "Section heading",
+        "sectionPlaceholder": "For example SPM, STPM, MUET",
+        "text": "Official sentence (evidence)",
+        "textOnly": "Official sentence"
+      },
+      "kinds": {
+        "min_grade": "Grade in one subject",
+        "subjects_from_list": "Grade in N subjects from a list",
+        "min_credits": "Credits in any subjects",
+        "min_cgpa": "Minimum CGPA",
+        "min_muet": "Minimum MUET",
+        "declaration": "Declaration (student confirms)",
+        "note": "Note (not checked)"
+      },
+      "summaryOf": {
+        "grade": "{subject} ≥ {grade}",
+        "list": "{count} of [{subjects}] ≥ {grade}",
+        "credits": "{n} credits at grade {grade}",
+        "cgpa": "CGPA ≥ {value}",
+        "muet": "MUET ≥ Band {value}"
       }
     },
     "errors": {
@@ -1293,6 +1377,9 @@
     "updateResults": "Update results",
     "disclaimer": "This check is a guide only. Admission decisions are made by the institution.",
     "loadError": "Eligibility cannot be checked right now. Please try again shortly.",
-    "checking": "Checking your eligibility…"
+    "checking": "Checking your eligibility…",
+    "fromList": "Grade {grade} in {required} subjects from: {subjects} (you have {actual})",
+    "toConfirm": "To confirm yourself",
+    "toConfirmNote": "The system cannot check these from your results. Make sure you meet them before applying."
   }
 }

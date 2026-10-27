@@ -11,13 +11,33 @@ export const ProgramSummary = z.object({
   studyLevel: StudyLevel,
   durationSemesters: z.number().int().nullable(),
   fieldIds: z.array(z.uuid()),
+  /** Entry routes the programme takes candidates from (as the official source lists them). */
+  entryRoutes: z.array(z.string()).default([]),
+  /** The newest published average merit (ePanduan), for offer chances. */
+  averageMerit: z.object({ intakeYear: z.number().int(), value: z.number() }).nullable().default(null),
 });
 export type ProgramSummary = z.infer<typeof ProgramSummary>;
 
-export const RuleType = z.enum(['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject']);
+/**
+ * Rule kinds, following how official sources write requirements (JPT ePanduan):
+ * - min_grade: grade in one subject ("Gred C bagi Bahasa Melayu"); key_subject is the older name for it.
+ * - min_credits: credits in any subjects ("DUA (2) C dalam mana-mana matapelajaran").
+ * - subjects_from_list: grade in N subjects from a list ("Gred C dalam TIGA (3): Physics, Chemistry, Biology").
+ * - min_cgpa, min_muet: a number at least ("PNGK 2.00", "MUET Band 2.0").
+ * - declaration: something the student confirms or the university checks (citizenship, health, interview).
+ * - note: context shown with the requirements, never checked ("Memiliki SPM dengan mendapat sekurang-kurangnya:-").
+ */
+export const RuleType = z.enum(['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject', 'subjects_from_list', 'declaration', 'note']);
 export type RuleType = z.infer<typeof RuleType>;
 
-/** Rules with the same `groupNo` are alternatives ("at least one of"); different groups must all pass. */
+/** Syarat Am (general, set per university and route) or Syarat Khas (special, set per programme). */
+export const RequirementPart = z.enum(['general', 'special']);
+export type RequirementPart = z.infer<typeof RequirementPart>;
+
+/**
+ * One requirement line. Rules with the same `groupNo` are alternatives ("ATAU", at least one of); different groups
+ * must all pass ("DAN"). Lines are shown by part, then group, then `position`, under their `section` (SPM, STPM, MUET).
+ */
 export const RequirementRuleDto = z.object({
   id: z.uuid(),
   groupNo: z.number().int(),
@@ -26,6 +46,12 @@ export const RequirementRuleDto = z.object({
   minGrade: z.string().nullable(),
   minValue: z.number().nullable(),
   evidenceQuote: z.string().nullable(),
+  part: RequirementPart.default('special'),
+  section: z.string().nullable().default(null),
+  /** subjects_from_list: the subjects to choose from, and how many must reach `minGrade`. */
+  subjectIds: z.array(z.uuid()).default([]),
+  minCount: z.number().int().nullable().default(null),
+  position: z.number().int().default(0),
 });
 export type RequirementRuleDto = z.infer<typeof RequirementRuleDto>;
 
@@ -34,6 +60,8 @@ export const PublishedRequirement = z.object({
   programId: z.uuid(),
   entryRoute: z.string(),
   versionNo: z.number().int(),
+  /** The official candidate category the rules come from (ePanduan, e.g. "stpm:S"). */
+  sourceCategory: z.string().nullable().default(null),
   rules: z.array(RequirementRuleDto),
 });
 export type PublishedRequirement = z.infer<typeof PublishedRequirement>;

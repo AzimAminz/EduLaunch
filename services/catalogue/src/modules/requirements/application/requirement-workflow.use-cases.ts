@@ -17,14 +17,16 @@ export interface DraftInput {
 
 /** Grade rules must name a known subject and a grade from that subject's scale (SPM A+–G, STPM A–F…). */
 async function checkGrades(requirements: RequirementRepository, rules: Omit<RequirementRule, 'id'>[]) {
-  const ids = [...new Set(rules.map((r) => r.subjectId).filter((id): id is string => !!id))];
+  const ids = [...new Set(rules.flatMap((r) => [r.subjectId, ...(r.subjectIds ?? [])]).filter((id): id is string => !!id))];
   const known = await requirements.subjectQualifications(ids);
   for (const rule of rules) {
-    if (!rule.subjectId) continue;
-    const qualification = known.get(rule.subjectId) as RecordQualification | undefined;
-    if (!qualification) throw new DomainError('invalid_rule', 'Choose subjects from the list');
-    if (rule.minGrade && hasSubjectGrades(qualification) && !isValidGrade(qualification, rule.minGrade)) {
-      throw new DomainError('invalid_rule', `${rule.minGrade} is not a grade for this subject`);
+    for (const subjectId of [rule.subjectId, ...(rule.subjectIds ?? [])]) {
+      if (!subjectId) continue;
+      const qualification = known.get(subjectId) as RecordQualification | undefined;
+      if (!qualification) throw new DomainError('invalid_rule', 'Choose subjects from the list');
+      if (rule.minGrade && hasSubjectGrades(qualification) && !isValidGrade(qualification, rule.minGrade)) {
+        throw new DomainError('invalid_rule', `${rule.minGrade} is not a grade for this subject`);
+      }
     }
   }
 }
@@ -65,6 +67,7 @@ export interface EditDraftInput {
   id: string;
   adminId: string;
   sourceUrl: string | null;
+  sourceCategory?: string | null;
   rules: Omit<RequirementRule, 'id'>[];
 }
 
@@ -76,7 +79,7 @@ export class EditRequirementDraft implements UseCase<EditDraftInput, { status: s
     const req = await this.requirements.findById(input.id);
     if (!req) throw new NotFoundError('Requirement', input.id);
     await checkGrades(this.requirements, input.rules);
-    req.edit(input.adminId, { sourceUrl: input.sourceUrl, rules: input.rules.map((r) => ({ ...r, id: randomUUID() })) });
+    req.edit(input.adminId, { sourceUrl: input.sourceUrl, sourceCategory: input.sourceCategory, rules: input.rules.map((r) => ({ ...r, id: randomUUID() })) });
     await this.requirements.save(req);
     return { status: req.status };
   }

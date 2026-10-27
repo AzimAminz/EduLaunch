@@ -8,7 +8,7 @@ import type { FoundProgramme, InstitutionProgramme, ProgrammeBody } from './api'
 export type ImportStatus = 'new' | 'changed' | 'same';
 
 /** The details an import compares and may update. */
-export const ComparedFields = ['name', 'studyLevel', 'durationSemesters', 'necCode', 'studyMode', 'campus', 'hasInterview', 'isStem', 'isTvet', 'bumiputeraOnly'] as const;
+export const ComparedFields = ['name', 'studyLevel', 'durationSemesters', 'necCode', 'studyMode', 'campus', 'hasInterview', 'isStem', 'isTvet', 'bumiputeraOnly', 'entryRoutes'] as const;
 export type ComparedField = (typeof ComparedFields)[number];
 
 /** Why a found programme cannot be accepted now. */
@@ -43,10 +43,15 @@ function foundValues(f: FoundProgramme, knownNec: ReadonlySet<string>): Record<C
     isStem: f.isStem,
     isTvet: f.isTvet,
     bumiputeraOnly: f.bumiputeraOnly,
+    // Routes the programme takes candidates from (one per category list it appears in), compared as a set.
+    entryRoutes: f.routes.length ? [...new Set(f.routes)].sort() : null,
   };
 }
 
-const same = (a: unknown, b: unknown) => (typeof a === 'string' && typeof b === 'string' ? a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase() : a === b);
+const same = (a: unknown, b: unknown) => {
+  if (Array.isArray(a) && Array.isArray(b)) return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+  return typeof a === 'string' && typeof b === 'string' ? a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase() : a === b;
+};
 
 export function compareFound(found: FoundProgramme[], existing: InstitutionProgramme[], knownNec: ReadonlySet<string>): ImportComparison {
   const byCode = new Map(existing.filter((p) => p.upuCode).map((p) => [p.upuCode!.toUpperCase(), p]));
@@ -108,7 +113,8 @@ export function updateFromFound<T extends ProgrammeBody & { studyLevel?: string 
   const draft = draftFromFound(row.found, necField);
   const next = { ...current };
   for (const key of row.changes) {
-    if (key === 'studyLevel') continue; // the level of a published programme never changes through an import
+    // The level of a published programme never changes through an import; entry routes are saved on their own.
+    if (key === 'studyLevel' || key === 'entryRoutes') continue;
     (next as Record<string, unknown>)[key] = draft[key];
   }
   if (row.changes.includes('necCode') && draft.fieldIds.length && !current.fieldIds.includes(draft.fieldIds[0]!)) {
@@ -116,3 +122,10 @@ export function updateFromFound<T extends ProgrammeBody & { studyLevel?: string 
   }
   return next;
 }
+
+/** The entry routes to keep for a found programme: one per ePanduan category that has an EduLaunch route. */
+export const entryRoutesFromFound = (f: FoundProgramme) =>
+  f.categories.filter((c) => c.route).map((c) => ({ entryRoute: c.route!, sourceCategory: `${c.jenprog}:${c.category}` }));
+
+/** Whether a changed row only needs its entry routes saved (the programme's own details are the same). */
+export const onlyRoutesChanged = (row: ImportRow) => row.changes.length > 0 && row.changes.every((c) => c === 'entryRoutes');

@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { CurrentCaller, Public, Roles, ZodPipe, type Caller } from '@edulaunch/nest-kit';
-import { StudyLevel, StudyModes } from '@edulaunch/contracts';
+import { EntryRoutes, StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { SearchProgrammes } from '../application/search-programmes.use-case.js';
 import { GetProgramme } from '../application/get-programme.use-case.js';
-import { CreateProgramme, DeleteProgramme, RecordAverageMerit, ReviewProgramme, UpdateProgramme } from '../application/manage-programme.use-cases.js';
+import { CreateProgramme, DeleteProgramme, RecordAverageMerit, ReviewProgramme, SetEntryRoutes, UpdateProgramme } from '../application/manage-programme.use-cases.js';
 
 const SearchQuery = z.object({
   q: z.string().trim().max(100).optional(),
@@ -40,6 +40,10 @@ const ReviewBody = z.discriminatedUnion('action', [
   z.object({ action: z.literal('return'), reason: z.string().min(5).max(1000) }),
 ]);
 
+const EntryRoutesBody = z.object({
+  routes: z.array(z.object({ entryRoute: z.enum(EntryRoutes), sourceCategory: z.string().max(20).nullable() })).max(40),
+});
+
 const MeritBody = z.object({ intakeYear: z.number().int().min(2000).max(2100), averageMerit: z.number().min(0).max(100) });
 
 @Controller('programmes')
@@ -52,6 +56,7 @@ export class ProgrammesController {
     private readonly reviewProgramme: ReviewProgramme,
     private readonly deleteProgramme: DeleteProgramme,
     private readonly recordAverageMerit: RecordAverageMerit,
+    private readonly setEntryRoutes: SetEntryRoutes,
   ) {}
 
   @Public()
@@ -92,6 +97,14 @@ export class ProgrammesController {
   @Post(':id/review')
   review(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(ReviewBody)) body: z.infer<typeof ReviewBody>, @CurrentCaller() caller: Caller) {
     return this.reviewProgramme.execute({ id, adminId: caller.userId, superAdmin: caller.superAdmin, ...body });
+  }
+
+  /** The entry routes the programme takes candidates from, as the official source (ePanduan) lists them. */
+  @Roles('admin')
+  @Put(':id/entry-routes')
+  @HttpCode(204)
+  entryRoutes(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(EntryRoutesBody)) body: z.infer<typeof EntryRoutesBody>) {
+    return this.setEntryRoutes.execute({ id, ...body });
   }
 
   /** The average merit of one intake year, as an official source (ePanduan) published it. */

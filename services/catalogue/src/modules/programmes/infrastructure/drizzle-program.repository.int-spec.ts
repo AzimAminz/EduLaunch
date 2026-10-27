@@ -106,6 +106,22 @@ describe('DrizzleProgramRepository (integration)', () => {
     ]);
   });
 
+  it('keeps the entry routes a programme takes, and gives them with the newest merit for summaries', async () => {
+    const p = programme('Ijazah Laluan');
+    await repo.save(p);
+    await repo.replaceEntryRoutes(p.id, [
+      { entryRoute: 'stpm', sourceCategory: 'stpm:S' },
+      { entryRoute: 'stpm', sourceCategory: 'stpm:A' },
+      { entryRoute: 'diploma', sourceCategory: 'stpm:G1' },
+    ]);
+    await repo.recordAverageMerit(p.id, 2025, 88.1);
+    await repo.recordAverageMerit(p.id, 2026, 89.5);
+    expect((await repo.admissionFacts([p.id])).get(p.id)).toEqual({ entryRoutes: ['diploma', 'stpm'], averageMerit: { intakeYear: 2026, value: 89.5 } });
+    // A new list replaces the old one.
+    await repo.replaceEntryRoutes(p.id, [{ entryRoute: 'matrikulasi', sourceCategory: 'stpm:N' }]);
+    expect((await repo.admissionFacts([p.id])).get(p.id)?.entryRoutes).toEqual(['matrikulasi']);
+  });
+
   it('returns null for an unknown id', async () => {
     expect(await repo.findById(randomUUID())).toBeNull();
   });

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DomainError, NotFoundError, createEvent, type UseCase } from '@edulaunch/ddd';
 import { EventBus } from '@edulaunch/nest-kit';
-import { Events } from '@edulaunch/contracts';
+import { Events, isEntryRoute } from '@edulaunch/contracts';
 import { randomUUID } from 'node:crypto';
 import { Program, type ProgramDetails } from '../domain/program.js';
 import { ProgramRepository } from '../domain/program.repository.js';
@@ -84,6 +84,19 @@ export class ReviewProgramme implements UseCase<{ id: string; adminId: string; s
 }
 
 /** Deletes a draft or archived programme with its requirements. Published ones are archived first. */
+/** Records which entry routes a programme takes candidates from, as the official source lists them. */
+@Injectable()
+export class SetEntryRoutes implements UseCase<{ id: string; routes: Array<{ entryRoute: string; sourceCategory: string | null }> }, void> {
+  constructor(private readonly programs: ProgramRepository) {}
+
+  async execute({ id, routes }: { id: string; routes: Array<{ entryRoute: string; sourceCategory: string | null }> }) {
+    if (!(await this.programs.findById(id))) throw new NotFoundError('Programme', id);
+    const unknown = routes.find((r) => !isEntryRoute(r.entryRoute));
+    if (unknown) throw new DomainError('invalid_program', `Unknown entry route ${unknown.entryRoute}`);
+    await this.programs.replaceEntryRoutes(id, routes);
+  }
+}
+
 /** Keeps the average merit an official source published for one intake year (shown later with offer chances). */
 @Injectable()
 export class RecordAverageMerit implements UseCase<{ id: string; intakeYear: number; averageMerit: number }, void> {

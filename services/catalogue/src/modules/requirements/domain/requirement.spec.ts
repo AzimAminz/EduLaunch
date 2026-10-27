@@ -1,6 +1,6 @@
 import { DomainError } from '@edulaunch/ddd';
 import { Events } from '@edulaunch/contracts';
-import { Requirement, type RequirementRule } from './requirement.js';
+import { LINE_DEFAULTS, Requirement, type RequirementRule } from './requirement.js';
 
 const rule = (over: Partial<RequirementRule> = {}): RequirementRule => ({
   id: 'r1',
@@ -10,6 +10,8 @@ const rule = (over: Partial<RequirementRule> = {}): RequirementRule => ({
   minGrade: 'B',
   minValue: null,
   evidenceQuote: 'sekurang-kurangnya gred B dalam Matematik',
+  ...LINE_DEFAULTS,
+  subjectIds: [],
   ...over,
 });
 
@@ -98,5 +100,37 @@ describe('Requirement', () => {
     expect(next.toSnapshot().versionNo).toBe(3);
     expect(next.toSnapshot().sourceUrl).toBe('https://contoh.edu.my/prospektus');
     expect(next.rules.map((r) => [r.id, r.minGrade])).toEqual([['new-1', 'B']]);
+  });
+
+  it('keeps lines as ePanduan writes them: Syarat Am / Khas, sections, a subject list with how many', () => {
+    const req = draft();
+    req.edit('aina', {
+      sourceUrl: 'https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/S?jenprog=stpm',
+      sourceCategory: 'stpm:S',
+      rules: [
+        rule({ id: 'n', groupNo: 1, ruleType: 'note', subjectId: null, minGrade: null, part: 'general', section: 'SPM', evidenceQuote: 'Memiliki SPM dengan mendapat sekurang-kurangnya:-' }),
+        rule({ id: 'l', groupNo: 2, ruleType: 'subjects_from_list', subjectId: null, minGrade: 'C', subjectIds: ['phy', 'chem', 'bio', 'phy'], minCount: 2, section: 'STPM', evidenceQuote: 'Gred C dalam DUA (2) mata pelajaran' }),
+        rule({ id: 'd', groupNo: 3, ruleType: 'declaration', subjectId: null, minGrade: null, evidenceQuote: 'Lulus ujian dan / atau temu duga' }),
+      ],
+    });
+    const dto = req.toPublishedDto();
+    expect(dto.sourceCategory).toBe('stpm:S');
+    expect(dto.rules.map((r) => [r.part, r.section, r.ruleType])).toEqual([
+      ['general', 'SPM', 'note'],
+      ['special', 'STPM', 'subjects_from_list'],
+      ['special', null, 'declaration'],
+    ]);
+    expect(dto.rules[1]!.subjectIds).toEqual(['phy', 'chem', 'bio']);
+  });
+
+  it('checks subject lists, and keeps notes and declarations out of alternatives', () => {
+    const list = (over: Partial<RequirementRule>) => () =>
+      draft().replaceRules([rule({ ruleType: 'subjects_from_list', subjectId: null, minGrade: 'C', subjectIds: ['a', 'b'], minCount: 1, ...over })]);
+    expect(list({ minCount: 3 })).toThrow('between 1 and the number of subjects');
+    expect(list({ subjectIds: [] })).toThrow('1 to 40 subjects');
+    expect(list({ minGrade: null })).toThrow('needs a grade');
+    expect(() =>
+      draft().replaceRules([rule({ id: 'a' }), rule({ id: 'b', ruleType: 'declaration', subjectId: null, minGrade: null, evidenceQuote: 'Temu duga' })]),
+    ).toThrow('stands alone');
   });
 });

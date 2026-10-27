@@ -1,7 +1,7 @@
 import type { PublishedRequirement } from '@edulaunch/contracts';
 import { pickRequirement, routesFor } from './entry-route.js';
 
-const req = (entryRoute: string): PublishedRequirement => ({ requirementId: `00000000-0000-4000-8000-${entryRoute.padStart(12, '0').slice(-12).replace(/[^0-9]/g, '0')}`, programId: '00000000-0000-4000-8000-0000000000bb', entryRoute, versionNo: 1, rules: [] });
+const req = (entryRoute: string): PublishedRequirement => ({ requirementId: `00000000-0000-4000-8000-${entryRoute.padStart(12, '0').slice(-12).replace(/[^0-9]/g, '0')}`, programId: '00000000-0000-4000-8000-0000000000bb', entryRoute, versionNo: 1, sourceCategory: null, rules: [] });
 
 describe('routesFor', () => {
   it('maps each level and qualification to its entry route', () => {

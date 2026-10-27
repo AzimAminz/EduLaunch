@@ -4,7 +4,8 @@ Usage: python3 docs/diagrams/scripts/gen_erd.py docs/diagrams/erd
 Edit E (tables), R (relationships) and M (module ownership) below, then re-run
 this script and gen_drawio.py. Roles: student and admin only.
 Technical tables (audit log, AI_CHAT, CONTENT_CHUNK, NOTIFICATION, sessions) exist in the
-database but are left out of this documentation ERD.
+database but are left out of this documentation ERD. Links between services (EPANDUAN_* to PROGRAM, by programme
+code) are logical, without a foreign key: each service owns its own schema.
 """
 import os, sys
 ZW = '\u200b'  # Mermaid needs a token before each attribute; this keeps the column blank
@@ -17,14 +18,17 @@ E = {
  'SUBJECT': [('subject_id','PK'),('subject_name',''),('aliases',''),('category',''),('qualification',''),('is_mandatory','')],
  'ACADEMIC_RECORD': [('record_id','PK'),('student_id','FK'),('diploma_program_id','FK'),('qualification',''),('record_kind',''),('exam_year',''),('cgpa',''),('muet_band',''),('entry_source',''),('document_file',''),('extraction_status',''),('record_status',''),('confirmed_at','')],
  'RECORD_SUBJECT': [('record_id','PK, FK'),('subject_id','PK, FK'),('grade',''),('read_confidence',''),('review_note','')],
- 'INSTITUTION': [('institution_id','PK'),('institution_name',''),('short_name',''),('institution_type',''),('website_url','')],
+ 'INSTITUTION': [('institution_id','PK'),('institution_name',''),('short_name',''),('institution_type',''),('state',''),('website_url',''),('epanduan_code',''),('deletion_requested_by','FK')],
+ 'INSTITUTION_SOURCE': [('source_id','PK'),('institution_id','FK'),('kind',''),('url',''),('label','')],
+ 'NEC_FIELD': [('nec_code','PK'),('field_id','FK'),('nec_name','')],
  'FIELD': [('field_id','PK'),('parent_field_id','FK'),('field_name',''),('riasec_weights','')],
- 'PROGRAM': [('program_id','PK'),('institution_id','FK'),('program_name',''),('study_level',''),('duration_semesters',''),('publish_status','')],
+ 'PROGRAM': [('program_id','PK'),('institution_id','FK'),('nec_code','FK'),('prepared_by','FK'),('approved_by','FK'),('program_name',''),('upu_code',''),('study_level',''),('duration_semesters',''),('study_mode',''),('campus',''),('is_stem / is_tvet',''),('publish_status',''),('pending_changes','')],
+ 'PROGRAM_ENTRY_ROUTE': [('entry_route_id','PK'),('program_id','FK'),('entry_route',''),('source_category','')],
  'PROGRAM_FIELD': [('program_id','PK, FK'),('field_id','PK, FK')],
  'PROGRAM_PATHWAY': [('from_program_id','PK, FK'),('to_program_id','PK, FK'),('condition_text',''),('min_cgpa',''),('source_id','FK')],
  'SAVED_PROGRAM': [('student_id','PK, FK'),('program_id','PK, FK'),('in_comparison',''),('note',''),('saved_at','')],
- 'REQUIREMENT': [('requirement_id','PK'),('program_id','FK'),('source_id','FK'),('approved_by','FK'),('entry_route',''),('version_no',''),('review_status',''),('effective_from','')],
- 'REQUIREMENT_RULE': [('rule_id','PK'),('requirement_id','FK'),('subject_id','FK'),('related_field_id','FK'),('rule_type',''),('min_grade',''),('min_value',''),('evidence_quote','')],
+ 'REQUIREMENT': [('requirement_id','PK'),('program_id','FK'),('source_id','FK'),('prepared_by','FK'),('approved_by','FK'),('entry_route',''),('source_category',''),('source_url',''),('version_no',''),('review_status','')],
+ 'REQUIREMENT_RULE': [('rule_id','PK'),('requirement_id','FK'),('subject_id','FK'),('related_field_id','FK'),('rule_type',''),('part',''),('section',''),('min_grade',''),('min_value',''),('subject_ids',''),('min_count',''),('position',''),('evidence_quote','')],
  'MERIT_FORMULA': [('formula_id','PK'),('approved_by','FK'),('entry_route',''),('academic_weight',''),('cocurricular_weight',''),('version_no',''),('review_status','')],
  'ADMISSION_STAT': [('stat_id','PK'),('program_id','FK'),('source_id','FK'),('intake_year',''),('lowest_merit',''),('average_merit',''),('applicants',''),('places','')],
  'ASSESSMENT': [('assessment_id','PK'),('student_id','FK'),('instrument_version',''),('answers',''),('riasec_scores',''),('completed_at','')],
@@ -35,6 +39,9 @@ E = {
  'ROADMAP_STEP': [('step_id','PK'),('roadmap_id','FK'),('parent_step_id','FK'),('program_id','FK'),('career_id','FK'),('step_type',''),('step_label',''),('step_order','')],
  'CAREER': [('career_id','PK'),('field_id','FK'),('source_id','FK'),('career_title',''),('description',''),('min_study_level',''),('outlook_note','')],
  'DATA_SOURCE': [('source_id','PK'),('institution_id','FK'),('source_url',''),('source_type',''),('content_checksum',''),('last_checked_at',''),('crawl_status','')],
+ 'EPANDUAN_RUN': [('run_id','PK'),('requested_by','FK'),('institution_code',''),('status',''),('current_category',''),('pages_read',''),('found',''),('error',''),('started_at','')],
+ 'EPANDUAN_FOUND': [('run_id','PK, FK'),('code','PK'),('data','')],
+ 'EPANDUAN_REQUIREMENT': [('code','PK'),('category','PK'),('jenprog',''),('status',''),('special_text',''),('read_at','')],
  'SUPPORT_TICKET': [('ticket_id','PK'),('user_id','FK'),('assigned_admin_id','FK'),('program_id','FK'),('category',''),('message',''),('ticket_status','')],
 }
 
@@ -78,6 +85,15 @@ R = [
  ('PROGRAM','|o..o{','STUDENT','chosen stream'),
  ('CAREER','|o..o{','ROADMAP_STEP','career goal'),
  ('INSTITUTION','||--o{','DATA_SOURCE','publishes'),
+ ('INSTITUTION','||--o{','INSTITUTION_SOURCE','lists'),
+ ('FIELD','|o..o{','NEC_FIELD','suggested by'),
+ ('NEC_FIELD','|o..o{','PROGRAM','classifies'),
+ ('PROGRAM','||--o{','PROGRAM_ENTRY_ROUTE','takes'),
+ ('USER','|o..o{','PROGRAM','prepares'),
+ ('USER','|o..o{','EPANDUAN_RUN','starts'),
+ ('EPANDUAN_RUN','||--o{','EPANDUAN_FOUND','finds'),
+ ('PROGRAM','|o..o{','EPANDUAN_FOUND','matched by code'),
+ ('PROGRAM','|o..o{','EPANDUAN_REQUIREMENT','matched by code'),
  ('USER','|o..o{','SUPPORT_TICKET','opens'),
  ('USER','|o..o{','SUPPORT_TICKET','handles'),
  ('PROGRAM','|o..o{','SUPPORT_TICKET','reported in'),
@@ -87,12 +103,12 @@ R = [
 M = [
  ('01-identity-access','Identity & Access',['USER','STUDENT']),
  ('02-academic-profile','Academic Profile',['SUBJECT','ACADEMIC_RECORD','RECORD_SUBJECT']),
- ('03-programme-catalogue','Programme Catalogue',['INSTITUTION','PROGRAM','FIELD','PROGRAM_FIELD','SAVED_PROGRAM','PROGRAM_PATHWAY']),
+ ('03-programme-catalogue','Programme Catalogue',['INSTITUTION','INSTITUTION_SOURCE','PROGRAM','PROGRAM_ENTRY_ROUTE','NEC_FIELD','FIELD','PROGRAM_FIELD','SAVED_PROGRAM','PROGRAM_PATHWAY']),
  ('04-eligibility-prediction','Eligibility & Prediction',['REQUIREMENT','REQUIREMENT_RULE','MERIT_FORMULA','ADMISSION_STAT']),
  ('05-self-discovery','Self Discovery',['ASSESSMENT','ACTIVITY','ACTIVITY_ATTEMPT']),
  ('06-recommendation-ai','Recommendation & AI',['RECOMMENDATION']),
  ('07-study-career-planning','Study & Career Planning',['ROADMAP','ROADMAP_STEP','CAREER']),
- ('08-content-pipeline','Content Pipeline',['DATA_SOURCE']),
+ ('08-content-pipeline','Content Pipeline',['DATA_SOURCE','EPANDUAN_RUN','EPANDUAN_FOUND','EPANDUAN_REQUIREMENT']),
  ('09-notifications-support','Notifications & Support',['SUPPORT_TICKET']),
 ]
 

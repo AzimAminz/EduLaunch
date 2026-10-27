@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { FoundProgramme, InstitutionProgramme } from './api';
-import { acceptable, compareFound, draftFromFound, updateFromFound } from './epanduan-import';
+import { acceptable, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
 
 const found = (over: Partial<FoundProgramme> = {}): FoundProgramme => ({
   code: 'UC6522001',
@@ -46,6 +46,7 @@ const existing = (over: Partial<InstitutionProgramme> = {}): InstitutionProgramm
   sourceUrl: null,
   status: 'published',
   pendingStatus: null,
+  entryRoutes: ['stpm'],
   ...over,
 });
 
@@ -109,5 +110,26 @@ describe('drafts and updates from ePanduan', () => {
     const [row] = compareFound([found({ durationSemesters: 9, studyLevel: undefined } as Partial<FoundProgramme>)], [existing({ durationSemesters: 8 })], NEC).rows;
     const next = updateFromFound(current, row!, NEC_FIELD);
     expect(next).toMatchObject({ durationSemesters: 9, internalCode: 'BELG', faculty: 'FKE', fieldIds: ['field-other'] });
+  });
+});
+
+describe('entry routes from ePanduan', () => {
+  it('marks a programme changed when its routes differ, and keeps one route per category', () => {
+    const many = found({
+      routes: ['stpm', 'matrikulasi'],
+      categories: [
+        { jenprog: 'stpm', category: 'S', route: 'stpm', generalRequirements: null },
+        { jenprog: 'stpm', category: 'N', route: 'matrikulasi', generalRequirements: null },
+        { jenprog: 'stpm', category: 'T', route: null, generalRequirements: null },
+      ],
+    });
+    const [row] = compareFound([many], [existing({ entryRoutes: ['stpm'] })], NEC).rows;
+    expect(row).toMatchObject({ status: 'changed', changes: ['entryRoutes'] });
+    expect(onlyRoutesChanged(row!)).toBe(true);
+    expect(entryRoutesFromFound(many)).toEqual([
+      { entryRoute: 'stpm', sourceCategory: 'stpm:S' },
+      { entryRoute: 'matrikulasi', sourceCategory: 'stpm:N' },
+    ]);
+    expect(compareFound([many], [existing({ entryRoutes: ['matrikulasi', 'stpm'] })], NEC).rows[0]!.status).toBe('same');
   });
 });

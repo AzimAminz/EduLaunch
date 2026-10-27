@@ -73,7 +73,7 @@ def full_layout():
     import random, math
     random.seed(11)
     names = list(E)
-    COLS, ROWS = 6, 5
+    COLS, ROWS = 6, 6
     PX, PY = TW + 150, 430
     hgt = {n: HH + RH * len(E[n]) for n in names}
     cells = [(c, r) for r in range(ROWS) for c in range(COLS)]
@@ -121,6 +121,8 @@ def full_layout():
         'RECORD_SUBJECT': (1, 2), 'PROGRAM': (2, 2), 'ROADMAP_STEP': (3, 2), 'REQUIREMENT': (4, 2), 'ADMISSION_STAT': (5, 2),
         'FIELD': (0, 3), 'SUBJECT': (1, 3), 'PROGRAM_FIELD': (2, 3), 'INSTITUTION': (3, 3), 'REQUIREMENT_RULE': (4, 3), 'DATA_SOURCE': (5, 3),
         'CAREER': (0, 4), 'PROGRAM_PATHWAY': (2, 4),
+        'NEC_FIELD': (1, 4), 'INSTITUTION_SOURCE': (3, 4), 'EPANDUAN_REQUIREMENT': (4, 4), 'EPANDUAN_RUN': (5, 4),
+        'PROGRAM_ENTRY_ROUTE': (1, 5), 'EPANDUAN_FOUND': (5, 5),
     }
     best = None
     for restart in range(3):

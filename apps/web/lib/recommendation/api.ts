@@ -4,11 +4,13 @@ import { z } from 'zod';
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://127.0.0.1:4000';
 
 const RuleDetail = z.object({
-  type: z.enum(['min_grade', 'key_subject', 'min_credits', 'min_cgpa', 'min_muet']),
+  type: z.enum(['min_grade', 'key_subject', 'min_credits', 'min_cgpa', 'min_muet', 'subjects_from_list']),
   subjectId: z.string().nullable(),
   required: z.union([z.string(), z.number()]).nullable(),
   actual: z.union([z.string(), z.number()]).nullable(),
   passed: z.boolean(),
+  minGrade: z.string().nullable().optional(),
+  subjectIds: z.array(z.string()).optional(),
 });
 export type RuleDetail = z.infer<typeof RuleDetail>;
 
@@ -19,7 +21,15 @@ export const EligibilityAnswer = z.discriminatedUnion('state', [
   z.object({ state: z.literal('no_requirement') }),
   z.object({ state: z.literal('no_route'), routes: z.array(z.string()) }),
   z.object({ state: z.literal('no_results'), entryRoute: z.string() }),
-  z.object({ state: z.literal('checked'), entryRoute: z.string(), status: z.enum(['eligible', 'almost', 'not_yet']), isTargetBased: z.boolean(), groups: z.array(Group) }),
+  z.object({
+    state: z.literal('checked'),
+    entryRoute: z.string(),
+    status: z.enum(['eligible', 'almost', 'not_yet']),
+    isTargetBased: z.boolean(),
+    groups: z.array(Group),
+    /** Conditions the student confirms or the university checks (interview, citizenship, health). */
+    toConfirm: z.array(z.string()).default([]),
+  }),
 ]);
 export type EligibilityAnswer = z.infer<typeof EligibilityAnswer>;
 

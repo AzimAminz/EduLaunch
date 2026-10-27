@@ -12,8 +12,9 @@ const names = new Map([
 ]);
 const show = (answer: EligibilityAnswer) => render(<EligibilityResult locale="ms" answer={answer} subjectNames={names} t={ms.eligibility} routeNames={ms.requirements.routes} />);
 
-const checked: EligibilityAnswer = {
+const checked: Extract<EligibilityAnswer, { state: 'checked' }> = {
   state: 'checked',
+  toConfirm: [],
   entryRoute: 'spm',
   status: 'almost',
   isTargetBased: true,

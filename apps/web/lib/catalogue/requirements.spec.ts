@@ -18,6 +18,11 @@ const rule = (over: Partial<RequirementRuleDto>): RequirementRuleDto => ({
   minGrade: null,
   minValue: null,
   evidenceQuote: '[Contoh] petikan',
+  part: 'special',
+  section: null,
+  subjectIds: [],
+  minCount: null,
+  position: 0,
   ...over,
 });
 const req = (rules: RequirementRuleDto[], entryRoute = 'spm'): PublishedRequirement => ({
@@ -25,6 +30,7 @@ const req = (rules: RequirementRuleDto[], entryRoute = 'spm'): PublishedRequirem
   programId: '00000000-0000-4000-8000-0000000000bb',
   entryRoute,
   versionNo: 1,
+  sourceCategory: null,
   rules,
 });
 

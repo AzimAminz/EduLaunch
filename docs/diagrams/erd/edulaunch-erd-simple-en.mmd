@@ -53,7 +53,22 @@ erDiagram
         ​ institution_name
         ​ short_name
         ​ institution_type
+        ​ state
         ​ website_url
+        ​ epanduan_code
+        ​FK deletion_requested_by
+    }
+    INSTITUTION_SOURCE {
+        ​PK source_id
+        ​FK institution_id
+        ​ kind
+        ​ url
+        ​ label
+    }
+    NEC_FIELD {
+        ​PK nec_code
+        ​FK field_id
+        ​ nec_name
     }
     FIELD {
         ​PK field_id
@@ -64,10 +79,24 @@ erDiagram
     PROGRAM {
         ​PK program_id
         ​FK institution_id
+        ​FK nec_code
+        ​FK prepared_by
+        ​FK approved_by
         ​ program_name
+        ​ upu_code
         ​ study_level
         ​ duration_semesters
+        ​ study_mode
+        ​ campus
+        ​ is_stem / is_tvet
         ​ publish_status
+        ​ pending_changes
+    }
+    PROGRAM_ENTRY_ROUTE {
+        ​PK entry_route_id
+        ​FK program_id
+        ​ entry_route
+        ​ source_category
     }
     PROGRAM_FIELD {
         ​PK,FK program_id
@@ -91,11 +120,13 @@ erDiagram
         ​PK requirement_id
         ​FK program_id
         ​FK source_id
+        ​FK prepared_by
         ​FK approved_by
         ​ entry_route
+        ​ source_category
+        ​ source_url
         ​ version_no
         ​ review_status
-        ​ effective_from
     }
     REQUIREMENT_RULE {
         ​PK rule_id
@@ -103,8 +134,13 @@ erDiagram
         ​FK subject_id
         ​FK related_field_id
         ​ rule_type
+        ​ part
+        ​ section
         ​ min_grade
         ​ min_value
+        ​ subject_ids
+        ​ min_count
+        ​ position
         ​ evidence_quote
     }
     MERIT_FORMULA {
@@ -193,6 +229,30 @@ erDiagram
         ​ last_checked_at
         ​ crawl_status
     }
+    EPANDUAN_RUN {
+        ​PK run_id
+        ​FK requested_by
+        ​ institution_code
+        ​ status
+        ​ current_category
+        ​ pages_read
+        ​ found
+        ​ error
+        ​ started_at
+    }
+    EPANDUAN_FOUND {
+        ​PK,FK run_id
+        ​PK code
+        ​ data
+    }
+    EPANDUAN_REQUIREMENT {
+        ​PK code
+        ​PK category
+        ​ jenprog
+        ​ status
+        ​ special_text
+        ​ read_at
+    }
     SUPPORT_TICKET {
         ​PK ticket_id
         ​FK user_id
@@ -241,6 +301,15 @@ erDiagram
     PROGRAM |o..o{ STUDENT : "chosen stream"
     CAREER |o..o{ ROADMAP_STEP : "career goal"
     INSTITUTION ||--o{ DATA_SOURCE : "publishes"
+    INSTITUTION ||--o{ INSTITUTION_SOURCE : "lists"
+    FIELD |o..o{ NEC_FIELD : "suggested by"
+    NEC_FIELD |o..o{ PROGRAM : "classifies"
+    PROGRAM ||--o{ PROGRAM_ENTRY_ROUTE : "takes"
+    USER |o..o{ PROGRAM : "prepares"
+    USER |o..o{ EPANDUAN_RUN : "starts"
+    EPANDUAN_RUN ||--o{ EPANDUAN_FOUND : "finds"
+    PROGRAM |o..o{ EPANDUAN_FOUND : "matched by code"
+    PROGRAM |o..o{ EPANDUAN_REQUIREMENT : "matched by code"
     USER |o..o{ SUPPORT_TICKET : "opens"
     USER |o..o{ SUPPORT_TICKET : "handles"
     PROGRAM |o..o{ SUPPORT_TICKET : "reported in"

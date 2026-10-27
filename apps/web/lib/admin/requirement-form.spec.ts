@@ -1,58 +1,62 @@
 import { describe, expect, it } from 'vitest';
-import { checkGroups, gradesFor, groupsFromRules, newRule, subjectQualificationsFor, type EditorGroup } from './requirement-form';
+import { checkLines, gradesFor, linesFromRules, newLine, subjectQualificationsFor } from './requirement-form';
 
-const MATH = '00000000-0000-4000-8000-000000000001';
-const PHYS = '00000000-0000-4000-8000-000000000002';
-
-describe('groupsFromRules', () => {
-  it('turns stored rules into lines in group order, alternatives together, key subjects as grade rules', () => {
-    const groups = groupsFromRules([
-      { groupNo: 2, ruleType: 'key_subject', subjectId: PHYS, minGrade: 'C', minValue: null, evidenceQuote: 'C dalam Fizik atau Matematik' },
-      { groupNo: 1, ruleType: 'min_cgpa', subjectId: null, minGrade: null, minValue: 2.75, evidenceQuote: 'PNGK 2.75' },
-      { groupNo: 2, ruleType: 'min_grade', subjectId: MATH, minGrade: 'C', minValue: null, evidenceQuote: null },
+describe('linesFromRules', () => {
+  it('puts Syarat Am first, keeps sections, and turns a shared group into lines joined by ATAU', () => {
+    const lines = linesFromRules([
+      { groupNo: 3, ruleType: 'min_grade', subjectId: 'phy', minGrade: 'C', minValue: null, evidenceQuote: 'Fizik atau Sains', part: 'special', position: 0 },
+      { groupNo: 3, ruleType: 'key_subject', subjectId: 'sci', minGrade: 'C', minValue: null, evidenceQuote: 'Fizik atau Sains', part: 'special', position: 1 },
+      { groupNo: 1, ruleType: 'note', subjectId: null, minGrade: null, minValue: null, evidenceQuote: 'Memiliki SPM:-', part: 'general', section: 'SPM' },
+      { groupNo: 2, ruleType: 'subjects_from_list', subjectId: null, minGrade: 'C', minValue: null, evidenceQuote: 'Gred C dalam DUA (2)', part: 'special', subjectIds: ['a', 'b', 'c'], minCount: 2 },
     ]);
-    expect(groups).toEqual([
-      { quote: 'PNGK 2.75', rules: [{ type: 'min_cgpa', subjectId: null, grade: null, value: '2.75' }] },
-      {
-        quote: 'C dalam Fizik atau Matematik',
-        rules: [
-          { type: 'min_grade', subjectId: PHYS, grade: 'C', value: '' },
-          { type: 'min_grade', subjectId: MATH, grade: 'C', value: '' },
-        ],
-      },
+    expect(lines.map((l) => [l.part, l.type, l.join])).toEqual([
+      ['general', 'note', 'and'],
+      ['special', 'subjects_from_list', 'and'],
+      ['special', 'min_grade', 'and'],
+      ['special', 'min_grade', 'or'],
     ]);
+    expect(lines[0]!.section).toBe('SPM');
+    expect(lines[1]).toMatchObject({ subjectIds: ['a', 'b', 'c'], count: '2', grade: 'C' });
   });
 });
 
-describe('checkGroups', () => {
-  it('numbers the lines from 1 and copies each line source sentence to its rules', () => {
-    const groups: EditorGroup[] = [
-      { quote: ' Kepujian dalam lima subjek ', rules: [{ type: 'min_credits', subjectId: null, grade: 'C', value: '5' }] },
-      { quote: 'B dalam Matematik', rules: [{ type: 'min_grade', subjectId: MATH, grade: 'B', value: '' }] },
-      { quote: 'PNGK sekurang-kurangnya 2,75', rules: [{ type: 'min_cgpa', subjectId: MATH, grade: 'A', value: '2,75' }] },
-    ];
-    const { rules, problems } = checkGroups(groups);
-    expect(problems).toEqual([]);
-    expect(rules).toEqual([
-      { groupNo: 1, ruleType: 'min_credits', subjectId: null, minGrade: 'C', minValue: 5, evidenceQuote: 'Kepujian dalam lima subjek' },
-      { groupNo: 2, ruleType: 'min_grade', subjectId: MATH, minGrade: 'B', minValue: null, evidenceQuote: 'B dalam Matematik' },
-      // Leftovers from another rule type are dropped; a comma works as the decimal point.
-      { groupNo: 3, ruleType: 'min_cgpa', subjectId: null, minGrade: null, minValue: 2.75, evidenceQuote: 'PNGK sekurang-kurangnya 2,75' },
+describe('checkLines', () => {
+  it('numbers groups across both parts, joins ATAU lines into one group, and keeps notes on their own', () => {
+    const { rules, problems } = checkLines([
+      newLine('special', { type: 'min_grade', subjectId: 'bm', grade: 'C', text: 'Gred C BM' }),
+      newLine('general', { type: 'note', text: 'Memiliki SPM:-', section: 'SPM' }),
+      newLine('special', { type: 'min_grade', subjectId: 'phy', grade: 'C', text: 'Fizik', join: 'or' }),
+      newLine('special', { type: 'declaration', text: 'Lulus temu duga', join: 'or' }),
+      newLine('special', { type: 'subjects_from_list', subjectIds: ['a', 'b', 'c'], grade: 'C', count: '2', text: 'Gred C dalam DUA (2)' }),
     ]);
+    expect(problems).toEqual([]);
+    expect(rules.map((r) => [r.part, r.groupNo, r.ruleType, r.position])).toEqual([
+      ['general', 1, 'note', 0],
+      ['special', 2, 'min_grade', 1],
+      ['special', 2, 'min_grade', 2],
+      ['special', 3, 'declaration', 3],
+      ['special', 4, 'subjects_from_list', 4],
+    ]);
+    expect(rules[0]!.section).toBe('SPM');
+    expect(rules[4]).toMatchObject({ subjectIds: ['a', 'b', 'c'], minCount: 2, minGrade: 'C', minValue: null });
   });
 
-  it('reports each missing or out-of-range part by line and rule', () => {
-    const { problems } = checkGroups([
-      { quote: 'abc', rules: [newRule('min_grade')] },
-      { quote: 'Sumber yang sah', rules: [{ ...newRule('min_cgpa'), value: '4.5' }, { ...newRule('min_muet'), value: '0' }, { ...newRule('min_credits'), value: '2.5' }] },
+  it('reports each missing or out-of-range value by line', () => {
+    const { problems } = checkLines([
+      newLine('special', { type: 'min_grade', text: '' }),
+      newLine('special', { type: 'subjects_from_list', subjectIds: ['a'], grade: 'C', count: '3', text: 'Senarai' }),
+      newLine('special', { type: 'min_cgpa', value: '5', text: 'PNGK' }),
+      newLine('special', { type: 'min_muet', value: '0.5', text: 'MUET' }),
+      newLine('special', { type: 'min_credits', value: '2.5', text: 'Kredit' }),
     ]);
     expect(problems).toEqual([
-      { group: 0, rule: -1, problem: 'quoteRequired' },
-      { group: 0, rule: 0, problem: 'subjectRequired' },
-      { group: 0, rule: 0, problem: 'gradeRequired' },
-      { group: 1, rule: 0, problem: 'cgpaRange' },
-      { group: 1, rule: 1, problem: 'muetRange' },
-      { group: 1, rule: 2, problem: 'creditsRange' },
+      { line: 0, problem: 'textRequired' },
+      { line: 0, problem: 'subjectRequired' },
+      { line: 0, problem: 'gradeRequired' },
+      { line: 1, problem: 'countRange' },
+      { line: 2, problem: 'cgpaRange' },
+      { line: 3, problem: 'muetRange' },
+      { line: 4, problem: 'creditsRange' },
     ]);
   });
 });

@@ -12,11 +12,14 @@ export class SearchProgrammes implements UseCase<SearchProgrammesInput, Page<Pro
 
   async execute({ includeDrafts, ...criteria }: SearchProgrammesInput): Promise<Page<ProgramSummary>> {
     const page = await this.programs.search({ ...criteria, onlyPublished: !includeDrafts });
-    return { ...page, items: page.items.map((p) => toSummary(p)) };
+    const facts = await this.programs.admissionFacts(page.items.map((p) => p.id));
+    return { ...page, items: page.items.map((p) => toSummary(p, facts.get(p.id))) };
   }
 }
 
-export function toSummary(program: Program): ProgramSummary {
+type AdmissionFacts = Pick<ProgramSummary, 'entryRoutes' | 'averageMerit'>;
+
+export function toSummary(program: Program, facts?: AdmissionFacts): ProgramSummary {
   const s = program.toSnapshot();
   return {
     id: s.id,
@@ -25,5 +28,7 @@ export function toSummary(program: Program): ProgramSummary {
     studyLevel: s.studyLevel,
     durationSemesters: s.durationSemesters,
     fieldIds: s.fieldIds,
+    entryRoutes: facts?.entryRoutes ?? [],
+    averageMerit: facts?.averageMerit ?? null,
   };
 }

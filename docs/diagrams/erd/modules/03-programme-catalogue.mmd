@@ -4,15 +4,44 @@ erDiagram
         ​ institution_name
         ​ short_name
         ​ institution_type
+        ​ state
         ​ website_url
+        ​ epanduan_code
+        ​FK deletion_requested_by
+    }
+    INSTITUTION_SOURCE {
+        ​PK source_id
+        ​FK institution_id
+        ​ kind
+        ​ url
+        ​ label
     }
     PROGRAM {
         ​PK program_id
         ​FK institution_id
+        ​FK nec_code
+        ​FK prepared_by
+        ​FK approved_by
         ​ program_name
+        ​ upu_code
         ​ study_level
         ​ duration_semesters
+        ​ study_mode
+        ​ campus
+        ​ is_stem / is_tvet
         ​ publish_status
+        ​ pending_changes
+    }
+    PROGRAM_ENTRY_ROUTE {
+        ​PK entry_route_id
+        ​FK program_id
+        ​ entry_route
+        ​ source_category
+    }
+    NEC_FIELD {
+        ​PK nec_code
+        ​FK field_id
+        ​ nec_name
     }
     FIELD {
         ​PK field_id
@@ -44,6 +73,9 @@ erDiagram
     STUDENT {
         ​PK student_id
     }
+    USER {
+        ​PK user_id
+    }
 
     INSTITUTION ||--o{ PROGRAM : "offers"
     PROGRAM ||--|{ PROGRAM_FIELD : "belongs to"
@@ -54,3 +86,8 @@ erDiagram
     DATA_SOURCE |o..o{ PROGRAM_PATHWAY : "source of"
     STUDENT ||--o{ SAVED_PROGRAM : "saves"
     PROGRAM ||--o{ SAVED_PROGRAM : "saved by"
+    INSTITUTION ||--o{ INSTITUTION_SOURCE : "lists"
+    FIELD |o..o{ NEC_FIELD : "suggested by"
+    NEC_FIELD |o..o{ PROGRAM : "classifies"
+    PROGRAM ||--o{ PROGRAM_ENTRY_ROUTE : "takes"
+    USER |o..o{ PROGRAM : "prepares"

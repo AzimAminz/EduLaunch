@@ -74,6 +74,20 @@ export function EligibilityResult({ locale, answer, subjectNames, t, routeNames 
               </li>
             ))}
           </ul>
+          {answer.toConfirm.length > 0 && (
+            <div className="flex flex-col gap-1.5 rounded-[12px] border border-[#e0a800]/50 bg-cream px-4 py-3 text-sm">
+              <p className="font-semibold">{t.toConfirm}</p>
+              <ul className="flex flex-col gap-1">
+                {answer.toConfirm.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span aria-hidden>•</span>
+                    <span>{item.replace('[Contoh]', '').trim()}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[12px] text-muted">{t.toConfirmNote}</p>
+            </div>
+          )}
           {answer.status !== 'eligible' && resultsLink(t.updateResults)}
         </>
       )}

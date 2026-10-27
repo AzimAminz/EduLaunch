@@ -6,8 +6,8 @@ import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '../i18n/locale';
 import { getAccount, getAccessToken } from '../supabase/server';
 import * as api from './api';
-import { acceptable, compareFound, draftFromFound, updateFromFound } from './epanduan-import';
-import { checkGroups, EditorState, type CheckedState } from './requirement-form';
+import { acceptable, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
+import { checkLines, EditorState, type CheckedLines } from './requirement-form';
 
 /** Error keys shown from `dict.admin.errors` (or a form's own `errors`). */
 export type AdminErrorKey =
@@ -37,7 +37,7 @@ export interface AdminFormState {
   /** Field problems, by field name, as keys of the form's own `errors`. */
   fieldErrors?: Record<string, string>;
   /** Requirement editor: problems by line and rule. */
-  problems?: CheckedState['problems'];
+  problems?: CheckedLines['problems'];
   /** Institution delete: whether it was requested (waiting for another admin) or cancelled. */
   status?: 'requested' | 'cancelled';
   /** ePanduan import: how many found programmes became drafts or changes, and how many could not be saved. */
@@ -296,7 +296,7 @@ export async function saveRequirement(_prev: AdminFormState, form: FormData): Pr
     return { error: 'generic' };
   }
   const submit = text(form, 'intent') === 'submit';
-  const { rules, problems } = checkGroups(state.groups);
+  const { rules, problems } = checkLines(state.lines.map((l, i) => ({ ...l, key: String(i) })));
   if (problems.length) return { problems };
   if (submit && rules.length === 0) return { error: 'noRules' };
   const sourceUrl = state.sourceUrl.trim() || null;
@@ -306,7 +306,7 @@ export async function saveRequirement(_prev: AdminFormState, form: FormData): Pr
   const id = text(form, 'id');
   const token = await adminToken(locale);
   try {
-    await api.saveRequirementDraft(token, id, { sourceUrl, rules });
+    await api.saveRequirementDraft(token, id, { sourceUrl, sourceCategory: state.sourceCategory, rules });
     if (submit) await api.reviewRequirement(token, id, { action: 'submit' });
   } catch (err) {
     return { error: errorKey(err) };
@@ -400,6 +400,9 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
       if (row.status === 'new') {
         ({ id } = await api.createProgramme(token, { ...draftFromFound(row.found, necField), institutionId }));
         imported.created += 1;
+      } else if (onlyRoutesChanged(row)) {
+        id = row.existing!.id;
+        imported.updated += 1;
       } else {
         const detail = await api.getProgrammeDetail(token, row.existing!.id);
         const base = detail.pendingChanges ?? detail;
@@ -414,6 +417,8 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
         imported.updated += 1;
       }
       if (row.found.merit !== null && row.found.year) await api.recordAverageMerit(token, id, { intakeYear: row.found.year, averageMerit: row.found.merit });
+      const routes = entryRoutesFromFound(row.found);
+      if (routes.length) await api.setEntryRoutes(token, id, routes);
       accepted.push(row.found.code);
     } catch {
       imported.failed += 1;

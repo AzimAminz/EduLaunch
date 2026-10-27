@@ -112,7 +112,10 @@
       "skm": "Lepasan SKM",
       "dvm": "Lepasan DVM",
       "dkm": "Lepasan DKM / DLKM"
-    }
+    },
+    "fromList": "Mana-mana {count} subjek",
+    "fromListDetail": "Sekurang-kurangnya gred {grade} dalam {count} daripada: {subjects}",
+    "toConfirm": "Perlu disahkan"
   },
   "soon": {
     "title": "Sedang dibina",
@@ -522,7 +525,11 @@
         "done": {
           "draft": "Draf syarat disimpan. Anda boleh sambung bila-bila masa dengan \"Buka draf\".",
           "sent": "Syarat dihantar untuk semakan. Admin lain akan nampak dalam Peti tugasan mereka."
-        }
+        },
+        "start": "Mula syarat",
+        "fromCategory": "Ditulis daripada kategori ePanduan: {category}",
+        "noLines": "Draf ini belum ada baris. Buka draf dan isi dari ePanduan.",
+        "notStarted": "Belum ada syarat untuk laluan ini. Tekan \"Mula syarat\", kemudian isi dari ePanduan."
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
@@ -589,7 +596,8 @@
         "none": "—",
         "duration": "{n} semester (± {years} tahun)"
       },
-      "flags": "Ciri kemasukan"
+      "flags": "Ciri kemasukan",
+      "entryRoutes": "Laluan masuk"
     },
     "institutions": {
       "title": "Institusi",
@@ -776,7 +784,8 @@
           "hasInterview": "temu duga",
           "isStem": "STEM",
           "isTvet": "TVET",
-          "bumiputeraOnly": "Bumiputera"
+          "bumiputeraOnly": "Bumiputera",
+          "entryRoutes": "laluan masuk"
         },
         "problems": {
           "no_level": "Peringkat tidak dikenali; tambah secara manual",
@@ -912,7 +921,10 @@
         "cgpaRange": "PNGK ialah nombor antara 0.00 dan 4.00.",
         "muetRange": "Band MUET antara 1 dan 6.",
         "creditsRange": "Bilangan kepujian ialah nombor bulat 1 hingga 20.",
-        "quoteRequired": "Tampal ayat sumber (sekurang-kurangnya 5 aksara)."
+        "quoteRequired": "Tampal ayat sumber (sekurang-kurangnya 5 aksara).",
+        "subjectsRequired": "Pilih sekurang-kurangnya satu subjek untuk senarai.",
+        "countRange": "Bilangan subjek mesti antara 1 dan jumlah subjek dalam senarai.",
+        "textRequired": "Isi ayat rasmi."
       },
       "problemsSummary": "Betulkan {count} perkara yang ditanda merah.",
       "preview": {
@@ -958,7 +970,79 @@
         "reasonLabel": "Apa yang perlu dibetulkan atau ditanya?",
         "reasonPlaceholder": "cth. Prospektus 2027 menyebut gred B, bukan C, untuk Matematik.",
         "send": "Pulangkan",
-        "cancel": "Batal"
+        "cancel": "Batal",
+        "lines": "Syarat dalam versi ini"
+      },
+      "and": "DAN",
+      "lineTitle": "Syarat {n}",
+      "chip": {
+        "grade": "{subject} ≥ {grade}",
+        "credits": "{n} kepujian gred {grade}",
+        "cgpa": "PNGK ≥ {value}",
+        "muet": "MUET ≥ Band {value}"
+      },
+      "suggest": {
+        "title": "Sumber ePanduan",
+        "intro": "Syarat seperti yang tertulis di ePanduan bagi laluan ini. Tekan Tambah untuk menjadikan satu baris sebagai syarat, berserta ayat bukti dan pautan sumber. Semak setiap satu sebelum disimpan.",
+        "add": "Tambah",
+        "added": "Ditambah",
+        "manual": "Tulis sendiri",
+        "n_of_list": "\"N subjek daripada senarai\" belum boleh ditulis sebagai satu syarat; ia akan disokong dalam model syarat baharu (Step 10). Tulis subjek yang paling penting sebagai syarat buat masa ini.",
+        "subject": "Subjek dalam ayat ini tiada dalam senarai subjek EduLaunch. Tambah syarat ini secara manual."
+      },
+      "parts": {
+        "general": "Syarat Am",
+        "special": "Syarat Khas",
+        "generalHint": "Syarat umum universiti untuk laluan ini (contohnya SPM, STPM, MUET).",
+        "specialHint": "Syarat khusus program ini (subjek, gred, PNGK, temu duga).",
+        "empty": "Belum ada baris. Isi dari ePanduan atau tambah baris.",
+        "none": "Tiada."
+      },
+      "fill": {
+        "button": "Isi dari ePanduan",
+        "fromCategory": "Isi dari ePanduan: {category}",
+        "replaceConfirm": "Gantikan {count} baris yang ada dengan syarat dari ePanduan?",
+        "replaceYes": "Ya, gantikan"
+      },
+      "join": {
+        "and": "DAN",
+        "or": "ATAU",
+        "toggle": "Tekan untuk tukar DAN / ATAU",
+        "alone": "Nota dan perakuan sentiasa berdiri sendiri (DAN)"
+      },
+      "line": {
+        "add": "Tambah baris",
+        "edit": "Sunting baris",
+        "done": "Selesai",
+        "up": "Naikkan",
+        "down": "Turunkan",
+        "remove": "Padam baris",
+        "noText": "(tiada ayat rasmi)",
+        "count": "Berapa subjek",
+        "credits": "Bilangan kepujian",
+        "band": "Band MUET",
+        "subjects": "Subjek dalam senarai",
+        "addSubject": "Tambah subjek ke senarai",
+        "section": "Tajuk bahagian",
+        "sectionPlaceholder": "Contoh: SPM, STPM, MUET",
+        "text": "Ayat rasmi (bukti)",
+        "textOnly": "Ayat rasmi"
+      },
+      "kinds": {
+        "min_grade": "Gred satu subjek",
+        "subjects_from_list": "Gred dalam N subjek daripada senarai",
+        "min_credits": "Kepujian dalam mana-mana subjek",
+        "min_cgpa": "PNGK minimum",
+        "min_muet": "MUET minimum",
+        "declaration": "Perakuan (pelajar sahkan sendiri)",
+        "note": "Nota (tidak disemak)"
+      },
+      "summaryOf": {
+        "grade": "{subject} ≥ {grade}",
+        "list": "{count} daripada [{subjects}] ≥ {grade}",
+        "credits": "{n} kepujian gred {grade}",
+        "cgpa": "PNGK ≥ {value}",
+        "muet": "MUET ≥ Band {value}"
       }
     },
     "errors": {
@@ -1293,6 +1377,9 @@
     "updateResults": "Kemas kini keputusan",
     "disclaimer": "Semakan ini panduan sahaja. Keputusan kemasukan ditentukan oleh institusi.",
     "loadError": "Kelayakan tidak dapat disemak buat sementara. Cuba lagi sebentar lagi.",
-    "checking": "Menyemak kelayakan anda…"
+    "checking": "Menyemak kelayakan anda…",
+    "fromList": "Gred {grade} dalam {required} subjek daripada: {subjects} (anda ada {actual})",
+    "toConfirm": "Perlu disahkan sendiri",
+    "toConfirmNote": "Sistem tidak dapat menyemak perkara ini daripada keputusan anda. Pastikan anda memenuhinya sebelum memohon."
   }
 }

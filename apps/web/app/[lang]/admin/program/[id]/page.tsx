@@ -4,15 +4,16 @@ import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
 import { EntryRoutes, EntryRoutesByLevel } from '@edulaunch/contracts';
-import { FoundDetails } from '@/components/admin/epanduan-details';
+import { FoundDetailsBody } from '@/components/admin/epanduan-details';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
+import { RequirementLinesView } from '@/components/admin/requirement-lines-view';
 import { RouteStarter, StartRequirement } from '@/components/admin/start-requirement';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, EmptyState, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
-import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
+import { AdminApiError, getProgrammeDetail, getRequirementDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
 import { programmeWorkflow } from '@/lib/admin/programme-workflow';
-import { fieldName, getReferenceData } from '@/lib/catalogue/api';
+import { fieldName, getReferenceData, localName } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
@@ -115,6 +116,16 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
             <span>{[programme.institutionName, dict.levels[programme.studyLevel], programme.upuCode].filter(Boolean).join(' · ')}</span>
             <StatusChip status={programme.status} t={t} />
             {programme.pendingStatus && <span className="rounded-full bg-yellow px-2.5 py-1 text-xs font-semibold">{t.programmes.changeBadge}</span>}
+            {programme.entryRoutes.length > 0 && (
+              <span className="flex w-full flex-wrap items-center gap-1 text-[13px]">
+                <span className="text-muted">{t.programme.entryRoutes}:</span>
+                {programme.entryRoutes.map((r) => (
+                  <span key={r} className="rounded-full bg-blue px-2 py-0.5 text-xs font-semibold text-navy">
+                    {(dict.requirements.routes as Record<string, string>)[r] ?? r}
+                  </span>
+                ))}
+              </span>
+            )}
           </span>
         }
       />
@@ -163,7 +174,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         </>
       ) : (
         <>
-          <Requirements locale={locale} dict={dict} programme={programme} me={me} />
+          <Requirements locale={locale} dict={dict} programme={programme} me={me} chosen={typeof sp.laluan === 'string' ? sp.laluan : undefined} />
           {programme.upuCode && (
             <Suspense fallback={null}>
               <EpanduanReference code={programme.upuCode} dict={dict} />
@@ -175,16 +186,43 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
   );
 }
 
-function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string }) {
+/**
+ * Entry requirements by route, laid out like the ePanduan reference: a tab per route (the routes the programme
+ * takes from its source, and any with requirements), then for the chosen route its status, the next action, and
+ * the lines as Syarat Am and Syarat Khas.
+ */
+async function Requirements({ locale, dict, programme, me, chosen }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string; chosen: string | undefined }) {
   const t = dict.admin;
   const r = t.programme.requirements;
   const routes: Record<string, string> = dict.requirements.routes;
-  const used = [...new Set(programme.requirements.map((v) => v.entryRoute))];
+  const withVersions = [...new Set(programme.requirements.map((v) => v.entryRoute))];
+  const shown = [...new Set([...programme.entryRoutes, ...withVersions])].filter((x) => (EntryRoutes as readonly string[]).includes(x));
+  const route = shown.find((x) => x === chosen) ?? shown[0];
   const suggested = EntryRoutesByLevel[programme.studyLevel] as readonly string[];
-  // Routes not used yet: the usual ones for this level first, marked as such.
-  const unused = [...suggested, ...EntryRoutes.filter((x) => !suggested.includes(x))]
-    .filter((x) => !used.includes(x))
+  // Routes not shown yet: the usual ones for this level first, marked as such.
+  const others = [...suggested, ...EntryRoutes.filter((x) => !suggested.includes(x))]
+    .filter((x) => !shown.includes(x))
     .map((x) => ({ value: x, label: suggested.includes(x) ? `${routes[x] ?? x} ${r.suggestedSuffix}` : (routes[x] ?? x) }));
+  const base = `/${locale}/admin/program/${programme.id}?tab=syarat`;
+
+  const versions = programme.requirements.filter((v) => v.entryRoute === route);
+  const published = versions.find((v) => v.status === 'published');
+  const open = versions.find((v) => OPEN.has(v.status));
+  const older = versions.filter((v) => v !== published && v !== open);
+  // The lines shown: the draft being worked on, else the published version.
+  const showing = open ?? published;
+  let detail = null;
+  let subjectNames = new Map<string, string>();
+  if (showing) {
+    try {
+      const token = (await getAccessToken())!;
+      const [d, reference] = await Promise.all([getRequirementDetail(token, showing.id), getReferenceData()]);
+      detail = d;
+      subjectNames = new Map(reference.subjects.map((s) => [s.id, localName(s, locale)]));
+    } catch {
+      detail = null;
+    }
+  }
 
   return (
     <Card>
@@ -192,52 +230,74 @@ function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: D
         <h2 className="text-lg font-semibold">{r.title}</h2>
         <p className="text-sm text-muted">{r.intro}</p>
       </div>
-      {used.length === 0 ? (
+      {shown.length === 0 ? (
         <EmptyState icon="listChecks" text={r.empty} />
       ) : (
-        <ul className="flex flex-col gap-3">
-          {used.map((route) => {
-            const versions = programme.requirements.filter((v) => v.entryRoute === route);
-            const published = versions.find((v) => v.status === 'published');
-            const open = versions.find((v) => OPEN.has(v.status));
-            const older = versions.filter((v) => v !== published && v !== open);
-            return (
-              <li key={route} className="flex flex-col gap-2 rounded-[14px] border border-line p-4 transition-colors duration-150 hover:border-navy/30">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <p className="font-semibold">{routes[route] ?? route}</p>
-                    <p className={`inline-flex items-center gap-1.5 text-[13px] ${published ? 'text-[#1f6b47]' : 'text-[#b33a35]'}`}>
-                      <AdminIcon name={published ? 'checkCircle' : 'alert'} size={14} />
-                      {published ? format(r.published, { version: published.versionNo }) : r.none}
-                    </p>
-                    {open && <p className="text-[13px]">{format(r.draftBy, { status: t.status[open.status], version: open.versionNo, who: who(open.preparedBy, me, t) })}</p>}
-                  </div>
-                  <div className="flex flex-wrap items-start gap-2">
-                    {published && (
-                      <Link href={`/${locale}/admin/syarat/${published.id}`} className={buttonClass('ghost', 'sm')}>
-                        <IconText icon="eye">{r.view}</IconText>
-                      </Link>
-                    )}
-                    {open ? (
-                      <Link href={`/${locale}/admin/syarat/${open.id}`} className={buttonClass('primary', 'sm')}>
-                        <IconText icon="pencil">{r.openDraft}</IconText>
-                      </Link>
-                    ) : (
-                      <StartRequirement locale={locale} programId={programme.id} entryRoute={route} label={r.update} errors={t.errors} />
-                    )}
-                  </div>
+        <>
+          <nav aria-label={r.title} className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+            {shown.map((x) => {
+              const done = programme.requirements.some((v) => v.entryRoute === x && v.status === 'published');
+              return (
+                <Link
+                  key={x}
+                  href={`${base}&laluan=${x}`}
+                  aria-current={x === route ? 'page' : undefined}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                    x === route ? 'border-navy bg-navy text-white' : 'border-line bg-white text-navy hover:bg-bg'
+                  }`}
+                >
+                  <AdminIcon name={done ? 'checkCircle' : 'alert'} size={13} className={x === route ? '' : done ? 'text-[#1f6b47]' : 'text-[#b33a35]'} />
+                  {routes[x] ?? x}
+                </Link>
+              );
+            })}
+          </nav>
+          {route && (
+            <section className="flex flex-col gap-3 rounded-[14px] border border-line bg-bg/40 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <p className="font-semibold">{routes[route] ?? route}</p>
+                  <p className={`inline-flex items-center gap-1.5 text-[13px] ${published ? 'text-[#1f6b47]' : 'text-[#b33a35]'}`}>
+                    <AdminIcon name={published ? 'checkCircle' : 'alert'} size={14} />
+                    {published ? format(r.published, { version: published.versionNo }) : r.none}
+                  </p>
+                  {open && <p className="text-[13px]">{format(r.draftBy, { status: t.status[open.status], version: open.versionNo, who: who(open.preparedBy, me, t) })}</p>}
+                  {detail?.sourceCategory && <p className="text-[12px] text-muted">{format(r.fromCategory, { category: (t.institutions.import.categories as Record<string, string>)[detail.sourceCategory] ?? detail.sourceCategory })}</p>}
                 </div>
-                {older.length > 0 && <OlderVersions locale={locale} versions={older} label={r.history} />}
-              </li>
-            );
-          })}
-        </ul>
+                <div className="flex flex-wrap items-start gap-2">
+                  {published && open && (
+                    <Link href={`/${locale}/admin/syarat/${published.id}`} className={buttonClass('ghost', 'sm')}>
+                      <IconText icon="eye">{r.view}</IconText>
+                    </Link>
+                  )}
+                  {open ? (
+                    <Link href={`/${locale}/admin/syarat/${open.id}`} className={buttonClass('primary', 'sm')}>
+                      <IconText icon="pencil">{r.openDraft}</IconText>
+                    </Link>
+                  ) : (
+                    <StartRequirement locale={locale} programId={programme.id} entryRoute={route} label={published ? r.update : r.start} primary={!published} errors={t.errors} />
+                  )}
+                </div>
+              </div>
+              {detail ? (
+                detail.rules.length ? (
+                  <RequirementLinesView rules={detail.rules} subjectNames={subjectNames} t={t.requirement} />
+                ) : (
+                  <p className="rounded-[12px] bg-white px-4 py-3 text-sm text-muted">{r.noLines}</p>
+                )
+              ) : (
+                <p className="rounded-[12px] bg-white px-4 py-3 text-sm text-muted">{r.notStarted}</p>
+              )}
+              {older.length > 0 && <OlderVersions locale={locale} versions={older} label={r.history} />}
+            </section>
+          )}
+        </>
       )}
-      {unused.length > 0 && (
+      {others.length > 0 && (
         <RouteStarter
           locale={locale}
           programId={programme.id}
-          routes={unused}
+          routes={others}
           label={r.addTitle}
           placeholder={r.routePlaceholder}
           button={r.addButton}
@@ -283,7 +343,7 @@ async function EpanduanReference({ code, dict }: { code: string; dict: Dictionar
         </h2>
         <p className="text-sm text-muted">{m.referenceIntro}</p>
       </div>
-      <FoundDetails programme={found} special={special} m={m} />
+      <FoundDetailsBody programme={found} special={special} m={m} />
     </Card>
   );
 }

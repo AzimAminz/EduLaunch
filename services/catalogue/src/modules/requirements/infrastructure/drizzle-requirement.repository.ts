@@ -18,7 +18,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
   async findById(id: string): Promise<Requirement | null> {
     const [row] = await this.db.select().from(requirements).where(eq(requirements.id, id)).limit(1);
     if (!row) return null;
-    const rules = await this.db.select().from(requirementRules).where(eq(requirementRules.requirementId, id)).orderBy(requirementRules.groupNo, requirementRules.id);
+    const rules = await this.db.select().from(requirementRules).where(eq(requirementRules.requirementId, id)).orderBy(requirementRules.groupNo, requirementRules.position, requirementRules.id);
     return this.toDomain(row, rules);
   }
 
@@ -34,7 +34,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
       .select()
       .from(requirementRules)
       .where(inArray(requirementRules.requirementId, rows.map((r) => r.id)))
-      .orderBy(requirementRules.groupNo, requirementRules.id);
+      .orderBy(requirementRules.groupNo, requirementRules.position, requirementRules.id);
     return rows.map((r) => this.toDomain(r, rules.filter((x) => x.requirementId === r.id)));
   }
 
@@ -58,6 +58,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
           versionNo: s.versionNo,
           sourceId: s.sourceId,
           sourceUrl: s.sourceUrl,
+          sourceCategory: s.sourceCategory,
           preparedBy: s.preparedBy,
           approvedBy: s.approvedBy,
           reviewStatus: s.status,
@@ -65,7 +66,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
         })
         .onConflictDoUpdate({
           target: requirements.id,
-          set: { sourceUrl: s.sourceUrl, approvedBy: s.approvedBy, reviewStatus: s.status, returnReason: s.returnReason, updatedAt: new Date() },
+          set: { sourceUrl: s.sourceUrl, sourceCategory: s.sourceCategory, approvedBy: s.approvedBy, reviewStatus: s.status, returnReason: s.returnReason, updatedAt: new Date() },
         });
       await tx.delete(requirementRules).where(eq(requirementRules.requirementId, s.id));
       if (s.rules.length) {
@@ -79,6 +80,11 @@ export class DrizzleRequirementRepository extends RequirementRepository {
             minGrade: r.minGrade,
             minValue: r.minValue === null ? null : String(r.minValue),
             evidenceQuote: r.evidenceQuote,
+            part: r.part,
+            section: r.section,
+            subjectIds: r.subjectIds,
+            minCount: r.minCount,
+            position: r.position,
           })),
         );
       }
@@ -126,6 +132,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
       versionNo: row.versionNo,
       sourceId: row.sourceId,
       sourceUrl: row.sourceUrl,
+      sourceCategory: row.sourceCategory,
       preparedBy: row.preparedBy,
       approvedBy: row.approvedBy,
       status: row.reviewStatus as ReviewStatus,
@@ -138,6 +145,11 @@ export class DrizzleRequirementRepository extends RequirementRepository {
         minGrade: r.minGrade,
         minValue: r.minValue === null ? null : Number(r.minValue),
         evidenceQuote: r.evidenceQuote,
+        part: r.part === 'general' ? 'general' : 'special',
+        section: r.section,
+        subjectIds: r.subjectIds ?? [],
+        minCount: r.minCount,
+        position: r.position,
       })),
     });
   }

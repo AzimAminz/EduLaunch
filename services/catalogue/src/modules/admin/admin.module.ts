@@ -309,7 +309,14 @@ export class AdminQueries {
       .from(programs)
       .where(eq(programs.institutionId, id))
       .orderBy(programs.name);
-    return rows;
+    const routes = rows.length
+      ? await this.db
+          .selectDistinct({ programId: schema.programEntryRoutes.programId, entryRoute: schema.programEntryRoutes.entryRoute })
+          .from(schema.programEntryRoutes)
+          .where(inArray(schema.programEntryRoutes.programId, rows.map((r) => r.id)))
+          .orderBy(schema.programEntryRoutes.entryRoute)
+      : [];
+    return rows.map((r) => ({ ...r, entryRoutes: routes.filter((x) => x.programId === r.id).map((x) => x.entryRoute) }));
   }
 
   /** NEC fields for the programme form, each with the broad EduLaunch field it suggests. */
@@ -367,7 +374,12 @@ export class AdminQueries {
         .where(eq(requirements.programId, id))
         .orderBy(requirements.entryRoute, desc(requirements.versionNo)),
     ]);
-    return { ...row, fieldIds: fieldRows.map((f) => f.fieldId), requirements: versions };
+    const routes = await this.db
+      .selectDistinct({ entryRoute: schema.programEntryRoutes.entryRoute })
+      .from(schema.programEntryRoutes)
+      .where(eq(schema.programEntryRoutes.programId, id))
+      .orderBy(schema.programEntryRoutes.entryRoute);
+    return { ...row, fieldIds: fieldRows.map((f) => f.fieldId), requirements: versions, entryRoutes: routes.map((r) => r.entryRoute) };
   }
 
   /** One requirement version with its rules, and the published version it would replace (to compare). */
@@ -386,6 +398,7 @@ export class AdminQueries {
         approvedBy: requirements.approvedBy,
         returnReason: requirements.returnReason,
         sourceUrl: requirements.sourceUrl,
+        sourceCategory: requirements.sourceCategory,
         updatedAt: requirements.updatedAt,
       })
       .from(requirements)
@@ -401,11 +414,23 @@ export class AdminQueries {
       .orderBy(desc(requirements.versionNo))
       .limit(1);
     const ids = previous ? [id, previous.id] : [id];
-    const rules = await this.db.select().from(requirementRules).where(inArray(requirementRules.requirementId, ids)).orderBy(requirementRules.groupNo, requirementRules.id);
+    const rules = await this.db.select().from(requirementRules).where(inArray(requirementRules.requirementId, ids)).orderBy(requirementRules.groupNo, requirementRules.position, requirementRules.id);
     const plain = (requirementId: string) =>
       rules
         .filter((r) => r.requirementId === requirementId)
-        .map((r) => ({ groupNo: r.groupNo, ruleType: r.ruleType, subjectId: r.subjectId, minGrade: r.minGrade, minValue: r.minValue === null ? null : Number(r.minValue), evidenceQuote: r.evidenceQuote }));
+        .map((r) => ({
+          groupNo: r.groupNo,
+          ruleType: r.ruleType,
+          subjectId: r.subjectId,
+          minGrade: r.minGrade,
+          minValue: r.minValue === null ? null : Number(r.minValue),
+          evidenceQuote: r.evidenceQuote,
+          part: r.part,
+          section: r.section,
+          subjectIds: r.subjectIds,
+          minCount: r.minCount,
+          position: r.position,
+        }));
     return {
       ...row,
       rules: plain(id),

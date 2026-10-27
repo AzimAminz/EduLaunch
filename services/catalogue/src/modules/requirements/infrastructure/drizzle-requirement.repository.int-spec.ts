@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { connectTestDatabase } from '@edulaunch/nest-kit/testing';
 import { eq, inArray } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
-import { Requirement, type RequirementRule } from '../domain/requirement.js';
+import { LINE_DEFAULTS, Requirement, type RequirementRule } from '../domain/requirement.js';
 import { DrizzleRequirementRepository } from './drizzle-requirement.repository.js';
 
 const { db, close } = connectTestDatabase(schema);
@@ -14,8 +14,8 @@ const programId = randomUUID();
 const subjectId = randomUUID();
 
 const rules = (minGrade = 'B'): RequirementRule[] => [
-  { id: randomUUID(), groupNo: 1, ruleType: 'min_grade', subjectId, minGrade, minValue: null, evidenceQuote: 'sekurang-kurangnya gred B dalam Matematik' },
-  { id: randomUUID(), groupNo: 2, ruleType: 'min_credits', subjectId: null, minGrade: 'C', minValue: 5, evidenceQuote: 'kepujian dalam lima mata pelajaran' },
+  { id: randomUUID(), groupNo: 1, ruleType: 'min_grade', subjectId, minGrade, minValue: null, evidenceQuote: 'sekurang-kurangnya gred B dalam Matematik', ...LINE_DEFAULTS, subjectIds: [] },
+  { id: randomUUID(), groupNo: 2, ruleType: 'min_credits', subjectId: null, minGrade: 'C', minValue: 5, evidenceQuote: 'kepujian dalam lima mata pelajaran', ...LINE_DEFAULTS, subjectIds: [] },
 ];
 
 async function newDraft(entryRoute: string, minGrade = 'B') {

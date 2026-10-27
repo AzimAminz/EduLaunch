@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { CurrentCaller, Public, Roles, ZodPipe, type Caller } from '@edulaunch/nest-kit';
-import { EntryRoutes, RuleType } from '@edulaunch/contracts';
+import { EntryRoutes, RequirementPart, RuleType } from '@edulaunch/contracts';
 import { z } from 'zod';
 import {
   CreateRequirementDraft,
@@ -18,10 +18,15 @@ const Rules = z
       subjectId: z.uuid().nullable().default(null),
       minGrade: z.string().max(3).nullable().default(null),
       minValue: z.number().nullable().default(null),
-      evidenceQuote: z.string().min(5).max(1000),
+      evidenceQuote: z.string().min(2).max(1500),
+      part: RequirementPart.default('special'),
+      section: z.string().max(60).nullable().default(null),
+      subjectIds: z.array(z.uuid()).max(40).default([]),
+      minCount: z.number().int().nullable().default(null),
+      position: z.number().int().min(0).default(0),
     }),
   )
-  .max(40);
+  .max(80);
 
 /** With no rules, the draft starts from the published version (if any). */
 const DraftBody = z.object({
@@ -32,7 +37,7 @@ const DraftBody = z.object({
   rules: Rules.default([]),
 });
 
-const EditBody = z.object({ sourceUrl: z.string().max(600).nullable().default(null), rules: Rules });
+const EditBody = z.object({ sourceUrl: z.string().max(600).nullable().default(null), sourceCategory: z.string().max(20).nullable().optional(), rules: Rules });
 
 const ReviewBody = z.discriminatedUnion('action', [
   z.object({ action: z.literal('submit') }),

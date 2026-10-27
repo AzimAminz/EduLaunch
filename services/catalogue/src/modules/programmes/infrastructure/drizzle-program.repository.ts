@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
 import type { Page } from '@edulaunch/ddd';
-import { and, count, eq, ilike, inArray, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, inArray, isNotNull, type SQL } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
 import { Program, type PendingChange, type PendingStatus, type ProgramFacts } from '../domain/program.js';
 import { ProgramRepository, type ProgramSearch } from '../domain/program.repository.js';
@@ -108,6 +108,39 @@ export class DrizzleProgramRepository extends ProgramRepository {
 
   async delete(id: string): Promise<void> {
     await this.db.delete(programs).where(eq(programs.id, id));
+  }
+
+  async replaceEntryRoutes(programId: string, routes: Array<{ entryRoute: string; sourceCategory: string | null }>): Promise<void> {
+    const table = schema.programEntryRoutes;
+    await this.db.transaction(async (tx) => {
+      await tx.delete(table).where(eq(table.programId, programId));
+      if (routes.length) await tx.insert(table).values(routes.map((r) => ({ programId, entryRoute: r.entryRoute, sourceCategory: r.sourceCategory }))).onConflictDoNothing();
+    });
+  }
+
+  async admissionFacts(programIds: string[]) {
+    const out = new Map<string, { entryRoutes: string[]; averageMerit: { intakeYear: number; value: number } | null }>();
+    if (programIds.length === 0) return out;
+    const [routes, merits] = await Promise.all([
+      this.db
+        .selectDistinct({ programId: schema.programEntryRoutes.programId, entryRoute: schema.programEntryRoutes.entryRoute })
+        .from(schema.programEntryRoutes)
+        .where(inArray(schema.programEntryRoutes.programId, programIds))
+        .orderBy(schema.programEntryRoutes.entryRoute),
+      this.db
+        .select({ programId: schema.admissionStats.programId, intakeYear: schema.admissionStats.intakeYear, value: schema.admissionStats.averageMerit })
+        .from(schema.admissionStats)
+        .where(and(inArray(schema.admissionStats.programId, programIds), isNotNull(schema.admissionStats.averageMerit)))
+        .orderBy(desc(schema.admissionStats.intakeYear)),
+    ]);
+    for (const id of programIds) out.set(id, { entryRoutes: [], averageMerit: null });
+    for (const r of routes) out.get(r.programId)!.entryRoutes.push(r.entryRoute);
+    for (const m of merits) {
+      const item = out.get(m.programId)!;
+      // Newest year first: the first figure seen is the one kept.
+      if (!item.averageMerit && m.value !== null) item.averageMerit = { intakeYear: m.intakeYear, value: Number(m.value) };
+    }
+    return out;
   }
 
   async recordAverageMerit(programId: string, intakeYear: number, averageMerit: number): Promise<void> {

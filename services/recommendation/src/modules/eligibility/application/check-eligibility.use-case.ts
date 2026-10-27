@@ -16,7 +16,7 @@ export type EligibilityAnswer =
   | { state: 'no_requirement' }
   | { state: 'no_route'; routes: string[] }
   | { state: 'no_results'; entryRoute: string }
-  | { state: 'checked'; entryRoute: string; status: Eligibility; isTargetBased: boolean; groups: GroupResult[] };
+  | { state: 'checked'; entryRoute: string; status: Eligibility; isTargetBased: boolean; groups: GroupResult[]; toConfirm: string[] };
 
 @Injectable()
 export class CheckEligibility implements UseCase<{ caller: Caller; programId: string }, EligibilityAnswer> {
@@ -43,7 +43,7 @@ export class CheckEligibility implements UseCase<{ caller: Caller; programId: st
     }
 
     const result = this.engine.check(requirement, { snapshot, subjectNames });
-    return { state: 'checked', entryRoute: requirement.entryRoute, status: result.status, isTargetBased: snapshot.isTargetBased, groups: result.groups };
+    return { state: 'checked', entryRoute: requirement.entryRoute, status: result.status, isTargetBased: snapshot.isTargetBased, groups: result.groups, toConfirm: result.toConfirm };
   }
 }
 

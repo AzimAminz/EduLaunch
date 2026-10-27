@@ -11,6 +11,6 @@ export class GetProgramme implements UseCase<{ id: string; includeDrafts: boolea
   async execute({ id, includeDrafts }: { id: string; includeDrafts: boolean }): Promise<ProgramSummary> {
     const program = await this.programs.findById(id);
     if (!program || (!includeDrafts && !program.isVisibleToStudents)) throw new NotFoundError('Programme', id);
-    return toSummary(program);
+    return toSummary(program, (await this.programs.admissionFacts([id])).get(id));
   }
 }

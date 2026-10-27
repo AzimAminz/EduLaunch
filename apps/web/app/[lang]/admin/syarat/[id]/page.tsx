@@ -4,11 +4,13 @@ import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
 import { FreshOnNavigate } from '@/components/admin/fresh';
 import { RequirementEditor } from '@/components/admin/requirement-editor';
+import { RequirementLinesView } from '@/components/admin/requirement-lines-view';
 import { ReviewActions } from '@/components/admin/review-actions';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, Card, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
-import { AdminApiError, getRequirementDetail, type AdminRule, type RequirementDetail } from '@/lib/admin/api';
-import { groupsFromRules } from '@/lib/admin/requirement-form';
+import { AdminApiError, getProgrammeDetail, getRequirementDetail, listFoundProgrammes, listSpecialRequirements, type AdminRule, type RequirementDetail } from '@/lib/admin/api';
+import { groupCategories } from '@/lib/admin/epanduan-text';
+import { linesFromRules } from '@/lib/admin/requirement-form';
 import { getReferenceData, localName } from '@/lib/catalogue/api';
 import { describeRequirement, type RequirementItem } from '@/lib/catalogue/requirements';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -57,6 +59,7 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
   const subjectNames = new Map(reference.subjects.map((s) => [s.id, localName(s, locale)]));
 
   if (editing) {
+    const epanduan = await epanduanFor(req);
     return (
       <>
         <AdminHeading back={back} title={format(t.requirement.titleEdit, { programme: req.programmeName })} intro={meta} />
@@ -69,7 +72,8 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
             id={req.id}
             programmeId={req.programmeId}
             entryRoute={req.entryRoute}
-            initial={{ sourceUrl: req.sourceUrl ?? '', groups: groupsFromRules(req.rules) }}
+            initial={{ sourceUrl: req.sourceUrl ?? '', sourceCategory: req.sourceCategory, lines: linesFromRules(req.rules) }}
+            epanduan={epanduan}
             subjects={reference.subjects.map((s) => ({ id: s.id, label: localName(s, locale), qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }))}
             dict={{ admin: t, requirements: dict.requirements, directory: dict.directory }}
           />
@@ -103,6 +107,10 @@ async function Requirement({ locale, dict, params }: { locale: Locale; dict: Dic
         }
       />
       {note && <p className="rounded-[14px] bg-cream px-4 py-3 text-sm">{note}</p>}
+      <Card>
+        <h2 className="text-lg font-semibold">{t.requirement.review.lines}</h2>
+        <RequirementLinesView rules={req.rules} subjectNames={subjectNames} t={t.requirement} />
+      </Card>
       <Comparison req={req} dict={dict} subjectNames={subjectNames} />
       <Card>
         <h2 className="text-lg font-semibold">{t.requirement.review.source}</h2>
@@ -134,7 +142,7 @@ function Comparison({ req, dict, subjectNames }: { req: RequirementDetail; dict:
   const t = dict.admin.requirement.review;
   const describe = (rules: AdminRule[]) =>
     describeRequirement(
-      { requirementId: req.id, programId: req.programmeId, entryRoute: req.entryRoute, versionNo: req.versionNo, rules: rules.map((r, i) => ({ ...r, id: `${i}` })) },
+      { requirementId: req.id, programId: req.programmeId, entryRoute: req.entryRoute, versionNo: req.versionNo, sourceCategory: req.sourceCategory, rules: rules.map((r, i) => ({ ...r, id: `${i}` })) },
       subjectNames,
       dict.requirements,
     ).items;
@@ -204,4 +212,26 @@ function Quotes({ rules, title }: { rules: AdminRule[]; title: string }) {
       ))}
     </div>
   );
+}
+
+/**
+ * What ePanduan lists for this programme under this entry route (its categories' Syarat Am and Syarat Khas), for the
+ * editor's source tab. Optional help: without a programme code or the content service the editor works as before.
+ */
+async function epanduanFor(req: RequirementDetail) {
+  try {
+    const token = (await getAccessToken())!;
+    const programme = await getProgrammeDetail(token, req.programmeId);
+    if (!programme.upuCode) return null;
+    const [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.upuCode]), listSpecialRequirements(token, [programme.upuCode])]);
+    const categories = found?.categories.filter((c) => c.route === req.entryRoute) ?? [];
+    if (!categories.length) return null;
+    const groups = groupCategories(categories, special);
+    return {
+      groups,
+      sourceUrls: groups.map((g) => `https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/${g.categories[0]!.category}?jenprog=${g.categories[0]!.jenprog}`),
+    };
+  } catch {
+    return null;
+  }
 }

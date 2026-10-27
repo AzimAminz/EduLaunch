@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { boolean, date, integer, jsonb, numeric, pgSchema, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, date, index, integer, jsonb, numeric, pgSchema, primaryKey, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 
 /**
  * Tables owned by the catalogue service. IDs that point to other services
@@ -15,7 +15,7 @@ const timestamps = {
 
 export const reviewStatus = catalogue.enum('review_status', ['draft', 'in_review', 'returned', 'published', 'archived']);
 export const studyLevel = catalogue.enum('study_level', ['form4_stream', 'certificate', 'skills', 'foundation', 'matriculation', 'stpm', 'diploma', 'degree']);
-export const ruleType = catalogue.enum('rule_type', ['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject']);
+export const ruleType = catalogue.enum('rule_type', ['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject', 'subjects_from_list', 'declaration', 'note']);
 
 export const institutions = catalogue.table('institution', {
   id: id(),
@@ -141,6 +141,8 @@ export const requirements = catalogue.table('requirement', {
   preparedBy: uuid('prepared_by').notNull(),
   approvedBy: uuid('approved_by'),
   entryRoute: text('entry_route').notNull(),
+  /** The official candidate category the rules were written from (ePanduan, e.g. "stpm:S"). */
+  sourceCategory: text('source_category'),
   versionNo: integer('version_no').notNull(),
   reviewStatus: reviewStatus('review_status').notNull().default('draft'),
   returnReason: text('return_reason'),
@@ -158,6 +160,15 @@ export const requirementRules = catalogue.table('requirement_rule', {
   minGrade: text('min_grade'),
   minValue: numeric('min_value', { precision: 5, scale: 2 }),
   evidenceQuote: text('evidence_quote'),
+  /** Syarat Am (general) or Syarat Khas (special). */
+  part: text('part').notNull().default('special'),
+  /** The heading the line sits under in the source: SPM, STPM, MUET, Matrikulasi / Asasi, Diploma… */
+  section: text('section'),
+  /** subjects_from_list: the subjects to choose from and how many must reach min_grade. */
+  subjectIds: uuid('subject_ids').array().notNull().default(sql`'{}'::uuid[]`),
+  minCount: integer('min_count'),
+  /** Order of the line within its part and group. */
+  position: integer('position').notNull().default(0),
 });
 
 export const meritFormulas = catalogue.table('merit_formula', {
@@ -169,6 +180,25 @@ export const meritFormulas = catalogue.table('merit_formula', {
   versionNo: integer('version_no').notNull(),
   reviewStatus: reviewStatus('review_status').notNull().default('draft'),
 });
+
+/**
+ * The entry routes a programme takes candidates from (spm, stpm, matrikulasi, diploma, dkm, dvm…), as the official
+ * source lists them (`source_category`: the ePanduan candidate category, e.g. "stpm:S"). Recommendations filter on
+ * this before any requirement rule is written; the rules themselves stay in `requirement` per route.
+ */
+export const programEntryRoutes = catalogue.table(
+  'program_entry_route',
+  {
+    id: id(),
+    programId: uuid('program_id')
+      .notNull()
+      .references(() => programs.id, { onDelete: 'cascade' }),
+    entryRoute: text('entry_route').notNull(),
+    sourceCategory: text('source_category'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique('program_entry_route_unique').on(t.programId, t.entryRoute, t.sourceCategory), index('program_entry_route_route_idx').on(t.entryRoute)],
+);
 
 export const admissionStats = catalogue.table('admission_stat', {
   id: id(),
