@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { startRequirement, type AdminFormState } from '@/lib/admin/actions';
 import type { Dictionary, Locale } from '@/lib/i18n/locale';
+import { Dropdown } from '@/components/ui/dropdown';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { FormAlert } from '@/components/auth/fields';
 import { AdminIcon } from './icons';
@@ -24,22 +25,30 @@ export interface RouteChoice {
 type Texts = Dictionary['admin']['requirement']['chooser'];
 
 /** Step 1: which route the requirements are for. Going on creates the draft (or opens the one in progress). */
-export function RouteChooser({ locale, programId, groups, initial, t, errors }: {
+export function RouteChooser({ locale, programId, groups, initial, copies, t, errors, noMatches }: {
   locale: Locale;
   programId: string;
   groups: Array<{ title: string; choices: RouteChoice[] }>;
   /** The choice already made (from a route's tab). */
   initial?: string;
+  /** Approved requirements of other programmes of the institution, by route, that can be copied. */
+  copies: Record<string, Array<{ value: string; label: string }>>;
   t: Texts;
   errors: Dictionary['admin']['errors'];
+  noMatches: string;
 }) {
   const [chosen, setChosen] = useState<RouteChoice | null>(() => groups.flatMap((g) => g.choices).find((c) => c.key === initial) ?? null);
+  // How the draft starts: from the ePanduan text, a copy of approved requirements, or empty.
+  const [start, setStart] = useState<'epanduan' | 'copy' | 'empty' | null>(null);
+  const [copyFrom, setCopyFrom] = useState('');
+  const canCopy = !!chosen && (copies[chosen.route]?.length ?? 0) > 0;
+  const how = start ?? (chosen?.fill ? 'epanduan' : 'empty');
   const [missing, setMissing] = useState(false);
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(startRequirement, {});
   return (
     <form
       onSubmit={(e) => {
-        if (!chosen) {
+        if (!chosen || (how === 'copy' && !copyFrom)) {
           e.preventDefault();
           setMissing(true);
           return;
@@ -51,8 +60,9 @@ export function RouteChooser({ locale, programId, groups, initial, t, errors }: 
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="programId" value={programId} />
       <input type="hidden" name="entryRoute" value={chosen?.route ?? ''} />
-      {chosen?.fill && <input type="hidden" name="fill" value={chosen.fill} />}
-      <FormAlert>{!pending && state.error ? errors[state.error] : missing && !chosen ? t.required : undefined}</FormAlert>
+      {chosen?.fill && how === 'epanduan' && <input type="hidden" name="fill" value={chosen.fill} />}
+      {how === 'copy' && copyFrom && <input type="hidden" name="copyFrom" value={copyFrom} />}
+      <FormAlert>{!pending && state.error ? errors[state.error] : missing && !chosen ? t.required : missing && how === 'copy' && !copyFrom ? t.copyRequired : undefined}</FormAlert>
       {groups
         .filter((g) => g.choices.length)
         .map((group) => (
@@ -85,6 +95,29 @@ export function RouteChooser({ locale, programId, groups, initial, t, errors }: 
             </div>
           </fieldset>
         ))}
+      {chosen && (chosen.fill || canCopy) && (
+        <fieldset className="flex flex-col gap-2 rounded-[14px] bg-bg/60 p-4">
+          <legend className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">{t.startTitle}</legend>
+          {(
+            [
+              chosen.fill && { value: 'epanduan', label: t.startEpanduan, detail: chosen.detail },
+              canCopy && { value: 'copy', label: t.startCopy, detail: t.startCopyDetail },
+              { value: 'empty', label: t.startEmpty, detail: null },
+            ].filter(Boolean) as Array<{ value: 'epanduan' | 'copy' | 'empty'; label: string; detail: string | null }>
+          ).map((o) => (
+            <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-[12px] bg-white px-4 py-3">
+              <input type="radio" name="start" checked={how === o.value} onChange={() => setStart(o.value)} className="mt-1 size-4 accent-[#1b2a4a]" />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm font-semibold">{o.label}</span>
+                {o.detail && <span className="text-[13px] text-muted">{o.detail}</span>}
+              </span>
+            </label>
+          ))}
+          {how === 'copy' && canCopy && (
+            <Dropdown label={t.copyLabel} value={copyFrom} onChange={setCopyFrom} options={copies[chosen.route]!} placeholder={t.copyPlaceholder} noMatchesLabel={noMatches} />
+          )}
+        </fieldset>
+      )}
       <div className="flex justify-end border-t border-line pt-4">
         <button type="submit" disabled={pending} className={buttonClass('primary')}>
           <IconText icon="arrowRight" busy={pending}>

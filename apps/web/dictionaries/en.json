@@ -1055,7 +1055,8 @@
         "fromCategory": "Fill from ePanduan: {category}",
         "replaceConfirm": "Replace the {count} lines here with the requirements from ePanduan?",
         "replaceYes": "Yes, replace",
-        "autoFilled": "{count} lines filled from ePanduan. Check each line, correct it if needed, then save."
+        "autoFilled": "{count} lines filled from ePanduan. Check each line, correct it if needed, then save.",
+        "copied": "{count} lines copied from approved requirements. Check each line for this programme, then send for review."
       },
       "join": {
         "and": "AND",
@@ -1115,7 +1116,15 @@
         "required": "Choose a route first.",
         "groupEpanduan": "On ePanduan",
         "groupUsual": "Usual for this level",
-        "groupOther": "Other routes"
+        "groupOther": "Other routes",
+        "startTitle": "Start with",
+        "startEpanduan": "ePanduan text",
+        "startCopy": "Copy approved requirements",
+        "startCopyDetail": "From another programme of this institution for the same route. You can edit them afterwards.",
+        "startEmpty": "Empty, write them yourself",
+        "copyLabel": "Copy from",
+        "copyPlaceholder": "Choose a programme",
+        "copyRequired": "Choose the programme to copy requirements from."
       },
       "sections": {
         "label": "Sections",

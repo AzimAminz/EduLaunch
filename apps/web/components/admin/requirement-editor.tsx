@@ -41,6 +41,8 @@ interface RequirementEditorProps {
   epanduan?: EditorSource | null;
   /** ePanduan category (`jenprog:category`) to fill an empty draft from when it opens. */
   autoFill?: string | null;
+  /** The draft was just copied from another programme's approved requirements. */
+  copied?: boolean;
   dict: Pick<Dictionary, 'admin' | 'requirements' | 'directory'>;
 }
 
@@ -52,7 +54,7 @@ const PARTS: RequirementPart[] = ['general', 'special'];
  * headings, joined by DAN or ATAU. Each line keeps the official sentence and, when it can be checked, the rule a
  * student's results are matched with. Lines can be filled from ePanduan, then edited, moved, added and removed.
  */
-export function RequirementEditor({ locale, id, programmeId, entryRoute, initial, subjects, epanduan, autoFill, dict }: RequirementEditorProps) {
+export function RequirementEditor({ locale, id, programmeId, entryRoute, initial, subjects, epanduan, autoFill, copied = false, dict }: RequirementEditorProps) {
   const t = dict.admin.requirement;
   const m = dict.admin.institutions.import;
   const errors = dict.admin.errors;
@@ -77,7 +79,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
   const [sourceUrl, setSourceUrl] = useState(start.sourceUrl);
   const [sourceCategory, setSourceCategory] = useState(start.sourceCategory);
   const [lines, setLines] = useState<EditorLine[]>(start.lines);
-  const [autoFilled, setAutoFilled] = useState(start.filled);
+  const [autoFilled, setAutoFilled] = useState(start.filled || copied);
   const [open, setOpen] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
@@ -229,7 +231,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             {autoFilled && (
               <p role="status" className="flex items-start gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
                 <AdminIcon name="checkCircle" size={18} className="mt-0.5 shrink-0" />
-                <span className="flex-1">{format(t.fill.autoFilled, { count: lines.length })}</span>
+                <span className="flex-1">{format(start.filled ? t.fill.autoFilled : t.fill.copied, { count: lines.length })}</span>
                 <button type="button" onClick={() => setAutoFilled(false)} aria-label={dict.admin.programme.actions.cancel} className="rounded-md px-1 text-[#1f6b47] hover:bg-white/60">
                   <AdminIcon name="x" size={16} />
                 </button>

@@ -187,7 +187,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Item | Outcome | Status | What is left |
 |---|---|---|---|
 | Programmes from each institution | Institution → its official sources → its programmes found automatically (ePanduan by university, its own site or prospectus) → admin accepts → published; merit averages into `ADMISSION_STAT` | **In Progress** | ePanduan import done (Step 9, manual check waiting); weekly automatic re-check; the institution's own site or prospectus later |
-| Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | Not Started | Step 10 |
+| Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | **In Progress** | Done: Syarat Am / Khas by section, ATAU sets, N from a list, declarations, fill from ePanduan, copy approved requirements, programme facts as ePanduan lists them. Left: diploma field by NEC code, A-Level / IB points |
 | JPT import (requirements) | Requirement text parsed by rules, Claude for the rest, validated, drafts for admin approval | Not Started | Step 11; needs Steps 9–10 and an Anthropic API key |
 | Interest test + activities | RIASEC result, activity ratings | Not Started | Questions, scoring, screens (tables exist) |
 | Recommendation v1 | Score, rank, template reasons, top-match card | **In Progress** | Dashboard card; interest and preference data feeding the score |

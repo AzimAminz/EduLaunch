@@ -401,22 +401,32 @@ Tested by: ____________ Date: ____________
 
 ## Step 10 (part) · Requirements shaped like ePanduan
 
-**Before you start:** pull, `pnpm install`, `pnpm --filter @edulaunch/contracts build`, `pnpm db:migrate` (catalogue 0007, 0008; content 0003), restart `pnpm dev`. Use a programme that came from the ePanduan import (for example a UTM programme), logged in as the admin who will prepare the requirements.
+**Before you start:** pull, `pnpm install`, `pnpm --filter @edulaunch/contracts build`, `pnpm db:migrate` (catalogue 0007 to 0010; content 0003), restart `pnpm dev`. Use a programme that came from the ePanduan import (for example a UTM programme), logged in as the admin who will prepare the requirements.
 
 ### A. Programme page
 
-- [ ] **Syarat kemasukan** shows a tab per entry route (the routes the programme takes on ePanduan, and any route with requirements), each with ✓ when published or ⚠ when not. The old one-card-per-route list is gone.
-- [ ] The chosen route shows its status, **Mula syarat** / **Buka draf** / **Kemas kini syarat**, and its lines as **Syarat Am** and **Syarat Khas** with SPM / STPM / MUET headings, DAN / ATAU, and what each line checks ("Bahasa Melayu ≥ C", "PNGK ≥ 2.00", "2 daripada [...] ≥ B-", "Perakuan").
-- [ ] Below, **Rujukan dari ePanduan** shows the source text by category.
+- [ ] **Syarat kemasukan** shows the programme's facts from ePanduan, then a tab per entry route (Lepasan STPM, Lepasan Matrikulasi…) in route order. Each tab says where its requirements stand ("Belum ada syarat", "Draf · anda", "Diterbitkan · v1").
+- [ ] A tab shows **Syarat Lepasan X** with one action (**Mula syarat**, **Buka draf** or **Lihat**), then the ePanduan text it is written from (Syarat Am, Syarat Khas).
+- [ ] **Sunting** at the end of the tab row shows a delete badge on routes that can go (not published, your own unsent draft). Delete asks in a dialog; after **Ya, padam** the tab and its draft are gone.
 
-### B. Editor
+### B. Adding requirements (steps)
 
-- [ ] Start a route, then **Isi dari ePanduan**: both parts fill with lines and headings, the source link is set, and existing lines are only replaced after **Ya, gantikan**.
-- [ ] Each line shows the official sentence and a chip; **Sunting** opens its kind (grade in one subject, N from a list, credits, CGPA, MUET, declaration, note), values, heading and sentence. Up / down move it; the bin deletes it; **Tambah baris** adds one.
-- [ ] Press the DAN pill between two checkable lines: it becomes **ATAU** (yellow). Between a note or declaration it stays DAN.
-- [ ] For a list line, add and remove subjects, set the grade and how many; a count larger than the list is marked red on save.
-- [ ] **Apa pelajar nampak** shows the requirement as students will read it; notes are not shown, declarations appear as "Perlu disahkan".
-- [ ] **Simpan draf** returns to the programme with the lines shown in the same layout; another admin approves the version as in Step 8.
+- [ ] **Tambah syarat** opens step 1 **Laluan**: routes on ePanduan first (with their categories), then those usual for the level, then the rest. A route with a draft says so.
+- [ ] Under the chosen route, **Mula dengan** offers **Teks ePanduan**, **Salin syarat yang sudah diluluskan** (only when another programme of the institution has approved requirements for that route) and **Kosong**. Copy without choosing a programme is refused with a message.
+- [ ] **Seterusnya** opens step 2 **Syarat Am** filled from ePanduan (green note with the number of lines), or with the copied lines (copied note), or empty.
+- [ ] Steps 2 and 3 show a tab per section (SPM, STPM, MUET… or Umum) with its line count; a count turns red when a line in it has a problem. **+ Tambah bahagian** adds a section; **Tambah baris X** adds a line to the open section; **Buang bahagian X** asks first.
+- [ ] Opening a line shows its kind as chips and **Apa yang sistem semak** written like ePanduan ("Gred [C] bagi matapelajaran [subjek]", "[2] Gred [C] dalam mana-mana matapelajaran", "Sekurang-kurangnya BAND [1.0] dalam MUET"), with the official sentence below.
+- [ ] DAN / ATAU only joins lines of one section; sections are always joined by DAN.
+- [ ] Step 4 **Semak & hantar** shows the lines as the system reads them and what students see. **Hantar untuk semakan** with a line problem or no source link goes back to the step to fix.
+
+### D. Programme form (Tambah program / Sunting)
+
+- [ ] Four steps in ePanduan's order: **Program** (level, institution, code, name, university code, faculty), **Pengajian** (NEC, duration, mode, campuses, fields), **Kemasukan** (interview, Bumiputera, STEM, TVET, joint degree, feeder), **Maklumat lanjut** (careers, fees, note, source).
+- [ ] Type a code ePanduan has (for example UT6341003) and press **Isi dari ePanduan**: every step fills, the institution is chosen from the code, and a green note says the year. A code not read yet says how to read it; nothing is changed.
+- [ ] Campuses and careers are added with Enter or **Tambah** and removed with ×; a repeat is ignored.
+- [ ] A programme saved with an ePanduan code gets its route tabs and average merit at once, like an imported one.
+- [ ] A programme without ePanduan (private college) can be saved with every field typed by hand.
+- [ ] The **Maklumat** tab shows campuses, careers (chips), fees and note; a change to a published programme lists them in the before / after table.
 
 ### C. Student
 

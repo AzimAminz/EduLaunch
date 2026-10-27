@@ -22,7 +22,7 @@ E = {
  'INSTITUTION_SOURCE': [('source_id','PK'),('institution_id','FK'),('kind',''),('url',''),('label','')],
  'NEC_FIELD': [('nec_code','PK'),('field_id','FK'),('nec_name','')],
  'FIELD': [('field_id','PK'),('parent_field_id','FK'),('field_name',''),('riasec_weights','')],
- 'PROGRAM': [('program_id','PK'),('institution_id','FK'),('nec_code','FK'),('prepared_by','FK'),('approved_by','FK'),('program_name',''),('upu_code',''),('study_level',''),('duration_semesters',''),('study_mode',''),('campus',''),('is_stem / is_tvet',''),('publish_status',''),('pending_changes','')],
+ 'PROGRAM': [('program_id','PK'),('institution_id','FK'),('nec_code','FK'),('prepared_by','FK'),('approved_by','FK'),('program_name',''),('upu_code',''),('study_level',''),('duration_semesters',''),('study_mode',''),('campuses',''),('careers',''),('fees / note',''),('is_stem / is_tvet',''),('joint_degree / feeder',''),('publish_status',''),('pending_changes','')],
  'PROGRAM_ENTRY_ROUTE': [('entry_route_id','PK'),('program_id','FK'),('entry_route',''),('source_category','')],
  'PROGRAM_FIELD': [('program_id','PK, FK'),('field_id','PK, FK')],
  'PROGRAM_PATHWAY': [('from_program_id','PK, FK'),('to_program_id','PK, FK'),('condition_text',''),('min_cgpa',''),('source_id','FK')],

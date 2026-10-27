@@ -6,7 +6,8 @@ import { EntryRoutes, EntryRoutesByLevel } from '@edulaunch/contracts';
 import { RequirementSteps } from '@/components/admin/requirement-steps';
 import { RouteChooser, type RouteChoice } from '@/components/admin/route-chooser';
 import { AdminHeading, Card, LoadError } from '@/components/admin/ui';
-import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listSpecialRequirements, type ProgrammeDetail } from '@/lib/admin/api';
+import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutionProgrammes, listSpecialRequirements, type ProgrammeDetail } from '@/lib/admin/api';
+import { getPublishedRequirements } from '@/lib/catalogue/api';
 import { groupCategories } from '@/lib/admin/epanduan-text';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
@@ -57,6 +58,20 @@ async function Choose({ locale, dict, params, searchParams }: { locale: Locale; 
     }
   }
 
+  // Approved requirements of the institution's other programmes, by route, to copy (many share one Syarat Am).
+  const copies: Record<string, Array<{ value: string; label: string }>> = {};
+  if (programme.institutionId) {
+    try {
+      const siblings = (await listInstitutionProgrammes((await getAccessToken())!, programme.institutionId)).filter((p) => p.id !== programme.id);
+      const names = new Map(siblings.map((p) => [p.id, p.upuCode ? `${p.name} (${p.upuCode})` : p.name]));
+      for (const r of await getPublishedRequirements(siblings.map((p) => p.id))) {
+        (copies[r.entryRoute] ??= []).push({ value: r.requirementId, label: names.get(r.programId) ?? r.programId });
+      }
+    } catch {
+      // Copying is a shortcut; without it the other ways to start still work.
+    }
+  }
+
   const stateOf = (route: string): RouteChoice['state'] => {
     const versions = programme.requirements.filter((v) => v.entryRoute === route);
     return versions.some((v) => OPEN.has(v.status)) ? 'draft' : versions.some((v) => v.status === 'published') ? 'published' : null;
@@ -98,8 +113,10 @@ async function Choose({ locale, dict, params, searchParams }: { locale: Locale; 
           ]}
           // From a route's tab: that route is chosen already.
           initial={typeof sp.laluan === 'string' ? [...fromEpanduan, ...usual, ...rest].find((x) => x.route === sp.laluan)?.key : undefined}
+          copies={copies}
           t={c}
           errors={t.errors}
+          noMatches={dict.directory.noMatches}
         />
       </Card>
     </>

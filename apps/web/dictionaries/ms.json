@@ -1055,7 +1055,8 @@
         "fromCategory": "Isi dari ePanduan: {category}",
         "replaceConfirm": "Gantikan {count} baris yang ada dengan syarat dari ePanduan?",
         "replaceYes": "Ya, gantikan",
-        "autoFilled": "{count} baris diisi dari ePanduan. Semak setiap baris, betulkan jika perlu, kemudian simpan."
+        "autoFilled": "{count} baris diisi dari ePanduan. Semak setiap baris, betulkan jika perlu, kemudian simpan.",
+        "copied": "{count} baris disalin daripada syarat yang sudah diluluskan. Semak setiap baris untuk program ini, kemudian hantar untuk semakan."
       },
       "join": {
         "and": "DAN",
@@ -1115,7 +1116,15 @@
         "required": "Pilih satu laluan dahulu.",
         "groupEpanduan": "Ada dalam ePanduan",
         "groupUsual": "Biasa untuk peringkat ini",
-        "groupOther": "Laluan lain"
+        "groupOther": "Laluan lain",
+        "startTitle": "Mula dengan",
+        "startEpanduan": "Teks ePanduan",
+        "startCopy": "Salin syarat yang sudah diluluskan",
+        "startCopyDetail": "Daripada program lain institusi ini untuk laluan yang sama. Anda boleh menyuntingnya selepas itu.",
+        "startEmpty": "Kosong, tulis sendiri",
+        "copyLabel": "Salin daripada",
+        "copyPlaceholder": "Pilih program",
+        "copyRequired": "Pilih program yang syaratnya hendak disalin."
       },
       "sections": {
         "label": "Bahagian",

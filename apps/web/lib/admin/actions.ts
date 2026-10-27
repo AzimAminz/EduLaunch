@@ -3,6 +3,7 @@
 import { EpanduanInstitutions, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
 import { isLocale, type Locale } from '../i18n/locale';
 import { getAccount, getAccessToken } from '../supabase/server';
 import * as api from './api';
@@ -323,10 +324,33 @@ export async function startRequirement(_prev: AdminFormState, form: FormData): P
     if (!existing) return { error: errorKey(err) };
     id = existing;
   }
+  // Copied from approved requirements of another programme: saved into the new draft at once, for the admin to check.
+  const copyFrom = text(form, 'copyFrom');
+  if (z.uuid().safeParse(copyFrom).success && (await copyInto(token, id, copyFrom))) {
+    refresh();
+    redirect(`/${locale}/admin/syarat/${id}?disalin=1`);
+  }
   refresh();
   // From an ePanduan category: the editor fills an empty draft from its text, for the admin to check and save.
   const fill = text(form, 'fill');
   redirect(`/${locale}/admin/syarat/${id}${/^[a-z0-9]+:[A-Z0-9]+$/.test(fill) ? `?isi=${encodeURIComponent(fill)}` : ''}`);
+}
+
+/** Copies another requirement's lines into an empty draft; false when nothing was copied (the draft keeps its own). */
+async function copyInto(token: string, draftId: string, sourceId: string): Promise<boolean> {
+  try {
+    const [draft, source] = await Promise.all([api.getRequirementDetail(token, draftId), api.getRequirementDetail(token, sourceId)]);
+    if (draft.rules.length || !source.rules.length) return false;
+    await api.saveRequirementDraft(token, draftId, {
+      sourceUrl: source.sourceUrl,
+      sourceCategory: source.sourceCategory,
+      rules: source.rules.map((r) => ({ ...r, evidenceQuote: r.evidenceQuote ?? '' })),
+    });
+    return true;
+  } catch {
+    // Rules another route cannot take (subjects of another exam) are refused; the empty draft opens instead.
+    return false;
+  }
 }
 
 /** Saves the requirement editor; with `intent=submit` it also sends the draft for review. */
