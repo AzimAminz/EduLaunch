@@ -743,7 +743,9 @@
         "label": "Pautan sumber rasmi",
         "placeholder": "https://…/prospektus.pdf",
         "open": "Buka sumber ↗",
-        "missing": "Tiada pautan sumber."
+        "missing": "Tiada pautan sumber.",
+        "required": "Tambah pautan sumber rasmi (halaman web atau PDF institusi) sebelum menghantar untuk semakan.",
+        "invalid": "Pautan sumber mesti bermula dengan https://"
       },
       "write": {
         "title": "Apa syarat yang pelajar perlu?",

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, type FormEvent } from 'react';
 import type { EntryRoute } from '@edulaunch/contracts';
 import { discardRequirement, saveRequirement, type AdminFormState } from '@/lib/admin/actions';
 import { checkGroups, EditorRuleTypes, gradesFor, newRule, subjectQualificationsFor, type EditorGroup, type EditorRule, type RuleProblem } from '@/lib/admin/requirement-form';
@@ -43,6 +43,9 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
   const [groups, setGroups] = useState<EditorGroup[]>(initial.groups.length ? initial.groups : [{ quote: '', rules: [newRule()] }]);
   const [attempted, setAttempted] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+  /** Set when "send for review" was pressed without a valid source link. */
+  const [sourceMissing, setSourceMissing] = useState(false);
+  const sourceRef = useRef<HTMLInputElement>(null);
 
   const snapshot = JSON.stringify({ sourceUrl, groups });
   const [savedSnapshot, setSavedSnapshot] = useState(JSON.stringify({ sourceUrl: initial.sourceUrl, groups: initial.groups }));
@@ -57,6 +60,22 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
     setSeenSave(state.savedAt);
     if (state.savedAt) setSavedSnapshot(sentSnapshot);
   }
+  /**
+   * Sending for review needs the official source; without it the editor points at the source field instead of
+   * sending, so the admin sees exactly what to add (the server checks the same).
+   */
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    const intent = ((event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null)?.value;
+    if (intent === 'submit' && !isUrl(sourceUrl)) {
+      event.preventDefault();
+      setAttempted(true);
+      setSourceMissing(true);
+      sourceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      sourceRef.current?.focus({ preventScroll: true });
+      return;
+    }
+    onSubmit(event);
+  };
   const [discardState, onDiscard, discarding] = useFormAction<AdminFormState>(discardRequirement, {});
 
   const subjectById = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects]);
@@ -114,7 +133,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
       </ol>
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <form id="requirement-form" onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form id="requirement-form" onSubmit={submit} className="flex flex-col gap-4">
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="state" value={snapshot} />
@@ -129,12 +148,18 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 id="source-url"
+                ref={sourceRef}
                 value={sourceUrl}
-                onChange={(e) => setSourceUrl(e.target.value)}
+                onChange={(e) => {
+                  setSourceUrl(e.target.value);
+                  setSourceMissing(false);
+                }}
+                aria-invalid={sourceMissing || (attempted && !!sourceUrl && !sourceDone)}
+                aria-describedby={sourceMissing ? 'source-url-error' : undefined}
                 inputMode="url"
                 placeholder={t.source.placeholder}
                 maxLength={500}
-                className={`min-w-0 flex-1 rounded-[10px] border bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15 ${attempted && sourceUrl && !sourceDone ? 'border-red' : 'border-[#9aa3b2]'}`}
+                className={`min-w-0 flex-1 rounded-[10px] border bg-white px-4 py-3 text-[15px] outline-none focus:ring-2 ${sourceMissing || (attempted && sourceUrl && !sourceDone) ? 'border-red focus:border-red focus:ring-red/15' : 'border-[#9aa3b2] focus:border-navy focus:ring-navy/15'}`}
               />
               {sourceDone && (
                 <a href={sourceUrl.trim()} target="_blank" rel="noreferrer" className={buttonClass('secondary')}>
@@ -142,6 +167,12 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
                 </a>
               )}
             </div>
+            {sourceMissing && (
+              <p id="source-url-error" className="flex items-center gap-1.5 text-[13px] text-red">
+                <AdminIcon name="alert" size={14} />
+                {sourceUrl.trim() ? t.source.invalid : t.source.required}
+              </p>
+            )}
           </section>
 
           <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">

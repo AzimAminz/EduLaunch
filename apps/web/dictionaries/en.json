@@ -743,7 +743,9 @@
         "label": "Link to the official source",
         "placeholder": "https://…/prospectus.pdf",
         "open": "Open source ↗",
-        "missing": "No source link."
+        "missing": "No source link.",
+        "required": "Add the official source link (the institution's web page or PDF) before sending for review.",
+        "invalid": "The source link must start with https://"
       },
       "write": {
         "title": "What do students need?",
