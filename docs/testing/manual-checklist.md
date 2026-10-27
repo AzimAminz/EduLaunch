@@ -280,78 +280,80 @@ Tested by: AzimAminz Date: 26 Oct 2026
 
 ### A. Admin pages are for admins only
 
-- [ ] Admin A logs in and lands on **Laman utama** ("Selamat datang, …") with three tasks: **Semak draf yang menunggu**, **Kemas kini syarat program**, **Tambah program baharu**.
-- [ ] The sidebar shows **Kerja hari ini** (Laman utama, Peti tugasan) and **Katalog** (Institusi, then Program). It collapses like the student sidebar, and works as a menu on a phone.
-- [ ] A student who types `/ms/admin` in the address bar is sent back to the student portal.
+- [x] Admin A logs in and lands on **Laman utama** ("Selamat datang, …") with three tasks: **Semak draf yang menunggu**, **Kemas kini syarat program**, **Tambah program baharu**.
+- [x] The sidebar shows **Kerja hari ini** (Laman utama, Peti tugasan) and **Katalog** (Institusi, then Program). It collapses like the student sidebar, and works as a menu on a phone.
+- [x] A student who types `/ms/admin` in the address bar is sent back to the student portal.
 
 ### B. Institutions (start here)
 
-- [ ] **Institusi** → **Tambah institusi** (top right): name, short name, type, **Negeri** and website (`https://…`), then **Simpan**. The new institution's **profile** opens.
-- [ ] A website without `https://` shows "Laman web mesti bermula dengan https://".
-- [ ] The profile has four tabs. **Ringkasan**: counts (Diterbitkan, Belum diterbitkan, Tanpa syarat diterbitkan, Diarkib; each opens the matching list) and one **Langkah seterusnya** (for a new institution: add its first programme).
-- [ ] **Sumber & import**: the website is listed; add a source (type **Prospektus / PDF syarat**, a link, a note), then **Buang** removes it.
-- [ ] **Tetapan**: change the details and **Simpan**. In the institution list each row shows its programmes ("4 program · 4 diterbitkan") and **Buka**.
-- [ ] **Padam institusi…** (Tetapan, Zon bahaya) opens a window listing what goes with it (programmes, requirement versions, merit records, pathways, sources). **Padam semua** stays grey until you type the short name (for example `UTeM`; letter case does not matter).
-- [ ] An institution with no published programmes is deleted at once, with everything under it, and you return to the list.
-- [ ] Universiti Contoh A (students see its programmes): typing `UCA` gives **Hantar untuk kelulusan**. Nothing is deleted; Admin B sees "Permintaan padam institusi" in **Peti tugasan** and, on the institution's Tetapan tab, can **Luluskan & padam semua** or **Batalkan permintaan**. (Use **Batalkan** unless you want to lose the sample data.)
+- [x] **Institusi** → **Tambah institusi** (top right): name, short name, type, **Negeri** and website (`https://…`), then **Simpan**. The new institution's **profile** opens.
+- [x] A website without `https://` shows "Laman web mesti bermula dengan https://".
+- [x] The profile has four tabs. **Ringkasan**: counts (Diterbitkan, Belum diterbitkan, Tanpa syarat diterbitkan, Diarkib; each opens the matching list) and one **Langkah seterusnya** (for a new institution: add its first programme).
+- [x] **Sumber & import**: the website is listed; add a source (type **Prospektus / PDF syarat**, a link, a note), then **Buang** removes it.
+- [x] **Tetapan**: change the details and **Simpan**. In the institution list each row shows its programmes ("4 program · 4 diterbitkan") and **Buka**.
+- [x] **Padam institusi…** (Tetapan, Zon bahaya) opens a window listing what goes with it (programmes, requirement versions, merit records, pathways, sources). **Padam semua** stays grey until you type the short name (for example `UTeM`; letter case does not matter).
+- [x] An institution with no published programmes is deleted at once, with everything under it, and you return to the list.
+- [x] Universiti Contoh A (students see its programmes): typing `UCA` gives **Hantar untuk kelulusan**. Nothing is deleted; Admin B sees "Permintaan padam institusi" in **Peti tugasan** and, on the institution's Tetapan tab, can **Luluskan & padam semua** or **Batalkan permintaan**. (Use **Batalkan** unless you want to lose the sample data.)
 
 ### C. Programmes: view, edit and the two-admin rule
 
-- [ ] The form has three steps with a step line at the top: **1 Identiti → 2 Akademik → 3 Kemasukan & sumber**. **Seterusnya** with an empty name or level marks them red and stays on the step; **Kembali** and the step line go back; the last step has the save button. Every value is kept between steps.
-- [ ] The button bar stays at the bottom of the form in the same place on every step: going back on the left (**Batal** on step 1, **Kembali** after), going forward on the right (**Seterusnya**, then **Simpan draf** only on the last step).
-- [ ] Clicking **Seterusnya** quickly from step 2 to 3, or pressing **Enter** in a field on step 1 or 2, only moves to the next step. Nothing is saved until **Simpan draf** on step 3.
-- [ ] After **Simpan draf** / **Simpan perubahan** you land on the programme page with the new details (no reload needed). **Tambah program** again starts with an empty form. **Sunting** again shows the values just saved.
-- [ ] Cause an error (for example a Kod program another programme already uses), leave the page, then open **Sunting** again: the error is gone and the stored values are back.
-- [ ] In the requirement editor, **Simpan draf** returns to the programme's **Syarat kemasukan** tab with "Draf syarat disimpan"; **Hantar untuk semakan** returns with "Syarat dihantar untuk semakan".
-- [ ] **Batal** with nothing typed leaves at once. After typing, it asks first ("…belum disimpan dan akan hilang"): **Teruskan mengisi** keeps everything, **Buang dan keluar** leaves.
-- [ ] In an institution's **Program** tab (and the **Program** list) each row has **Buka** and a main action: **Sunting** for drafts and published programmes, **Semak** when it waits for review.
-- [ ] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen and fields marked * are required. Fill in Peringkat, name, Kod program (required: leaving it empty shows "Isi kod program…"; there is no fixed format yet, `uc6522001` becomes `UC6522001`), Bidang NEC (`0712` adds **Kejuruteraan** by itself), Tempoh 6 (shows "± 3 tahun"), Mod, Kampus, ticks and source link, then **Simpan draf**.
-- [ ] The programme page opens **read only**: a panel with three steps (**Draf → Semakan admin lain → Diterbitkan**), one sentence about what happens next, and the main action first (**Hantar untuk semakan**, then **Sunting**). Tabs **Maklumat** and **Syarat kemasukan**.
-- [ ] **Sunting** opens its own page with the same form and **Batal**. While the programme has never been published, Institusi and Peringkat can still be changed.
-- [ ] Admin B opens Admin A's draft: the panel says another admin prepared it and B **can** edit it. B edits and saves: B becomes the preparer, so B cannot approve it.
-- [ ] After **Hantar untuk semakan** the preparer sees only **Tarik balik** (to edit again); the other admin sees **Luluskan & terbitkan** and **Pulangkan dengan sebab** (asks for the reason). A returned draft shows the reason and **Sunting** first.
-- [ ] Once published, students find it in **Teroka program** (allow up to a minute).
-- [ ] **Sunting** a published programme: the edit page says your changes are a proposal; **Simpan sebagai perubahan**. The programme shows **Ada perubahan**, the steps **Perubahan → Semakan admin lain → Digunakan**, and a table **Perubahan yang dicadangkan** (Sekarang / Cadangan). Students still see the old details.
-- [ ] **Hantar perubahan untuk semakan** → the other admin sees "Perubahan pada program diterbitkan" in **Peti tugasan** and **Luluskan perubahan**; after approval the new values show. **Buang perubahan** (asks first) drops an unsent change and keeps the current version.
-- [ ] A second programme with the same Kod program is refused: "Kod program ini sudah digunakan oleh program lain."
-- [ ] **Program** in the sidebar: filter by institution, by status and by **Belum ada syarat diterbitkan**; programmes with a change show **Ada perubahan**.
-- [ ] **Arkibkan** asks to confirm, hides the programme from students, and leaves **Buka semula sebagai draf** and **Padam program**.
-- [ ] **Padam program** is offered for drafts (never published) and archived programmes only. It asks first ("Padam program ini bersama N versi syaratnya?"), then returns to the institution's programme list. A published programme has no delete: its panel says to archive it first.
-- [ ] After **Hantar untuk semakan** the panel says every other admin sees it in **Peti tugasan → Untuk saya** and any of them can approve it; the other admin's sidebar shows the count.
+- [x] The form has three steps with a step line at the top: **1 Identiti → 2 Akademik → 3 Kemasukan & sumber**. **Seterusnya** with an empty name or level marks them red and stays on the step; **Kembali** and the step line go back; the last step has the save button. Every value is kept between steps.
+- [x] The button bar stays at the bottom of the form in the same place on every step: going back on the left (**Batal** on step 1, **Kembali** after), going forward on the right (**Seterusnya**, then **Simpan draf** only on the last step).
+- [x] Clicking **Seterusnya** quickly from step 2 to 3, or pressing **Enter** in a field on step 1 or 2, only moves to the next step. Nothing is saved until **Simpan draf** on step 3.
+- [x] After **Simpan draf** / **Simpan perubahan** you land on the programme page with the new details (no reload needed). **Tambah program** again starts with an empty form. **Sunting** again shows the values just saved.
+- [x] Cause an error (for example a Kod program another programme already uses), leave the page, then open **Sunting** again: the error is gone and the stored values are back.
+- [x] In the requirement editor, **Simpan draf** returns to the programme's **Syarat kemasukan** tab with "Draf syarat disimpan"; **Hantar untuk semakan** returns with "Syarat dihantar untuk semakan".
+- [x] **Batal** with nothing typed leaves at once. After typing, it asks first ("…belum disimpan dan akan hilang"): **Teruskan mengisi** keeps everything, **Buang dan keluar** leaves.
+- [x] In an institution's **Program** tab (and the **Program** list) each row has **Buka** and a main action: **Sunting** for drafts and published programmes, **Semak** when it waits for review.
+- [x] Admin A: open the institution from B → **Tambah program di sini**: the institution is already chosen and fields marked * are required. Fill in Peringkat, name, Kod program (required: leaving it empty shows "Isi kod program…"; there is no fixed format yet, `uc6522001` becomes `UC6522001`), Bidang NEC (`0712` adds **Kejuruteraan** by itself), Tempoh 6 (shows "± 3 tahun"), Mod, Kampus, ticks and source link, then **Simpan draf**.
+- [x] The programme page opens **read only**: a panel with three steps (**Draf → Semakan admin lain → Diterbitkan**), one sentence about what happens next, and the main action first (**Hantar untuk semakan**, then **Sunting**). Tabs **Maklumat** and **Syarat kemasukan**.
+- [x] **Sunting** opens its own page with the same form and **Batal**. While the programme has never been published, Institusi and Peringkat can still be changed.
+- [x] Admin B opens Admin A's draft: the panel says another admin prepared it and B **can** edit it. B edits and saves: B becomes the preparer, so B cannot approve it.
+- [x] After **Hantar untuk semakan** the preparer sees only **Tarik balik** (to edit again); the other admin sees **Luluskan & terbitkan** and **Pulangkan dengan sebab** (asks for the reason). A returned draft shows the reason and **Sunting** first.
+- [x] Once published, students find it in **Teroka program** (allow up to a minute).
+- [x] **Sunting** a published programme: the edit page says your changes are a proposal; **Simpan sebagai perubahan**. The programme shows **Ada perubahan**, the steps **Perubahan → Semakan admin lain → Digunakan**, and a table **Perubahan yang dicadangkan** (Sekarang / Cadangan). Students still see the old details.
+- [x] **Hantar perubahan untuk semakan** → the other admin sees "Perubahan pada program diterbitkan" in **Peti tugasan** and **Luluskan perubahan**; after approval the new values show. **Buang perubahan** (asks first) drops an unsent change and keeps the current version.
+- [x] A second programme with the same Kod program is refused: "Kod program ini sudah digunakan oleh program lain."
+- [x] **Program** in the sidebar: filter by institution, by status and by **Belum ada syarat diterbitkan**; programmes with a change show **Ada perubahan**.
+- [x] **Arkibkan** asks to confirm, hides the programme from students, and leaves **Buka semula sebagai draf** and **Padam program**.
+- [x] **Padam program** is offered for drafts (never published) and archived programmes only. It asks first ("Padam program ini bersama N versi syaratnya?"), then returns to the institution's programme list. A published programme has no delete: its panel says to archive it first.
+- [x] After **Hantar untuk semakan** the panel says every other admin sees it in **Peti tugasan → Untuk saya** and any of them can approve it; the other admin's sidebar shows the count.
 
 ### D. Requirement wizard
 
-- [ ] On the programme's **Syarat kemasukan** tab, routes that have requirements are listed; **Tambah syarat untuk laluan** offers the other routes, the usual ones for the level first ("(biasa untuk peringkat ini)"). Admin A chooses Lepasan SPM and presses **Mula**: the wizard opens.
-- [ ] Press **Hantar untuk semakan** with nothing filled in: the missing parts turn red and a message says how many to fix.
-- [ ] Fill in the source link, then write:
+- [x] On the programme's **Syarat kemasukan** tab, routes that have requirements are listed; **Tambah syarat untuk laluan** offers the other routes, the usual ones for the level first ("(biasa untuk peringkat ini)"). Admin A chooses Lepasan SPM and presses **Mula**: the wizard opens.
+- [x] Press **Hantar untuk semakan** with nothing filled in: the missing parts turn red and a message says how many to fix.
+- [x] Fill in the source link, then write:
   - "Pelajar perlu **Gred subjek** minimum **C** dalam **Bahasa Melayu**", with its source sentence;
   - **+ Tambah syarat**, type **Bilangan kepujian**, gred C, 3 subjects;
   - **+ Tambah syarat** with Matematik, then **+ atau pilihan lain** with Fizik ("SALAH SATU daripada").
-- [ ] **Apa pelajar nampak** on the right updates while typing. **Simpan draf** shows "Draf disimpan." and "Ada perubahan belum disimpan" disappears.
-- [ ] Changing a subject to an STPM subject clears an SPM-only grade such as A+.
-- [ ] **Hantar untuk semakan**: the page shows **Menunggu semakan** and Admin A can no longer edit it.
+- [x] **Apa pelajar nampak** on the right updates while typing. **Simpan draf** shows "Draf disimpan." and "Ada perubahan belum disimpan" disappears.
+- [x] Changing a subject to an STPM subject clears an SPM-only grade such as A+.
+- [x] **Hantar untuk semakan**: the page shows **Menunggu semakan** and Admin A can no longer edit it.
 
 ### E. Reviewing requirements
 
-- [ ] Admin B opens it from **Peti tugasan**: **1. Apa yang berubah?** shows the current version (or "Ini syarat pertama") next to the new draft; **2. Semak sumber** has the source link and the quoted sentences.
-- [ ] **Pulangkan dengan soalan** with a reason: Admin A sees the reason at the top of the wizard, changes a grade and sends again.
-- [ ] Admin B: **Luluskan & terbitkan**. A student opening the programme sees the new requirements and the "Boleh ke saya masuk?" check uses them.
-- [ ] Admin A: **Kemas kini syarat** on the same route starts **versi 2** with the published rules already filled in. Admin B's review shows the changed line marked **Baharu** and the old one **Dibuang**. **Buang draf** (by Admin A) removes the draft and version 1 stays published.
+- [x] Admin B opens it from **Peti tugasan**: **1. Apa yang berubah?** shows the current version (or "Ini syarat pertama") next to the new draft; **2. Semak sumber** has the source link and the quoted sentences.
+- [x] **Pulangkan dengan soalan** with a reason: Admin A sees the reason at the top of the wizard, changes a grade and sends again.
+- [x] Admin B: **Luluskan & terbitkan**. A student opening the programme sees the new requirements and the "Boleh ke saya masuk?" check uses them.
+- [x] Admin A: **Kemas kini syarat** on the same route starts **versi 2** with the published rules already filled in. Admin B's review shows the changed line marked **Baharu** and the old one **Dibuang**. **Buang draf** (by Admin A) removes the draft and version 1 stays published.
 
 ### F. Icons, sorting and pages
 
-- [ ] Every button in the admin has an icon next to its words (Sunting, Hantar, Luluskan, Padam…); a status chip shows an icon as well as a colour. Pressing Hantar or Simpan shows a spinner on that button until it finishes.
-- [ ] **Program**: click a column heading (Program, Institusi, Peringkat, Status, Dikemas kini). The list sorts by it, the heading shows ▲ or ▼, and clicking again flips the order. The address keeps it (`?susun=…&arah=…`), so the back button and a copied link show the same order.
-- [ ] With more than 20 programmes, page links appear under the table ("1–20 daripada N", ←, 1 2 3, →). Changing a filter or the sort goes back to page 1. A link to a page past the end opens the last page.
-- [ ] **Institusi**: search by name, short name or state; sort by Nama, Bilangan program or Negeri. A search with no match says so.
-- [ ] The institution profile's **Program** tab sorts and pages the same way; **Peti tugasan** pages a long tab.
-- [ ] With the keyboard (Tab), every button, tab and heading link shows a visible focus ring.
+- [x] Every button in the admin has an icon next to its words (Sunting, Hantar, Luluskan, Padam…); a status chip shows an icon as well as a colour. Pressing Hantar or Simpan shows a spinner on that button until it finishes.
+- [x] **Program**: click a column heading (Program, Institusi, Peringkat, Status, Dikemas kini). The list sorts by it, the heading shows ▲ or ▼, and clicking again flips the order. The address keeps it (`?susun=…&arah=…`), so the back button and a copied link show the same order.
+- [x] With more than 20 programmes, page links appear under the table ("1–20 daripada N", ←, 1 2 3, →). Changing a filter or the sort goes back to page 1. A link to a page past the end opens the last page.
+- [x] **Institusi**: search by name, short name or state; sort by Nama, Bilangan program or Negeri. A search with no match says so.
+- [x] The institution profile's **Program** tab sorts and pages the same way; **Peti tugasan** pages a long tab.
+- [x] With the keyboard (Tab), every button, tab and heading link shows a visible focus ring.
 
 ### G. Language and phone
 
-- [ ] Switch to **EN**: every admin page is in English.
-- [ ] On a narrow window the pages need no sideways scrolling (the programme table scrolls inside its box).
+- [x] Switch to **EN**: every admin page is in English.
+- [x] On a narrow window the pages need no sideways scrolling (the programme table scrolls inside its box).
 
-**Result:** ☐ All passed ☐ Problems found (describe below)
+**Result:** ☑ All passed ☐ Problems found (describe below)
 
-Tested by: ____________ Date: ____________
+Accepted by the owner for now; this section is updated as the admin console changes.
+
+Tested by: AzimAminz Date: 27 Oct 2026

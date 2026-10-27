@@ -1,6 +1,6 @@
 # EduLaunch — Roadmap
 
-Version 3.1 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 built, M1 demo after its manual check; next: JPT import)
+Version 3.1 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 accepted, M1 demo ready; next: JPT import)
 
 **Assumptions:** final-year project over two semesters (about 28 weeks), one to three developers, two-week sprints. Capacity split: about 70% features, 20% testing and clean-up, 10% buffer for surprises.
 
@@ -17,7 +17,7 @@ Version 3.1 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 buil
 
 ## Status overview
 
-- **Done:** 8 of 31 items. Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 waiting for its check).
+- **Done:** 8 of 31 items. Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 accepted on 27 Oct 2026 and refined as needs come up).
 - **In Progress:** 7 items. Back-end services exist with unit and integration tests; their screens and real programme data do not yet.
 - **Not Started:** 16 items.
 - **At risk:** real catalogue data and historical admission data. Both are planned through the JPT import (Steps 9 and 11), which first needs the ePanduan terms of use checked.
@@ -36,7 +36,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 6 | Academic profile: results form per level (school grades, SPM targets, actual SPM), add/remove subjects, save & confirm; profile page with level change | **Done** (checked by hand) |
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (checked by hand) |
 | 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (checked by hand) |
-| 8 | Admin console: home with today's tasks, task inbox, institutions, programmes (draft → another admin approves → published), requirement wizard by entry route (including SVM, SKM, DVM and DKM routes) with a second-admin review | **Done** (manual check waiting); **M1 demo** after the check |
+| 8 | Admin console: home with today's tasks, task inbox, institutions, programmes (draft → another admin approves → published), requirement wizard by entry route (including SVM, SKM, DVM and DKM routes) with a second-admin review | **Done** (accepted; refined as needs come up); **M1 demo** ready |
 | 9 | **Programmes found from each institution (institution first):** an admin adds an institution with its official sources (website, programme page, prospectus PDFs, its ePanduan university code) → the system reads that institution's programmes (code, name, level, NEC field, duration, year, merit average) → a "programmes found" list for that institution, which an admin accepts (in bulk) as drafts → another admin publishes. Merit averages go to `ADMISSION_STAT`; the 157 NEC codes become the field list. Weekly re-check: new programmes are offered, missing ones are flagged (never archived automatically). Adding a programme by hand stays as a fallback. Reading ePanduan starts only after its terms of use are checked | Planned (next) |
 | 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | Planned |
 | 11 | **JPT import, part 2 (requirements):** read each programme's Syarat Am and Syarat Khas with a headless browser, parse with rules first and Claude for what rules cannot read, validate (exact quotes, known subjects, valid grades), create requirement drafts that an admin approves | Planned |
@@ -202,7 +202,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 1 | 1–2 | Setup, database schema, auth, service skeletons | **Done** (plus early back end for Sprints 2–9) |
 | 2 | 3–4 | **Seed catalogue**; CI; programme search and detail screens; BM/EN | **Done** except real catalogue data (still at risk) |
 | 3 | 5–6 | Sign-in screens; academic profile screens with subject picker | **Done** (Steps 5–6) |
-| 4 | 7–8 | Eligibility on screen with real data; admin programme editing; requirement review screens; **M1 demo** | **Done** (Steps 7–8); M1 demo after the Step 8 check |
+| 4 | 7–8 | Eligibility on screen with real data; admin programme editing; requirement review screens; **M1 demo** | **Done** (Steps 7–8); M1 demo ready |
 | 5 | 9–10 | **JPT import part 1** (programme list, NEC fields, merit averages); requirement model v2 | Next |
 | 6 | 11–12 | **JPT import part 2** (requirements, Claude extraction); recommendation dashboard card | |
 | 7 | 13–14 | Interest test and activities; merit calculator | |
