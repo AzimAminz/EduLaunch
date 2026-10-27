@@ -90,6 +90,22 @@ describe('DrizzleProgramRepository (integration)', () => {
     expect(approved).toMatchObject({ campus: 'Kampus Induk', fieldIds: [fieldB], pending: null });
   });
 
+  it('keeps one average merit per intake year, replacing an older figure for the same year', async () => {
+    const p = programme('Diploma Merit');
+    await repo.save(p);
+    await repo.recordAverageMerit(p.id, 2026, 80.5);
+    await repo.recordAverageMerit(p.id, 2026, 81.25);
+    await repo.recordAverageMerit(p.id, 2025, 79);
+    const rows = await db
+      .select({ year: schema.admissionStats.intakeYear, merit: schema.admissionStats.averageMerit })
+      .from(schema.admissionStats)
+      .where(inArray(schema.admissionStats.programId, [p.id]));
+    expect(rows.sort((a, b) => a.year - b.year)).toEqual([
+      { year: 2025, merit: '79.00' },
+      { year: 2026, merit: '81.25' },
+    ]);
+  });
+
   it('returns null for an unknown id', async () => {
     expect(await repo.findById(randomUUID())).toBeNull();
   });

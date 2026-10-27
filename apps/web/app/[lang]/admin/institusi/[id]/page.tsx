@@ -3,23 +3,26 @@ import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
+import { SharedEpanduanCodes } from '@edulaunch/contracts';
+import { EpanduanImport } from '@/components/admin/epanduan-import';
 import { InstitutionDangerZone } from '@/components/admin/institution-danger-zone';
 import { InstitutionForm } from '@/components/admin/institution-form';
 import { InstitutionSources } from '@/components/admin/institution-sources';
 import { AdminIcon, type AdminIconName } from '@/components/admin/icons';
 import { ProgrammeTable } from '@/components/admin/programme-table';
-import { AdminHeading, AdminTabs, ButtonLink, Card, LoadError, Pagination } from '@/components/admin/ui';
-import { AdminApiError, ProgrammeSorts, getInstitutionDetail, listProgrammes, type InstitutionDetail } from '@/lib/admin/api';
+import { AdminHeading, AdminTabs, ButtonLink, Card, LoadError, Pagination, timeAgo } from '@/components/admin/ui';
+import { AdminApiError, ProgrammeSorts, getInstitutionDetail, latestEpanduanRun, listInstitutionProgrammes, listNecFields, listProgrammes, type InstitutionDetail } from '@/lib/admin/api';
+import { compareFound } from '@/lib/admin/epanduan-import';
 import { listParamEntries, readListParams, type ListParams } from '@/lib/admin/list-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
 
-const TABS = ['ringkasan', 'program', 'sumber', 'tetapan'] as const;
+const TABS = ['ringkasan', 'program', 'import', 'sumber', 'tetapan'] as const;
 type Tab = (typeof TABS)[number];
 type Props = PageProps<'/[lang]/admin/institusi/[id]'>;
 type Sort = (typeof ProgrammeSorts)[number];
-const TAB_ICON: Record<Tab, AdminIconName> = { ringkasan: 'dashboard', program: 'programme', sumber: 'link', tetapan: 'sliders' };
+const TAB_ICON: Record<Tab, AdminIconName> = { ringkasan: 'dashboard', program: 'programme', import: 'search', sumber: 'link', tetapan: 'sliders' };
 
 /**
  * An institution's profile, the home of its data: summary, programmes (added by hand now, found from its sources
@@ -62,7 +65,7 @@ async function Institution({ locale, dict, params, searchParams }: { locale: Loc
   }
   const base = `/${locale}/admin/institusi/${id}`;
   const types: Record<string, string> = i.types;
-  const tabLabel: Record<Tab, string> = { ringkasan: i.tabs.summary, program: i.tabs.programmes, sumber: i.tabs.sources, tetapan: i.tabs.settings };
+  const tabLabel: Record<Tab, string> = { ringkasan: i.tabs.summary, program: i.tabs.programmes, import: i.tabs.import, sumber: i.tabs.sources, tetapan: i.tabs.settings };
   const tabCount: Partial<Record<Tab, number>> = { program: institution.programmes, sumber: institution.sources.length };
   /** The programme tab's address with a sort or page; the defaults are left out. */
   const programmeHref = (p: ListParams<Sort>) => `${base}?${new URLSearchParams([['tab', 'program'], ...listParamEntries(p, 'name')])}`;
@@ -108,6 +111,7 @@ async function Institution({ locale, dict, params, searchParams }: { locale: Loc
           <Pagination page={programmes.page} pageSize={programmes.pageSize} total={programmes.total} href={(page) => programmeHref({ ...list, page })} sizeHref={(pageSize) => programmeHref({ ...list, pageSize, page: 1 })} t={t.pagination} />
         </>
       )}
+      {tab === 'import' && <ImportTab locale={locale} dict={dict} institution={institution} />}
       {tab === 'sumber' && (
         <Card>
           <div className="flex flex-col gap-1">
@@ -194,5 +198,52 @@ function Summary({ locale, institution, t }: { locale: Locale; institution: Inst
         )}
       </Card>
     </>
+  );
+}
+
+/** "Import ePanduan": the latest read of this institution's programmes on ePanduan, compared with the catalogue. */
+async function ImportTab({ locale, dict, institution }: { locale: Locale; dict: Dictionary; institution: InstitutionDetail }) {
+  const t = dict.admin;
+  const m = t.institutions.import;
+  const code = institution.epanduanCode;
+  if (!code) {
+    return (
+      <Card>
+        <p className="flex items-start gap-2 text-sm">
+          <AdminIcon name="info" size={18} />
+          {m.noCode}
+        </p>
+        <ButtonLink href={`/${locale}/admin/institusi/${institution.id}?tab=tetapan`} icon="sliders">
+          {m.setCode}
+        </ButtonLink>
+      </Card>
+    );
+  }
+  let data;
+  try {
+    const token = (await getAccessToken())!;
+    const [{ run }, existing, nec] = await Promise.all([latestEpanduanRun(token, code), listInstitutionProgrammes(token, institution.id), listNecFields(token)]);
+    data = { run, existing, nec };
+  } catch {
+    return <LoadError text={t.errors.generic} />;
+  }
+  const { run, existing, nec } = data;
+  const comparison = compareFound(run?.status === 'done' ? run.programmes : [], existing, new Set(nec.map((n) => n.code)));
+  const now = new Date().getTime();
+  return (
+    <EpanduanImport
+      // A newer read (or the end of one) starts the choice afresh.
+      key={run ? `${run.id}:${run.status}` : 'none'}
+      locale={locale}
+      institutionId={institution.id}
+      code={code}
+      shared={SharedEpanduanCodes.includes(code)}
+      run={run ? { status: run.status, pagesRead: run.pagesRead, found: run.found, error: run.error, when: timeAgo(run.finishedAt ?? run.startedAt, now, t) } : null}
+      rows={comparison.rows}
+      missing={comparison.missing}
+      counts={comparison.counts}
+      t={t}
+      levels={dict.levels}
+    />
   );
 }

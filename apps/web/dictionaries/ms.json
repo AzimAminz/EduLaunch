@@ -656,8 +656,9 @@
       "tabs": {
         "summary": "Ringkasan",
         "programmes": "Program",
-        "sources": "Sumber & import",
-        "settings": "Tetapan"
+        "sources": "Sumber rasmi",
+        "settings": "Tetapan",
+        "import": "Import ePanduan"
       },
       "summary": {
         "published": "Diterbitkan",
@@ -723,6 +724,87 @@
         "name": "Nama",
         "programmes": "Bilangan program",
         "state": "Negeri"
+      },
+      "epanduanCode": "Kod di ePanduan JPT",
+      "epanduanNone": "Tiada (bukan IPTA dalam ePanduan)",
+      "epanduanPlaceholder": "Pilih kod, contohnya UC · UTeM",
+      "epanduanHint": "Untuk mencari program institusi ini di ePanduan secara automatik (tab Import ePanduan).",
+      "import": {
+        "title": "Program dari ePanduan JPT",
+        "intro": "Sistem membaca senarai program institusi ini dari laman awam ePanduan (kategori Lepasan SPM dan STPM). Program yang dipilih menjadi draf, dan admin lain masih perlu meluluskannya sebelum pelajar nampak.",
+        "noCode": "Institusi ini belum ada kod ePanduan. Tetapkan kod di tab Tetapan untuk mencari programnya secara automatik.",
+        "setCode": "Tetapkan kod ePanduan",
+        "shared": "Kod {code} dikongsi oleh semua kolej dalam kumpulan ini. Pilih hanya program yang ditawarkan oleh institusi ini (lihat nama dan kampus).",
+        "start": "Cari program sekarang",
+        "again": "Semak semula",
+        "running": "Sedang membaca ePanduan… {pages} halaman dibaca. Ini mengambil masa kira-kira seminit; halaman ini dikemas kini sendiri.",
+        "failed": "Bacaan terhenti: {reason}. Tiada data diubah. Cuba lagi sebentar nanti.",
+        "never": "Belum pernah dicari. Tekan butang di atas untuk mula.",
+        "lastRun": "Dibaca {when} · {pages} halaman · {found} program",
+        "empty": "Tiada program dijumpai untuk kod ini. Semak kod di tab Tetapan.",
+        "filters": {
+          "all": "Semua",
+          "new": "Baharu",
+          "changed": "Berubah",
+          "same": "Sama",
+          "missing": "Tiada di ePanduan"
+        },
+        "status": {
+          "new": "Baharu",
+          "changed": "Berubah",
+          "same": "Sama"
+        },
+        "columns": {
+          "pick": "Pilih",
+          "code": "Kod",
+          "name": "Program",
+          "level": "Peringkat",
+          "duration": "Tempoh",
+          "nec": "NEC",
+          "merit": "Purata merit",
+          "status": "Status"
+        },
+        "semesters": "{n} sem",
+        "changes": "Berubah: {fields}",
+        "fields": {
+          "name": "nama",
+          "studyLevel": "peringkat",
+          "durationSemesters": "tempoh",
+          "necCode": "bidang NEC",
+          "studyMode": "mod",
+          "campus": "kampus",
+          "hasInterview": "temu duga",
+          "isStem": "STEM",
+          "isTvet": "TVET",
+          "bumiputeraOnly": "Bumiputera"
+        },
+        "problems": {
+          "no_level": "Peringkat tidak dikenali; tambah secara manual",
+          "in_review": "Sedang disemak; tunggu keputusan dahulu",
+          "change_in_review": "Ada perubahan sedang disemak",
+          "archived": "Diarkib; buka semula dahulu"
+        },
+        "selectAll": "Pilih semua yang boleh diterima",
+        "clear": "Kosongkan pilihan",
+        "accept": "Terima {n} sebagai draf",
+        "accepted": "{created} draf baharu dan {updated} perubahan disimpan. Hantar setiap satu untuk semakan admin lain.",
+        "acceptedFailed": "{failed} tidak dapat disimpan (contohnya kod sudah digunakan).",
+        "missingTitle": "Program dalam katalog yang tiada lagi di ePanduan",
+        "missingHint": "Hanya ditanda untuk disemak. Tiada program diarkibkan secara automatik, kerana halaman mungkin gagal dimuatkan.",
+        "flags": {
+          "stem": "STEM",
+          "tvet": "TVET",
+          "bumiputera": "Bumiputera",
+          "feeder": "Perintis",
+          "newProgramme": "Program baharu"
+        },
+        "source": "Sumber: ePanduan, Jabatan Pendidikan Tinggi. Data digunakan untuk projek pendidikan bukan komersial dan disemak oleh admin.",
+        "reasons": {
+          "layout": "susun atur laman ePanduan sudah berubah, jadi pembaca perlu dikemas kini",
+          "unavailable": "laman ePanduan tidak menjawab atau sedang sibuk",
+          "stopped": "perkhidmatan dimulakan semula semasa membaca",
+          "other": "ralat tidak dijangka"
+        }
       }
     },
     "requirement": {
@@ -849,7 +931,8 @@
       "not_found": "Rekod ini tidak dijumpai. Mungkin sudah dibuang.",
       "noRules": "Tambah sekurang-kurangnya satu syarat.",
       "confirmation_mismatch": "Teks pengesahan tidak sama. Taip tepat seperti yang ditunjukkan.",
-      "upu_code_taken": "Kod program ini sudah digunakan oleh program lain."
+      "upu_code_taken": "Kod program ini sudah digunakan oleh program lain.",
+      "run_in_progress": "ePanduan sedang dibaca untuk institusi ini. Tunggu sehingga selesai."
     },
     "pagination": {
       "label": "Halaman senarai",

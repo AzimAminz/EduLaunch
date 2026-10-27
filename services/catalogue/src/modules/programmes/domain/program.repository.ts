@@ -19,6 +19,8 @@ export abstract class ProgramRepository {
   abstract save(program: Program): Promise<void>;
   /** Removes the programme; its requirements, fields, pathways and admission figures go with it (cascading keys). */
   abstract delete(id: string): Promise<void>;
+  /** The average merit of one intake year (from ePanduan), replacing an earlier figure for that year. */
+  abstract recordAverageMerit(programId: string, intakeYear: number, averageMerit: number): Promise<void>;
   abstract institutionExists(id: string): Promise<boolean>;
   abstract necCodeExists(code: string): Promise<boolean>;
   /** Whether another programme already uses this JPT / UPU code. */

@@ -44,6 +44,14 @@ describe('Institution', () => {
     expect(utem().toSnapshot().state).toBe('Melaka');
   });
 
+  it('keeps its ePanduan code in capitals, and leaves it as it was when an edit does not give one', () => {
+    const utem = Institution.create('i', { name: 'Universiti Teknikal Malaysia Melaka', shortName: 'UTeM', type: 'public_university', websiteUrl: null, epanduanCode: ' uc ' });
+    expect(utem.toSnapshot().epanduanCode).toBe('UC');
+    utem.update({ name: 'Universiti Teknikal Malaysia Melaka', shortName: 'UTeM', type: 'public_university', websiteUrl: null });
+    expect(utem.toSnapshot().epanduanCode).toBe('UC');
+    expect(() => Institution.create('i', { name: 'Universiti Contoh', shortName: null, type: 'public_university', websiteUrl: null, epanduanCode: 'UTEM' })).toThrow('two letters');
+  });
+
   it('is confirmed by typing its short name, or its name when it has none', () => {
     expect(utem().confirmationText).toBe('UTeM');
     expect(() => utem().requestDeletion('a', 'utm', false)).toThrow('Type UTeM');

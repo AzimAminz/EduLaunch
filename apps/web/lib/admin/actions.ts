@@ -1,11 +1,12 @@
 'use server';
 
-import { InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
+import { EpanduanInstitutions, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isLocale, type Locale } from '../i18n/locale';
 import { getAccount, getAccessToken } from '../supabase/server';
 import * as api from './api';
+import { acceptable, compareFound, draftFromFound, updateFromFound } from './epanduan-import';
 import { checkGroups, EditorState, type CheckedState } from './requirement-form';
 
 /** Error keys shown from `dict.admin.errors` (or a form's own `errors`). */
@@ -23,9 +24,10 @@ export type AdminErrorKey =
   | 'not_found'
   | 'confirmation_mismatch'
   | 'upu_code_taken'
+  | 'run_in_progress'
   | 'noRules';
 
-const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'confirmation_mismatch', 'upu_code_taken'];
+const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'confirmation_mismatch', 'upu_code_taken', 'run_in_progress'];
 
 export interface AdminFormState {
   /** A new time on every successful save, to show "Saved". */
@@ -37,6 +39,8 @@ export interface AdminFormState {
   problems?: CheckedState['problems'];
   /** Institution delete: whether it was requested (waiting for another admin) or cancelled. */
   status?: 'requested' | 'cancelled';
+  /** ePanduan import: how many found programmes became drafts or changes, and how many could not be saved. */
+  imported?: { created: number; updated: number; failed: number };
 }
 
 const localeOf = (form: FormData): Locale => {
@@ -73,6 +77,7 @@ export async function saveInstitution(_prev: AdminFormState, form: FormData): Pr
     type: InstitutionTypes.find((t) => t === text(form, 'type')),
     websiteUrl: text(form, 'websiteUrl') || null,
     state: MalaysianStates.find((x) => x === text(form, 'state')) ?? null,
+    epanduanCode: EpanduanInstitutions.find((x) => x.code === text(form, 'epanduanCode'))?.code ?? null,
   };
   const fieldErrors: Record<string, string> = {};
   if (body.name.length < 3 || body.name.length > 160) fieldErrors.name = 'nameRequired';
@@ -337,4 +342,80 @@ export async function discardRequirement(_prev: AdminFormState, form: FormData):
   }
   refresh();
   redirect(`/${locale}/admin/program/${text(form, 'programId')}`);
+}
+
+/** Starts reading an institution's programmes on ePanduan; the import tab shows the progress and then the result. */
+export async function startEpanduanImport(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const code = EpanduanInstitutions.find((x) => x.code === text(form, 'code'))?.code;
+  if (!code) return { error: 'generic' };
+  const token = await adminToken(locale);
+  try {
+    await api.startEpanduanRun(token, code);
+  } catch (err) {
+    // Already being read (for example by another admin): the tab simply shows that run.
+    if (!(err instanceof api.AdminApiError && err.code === 'run_in_progress')) return { error: errorKey(err) };
+  }
+  refresh();
+  return { savedAt: Date.now() };
+}
+
+const FACT_KEYS = ['upuCode', 'internalCode', 'faculty', 'necCode', 'studyMode', 'campus', 'hasInterview', 'isStem', 'isTvet', 'bumiputeraOnly', 'sourceUrl'] as const;
+
+/**
+ * Accepts the chosen found programmes: a new one becomes a draft of this institution (with its average merit), a
+ * changed one gets only its changed details (a draft directly, a published programme as a change). Everything is
+ * worked out again here from the stored run and the catalogue, so only rows that may be accepted are saved, and
+ * another admin still approves each one before students see it.
+ */
+export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const institutionId = text(form, 'institutionId');
+  const chosen = new Set(form.getAll('codes').map(String));
+  if (!institutionId || chosen.size === 0) return { error: 'generic' };
+  const token = await adminToken(locale);
+  let comparison;
+  let necField: Map<string, string | null>;
+  try {
+    const institution = await api.getInstitutionDetail(token, institutionId);
+    if (!institution.epanduanCode) return { error: 'conflict' };
+    const [{ run }, existing, nec] = await Promise.all([
+      api.latestEpanduanRun(token, institution.epanduanCode),
+      api.listInstitutionProgrammes(token, institutionId),
+      api.listNecFields(token),
+    ]);
+    if (!run || run.status !== 'done') return { error: 'conflict' };
+    necField = new Map(nec.map((n) => [n.code, n.fieldId]));
+    comparison = compareFound(run.programmes, existing, new Set(necField.keys()));
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
+
+  const imported = { created: 0, updated: 0, failed: 0 };
+  for (const row of comparison.rows.filter((r) => chosen.has(r.found.code) && acceptable(r))) {
+    try {
+      let id: string;
+      if (row.status === 'new') {
+        ({ id } = await api.createProgramme(token, { ...draftFromFound(row.found, necField), institutionId }));
+        imported.created += 1;
+      } else {
+        const detail = await api.getProgrammeDetail(token, row.existing!.id);
+        const base = detail.pendingChanges ?? detail;
+        const current = {
+          name: base.name,
+          durationSemesters: base.durationSemesters,
+          fieldIds: base.fieldIds,
+          ...Object.fromEntries(FACT_KEYS.map((k) => [k, base[k]])),
+        } as api.ProgrammeBody;
+        await api.updateProgramme(token, row.existing!.id, updateFromFound(current, row, necField));
+        id = row.existing!.id;
+        imported.updated += 1;
+      }
+      if (row.found.merit !== null && row.found.year) await api.recordAverageMerit(token, id, { intakeYear: row.found.year, averageMerit: row.found.merit });
+    } catch {
+      imported.failed += 1;
+    }
+  }
+  refresh();
+  return { savedAt: Date.now(), imported };
 }

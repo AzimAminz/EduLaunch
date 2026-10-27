@@ -23,6 +23,7 @@ export class DrizzleInstitutionRepository extends InstitutionRepository {
           type: row.type as InstitutionType,
           websiteUrl: row.websiteUrl,
           state: row.state,
+          epanduanCode: row.epanduanCode,
           deletionRequestedBy: row.deletionRequestedBy,
           deletionRequestedAt: row.deletionRequestedAt,
         })
@@ -37,6 +38,7 @@ export class DrizzleInstitutionRepository extends InstitutionRepository {
       type: s.type,
       websiteUrl: s.websiteUrl,
       state: s.state,
+      epanduanCode: s.epanduanCode,
       deletionRequestedBy: s.deletionRequestedBy,
       deletionRequestedAt: s.deletionRequestedAt,
     };

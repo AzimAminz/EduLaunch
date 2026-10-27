@@ -14,7 +14,10 @@ class Settings(BaseSettings):
     internal_token: str = Field(min_length=16)
     # Only these domains count as official sources (suffix match).
     allowed_source_domains: list[str] = ["edu.my", "gov.my", "moe.gov.my", "mohe.gov.my"]
-    crawler_user_agent: str = "EduLaunchBot/0.1 (university project; contact via site)"
+    crawler_user_agent: str = "EduLaunchBot/0.1 (university final-year project; https://github.com/AzimAminz/EduLaunch)"
+    # JPT ePanduan: read politely, one request every few seconds (Step 9).
+    epanduan_base_url: str = "https://online.mohe.gov.my/epanduan"
+    epanduan_delay_seconds: float = 4.0
 
 
 @lru_cache

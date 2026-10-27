@@ -204,6 +204,7 @@ export class AdminQueries {
         type: institutions.type,
         websiteUrl: institutions.websiteUrl,
         state: institutions.state,
+        epanduanCode: institutions.epanduanCode,
         deletionRequestedBy: institutions.deletionRequestedBy,
         status: programs.publishStatus,
         n: count(programs.id),
@@ -219,6 +220,7 @@ export class AdminQueries {
       type: string;
       websiteUrl: string | null;
       state: string | null;
+      epanduanCode: string | null;
       deletionRequestedBy: string | null;
       programmes: number;
       published: number;
@@ -279,6 +281,35 @@ export class AdminQueries {
         sources: sources.length,
       },
     };
+  }
+
+  /**
+   * An institution's programmes with the values an import compares (live values, and whether a change is pending),
+   * keyed by programme code, so "programmes found on ePanduan" can be marked new, changed, the same or missing.
+   */
+  async institutionProgrammes(id: string) {
+    const rows = await this.db
+      .select({
+        id: programs.id,
+        upuCode: programs.upuCode,
+        name: programs.name,
+        studyLevel: programs.studyLevel,
+        durationSemesters: programs.durationSemesters,
+        necCode: programs.necCode,
+        studyMode: programs.studyMode,
+        campus: programs.campus,
+        hasInterview: programs.hasInterview,
+        isStem: programs.isStem,
+        isTvet: programs.isTvet,
+        bumiputeraOnly: programs.bumiputeraOnly,
+        sourceUrl: programs.sourceUrl,
+        status: programs.publishStatus,
+        pendingStatus: programs.pendingStatus,
+      })
+      .from(programs)
+      .where(eq(programs.institutionId, id))
+      .orderBy(programs.name);
+    return rows;
   }
 
   /** NEC fields for the programme form, each with the broad EduLaunch field it suggests. */
@@ -435,6 +466,11 @@ export class AdminController {
   @Get('institutions/:id')
   institution(@Param('id', ParseUUIDPipe) id: string) {
     return this.queries.institution(id);
+  }
+
+  @Get('institutions/:id/programmes')
+  institutionProgrammes(@Param('id', ParseUUIDPipe) id: string) {
+    return this.queries.institutionProgrammes(id);
   }
 
   @Get('nec-fields')

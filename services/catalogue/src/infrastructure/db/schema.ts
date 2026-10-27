@@ -25,6 +25,8 @@ export const institutions = catalogue.table('institution', {
   websiteUrl: text('website_url'),
   /** Negeri (state or federal territory). */
   state: text('state'),
+  /** Its code on JPT ePanduan (UC for UTeM), to find its programmes there. Politeknik and Kolej Komuniti share one. */
+  epanduanCode: text('epanduan_code'),
   /** A delete waiting for a second admin, because students can see some of its programmes. */
   deletionRequestedBy: uuid('deletion_requested_by'),
   deletionRequestedAt: timestamp('deletion_requested_at', { withTimezone: true }),

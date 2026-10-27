@@ -4,8 +4,8 @@ import hmac
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from pydantic import BaseModel, HttpUrl
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query, Request
+from pydantic import BaseModel, Field, HttpUrl
 
 from ..application.check_sources import CheckSources
 from ..config import Settings, get_settings
@@ -58,3 +58,32 @@ def add_source(body: NewSource, request: Request, settings: Annotated[Settings, 
 async def check_now(request: Request) -> dict:
     report = await CheckSources(request.app.state.sources, request.app.state.fetcher).run()
     return report.__dict__
+
+
+class EpanduanRunRequest(BaseModel):
+    institution_code: str = Field(alias="institutionCode", min_length=2, max_length=2)
+
+
+@router.post("/epanduan/runs", status_code=202, dependencies=[Depends(require_admin)])
+def start_epanduan_run(
+    body: EpanduanRunRequest,
+    request: Request,
+    background: BackgroundTasks,
+    x_user_id: Annotated[str, Header()] = "",
+) -> dict:
+    """Starts reading one institution's programmes from ePanduan; it takes a minute or two, so the answer comes at
+    once and the page asks for the result with GET /epanduan/runs/latest."""
+    use_case = request.app.state.find_programmes
+    try:
+        requested_by = UUID(x_user_id) if x_user_id else None
+    except ValueError:
+        requested_by = None
+    code = body.institution_code.upper()
+    run_id = use_case.start(code, requested_by)
+    background.add_task(use_case.run, run_id, code)
+    return {"id": str(run_id), "status": "running"}
+
+
+@router.get("/epanduan/runs/latest", dependencies=[Depends(require_admin)])
+def latest_epanduan_run(request: Request, institution_code: Annotated[str, Query(alias="institutionCode", pattern="^[A-Za-z]{2}$")]) -> dict:
+    return {"run": request.app.state.epanduan_runs.latest(institution_code.upper())}

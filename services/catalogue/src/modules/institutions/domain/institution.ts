@@ -1,5 +1,5 @@
 import { AggregateRoot, DomainError } from '@edulaunch/ddd';
-import { InstitutionTypes, MalaysianStates, type InstitutionType } from '@edulaunch/contracts';
+import { EPANDUAN_CODE_PATTERN, InstitutionTypes, MalaysianStates, type InstitutionType } from '@edulaunch/contracts';
 
 export interface InstitutionDetails {
   name: string;
@@ -7,6 +7,8 @@ export interface InstitutionDetails {
   type: string;
   websiteUrl: string | null;
   state?: string | null;
+  /** Its ePanduan code (UC); left as it was when not given. */
+  epanduanCode?: string | null;
 }
 
 interface InstitutionProps {
@@ -15,6 +17,7 @@ interface InstitutionProps {
   type: InstitutionType;
   websiteUrl: string | null;
   state: string | null;
+  epanduanCode: string | null;
   /** Set while a delete waits for a second admin. */
   deletionRequestedBy: string | null;
   deletionRequestedAt: Date | null;
@@ -46,7 +49,14 @@ export class Institution extends AggregateRoot<string, InstitutionProps> {
   }
 
   update(details: InstitutionDetails): void {
-    this.props = { ...this.props, ...Institution.validated({ ...details, state: details.state === undefined ? this.props.state : details.state }) };
+    this.props = {
+      ...this.props,
+      ...Institution.validated({
+        ...details,
+        state: details.state === undefined ? this.props.state : details.state,
+        epanduanCode: details.epanduanCode === undefined ? this.props.epanduanCode : details.epanduanCode,
+      }),
+    };
   }
 
   /**
@@ -88,6 +98,8 @@ export class Institution extends AggregateRoot<string, InstitutionProps> {
     }
     const state = d.state?.trim() || null;
     if (state && !(MalaysianStates as readonly string[]).includes(state)) throw new DomainError('invalid_institution', `Unknown state ${state}`);
-    return { name, shortName, type: d.type as InstitutionType, websiteUrl, state };
+    const epanduanCode = d.epanduanCode?.trim().toUpperCase() || null;
+    if (epanduanCode && !EPANDUAN_CODE_PATTERN.test(epanduanCode)) throw new DomainError('invalid_institution', 'The ePanduan code has two letters, for example UC');
+    return { name, shortName, type: d.type as InstitutionType, websiteUrl, state, epanduanCode };
   }
 }

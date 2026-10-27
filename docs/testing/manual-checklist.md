@@ -357,3 +357,39 @@ Tested by: AzimAminz Date: 26 Oct 2026
 Accepted by the owner for now; this section is updated as the admin console changes.
 
 Tested by: AzimAminz Date: 27 Oct 2026
+
+---
+
+## Step 9 · Programmes from ePanduan (institution first)
+
+**Before you start:** pull, then `pnpm install`, `pnpm --filter @edulaunch/contracts build`, `pnpm db:migrate` (catalogue 0006, content 0002) and restart `pnpm dev`. Log in as an admin (or the demo super admin). The import reads the public JPT ePanduan site, so you need internet access; one run takes about a minute.
+
+### A. ePanduan code on the institution
+
+- [ ] **Institusi → Tambah institusi**: the form has **Kod di ePanduan JPT** with the universities, Politeknik, Kolej Komuniti and MARA. Add "Universiti Teknikal Malaysia Melaka" with code **UC · Universiti Teknikal Malaysia Melaka** (or open the existing one and set the code on **Tetapan**).
+- [ ] The profile has the tabs Ringkasan, Program, **Import ePanduan**, Sumber rasmi, Tetapan.
+- [ ] An institution without a code: the Import ePanduan tab says to set the code, with a button to Tetapan.
+
+### B. Finding programmes
+
+- [ ] **Import ePanduan → Cari program sekarang**: "Sedang membaca ePanduan… N halaman dibaca" appears and the page updates by itself; after about a minute it shows "Dibaca baru tadi · 7 halaman · 39 program" (numbers may change as JPT updates the site).
+- [ ] The list shows each programme's code (UC…), name in normal letters (not all capitals), campus, STEM / TVET / Bumiputera / Perintis labels, level, duration in semesters, NEC code (hover for its name), average merit and status **Baharu**.
+- [ ] The filters **Semua / Baharu / Berubah / Sama / Tiada di ePanduan** show their counts and filter the list.
+- [ ] **Semak semula** while a read is running is not possible (the button waits); a second admin pressing it sees the same run.
+
+### C. Accepting
+
+- [ ] **Kosongkan pilihan**, tick two programmes, **Terima 2 sebagai draf**: "2 draf baharu dan 0 perubahan disimpan". The Program tab shows both as **Draf**, with their programme code; the two rows now say **Sama**.
+- [ ] Open one draft: its details (code, level, duration, NEC, mode, campus, interview, flags, source link) are filled in. It goes through **Hantar untuk semakan** and another admin approves it, as in Step 8.
+- [ ] Change one draft's name by hand, then **Semak semula**: the row says **Berubah** with "Berubah: nama"; accepting it puts the ePanduan name back and keeps the other details.
+- [ ] A programme with a change in review, or in review itself, cannot be ticked and says why.
+- [ ] **Tiada di ePanduan** lists catalogue programmes of this institution whose code ePanduan no longer shows; nothing is archived automatically.
+
+### D. Politeknik and language
+
+- [ ] An institution with code **FB · Politeknik (semua)**: the tab explains that the code is shared and nothing is ticked at first.
+- [ ] Switch to **EN**: the tab is in English.
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________

@@ -16,8 +16,11 @@ export class AdminApiError extends Error {
 }
 
 /** Calls the catalogue service through the gateway as the signed-in admin. Never cached. */
-async function call<T extends z.ZodType>(token: string, path: string, schema: T, init: RequestInit = {}): Promise<z.infer<T>> {
-  const res = await fetch(`${GATEWAY_URL}/api/catalogue${path}`, {
+const call = <T extends z.ZodType>(token: string, path: string, schema: T, init: RequestInit = {}) => callService('catalogue', token, path, schema, init);
+
+/** Calls a service ('catalogue' or 'content') through the gateway as the signed-in admin. Never cached. */
+async function callService<T extends z.ZodType>(service: 'catalogue' | 'content', token: string, path: string, schema: T, init: RequestInit = {}): Promise<z.infer<T>> {
+  const res = await fetch(`${GATEWAY_URL}/api/${service}${path}`, {
     ...init,
     headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
     cache: 'no-store',
@@ -205,6 +208,7 @@ export interface InstitutionBody {
   type: (typeof InstitutionTypes)[number];
   websiteUrl: string | null;
   state: (typeof MalaysianStates)[number] | null;
+  epanduanCode: string | null;
 }
 
 export const createInstitution = (token: string, body: InstitutionBody) => call(token, '/institutions', Saved, send(body));
@@ -249,6 +253,7 @@ const AdminInstitution = z.object({
   type: z.string(),
   websiteUrl: z.string().nullable(),
   state: z.string().nullable(),
+  epanduanCode: z.string().nullable(),
   deletionRequestedBy: z.uuid().nullable(),
   programmes: z.number(),
   published: z.number(),
@@ -277,3 +282,74 @@ export const listAdminInstitutions = (token: string) => call(token, '/admin/inst
 /** Institutions with their website, read fresh (the student pages cache the same list for a few minutes). */
 export const listInstitutions = (token: string) =>
   call(token, '/institutions', z.array(z.object({ id: z.uuid(), name: z.string(), shortName: z.string().nullable(), type: z.string(), websiteUrl: z.string().nullable().default(null) })));
+
+/** The average merit an official source published for one intake year. */
+export const recordAverageMerit = (token: string, id: string, body: { intakeYear: number; averageMerit: number }) =>
+  call(token, `/programmes/${encodeURIComponent(id)}/admission-stats`, z.undefined(), send(body, 'PUT'));
+
+/** An institution's programmes with the values an import compares. */
+const InstitutionProgramme = z.object({
+  id: z.uuid(),
+  upuCode: z.string().nullable(),
+  name: z.string(),
+  studyLevel: StudyLevel,
+  durationSemesters: z.number().nullable(),
+  necCode: z.string().nullable(),
+  studyMode: z.enum(StudyModes).nullable(),
+  campus: z.string().nullable(),
+  hasInterview: z.boolean(),
+  isStem: z.boolean(),
+  isTvet: z.boolean(),
+  bumiputeraOnly: z.boolean(),
+  sourceUrl: z.string().nullable(),
+  status: ReviewStatus,
+  pendingStatus: z.enum(['draft', 'in_review', 'returned']).nullable(),
+});
+export type InstitutionProgramme = z.infer<typeof InstitutionProgramme>;
+export const listInstitutionProgrammes = (token: string, id: string) =>
+  call(token, `/admin/institutions/${encodeURIComponent(id)}/programmes`, z.array(InstitutionProgramme));
+
+/** One programme as ePanduan lists it (plain cleaned values from the content service). */
+const FoundProgramme = z.object({
+  code: z.string(),
+  name: z.string(),
+  institutionName: z.string().nullable(),
+  year: z.number().nullable(),
+  merit: z.number().nullable(),
+  level: StudyLevel.nullable(),
+  levelText: z.string().nullable(),
+  studyMode: z.enum(StudyModes).nullable(),
+  durationSemesters: z.number().nullable(),
+  necCode: z.string().nullable(),
+  necName: z.string().nullable(),
+  hasInterview: z.boolean().nullable(),
+  isStem: z.boolean(),
+  isTvet: z.boolean(),
+  bumiputeraOnly: z.boolean(),
+  feeder: z.boolean(),
+  isNew: z.boolean().default(false),
+  note: z.string().nullable(),
+  campuses: z.array(z.string()),
+  routes: z.array(z.string()),
+  sourceUrl: z.string().nullable(),
+});
+export type FoundProgramme = z.infer<typeof FoundProgramme>;
+
+const EpanduanRun = z.object({
+  id: z.uuid(),
+  institutionCode: z.string(),
+  status: z.enum(['running', 'done', 'failed']),
+  pagesRead: z.number(),
+  found: z.number(),
+  error: z.string().nullable(),
+  startedAt: z.coerce.date(),
+  finishedAt: z.coerce.date().nullable(),
+  programmes: z.array(FoundProgramme),
+});
+export type EpanduanRun = z.infer<typeof EpanduanRun>;
+
+/** Starts reading one institution's programmes from ePanduan (it takes a minute or two). */
+export const startEpanduanRun = (token: string, institutionCode: string) =>
+  callService('content', token, '/epanduan/runs', z.object({ id: z.uuid(), status: z.string() }), send({ institutionCode }));
+export const latestEpanduanRun = (token: string, institutionCode: string) =>
+  callService('content', token, `/epanduan/runs/latest?institutionCode=${encodeURIComponent(institutionCode)}`, z.object({ run: EpanduanRun.nullable() }));

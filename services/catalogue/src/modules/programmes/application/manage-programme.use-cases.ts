@@ -84,6 +84,17 @@ export class ReviewProgramme implements UseCase<{ id: string; adminId: string; s
 }
 
 /** Deletes a draft or archived programme with its requirements. Published ones are archived first. */
+/** Keeps the average merit an official source published for one intake year (shown later with offer chances). */
+@Injectable()
+export class RecordAverageMerit implements UseCase<{ id: string; intakeYear: number; averageMerit: number }, void> {
+  constructor(private readonly programs: ProgramRepository) {}
+
+  async execute({ id, intakeYear, averageMerit }: { id: string; intakeYear: number; averageMerit: number }) {
+    if (!(await this.programs.findById(id))) throw new NotFoundError('Programme', id);
+    await this.programs.recordAverageMerit(id, intakeYear, averageMerit);
+  }
+}
+
 @Injectable()
 export class DeleteProgramme implements UseCase<{ id: string }, void> {
   constructor(

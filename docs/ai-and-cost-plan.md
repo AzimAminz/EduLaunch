@@ -171,11 +171,20 @@ Side-by-side view: the old published version, the new draft, and the source quot
 ### 5.7 Measuring accuracy
 Keep a golden set of about 30 programme pages checked by hand. After each change to the extractor, run it on the golden set and record field accuracy. Target: at least 90% of fields right in the draft.
 
-### 5.8 First source: the JPT ePanduan site (planned, Steps 9 and 11)
+### 5.8 First source: the JPT ePanduan site (Step 9 built; Step 11 planned)
 
 ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-university programmes. It is the first source we automate because it covers many programmes in one consistent layout. **Gate:** the importer runs only after its terms of use are checked (and, ideally, JPT agrees through the supervisor). We never bypass logins, CAPTCHAs, rate limits or terms; if automated reading is not allowed, we fall back to prospectus PDFs and manual entry.
 
-**What the site looks like (checked 27 Oct 2026 on one saved page):**
+**Terms check (27 Oct 2026):** `online.mohe.gov.my` has no `robots.txt` (the address redirects to the UPU home page) and the ePanduan pages have no terms, privacy or reuse statement; the UPU portal shows "© 2023 Jabatan Pendidikan Tinggi". The ministry portal policy (mohe.gov.my, "Portal Policy") says its content may not be "altered, copied, distributed, reposted… for any commercial purpose without the express prior written consent of the Ministry of Higher Education"; it says nothing about non-commercial use. **Decision:** EduLaunch, a non-commercial final-year project, reads programme facts slowly, shows the source on every programme and has admins approve every record; a commercial launch first needs JPT's written permission (contact: upu@mohe.gov.my).
+
+**How Step 9 reads it (built 27 Oct 2026):**
+- Programme lists are per **candidate category**, and each category is an EduLaunch entry route: SPM `A` → spm; STPM `S`/`A` → stpm; `N P J K M V L U` → matrikulasi; `G1 G2 E3` → diploma; `E1` → dkm; `E2` → dvm; `F1` → a_level. Step 9 reads SPM `A` and STPM `S` and `A` (almost every foundation, diploma and degree programme).
+- **Per institution**, with the site's own search form: open the category page, tick the institution (`carianIPTA[]=UC`), press Cari, then follow `?page=N` (the site keeps the filter in its session). UTeM: 39 programmes, 7 pages, 37 seconds.
+- Institution codes are two letters and start every programme code (`UC6522001` is UTeM). Politeknik (`FB`), Kolej Komuniti (`FC`) and MARA (`OP`) share one code each, so the admin picks that college's programmes by name or campus.
+- Each programme block has a card (name, institution, badges STEM / TVET / Bumiputera / Perintis, `KOD PROGRAM`, `TAHUN`, `PURATA MARKAH MERIT`) and panels titled "Maklumat Program" (level, mode, duration, NEC, interview, joint degree, notes), "Kampus", "Laluan Kerjaya" and "Bidang NEC". Labels inside the name ("BARU", "#") are kept apart from it.
+- Pages are 3–9 MB each (mostly whitespace), so reading a whole category for every institution would be heavy; the institution filter keeps a run to about 15 requests.
+
+**What the site looks like (first look, 27 Oct 2026, one saved page):**
 - Programme lists by candidate category (for example `…/ProgramPengajian/kategoriCalon/S` for STPM), 10 programmes per page, plain server HTML with `?page=N` (the STPM category had 1,002 programmes).
 - Each programme card has labelled values: programme name, institution, `KOD PROGRAM` (for example `UP6481003`), `TAHUN`, `PURATA MARKAH MERIT`, study level, duration, NEC field, interview yes/no.
 - The field filter lists **157 NEC field codes** (for example `0311 Ekonomi`, `0714 Mechanics and metal trades`); university requirement documents use the same codes for "diploma in a related field".
@@ -193,10 +202,10 @@ ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-universit
 | Stage | What happens | Kept |
 |---|---|---|
 | 1. Fetch | Weekly, at night, one request every 3–5 seconds, user agent `EduLaunchBot` with a contact address; list pages with plain HTTP, requirement panels with Playwright pressing **Syarat** like a visitor | Raw page in storage with URL, time and checksum |
-| 2. Parse | `cheerio` reads each card **by its label text**, not by position or CSS classes | Staging rows, never the catalogue directly |
+| 2. Parse | `selectolax` (Python, in the content service) reads each card **by its label text**, not by position or CSS classes | Staging rows (`content.epanduan_run`, `content.epanduan_found`), never the catalogue directly |
 | 3. Clean | Strip scripts, styles and tags; decode entities; Unicode NFC; one kind of space and dash; title case for names ("BACELOR … DENGAN KEPUJIAN" → "Bacelor … dengan Kepujian"); `99.43%` → `99.43`, `-`/`Tiada` → null; `07 Semester` → 7; `0311 Ekonomi` → code + name; programme codes must match `^[A-Z]{2}\d{7}$`; de-duplicate by (code, route, year) | Plain text only: scraped HTML is never shown again (no XSS) |
 | 4. Match and check | Institutions and subjects through alias lists ("BAHASA MELAYU / BAHASA MELAYU (KERTAS JULAI)" → Bahasa Melayu; "Kepujian" → C, "Lulus" → E for SPM); requirement text parsed by rules first, **Claude** only for lines rules cannot read; every value must carry an exact quote found in the cleaned text; grades must be valid for the subject; numbers in range | Lines that fail are quarantined and marked "needs review", never dropped silently |
-| 5. Hand over | Only **changes** become drafts, prepared by a "Pembantu JPT" account in the admin task inbox; an admin approves them on the Step 8 review screen; merit averages go to `ADMISSION_STAT` with year and source link | A report per run: found, matched, changed, needs review |
+| 5. Hand over | Step 9: the admin sees found programmes as new / changed / same / missing on the institution's **Import ePanduan** tab and accepts the chosen ones; new ones become drafts and changed ones get only their changed details, prepared by that admin; another admin approves each. (Planned for requirements: drafts prepared by a "Pembantu JPT" account in the admin task inbox; an admin approves them on the Step 8 review screen; merit averages go to `ADMISSION_STAT` with year and source link | A report per run: found, matched, changed, needs review |
 
 **Safety rules:**
 - The checksum is taken on the **cleaned** text, so cosmetic changes (CSRF tokens, `?v=` on stylesheets) do not count as changes.

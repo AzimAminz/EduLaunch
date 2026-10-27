@@ -37,6 +37,13 @@ afterAll(async () => {
 });
 
 describe('DrizzleInstitutionRepository (integration)', () => {
+  it('keeps the ePanduan code', async () => {
+    const found = (await repo.findById(other))!;
+    found.update({ name: `Kolej ${tag}`, shortName: null, type: 'private_college', websiteUrl: null, epanduanCode: 'uc' });
+    await repo.save(found);
+    expect((await repo.findById(other))!.toSnapshot().epanduanCode).toBe('UC');
+  });
+
   it('counts published programmes only', async () => {
     expect(await repo.countPublishedProgrammes(institutionId)).toBe(1);
   });

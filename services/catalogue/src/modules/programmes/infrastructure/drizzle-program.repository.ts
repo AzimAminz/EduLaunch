@@ -110,6 +110,19 @@ export class DrizzleProgramRepository extends ProgramRepository {
     await this.db.delete(programs).where(eq(programs.id, id));
   }
 
+  async recordAverageMerit(programId: string, intakeYear: number, averageMerit: number): Promise<void> {
+    const stats = schema.admissionStats;
+    await this.db.transaction(async (tx) => {
+      const [row] = await tx
+        .select({ id: stats.id })
+        .from(stats)
+        .where(and(eq(stats.programId, programId), eq(stats.intakeYear, intakeYear)))
+        .limit(1);
+      if (row) await tx.update(stats).set({ averageMerit: averageMerit.toFixed(2) }).where(eq(stats.id, row.id));
+      else await tx.insert(stats).values({ programId, intakeYear, averageMerit: averageMerit.toFixed(2) });
+    });
+  }
+
   async institutionExists(id: string): Promise<boolean> {
     const [row] = await this.db.select({ id: institutions.id }).from(institutions).where(eq(institutions.id, id)).limit(1);
     return !!row;

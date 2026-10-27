@@ -656,8 +656,9 @@
       "tabs": {
         "summary": "Summary",
         "programmes": "Programmes",
-        "sources": "Sources & import",
-        "settings": "Settings"
+        "sources": "Official sources",
+        "settings": "Settings",
+        "import": "Import ePanduan"
       },
       "summary": {
         "published": "Published",
@@ -723,6 +724,87 @@
         "name": "Name",
         "programmes": "Programmes",
         "state": "State"
+      },
+      "epanduanCode": "Code on JPT ePanduan",
+      "epanduanNone": "None (not listed on ePanduan)",
+      "epanduanPlaceholder": "Choose a code, for example UC · UTeM",
+      "epanduanHint": "Used to find this institution's programmes on ePanduan automatically (Import ePanduan tab).",
+      "import": {
+        "title": "Programmes from JPT ePanduan",
+        "intro": "The system reads this institution's programme list from the public ePanduan site (SPM and STPM leaver categories). Chosen programmes become drafts, and another admin still approves them before students see them.",
+        "noCode": "This institution has no ePanduan code yet. Set it on the Settings tab to find its programmes automatically.",
+        "setCode": "Set the ePanduan code",
+        "shared": "Code {code} is shared by every college in this group. Choose only the programmes this institution offers (see the name and campus).",
+        "start": "Find programmes now",
+        "again": "Check again",
+        "running": "Reading ePanduan… {pages} pages read. This takes about a minute; this page updates by itself.",
+        "failed": "Reading stopped: {reason}. No data was changed. Try again shortly.",
+        "never": "Not searched yet. Press the button above to start.",
+        "lastRun": "Read {when} · {pages} pages · {found} programmes",
+        "empty": "No programmes were found for this code. Check the code on the Settings tab.",
+        "filters": {
+          "all": "All",
+          "new": "New",
+          "changed": "Changed",
+          "same": "Same",
+          "missing": "Not on ePanduan"
+        },
+        "status": {
+          "new": "New",
+          "changed": "Changed",
+          "same": "Same"
+        },
+        "columns": {
+          "pick": "Pick",
+          "code": "Code",
+          "name": "Programme",
+          "level": "Level",
+          "duration": "Duration",
+          "nec": "NEC",
+          "merit": "Average merit",
+          "status": "Status"
+        },
+        "semesters": "{n} sem",
+        "changes": "Changed: {fields}",
+        "fields": {
+          "name": "name",
+          "studyLevel": "level",
+          "durationSemesters": "duration",
+          "necCode": "NEC field",
+          "studyMode": "mode",
+          "campus": "campus",
+          "hasInterview": "interview",
+          "isStem": "STEM",
+          "isTvet": "TVET",
+          "bumiputeraOnly": "Bumiputera"
+        },
+        "problems": {
+          "no_level": "Unknown level; add it by hand",
+          "in_review": "In review; wait for the decision first",
+          "change_in_review": "A change is in review",
+          "archived": "Archived; reopen it first"
+        },
+        "selectAll": "Pick all that can be accepted",
+        "clear": "Clear the selection",
+        "accept": "Accept {n} as drafts",
+        "accepted": "{created} new drafts and {updated} changes saved. Send each one for another admin's review.",
+        "acceptedFailed": "{failed} could not be saved (for example the code is already used).",
+        "missingTitle": "Catalogue programmes no longer on ePanduan",
+        "missingHint": "Only flagged for review. Nothing is archived automatically, because the page may have failed to load.",
+        "flags": {
+          "stem": "STEM",
+          "tvet": "TVET",
+          "bumiputera": "Bumiputera",
+          "feeder": "Feeder",
+          "newProgramme": "New programme"
+        },
+        "source": "Source: ePanduan, Department of Higher Education. Used for a non-commercial education project and checked by admins.",
+        "reasons": {
+          "layout": "the ePanduan page layout has changed, so the reader needs an update",
+          "unavailable": "the ePanduan site did not answer or is busy",
+          "stopped": "the service restarted while reading",
+          "other": "an unexpected error"
+        }
       }
     },
     "requirement": {
@@ -849,7 +931,8 @@
       "not_found": "This record was not found. It may have been removed.",
       "noRules": "Add at least one requirement.",
       "confirmation_mismatch": "The confirmation text does not match. Type it exactly as shown.",
-      "upu_code_taken": "Another programme already uses this programme code."
+      "upu_code_taken": "Another programme already uses this programme code.",
+      "run_in_progress": "ePanduan is already being read for this institution. Wait until it finishes."
     },
     "pagination": {
       "label": "List pages",

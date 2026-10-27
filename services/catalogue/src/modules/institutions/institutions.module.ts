@@ -84,6 +84,7 @@ const InstitutionBody = z.object({
   type: z.enum(InstitutionTypes),
   websiteUrl: z.string().max(400).nullable().default(null),
   state: z.enum(MalaysianStates).nullable().optional(),
+  epanduanCode: z.string().trim().max(2).nullable().optional(),
 });
 
 const DeletionBody = z.discriminatedUnion('action', [

@@ -639,3 +639,12 @@ Belum dibina (langkah kemudian): mod latihan, lawatan berpandu, carian bantuan, 
 ### 25.4 Super admin dan bar halaman (27 Okt 2026)
 - **Super admin** untuk demo: tag kuning "Super admin" di bawah nama dalam sidebar. Panel status menunjukkan Luluskan pada kerja sendiri dengan ayat yang menerangkan kelulusan direkodkan sebagai miliknya.
 - **Bar halaman sentiasa kelihatan** di bawah jadual Program, senarai Institusi dan tab Program profil institusi: "x–y daripada N", anak panah (dimalapkan bila tiada halaman lain), nombor halaman, dan "Baris setiap halaman" 10 / 20 / 50 (`?saiz=`).
+
+## 26. Import ePanduan pada profil institusi (Step 9, 27 Okt 2026)
+- Tab baharu **Import ePanduan** di antara Program dan Sumber rasmi (tab Sumber ditukar nama daripada "Sumber & import").
+- Kad atas: tajuk dengan kod (UC), penerangan, butang **Cari program sekarang** / **Semak semula**, dan status: belum pernah, sedang membaca (spinner, dikemas kini sendiri), gagal (sebab dalam ayat biasa), atau "Dibaca … · N halaman · N program".
+- Tapisan status sebagai cip dengan bilangan: Semua, Baharu, Berubah, Sama, Tiada di ePanduan.
+- Jadual dengan kotak pilih (baris yang tidak boleh diterima dimalapkan dengan sebabnya), kod, nama dengan kampus dan label (STEM, TVET, Bumiputera, Perintis, Program baharu), peringkat, tempoh, NEC, purata merit, status berwarna dengan teks.
+- Bar tindakan melekat di bawah: Pilih semua / Kosongkan, dan **Terima N sebagai draf**; mesej hijau selepas diterima.
+- Kod dikongsi (Politeknik, Kolej Komuniti): nota kuning, tiada yang dipilih pada mulanya.
+- Figma belum dikemas kini untuk skrin ini.

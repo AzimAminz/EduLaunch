@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
 import { CurrentCaller, Public, Roles, ZodPipe, type Caller } from '@edulaunch/nest-kit';
 import { StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 import { SearchProgrammes } from '../application/search-programmes.use-case.js';
 import { GetProgramme } from '../application/get-programme.use-case.js';
-import { CreateProgramme, DeleteProgramme, ReviewProgramme, UpdateProgramme } from '../application/manage-programme.use-cases.js';
+import { CreateProgramme, DeleteProgramme, RecordAverageMerit, ReviewProgramme, UpdateProgramme } from '../application/manage-programme.use-cases.js';
 
 const SearchQuery = z.object({
   q: z.string().trim().max(100).optional(),
@@ -40,6 +40,8 @@ const ReviewBody = z.discriminatedUnion('action', [
   z.object({ action: z.literal('return'), reason: z.string().min(5).max(1000) }),
 ]);
 
+const MeritBody = z.object({ intakeYear: z.number().int().min(2000).max(2100), averageMerit: z.number().min(0).max(100) });
+
 @Controller('programmes')
 export class ProgrammesController {
   constructor(
@@ -49,6 +51,7 @@ export class ProgrammesController {
     private readonly updateProgramme: UpdateProgramme,
     private readonly reviewProgramme: ReviewProgramme,
     private readonly deleteProgramme: DeleteProgramme,
+    private readonly recordAverageMerit: RecordAverageMerit,
   ) {}
 
   @Public()
@@ -89,6 +92,14 @@ export class ProgrammesController {
   @Post(':id/review')
   review(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(ReviewBody)) body: z.infer<typeof ReviewBody>, @CurrentCaller() caller: Caller) {
     return this.reviewProgramme.execute({ id, adminId: caller.userId, superAdmin: caller.superAdmin, ...body });
+  }
+
+  /** The average merit of one intake year, as an official source (ePanduan) published it. */
+  @Roles('admin')
+  @Put(':id/admission-stats')
+  @HttpCode(204)
+  admissionStats(@Param('id', ParseUUIDPipe) id: string, @Body(new ZodPipe(MeritBody)) body: z.infer<typeof MeritBody>) {
+    return this.recordAverageMerit.execute({ id, ...body });
   }
 
   /** Deletes a draft or archived programme, with its requirements. */
