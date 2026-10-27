@@ -36,12 +36,12 @@ function careerList(text: string | null): string[] | null {
 }
 
 /** Everything ePanduan shows for one programme, read at a glance: details, requirements by category, fees, careers. */
-export function FoundDetailsBody({ programme, special, m, headers, empty }: {
+export function FoundDetailsBody({ programme, special, m, below, empty }: {
   programme: FoundProgramme;
   special: SpecialRequirement[];
   m: ImportDict;
-  /** Above each category tab's text, by group key. */
-  headers?: Record<string, ReactNode>;
+  /** Under the category tab row. */
+  below?: ReactNode;
   empty?: string;
 }) {
   const info: Array<[AdminIconName, string, string | null]> = [
@@ -77,7 +77,7 @@ export function FoundDetailsBody({ programme, special, m, headers, empty }: {
           </span>
         </p>
       )}
-      <CategoryTabs groups={groupCategories(programme.categories, special)} m={m} headers={headers} empty={empty} />
+      <CategoryTabs groups={groupCategories(programme.categories, special)} m={m} below={below} empty={empty} />
       {(programme.fees || programme.careers) && (
         <div className="grid gap-3 sm:grid-cols-2">
           {programme.careers && (

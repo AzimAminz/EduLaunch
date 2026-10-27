@@ -3,15 +3,14 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
-import { EntryRoutes, EntryRoutesByLevel } from '@edulaunch/contracts';
+import { EntryRoutes } from '@edulaunch/contracts';
 import { FoundDetailsBody } from '@/components/admin/epanduan-details';
 import { ProgrammeChanges, ProgrammeDetails, type DetailNames } from '@/components/admin/programme-details';
 import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-panel';
-import { RemoveFromRoute, RouteStarter, StartRequirement } from '@/components/admin/start-requirement';
+import { RemoveFromRoute, StartRequirement } from '@/components/admin/start-requirement';
 import { AdminIcon } from '@/components/admin/icons';
-import { AdminHeading, AdminTabs, Card, EmptyState, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
+import { AdminHeading, AdminTabs, Card, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail, type RequirementVersion } from '@/lib/admin/api';
-import { groupCategories } from '@/lib/admin/epanduan-text';
 import { programmeWorkflow } from '@/lib/admin/programme-workflow';
 import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -193,15 +192,13 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
  */
 /**
  * The requirements tab in one card: what ePanduan lists for the programme (facts, then each candidate category's
- * Syarat Am and Syarat Khas) with, above each category's text, the state of its route's requirements and the next
- * action (start, open the draft, view, remove). Starting from a category fills the editor from its text. Routes
- * ePanduan does not list, or programmes it does not have, are added from a folded row at the end.
+ * Syarat Am and Syarat Khas). Right under the category tabs: one "add requirements" action (which asks the route
+ * first) and the requirements already written, each with its state and next action.
  */
 async function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string }) {
   const t = dict.admin;
   const r = t.programme.requirements;
   const m = t.institutions.import;
-  const routes: Record<string, string> = dict.requirements.routes;
   let found = null;
   let special: Awaited<ReturnType<typeof listSpecialRequirements>> = [];
   if (programme.upuCode) {
@@ -209,34 +206,23 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
       const token = (await getAccessToken())!;
       [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.upuCode]), listSpecialRequirements(token, [programme.upuCode])]);
     } catch {
-      // ePanduan is a help, not part of the programme: without the content service requirements are added by route.
+      // ePanduan is a help, not part of the programme: without the content service requirements are still added.
       found = null;
     }
   }
-  const groups = found ? groupCategories(found.categories, special) : [];
-  const covered = new Set(groups.flatMap((g) => g.categories.map((c) => c.route)).filter((x): x is string => !!x));
-  const isRoute = (x: string) => (EntryRoutes as readonly string[]).includes(x);
-  const extra = [...new Set([...programme.entryRoutes, ...programme.requirements.map((v) => v.entryRoute)])].filter((x) => isRoute(x) && !covered.has(x));
-  const suggested = EntryRoutesByLevel[programme.studyLevel] as readonly string[];
-  // Routes not shown yet: the usual ones for this level first, marked as such.
-  const others = [...suggested, ...EntryRoutes.filter((x) => !suggested.includes(x))]
-    .filter((x) => !covered.has(x) && !extra.includes(x))
-    .map((x) => ({ value: x, label: suggested.includes(x) ? `${routes[x] ?? x} ${r.suggestedSuffix}` : (routes[x] ?? x) }));
-  const status = (route: string, fill?: string) => <RouteStatus key={route} locale={locale} dict={dict} programme={programme} me={me} route={route} fill={fill} />;
-  const headers = Object.fromEntries(
-    groups.map((g) => {
-      const own = [...new Set(g.categories.map((c) => c.route))];
-      return [
-        g.key,
-        <div key={g.key} className="flex flex-col gap-2">
-          {own.map((route) => {
-            if (!route) return <p key="none" className="rounded-[12px] bg-bg px-3 py-2 text-[13px] text-muted">{r.routeUnsupported}</p>;
-            const first = g.categories.find((c) => c.route === route)!;
-            return status(route, `${first.jenprog}:${first.category}`);
-          })}
-        </div>,
-      ];
-    }),
+  const written = [...new Set(programme.requirements.map((v) => v.entryRoute))].filter((x) => (EntryRoutes as readonly string[]).includes(x));
+  const actions = (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-[12px] border border-dashed border-navy/25 bg-bg/50 px-4 py-3">
+        <p className="text-[13px] text-muted">{written.length ? format(r.writtenCount, { count: written.length }) : r.none}</p>
+        <Link href={`/${locale}/admin/program/${programme.id}/tambah-syarat`} className={buttonClass('accent', 'sm')}>
+          <IconText icon="plus">{r.add}</IconText>
+        </Link>
+      </div>
+      {written.map((route) => (
+        <RouteStatus key={route} locale={locale} dict={dict} programme={programme} me={me} route={route} />
+      ))}
+    </div>
   );
 
   return (
@@ -248,40 +234,13 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
         </h2>
         <p className="text-sm text-muted">{found ? r.intro : r.introManual}</p>
       </div>
-      {found && <FoundDetailsBody programme={found} special={special} m={m} headers={headers} empty={m.noRequirementText} />}
-      {extra.length > 0 && (
-        <section className="flex flex-col gap-2">
-          <h3 className="text-[12px] font-bold uppercase tracking-wide text-muted">{r.other}</h3>
-          {extra.map((route) => status(route))}
-        </section>
-      )}
-      {!found && extra.length === 0 && <EmptyState icon="listChecks" text={r.empty} />}
-      {others.length > 0 && (
-        <details className="group rounded-[12px] border border-line bg-white" open={!found && extra.length === 0}>
-          <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold text-navy hover:bg-bg [&::-webkit-details-marker]:hidden">
-            <AdminIcon name="plus" size={16} />
-            {r.addTitle}
-          </summary>
-          <div className="border-t border-line p-4">
-            <RouteStarter
-              locale={locale}
-              programId={programme.id}
-              routes={others}
-              label={r.addTitle}
-              placeholder={r.routePlaceholder}
-              button={r.addButton}
-              noMatches={dict.directory.noMatches}
-              errors={t.errors}
-            />
-          </div>
-        </details>
-      )}
+      {found ? <FoundDetailsBody programme={found} special={special} m={m} below={actions} empty={m.noRequirementText} /> : actions}
     </Card>
   );
 }
 
 /** One route's requirements: published version, the draft in progress and who has it, and the next action. */
-function RouteStatus({ locale, dict, programme, me, route, fill }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string; route: string; fill?: string }) {
+function RouteStatus({ locale, dict, programme, me, route }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string; route: string }) {
   const t = dict.admin;
   const r = t.programme.requirements;
   const routes: Record<string, string> = dict.requirements.routes;
@@ -312,12 +271,12 @@ function RouteStatus({ locale, dict, programme, me, route, fill }: { locale: Loc
             <IconText icon="pencil">{r.openDraft}</IconText>
           </Link>
         ) : (
-          <StartRequirement locale={locale} programId={programme.id} entryRoute={route} fill={fill} label={published ? r.update : r.start} primary={!published} errors={t.errors} />
+          <StartRequirement locale={locale} programId={programme.id} entryRoute={route} label={published ? r.update : r.start} primary={!published} errors={t.errors} />
         )}
         {open && open.status !== 'in_review' && open.preparedBy === me && (
           <RemoveFromRoute locale={locale} programId={programme.id} entryRoute={route} draftId={open.id} texts={{ label: r.discardDraft, confirm: r.discardDraftConfirm, ...remove }} errors={t.errors} />
         )}
-        {!open && !published && !fill && (
+        {!open && !published && (
           <RemoveFromRoute locale={locale} programId={programme.id} entryRoute={route} texts={{ label: r.removeRoute, confirm: r.removeRouteConfirm, ...remove }} errors={t.errors} />
         )}
       </div>

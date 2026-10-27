@@ -12,6 +12,8 @@ import { Dropdown, type DropdownOption } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { CategoryTabs } from './category-tabs';
+import { LinesView } from './requirement-lines-view';
+import { RequirementSteps } from './requirement-steps';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
 
@@ -82,6 +84,8 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
   const [confirmFill, setConfirmFill] = useState<number | null>(null);
   const [sourceMissing, setSourceMissing] = useState(false);
   const [sideTab, setSideTab] = useState<'source' | 'preview'>(epanduan?.groups.length ? 'source' : 'preview');
+  // 1 Syarat Am, 2 Syarat Khas, 3 check and send (step 0, the route, was chosen before the draft existed).
+  const [step, setStep] = useState(1);
   const sourceRef = useRef<HTMLInputElement>(null);
 
   // The editing key is left out (undefined is dropped by JSON), so only real changes count.
@@ -153,31 +157,56 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
     setOpen(null);
   };
 
+  const goTo = (next: number) => {
+    setStep(next);
+    setOpen(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const submit = (event: FormEvent<HTMLFormElement>) => {
     const intent = ((event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null)?.value;
-    if (intent === 'submit' && !isUrl(sourceUrl)) {
-      event.preventDefault();
-      setAttempted(true);
-      setSourceMissing(true);
-      sourceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      sourceRef.current?.focus({ preventScroll: true });
-      return;
+    if (intent === 'submit') {
+      // Back to the step that needs fixing: a line with a problem, else the source link (on the Syarat Am step).
+      const bad = checked.problems[0];
+      if (bad || !isUrl(sourceUrl)) {
+        event.preventDefault();
+        setAttempted(true);
+        if (bad) {
+          goTo(lines[bad.line]?.part === 'special' ? 2 : 1);
+          return;
+        }
+        setSourceMissing(true);
+        setStep(1);
+        requestAnimationFrame(() => {
+          sourceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          sourceRef.current?.focus({ preventScroll: true });
+        });
+        return;
+      }
     }
     onSubmit(event);
   };
 
   const categoryText = (group: CategoryGroup) => group.categories.map((c) => (m.categories as Record<string, string>)[`${c.jenprog}:${c.category}`] ?? c.category).join(' · ');
 
+  const subjectNames = new Map(subjects.map((s) => [s.id, s.label]));
+  const stepButton = (key: string, label: string, icon: 'arrowLeft' | 'arrowRight', to: number, primary = false) => (
+    // Its own key, so React never reuses it for a submit button (that once sent the form on "next").
+    <button key={key} type="button" onClick={() => goTo(to)} className={buttonClass(primary ? 'primary' : 'secondary')}>
+      <IconText icon={icon}>{label}</IconText>
+    </button>
+  );
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_420px]">
+      <RequirementSteps labels={t.steps} step={step} onStep={goTo} />
+      <div className={`grid items-start gap-4 ${step === 3 ? '' : 'lg:grid-cols-[minmax(0,1fr)_420px]'}`}>
         <form id="requirement-form" onSubmit={submit} className="flex flex-col gap-4">
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="state" value={snapshot} />
           <input type="hidden" name="programId" value={programmeId} />
 
-          <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+          <section hidden={step !== 1} className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-1">
                 <h2 className="text-lg font-semibold">{t.source.title}</h2>
@@ -247,27 +276,63 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             )}
           </section>
 
-          {PARTS.map((part) => (
-            <PartEditor
-              key={part}
-              part={part}
-              lines={lines.filter((l) => l.part === part)}
-              open={open}
-              setOpen={setOpen}
-              t={t}
-              noMatches={dict.directory.noMatches}
-              subjectOptions={subjectOptions}
-              subjectById={subjectById}
-              problemsOf={problemsOf}
-              onChange={update}
-              onRemove={remove}
-              onMove={move}
-              onAdd={() => add(part)}
-            />
+          {PARTS.map((part, i) => (
+            <div key={part} hidden={step !== i + 1}>
+              <PartEditor
+                part={part}
+                lines={lines.filter((l) => l.part === part)}
+                open={open}
+                setOpen={setOpen}
+                t={t}
+                noMatches={dict.directory.noMatches}
+                subjectOptions={subjectOptions}
+                subjectById={subjectById}
+                problemsOf={problemsOf}
+                onChange={update}
+                onRemove={remove}
+                onMove={move}
+                onAdd={() => add(part)}
+              />
+            </div>
           ))}
+
+          {step === 3 && (
+            <section className="flex flex-col gap-4 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-lg font-semibold">{t.finish.title}</h2>
+                <p className="text-sm text-muted">{t.finish.intro}</p>
+              </div>
+              <LinesView lines={lines} subjectNames={subjectNames} t={t} />
+              <div className="flex flex-col gap-2 rounded-[12px] bg-bg/60 p-4">
+                <h3 className="text-[12px] font-bold uppercase tracking-wide text-muted">{t.preview.title}</h3>
+                {preview.length === 0 ? (
+                  <p className="text-sm text-muted">{t.preview.empty}</p>
+                ) : (
+                  <ul className="grid gap-2 md:grid-cols-2">
+                    {preview.map((item, i) => (
+                      <li key={i} className="rounded-[12px] bg-white px-3.5 py-2.5">
+                        <p className="text-sm font-semibold">{item.title}</p>
+                        <p className="text-[13px] text-muted">{item.detail}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <p className="flex items-center gap-2 text-[13px] text-muted">
+                <AdminIcon name="external" size={14} />
+                {isUrl(sourceUrl) ? (
+                  <a href={sourceUrl.trim()} target="_blank" rel="noreferrer" className="truncate underline hover:text-navy">
+                    {sourceUrl.trim()}
+                  </a>
+                ) : (
+                  <span className="text-red">{t.source.required}</span>
+                )}
+              </p>
+            </section>
+          )}
         </form>
 
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+        <aside hidden={step === 3} className="flex flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
           {epanduan && epanduan.groups.length > 0 && (
             <div role="tablist" aria-label={t.suggest.title} className="flex gap-1 rounded-[12px] bg-white p-1">
               {(['source', 'preview'] as const).map((tab) => (
@@ -313,21 +378,26 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
       <div className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-4 lg:sticky lg:bottom-4 lg:z-10 lg:shadow-lg">
         <FormAlert>{alert ?? (shownProblems.length && !pending ? format(t.problemsSummary, { count: shownProblems.length }) : undefined)}</FormAlert>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {step > 1 && stepButton('back', t.stepBack, 'arrowLeft', step - 1)}
           <p className="flex-1 text-sm text-muted">
             {format(t.summary, { count: lines.length })}
             {dirty && <span className="ml-2 font-semibold text-navy">· {t.unsaved}</span>}
           </p>
           <Notice showKey={state.savedAt}>{t.saved}</Notice>
-          <button type="submit" form="requirement-form" name="intent" value="save" disabled={pending} className={buttonClass('secondary')}>
+          <button key="save" type="submit" form="requirement-form" name="intent" value="save" disabled={pending} className={buttonClass('secondary')}>
             <IconText icon="save">{t.save}</IconText>
           </button>
-          <button type="submit" form="requirement-form" name="intent" value="submit" disabled={pending} className={buttonClass('accent')}>
-            <IconText icon="send" busy={pending}>
-              {t.submit}
-            </IconText>
-          </button>
+          {step < 3 ? (
+            stepButton('next', step === 1 ? t.stepNext.special : t.stepNext.finish, 'arrowRight', step + 1, true)
+          ) : (
+            <button key="submit" type="submit" form="requirement-form" name="intent" value="submit" disabled={pending} className={buttonClass('accent')}>
+              <IconText icon="send" busy={pending}>
+                {t.submit}
+              </IconText>
+            </button>
+          )}
         </div>
-        <p className="text-[13px] text-muted">{t.submitHint}</p>
+        {step === 3 && <p className="text-[13px] text-muted">{t.submitHint}</p>}
         <form onSubmit={onDiscard} className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="id" value={id} />
@@ -379,8 +449,9 @@ interface PartProps {
 function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, subjectById, problemsOf, onChange, onRemove, onMove, onAdd }: PartProps) {
   return (
     <section className="flex flex-col gap-2 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+      {/* Laid out like the official page, so what is written here reads as students and the system will see it. */}
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold">{t.parts[part]}</h2>
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">{t.parts[part]}</h2>
         <p className="text-sm text-muted">{part === 'general' ? t.parts.generalHint : t.parts.specialHint}</p>
       </div>
       {lines.length === 0 && <p className="rounded-[12px] bg-bg px-4 py-3 text-sm text-muted">{t.parts.empty}</p>}
@@ -498,7 +569,7 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
   );
 
   return (
-    <div className={`rounded-[12px] border transition-colors duration-150 ${bad ? 'border-red/60 bg-red/5' : open ? 'border-navy/40 bg-bg/60' : 'border-line bg-white hover:border-navy/25'}`}>
+    <div className={`rounded-[12px] border transition-colors duration-150 ${bad ? 'border-red/60 bg-red/5' : open ? 'border-navy/40 bg-bg/60' : 'border-transparent hover:bg-bg/80'}`}>
       <div className="flex items-start gap-2 px-3 py-2.5">
         <span aria-hidden className={`mt-[7px] size-1.5 shrink-0 rounded-full ${unchecked ? 'bg-muted/50' : 'bg-navy/60'}`} />
         <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 flex-col items-start gap-1 text-left">

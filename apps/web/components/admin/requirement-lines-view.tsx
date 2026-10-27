@@ -1,6 +1,6 @@
 import type { RequirementPart } from '@edulaunch/contracts';
 import type { AdminRule } from '@/lib/admin/api';
-import { isUnchecked, lineSummary, linesFromRules } from '@/lib/admin/requirement-form';
+import { isUnchecked, lineSummary, linesFromRules, type EditorLine } from '@/lib/admin/requirement-form';
 import type { Dictionary } from '@/lib/i18n/locale';
 
 const PARTS: RequirementPart[] = ['general', 'special'];
@@ -10,7 +10,11 @@ const PARTS: RequirementPart[] = ['general', 'special'];
  * lines under their SPM / STPM / MUET headings, DAN / ATAU between them, and what each line checks.
  */
 export function RequirementLinesView({ rules, subjectNames, t }: { rules: AdminRule[]; subjectNames: ReadonlyMap<string, string>; t: Dictionary['admin']['requirement'] }) {
-  const lines = linesFromRules(rules);
+  return <LinesView lines={linesFromRules(rules)} subjectNames={subjectNames} t={t} />;
+}
+
+/** The same view for lines being edited (the editor's last step). */
+export function LinesView({ lines, subjectNames, t }: { lines: EditorLine[]; subjectNames: ReadonlyMap<string, string>; t: Dictionary['admin']['requirement'] }) {
   const name = (id: string | null) => (id && subjectNames.get(id)) || '?';
   return (
     <div className="grid gap-3 xl:grid-cols-2">

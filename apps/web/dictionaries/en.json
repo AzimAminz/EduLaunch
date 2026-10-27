@@ -506,7 +506,7 @@
       },
       "requirements": {
         "title": "Entry requirements",
-        "intro": "Requirements by candidate category, as on JPT ePanduan. Choose a category, then press \"Start requirements\": the form is filled from this text for you to check, edit and send for review.",
+        "intro": "Programme facts and requirements as on JPT ePanduan, by candidate category. Press \"Add requirements\" to write the requirements for one route; the form is filled from this text.",
         "suggested": "Usual routes for this level",
         "other": "Other routes",
         "published": "Published · version {version}",
@@ -537,7 +537,8 @@
         "removeYes": "Yes, remove",
         "cancel": "Cancel",
         "introManual": "This programme has no ePanduan data. Choose a route below to write its requirements yourself.",
-        "routeUnsupported": "This category has no route in the system yet, so its requirements cannot be written."
+        "routeUnsupported": "This category has no route in the system yet, so its requirements cannot be written.",
+        "writtenCount": "{count} routes have requirements"
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
@@ -876,10 +877,10 @@
       "meta": "{institution} · {route} · version {version}",
       "back": "← Back to programme",
       "steps": [
-        "Choose programme",
-        "Show the source",
-        "Write requirements",
-        "Review & send"
+        "Route",
+        "General requirements",
+        "Special requirements",
+        "Check & send"
       ],
       "source": {
         "title": "Show the source",
@@ -1053,6 +1054,28 @@
         "credits": "{n} credits at grade {grade}",
         "cgpa": "CGPA ≥ {value}",
         "muet": "MUET ≥ Band {value}"
+      },
+      "stepBack": "Back",
+      "stepNext": {
+        "special": "Next: special requirements",
+        "finish": "Next: check"
+      },
+      "finish": {
+        "title": "Check & send",
+        "intro": "This is how these requirements are laid out and read by the system. Check them, then send them to another admin for approval."
+      },
+      "chooser": {
+        "title": "Add entry requirements",
+        "intro": "Choose the route to write requirements for. Routes from ePanduan are filled from the official text for you to check.",
+        "fromEpanduan": "ePanduan text: {categories}",
+        "manual": "No ePanduan text, write it yourself",
+        "hasDraft": "Has a draft, it will be continued",
+        "hasPublished": "Already published, a new version is made",
+        "next": "Next",
+        "required": "Choose a route first.",
+        "groupEpanduan": "On ePanduan",
+        "groupUsual": "Usual for this level",
+        "groupOther": "Other routes"
       }
     },
     "errors": {

@@ -1,0 +1,105 @@
+import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import { lang as rootLang } from 'next/root-params';
+import { z } from 'zod';
+import { EntryRoutes, EntryRoutesByLevel } from '@edulaunch/contracts';
+import { RequirementSteps } from '@/components/admin/requirement-steps';
+import { RouteChooser, type RouteChoice } from '@/components/admin/route-chooser';
+import { AdminHeading, Card, LoadError } from '@/components/admin/ui';
+import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listSpecialRequirements, type ProgrammeDetail } from '@/lib/admin/api';
+import { groupCategories } from '@/lib/admin/epanduan-text';
+import { getDictionary } from '@/lib/i18n/dictionaries';
+import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { getAccessToken, requireRole } from '@/lib/supabase/server';
+
+type Props = PageProps<'/[lang]/admin/program/[id]/tambah-syarat'>;
+
+/**
+ * Step 1 of adding requirements: which route they are for. Routes ePanduan lists come first, each with the category
+ * its text comes from (the editor is filled from it); then the routes usual for the level, then the rest.
+ */
+export default async function AddRequirementPage({ params }: Props) {
+  const lang = await rootLang();
+  if (!isLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+  return (
+    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+      {/* The programme id is only known at request time. */}
+      <Choose locale={lang} dict={dict} params={params} />
+    </Suspense>
+  );
+}
+
+const OPEN = new Set(['draft', 'returned', 'in_review']);
+
+async function Choose({ locale, dict, params }: { locale: Locale; dict: Dictionary; params: Props['params'] }) {
+  const { id } = await params;
+  if (!z.uuid().safeParse(id).success) notFound();
+  await requireRole(locale, 'admin');
+  const t = dict.admin;
+  const c = t.requirement.chooser;
+  const routes: Record<string, string> = dict.requirements.routes;
+  let programme: ProgrammeDetail;
+  try {
+    programme = await getProgrammeDetail((await getAccessToken())!, id);
+  } catch (err) {
+    if (err instanceof AdminApiError && (err.status === 404 || err.status === 400)) notFound();
+    return <LoadError text={t.errors.generic} />;
+  }
+  let found = null;
+  let special: Awaited<ReturnType<typeof listSpecialRequirements>> = [];
+  if (programme.upuCode) {
+    try {
+      const token = (await getAccessToken())!;
+      [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.upuCode]), listSpecialRequirements(token, [programme.upuCode])]);
+    } catch {
+      found = null;
+    }
+  }
+
+  const stateOf = (route: string): RouteChoice['state'] => {
+    const versions = programme.requirements.filter((v) => v.entryRoute === route);
+    return versions.some((v) => OPEN.has(v.status)) ? 'draft' : versions.some((v) => v.status === 'published') ? 'published' : null;
+  };
+  const categoryLabels = t.institutions.import.categories as Record<string, string>;
+  const fromEpanduan: RouteChoice[] = [];
+  for (const group of found ? groupCategories(found.categories, special) : []) {
+    for (const route of new Set(group.categories.map((x) => x.route))) {
+      if (!route) continue;
+      const own = group.categories.filter((x) => x.route === route);
+      fromEpanduan.push({
+        key: `${route}|${own[0]!.jenprog}:${own[0]!.category}`,
+        route,
+        fill: `${own[0]!.jenprog}:${own[0]!.category}`,
+        label: routes[route] ?? route,
+        detail: format(c.fromEpanduan, { categories: own.map((x) => categoryLabels[`${x.jenprog}:${x.category}`] ?? x.category).join(' · ') }),
+        state: stateOf(route),
+      });
+    }
+  }
+  const covered = new Set(fromEpanduan.map((x) => x.route));
+  const suggested = EntryRoutesByLevel[programme.studyLevel] as readonly string[];
+  const manual = (route: string): RouteChoice => ({ key: route, route, label: routes[route] ?? route, detail: c.manual, state: stateOf(route) });
+  const usual = suggested.filter((r) => !covered.has(r)).map(manual);
+  const rest = EntryRoutes.filter((r) => !covered.has(r) && !suggested.includes(r)).map(manual);
+
+  return (
+    <>
+      <AdminHeading back={{ href: `/${locale}/admin/program/${id}?tab=syarat`, label: `← ${programme.name}` }} title={c.title} intro={c.intro} />
+      <Card>
+        <RequirementSteps labels={t.requirement.steps} step={0} />
+        <RouteChooser
+          locale={locale}
+          programId={id}
+          groups={[
+            { title: c.groupEpanduan, choices: fromEpanduan },
+            { title: c.groupUsual, choices: usual },
+            { title: c.groupOther, choices: rest },
+          ]}
+          t={c}
+          errors={t.errors}
+        />
+      </Card>
+    </>
+  );
+}

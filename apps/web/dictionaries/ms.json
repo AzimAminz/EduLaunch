@@ -506,7 +506,7 @@
       },
       "requirements": {
         "title": "Syarat kemasukan",
-        "intro": "Syarat ikut kategori calon seperti di ePanduan JPT. Pilih kategori, kemudian tekan \"Mula syarat\": borang diisi dari teks ini untuk anda semak, sunting dan hantar untuk semakan.",
+        "intro": "Maklumat dan syarat program seperti di ePanduan JPT, ikut kategori calon. Tekan \"Tambah syarat\" untuk menulis syarat bagi satu laluan; borang diisi dari teks ini.",
         "suggested": "Laluan biasa untuk peringkat ini",
         "other": "Laluan lain",
         "published": "Diterbitkan · versi {version}",
@@ -537,7 +537,8 @@
         "removeYes": "Ya, buang",
         "cancel": "Batal",
         "introManual": "Program ini tiada data ePanduan. Pilih laluan di bawah untuk menulis syaratnya sendiri.",
-        "routeUnsupported": "Kategori ini belum ada laluan dalam sistem, jadi syaratnya belum boleh ditulis."
+        "routeUnsupported": "Kategori ini belum ada laluan dalam sistem, jadi syaratnya belum boleh ditulis.",
+        "writtenCount": "{count} laluan sudah ada syarat"
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
@@ -876,9 +877,9 @@
       "meta": "{institution} · {route} · versi {version}",
       "back": "← Kembali ke program",
       "steps": [
-        "Pilih program",
-        "Tunjukkan sumber",
-        "Tulis syarat",
+        "Laluan",
+        "Syarat Am",
+        "Syarat Khas",
         "Semak & hantar"
       ],
       "source": {
@@ -1053,6 +1054,28 @@
         "credits": "{n} kepujian gred {grade}",
         "cgpa": "PNGK ≥ {value}",
         "muet": "MUET ≥ Band {value}"
+      },
+      "stepBack": "Kembali",
+      "stepNext": {
+        "special": "Seterusnya: Syarat Khas",
+        "finish": "Seterusnya: Semak"
+      },
+      "finish": {
+        "title": "Semak & hantar",
+        "intro": "Begini syarat ini disusun dan dibaca oleh sistem. Semak, kemudian hantar kepada admin lain untuk diluluskan."
+      },
+      "chooser": {
+        "title": "Tambah syarat kemasukan",
+        "intro": "Pilih laluan yang syaratnya hendak ditulis. Laluan dari ePanduan diisi terus dari teks rasmi untuk anda semak.",
+        "fromEpanduan": "Teks ePanduan: {categories}",
+        "manual": "Tiada teks ePanduan, tulis sendiri",
+        "hasDraft": "Ada draf, akan disambung",
+        "hasPublished": "Sudah diterbitkan, versi baharu dibuat",
+        "next": "Seterusnya",
+        "required": "Pilih satu laluan dahulu.",
+        "groupEpanduan": "Ada dalam ePanduan",
+        "groupUsual": "Biasa untuk peringkat ini",
+        "groupOther": "Laluan lain"
       }
     },
     "errors": {
