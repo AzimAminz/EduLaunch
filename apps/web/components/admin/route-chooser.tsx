@@ -13,6 +13,8 @@ export interface RouteChoice {
   /** Unique per option: the route, plus the ePanduan category it is filled from. */
   key: string;
   route: string;
+  /** The ePanduan candidate category the requirement is for, null when written without one. */
+  category: string | null;
   /** ePanduan category (`jenprog:category`) the editor fills the draft from. */
   fill?: string;
   label: string;
@@ -60,6 +62,7 @@ export function RouteChooser({ locale, programId, groups, initial, copies, t, er
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="programId" value={programId} />
       <input type="hidden" name="entryRoute" value={chosen?.route ?? ''} />
+      {chosen?.category && <input type="hidden" name="category" value={chosen.category} />}
       {chosen?.fill && how === 'epanduan' && <input type="hidden" name="fill" value={chosen.fill} />}
       {how === 'copy' && copyFrom && <input type="hidden" name="copyFrom" value={copyFrom} />}
       <FormAlert>{!pending && state.error ? errors[state.error] : missing && !chosen ? t.required : missing && how === 'copy' && !copyFrom ? t.copyRequired : undefined}</FormAlert>

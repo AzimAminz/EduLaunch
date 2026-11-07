@@ -310,15 +310,20 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
  * Starts a draft for a programme and route (from the published rules when there are any) and opens it.
  * If a draft already exists for that route, opens that one instead.
  */
+const CATEGORY = /^[a-z0-9]+:[A-Z0-9]+$/;
+
 export async function startRequirement(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
   const programId = text(form, 'programId');
   const entryRoute = text(form, 'entryRoute');
   if (!isEntryRoute(entryRoute)) return { error: 'generic' };
+  // The ePanduan candidate category the requirement is for (one requirement each when categories differ).
+  const category = text(form, 'category');
+  const sourceCategory = CATEGORY.test(category) ? category : null;
   const token = await adminToken(locale);
   let id: string;
   try {
-    ({ id } = await api.createRequirementDraft(token, { programId, entryRoute }));
+    ({ id } = await api.createRequirementDraft(token, { programId, entryRoute, sourceCategory }));
   } catch (err) {
     const existing = err instanceof api.AdminApiError && err.code === 'draft_exists' ? err.message.match(/\(([0-9a-f-]{36})\)/)?.[1] : undefined;
     if (!existing) return { error: errorKey(err) };
@@ -333,7 +338,7 @@ export async function startRequirement(_prev: AdminFormState, form: FormData): P
   refresh();
   // From an ePanduan category: the editor fills an empty draft from its text, for the admin to check and save.
   const fill = text(form, 'fill');
-  redirect(`/${locale}/admin/syarat/${id}${/^[a-z0-9]+:[A-Z0-9]+$/.test(fill) ? `?isi=${encodeURIComponent(fill)}` : ''}`);
+  redirect(`/${locale}/admin/syarat/${id}${CATEGORY.test(fill) ? `?isi=${encodeURIComponent(fill)}` : ''}`);
 }
 
 /** Copies another requirement's lines into an empty draft; false when nothing was copied (the draft keeps its own). */
@@ -424,14 +429,18 @@ export async function removeEntryRoute(_prev: AdminFormState, form: FormData): P
   const programId = text(form, 'programId');
   const entryRoute = text(form, 'entryRoute');
   const draftId = text(form, 'draftId');
+  // Only these candidate categories of the route go (the tab removed); none given removes the whole route.
+  const categories = form.getAll('categories').map(String).filter((c) => CATEGORY.test(c));
+  const removed = (r: { entryRoute: string; sourceCategory: string | null }) =>
+    r.entryRoute === entryRoute && (categories.length === 0 || (r.sourceCategory !== null && categories.includes(r.sourceCategory)));
   try {
     if (draftId) await api.discardRequirementDraft(token, draftId);
     const programme = await api.getProgrammeDetail(token, programId);
     if (programme.entryRoutes.length === 0 && programme.programCode) {
       const [found] = await api.listFoundProgrammes(token, [programme.programCode]);
-      await api.setEntryRoutes(token, programId, found ? entryRoutesFromFound(found).filter((r) => r.entryRoute !== entryRoute) : []);
+      await api.setEntryRoutes(token, programId, found ? entryRoutesFromFound(found).filter((r) => !removed(r)) : []);
     } else {
-      await api.removeEntryRoute(token, programId, entryRoute);
+      await api.removeEntryRoute(token, programId, entryRoute, categories);
     }
   } catch (err) {
     return { error: errorKey(err) };

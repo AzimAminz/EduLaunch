@@ -11,7 +11,7 @@ import { RouteTabs, type RouteTab } from '@/components/admin/route-tabs';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail } from '@/lib/admin/api';
-import { groupCategories } from '@/lib/admin/epanduan-text';
+import { requirementSlots } from '@/lib/admin/requirement-slots';
 import { programmeWorkflow } from '@/lib/admin/programme-workflow';
 import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -219,17 +219,21 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
   // Only the programme's routes (a removed route's categories are hidden); programmes from before routes were kept show all.
   const kept = new Set(programme.entryRoutes);
   const categories = (found?.categories ?? []).filter((c) => c.route && (kept.size === 0 || kept.has(c.route)));
-  const written = new Set(programme.requirements.map((v) => v.entryRoute));
-  // A tab per route, in route order: those ePanduan lists for the programme, and those written without it.
-  const tabs: RouteTab[] = EntryRoutes.filter((route) => categories.some((c) => c.route === route) || written.has(route)).map((route) => {
-    const versions = programme.requirements.filter((v) => v.entryRoute === route);
-    const published = versions.find((v) => v.status === 'published');
-    const open = versions.find((v) => OPEN.has(v.status));
+  const labels = m.categories as Record<string, string>;
+  // A tab per requirement: per route (in route order), one per group of ePanduan categories with the same text.
+  const slots = requirementSlots(EntryRoutes, categories, special, programme.requirements);
+  const tabs: RouteTab[] = slots.map((slot) => {
+    const published = slot.versions.find((v) => v.status === 'published');
+    const open = slot.versions.find((v) => OPEN.has(v.status));
     const target = open ?? published;
-    const name = routes[route] ?? route;
+    const name = routes[slot.route] ?? slot.route;
+    const several = slots.filter((x) => x.route === slot.route).length > 1;
+    const detail = !several ? null : slot.categories.length ? slot.categories.map((c) => labels[c] ?? c).join(' · ') : r.ownSlot;
     return {
-      route,
+      key: slot.key,
+      route: slot.route,
       name,
+      detail,
       status: open ? (open.status as RouteTab['status']) : published ? 'published' : null,
       statusText:
         published && open
@@ -240,14 +244,11 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
               ? format(r.chipPublished, { version: published.versionNo })
               : r.none,
       href: target ? `/${locale}/admin/syarat/${target.id}` : null,
-      startHref: `/${locale}/admin/program/${programme.id}/tambah-syarat?laluan=${route}`,
-      groups: groupCategories(
-        categories.filter((c) => c.route === route),
-        special,
-      ),
+      startHref: `/${locale}/admin/program/${programme.id}/tambah-syarat?laluan=${slot.route}${slot.category ? `&kategori=${encodeURIComponent(slot.category)}` : ''}`,
+      groups: slot.group ? [slot.group] : [],
       removable:
         !published && (!open || (open.status !== 'in_review' && open.preparedBy === me))
-          ? { draftId: open?.id ?? null, programId: programme.id, entryRoute: route, name }
+          ? { draftId: open?.id ?? null, programId: programme.id, entryRoute: slot.route, categories: slot.categories, name: detail ? `${name} (${detail})` : name }
           : null,
     };
   });

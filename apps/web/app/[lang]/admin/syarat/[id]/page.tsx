@@ -222,8 +222,8 @@ function Quotes({ rules, title }: { rules: AdminRule[]; title: string }) {
 }
 
 /**
- * What ePanduan lists for this programme under this entry route (its categories' Syarat Am and Syarat Khas), for the
- * editor's source tab. Optional help: without a programme code or the content service the editor works as before.
+ * What ePanduan lists for this requirement's category (or, without one, every category of its route): Syarat Am and
+ * Syarat Khas for the editor's source tab. Optional help: without a programme code or the content service the editor works as before.
  */
 async function epanduanFor(req: RequirementDetail) {
   try {
@@ -233,7 +233,10 @@ async function epanduanFor(req: RequirementDetail) {
     const [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.programCode]), listSpecialRequirements(token, [programme.programCode])]);
     const categories = found?.categories.filter((c) => c.route === req.entryRoute) ?? [];
     if (!categories.length) return null;
-    const groups = groupCategories(categories, special);
+    // Only the text of the category this requirement is for (and those with the same text), when it has one.
+    const all = groupCategories(categories, special);
+    const own = all.filter((g) => g.categories.some((c) => `${c.jenprog}:${c.category}` === req.sourceCategory));
+    const groups = own.length ? own : all;
     return {
       groups,
       sourceUrls: groups.map((g) => `https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/${g.categories[0]!.category}?jenprog=${g.categories[0]!.jenprog}`),

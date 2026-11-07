@@ -121,6 +121,8 @@ export function listProgrammes(token: string, q: ProgrammeQuery) {
 const RequirementVersion = z.object({
   id: z.uuid(),
   entryRoute: z.string(),
+  /** The ePanduan candidate category it is for (stpm:S), null when written without one. */
+  sourceCategory: z.string().nullable().default(null),
   versionNo: z.number(),
   status: ReviewStatus,
   preparedBy: z.uuid(),
@@ -259,7 +261,7 @@ export type ReviewAction = { action: 'submit' | 'approve' | 'withdraw' | 'discar
 export const deleteProgramme = (token: string, id: string) => call(token, `/programmes/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
 export const reviewProgramme = (token: string, id: string, body: ReviewAction) => call(token, `/programmes/${encodeURIComponent(id)}/review`, Status, send(body));
 
-export const createRequirementDraft = (token: string, body: { programId: string; entryRoute: string }) =>
+export const createRequirementDraft = (token: string, body: { programId: string; entryRoute: string; sourceCategory: string | null }) =>
   call(token, '/requirements', z.object({ id: z.uuid(), versionNo: z.number() }), send(body));
 export const saveRequirementDraft = (
   token: string,
@@ -309,8 +311,14 @@ export const listInstitutions = (token: string) =>
   call(token, '/institutions', z.array(z.object({ id: z.uuid(), name: z.string(), shortName: z.string().nullable(), type: z.string(), websiteUrl: z.string().nullable().default(null) })));
 
 /** Stops taking candidates from one entry route. */
-export const removeEntryRoute = (token: string, id: string, entryRoute: string) =>
-  call(token, `/programmes/${encodeURIComponent(id)}/entry-routes/${encodeURIComponent(entryRoute)}`, z.undefined(), { method: 'DELETE' });
+/** Stops taking candidates from one entry route, or only from the given candidate categories of it. */
+export const removeEntryRoute = (token: string, id: string, entryRoute: string, categories: string[] = []) =>
+  call(
+    token,
+    `/programmes/${encodeURIComponent(id)}/entry-routes/${encodeURIComponent(entryRoute)}${categories.length ? `?categories=${encodeURIComponent(categories.join(','))}` : ''}`,
+    z.undefined(),
+    { method: 'DELETE' },
+  );
 
 /** The average merit an official source published for one intake year. */
 export const recordAverageMerit = (token: string, id: string, body: { intakeYear: number; averageMerit: number }) =>

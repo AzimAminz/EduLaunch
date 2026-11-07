@@ -14,7 +14,7 @@ import { IconText, buttonClass } from './ui';
  */
 export function RemoveDraftModal({ locale, target, texts, errors, onClose }: {
   locale: Locale;
-  target: { programId: string; entryRoute: string; draftId: string | null; name: string };
+  target: { programId: string; entryRoute: string; categories: string[]; draftId: string | null; name: string };
   texts: { title: string; body: string; yes: string; cancel: string };
   errors: Dictionary['admin']['errors'];
   onClose: () => void;
@@ -57,6 +57,9 @@ export function RemoveDraftModal({ locale, target, texts, errors, onClose }: {
           <input type="hidden" name="programId" value={target.programId} />
           <input type="hidden" name="entryRoute" value={target.entryRoute} />
           {target.draftId && <input type="hidden" name="draftId" value={target.draftId} />}
+          {target.categories.map((c) => (
+            <input key={c} type="hidden" name="categories" value={c} />
+          ))}
           <button ref={cancel} type="button" onClick={onClose} disabled={pending} className={buttonClass('secondary')}>
             {texts.cancel}
           </button>

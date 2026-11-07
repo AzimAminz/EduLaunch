@@ -575,7 +575,8 @@
         },
         "routeHeading": "Syarat {route}",
         "tabOpen": "{status} · {who}",
-        "tabChange": "v{version} · perubahan {status}"
+        "tabChange": "v{version} · perubahan {status}",
+        "ownSlot": "Tulis sendiri"
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",

@@ -13,8 +13,11 @@ type Status = 'published' | 'draft' | 'in_review' | 'returned' | null;
 
 /** One of the programme's routes: its requirements (if written) and the ePanduan text it is written from. */
 export interface RouteTab {
+  key: string;
   route: string;
   name: string;
+  /** The candidate categories it is for ("STPM Sains"), shown when a route has more than one tab. */
+  detail: string | null;
   status: Status;
   /** Short, for the tab: "Draf · anda", "Diterbitkan · v1". */
   statusText: string;
@@ -25,7 +28,7 @@ export interface RouteTab {
   /** ePanduan categories for this route (empty for a route written without ePanduan). */
   groups: CategoryGroup[];
   /** What edit mode removes (null when it cannot be removed). */
-  removable: { draftId: string | null; programId: string; entryRoute: string; name: string } | null;
+  removable: { draftId: string | null; programId: string; entryRoute: string; categories: string[]; name: string } | null;
 }
 
 const TONE: Record<NonNullable<Status> | 'none', { dot: string; text: string }> = {
@@ -66,7 +69,7 @@ export function RouteTabs({ locale, tabs, addHref, t, m, errors }: {
           {tabs.map((x, i) => {
             const on = i === active;
             return (
-              <span key={x.route} className="relative">
+              <span key={x.key} className="relative">
                 <button
                   type="button"
                   role="tab"
@@ -77,6 +80,7 @@ export function RouteTabs({ locale, tabs, addHref, t, m, errors }: {
                   } ${editing && x.removable ? 'ring-2 ring-red/30' : ''}`}
                 >
                   <span className="text-[13px] font-semibold">{x.name}</span>
+                  {x.detail && <span className={`max-w-[220px] truncate text-[11px] ${on ? 'text-white/70' : 'text-muted'}`}>{x.detail}</span>}
                   <span className={`inline-flex items-center gap-1.5 text-[12px] ${on ? 'text-white/80' : tone(x.status).text}`}>
                     <span aria-hidden className={`size-1.5 rounded-full ${tone(x.status).dot}`} />
                     {x.statusText}
@@ -121,7 +125,7 @@ export function RouteTabs({ locale, tabs, addHref, t, m, errors }: {
       ) : (
         <div role="tabpanel" className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] bg-bg/60 px-4 py-2.5">
-            <p className="text-sm font-semibold">{format(t.routeHeading, { route: tab.name })}</p>
+            <p className="text-sm font-semibold">{format(t.routeHeading, { route: tab.detail ? `${tab.name} (${tab.detail})` : tab.name })}</p>
             {tab.href ? (
               <Link href={tab.href} className={buttonClass('primary', 'sm')}>
                 <IconText icon={tab.status === 'published' ? 'eye' : 'pencil'}>{tab.status === 'published' ? t.view : t.openDraft}</IconText>

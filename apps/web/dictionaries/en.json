@@ -575,7 +575,8 @@
         },
         "routeHeading": "{route} requirements",
         "tabOpen": "{status} · {who}",
-        "tabChange": "v{version} · change {status}"
+        "tabChange": "v{version} · change {status}",
+        "ownSlot": "Written by hand"
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",

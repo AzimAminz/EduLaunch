@@ -8,7 +8,7 @@ import { RouteChooser, type RouteChoice } from '@/components/admin/route-chooser
 import { AdminHeading, Card, LoadError } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutionProgrammes, listSpecialRequirements, type ProgrammeDetail } from '@/lib/admin/api';
 import { getPublishedRequirements } from '@/lib/catalogue/api';
-import { groupCategories } from '@/lib/admin/epanduan-text';
+import { requirementSlots } from '@/lib/admin/requirement-slots';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
@@ -72,31 +72,39 @@ async function Choose({ locale, dict, params, searchParams }: { locale: Locale; 
     }
   }
 
-  const stateOf = (route: string): RouteChoice['state'] => {
-    const versions = programme.requirements.filter((v) => v.entryRoute === route);
-    return versions.some((v) => OPEN.has(v.status)) ? 'draft' : versions.some((v) => v.status === 'published') ? 'published' : null;
-  };
+  const stateOf = (versions: ProgrammeDetail['requirements']): RouteChoice['state'] =>
+    versions.some((v) => OPEN.has(v.status)) ? 'draft' : versions.some((v) => v.status === 'published') ? 'published' : null;
   const categoryLabels = t.institutions.import.categories as Record<string, string>;
-  const fromEpanduan: RouteChoice[] = [];
-  for (const group of found ? groupCategories(found.categories, special) : []) {
-    for (const route of new Set(group.categories.map((x) => x.route))) {
-      if (!route) continue;
-      const own = group.categories.filter((x) => x.route === route);
-      fromEpanduan.push({
-        key: `${route}|${own[0]!.jenprog}:${own[0]!.category}`,
-        route,
-        fill: `${own[0]!.jenprog}:${own[0]!.category}`,
-        label: routes[route] ?? route,
-        detail: own.map((x) => categoryLabels[`${x.jenprog}:${x.category}`] ?? x.category).join(' · '),
-        state: stateOf(route),
-      });
-    }
-  }
+  // The same slots as the programme page: one per group of ePanduan categories with the same text, per route.
+  const kept = new Set(programme.entryRoutes);
+  const categories = (found?.categories ?? []).filter((x) => x.route && (kept.size === 0 || kept.has(x.route)));
+  const slots = requirementSlots(EntryRoutes, categories, special, programme.requirements);
+  const fromEpanduan: RouteChoice[] = slots
+    .filter((slot) => slot.group)
+    .map((slot) => ({
+      key: slot.key,
+      route: slot.route,
+      category: slot.category,
+      fill: slot.category ?? undefined,
+      label: routes[slot.route] ?? slot.route,
+      detail: slot.categories.map((x) => categoryLabels[x] ?? x).join(' · '),
+      state: stateOf(slot.versions),
+    }));
   const covered = new Set(fromEpanduan.map((x) => x.route));
   const suggested = EntryRoutesByLevel[programme.studyLevel] as readonly string[];
-  const manual = (route: string): RouteChoice => ({ key: route, route, label: routes[route] ?? route, detail: null, state: stateOf(route) });
+  // Routes without ePanduan text: their requirement is written by hand (category none).
+  const manual = (route: string): RouteChoice => {
+    const own = slots.find((slot) => slot.route === route && slot.category === null);
+    return { key: route, route, category: null, label: routes[route] ?? route, detail: null, state: stateOf(own?.versions ?? []) };
+  };
   const usual = suggested.filter((r) => !covered.has(r)).map(manual);
   const rest = EntryRoutes.filter((r) => !covered.has(r) && !suggested.includes(r)).map(manual);
+  // From a requirement's tab: that route and category are chosen already.
+  const all = [...fromEpanduan, ...usual, ...rest];
+  const initial =
+    typeof sp.laluan === 'string'
+      ? (all.find((x) => x.route === sp.laluan && x.category === (typeof sp.kategori === 'string' ? sp.kategori : null)) ?? all.find((x) => x.route === sp.laluan))?.key
+      : undefined;
 
   return (
     <>
@@ -111,8 +119,7 @@ async function Choose({ locale, dict, params, searchParams }: { locale: Locale; 
             { title: c.groupUsual, choices: usual },
             { title: c.groupOther, choices: rest },
           ]}
-          // From a route's tab: that route is chosen already.
-          initial={typeof sp.laluan === 'string' ? [...fromEpanduan, ...usual, ...rest].find((x) => x.route === sp.laluan)?.key : undefined}
+          initial={initial}
           copies={copies}
           t={c}
           errors={t.errors}
