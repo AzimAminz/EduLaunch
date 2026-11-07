@@ -146,7 +146,7 @@ describe('careerList', () => {
   });
 
   it('splits careers given one per line, keeping names such as R&D', () => {
-    expect(careerList('JURUTERA,USAHAWAN,\nJABATAN KERAJAAN,\nR&D ELECTRONICS ENGINEER\nIOT ENGINEER')).toEqual(['Jurutera', 'Usahawan', 'Jabatan kerajaan', 'R&D electronics engineer', 'IoT engineer']);
+    expect(careerList('JURUTERA,USAHAWAN,\nJABATAN KERAJAAN,\nR&D ELECTRONICS ENGINEER\nIoT ENGINEER')).toEqual(['Jurutera', 'Usahawan', 'Jabatan kerajaan', 'R&D electronics engineer', 'IoT engineer']);
   });
 
   it('keeps prose as prose', () => {

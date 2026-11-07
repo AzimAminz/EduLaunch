@@ -61,7 +61,9 @@ export function careerList(text: string | null): string[] | null {
   if (parts.length < 2 || parts.some((p) => p.length > 60)) return null;
   const sentence = (p: string) =>
     (p.charAt(0) + p.slice(1).toLowerCase()).replace(/[A-Za-z&]+/g, (w) => SPELLED.get(w.toUpperCase()) ?? w);
-  return [...new Set(parts.map((p) => (p === p.toUpperCase() ? sentence(p) : p)))];
+  // Written in capitals, allowing a spelt name inside ("IoT ENGINEER").
+  const capitals = (p: string) => (p.match(/[a-z]/g)?.length ?? 0) <= 2 && /[A-Z]{3}/.test(p);
+  return [...new Set(parts.map((p) => (capitals(p) ? sentence(p) : p)))];
 }
 
 /** Careers to keep, and the text to keep as a note when ePanduan wrote them as prose. */
