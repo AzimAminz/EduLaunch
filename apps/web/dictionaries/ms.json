@@ -971,7 +971,7 @@
         "min_cgpa": "PNGK",
         "min_muet": "MUET"
       },
-      "typeLabel": "Jenis syarat",
+      "typeLabel": "Apakah syarat ini?",
       "chooseSubject": "Pilih subjek",
       "searchSubject": "Cari subjek",
       "grade": "Gred",
@@ -1098,20 +1098,20 @@
         "textOnly": "Ayat rasmi"
       },
       "kinds": {
-        "min_grade": "Gred satu subjek",
-        "subjects_from_list": "Gred dalam N subjek daripada senarai",
-        "min_credits": "Kepujian dalam mana-mana subjek",
+        "min_grade": "Satu subjek dengan gred minimum",
+        "subjects_from_list": "Beberapa subjek daripada senarai",
+        "min_credits": "Bilangan kepujian (mana-mana subjek)",
         "min_cgpa": "PNGK minimum",
-        "min_muet": "MUET minimum",
-        "declaration": "Perakuan (pelajar sahkan sendiri)",
-        "note": "Nota (tidak disemak)"
+        "min_muet": "Band MUET minimum",
+        "declaration": "Syarat yang pelajar sahkan sendiri",
+        "note": "Maklumat sahaja (tidak disemak)"
       },
       "summaryOf": {
-        "grade": "{subject} ≥ {grade}",
-        "list": "{count} daripada [{subjects}] ≥ {grade}",
-        "credits": "{n} kepujian gred {grade}",
-        "cgpa": "PNGK ≥ {value}",
-        "muet": "MUET ≥ Band {value}"
+        "grade": "Gred {grade} atau lebih dalam {subject}",
+        "list": "Gred {grade} atau lebih dalam {count} daripada: {subjects}",
+        "credits": "{n} kepujian (Gred {grade} atau lebih) dalam mana-mana subjek",
+        "cgpa": "PNGK {value} atau lebih",
+        "muet": "MUET Band {value} atau lebih"
       },
       "stepBack": "Kembali",
       "stepNext": {
@@ -1154,7 +1154,7 @@
         "empty": "Bahagian ini belum ada baris."
       },
       "phrase": {
-        "title": "Apa yang sistem semak",
+        "title": "Isi butirannya",
         "grade": "Gred",
         "forSubject": "bagi matapelajaran",
         "in": "dalam",
@@ -1163,7 +1163,19 @@
         "cgpa": "Purata Nilai Gred Kumulatif (PNGK) sekurang-kurangnya",
         "muetBefore": "Sekurang-kurangnya BAND",
         "muetAfter": "dalam MUET",
-        "official": "Ayat rasmi (seperti di ePanduan)"
+        "official": "Ayat rasmi (seperti di ePanduan)",
+        "preview": "Pelajar perlu:",
+        "declarationHint": "Sistem tidak menyemak syarat ini. Pelajar akan diminta mengesahkannya sendiri.",
+        "noteHint": "Ditunjukkan sebagai maklumat sahaja. Tiada apa yang disemak."
+      },
+      "kindExamples": {
+        "min_grade": "Contoh: Gred C Bahasa Melayu",
+        "subjects_from_list": "Contoh: Gred B dalam 2 daripada Matematik, Fizik, Kimia",
+        "min_credits": "Contoh: 5 kepujian (Gred C) dalam mana-mana subjek",
+        "min_cgpa": "Contoh: PNGK 2.50",
+        "min_muet": "Contoh: Band 2.0",
+        "declaration": "Contoh: lulus temu duga, tidak buta warna",
+        "note": "Contoh: ayat pengenalan, catatan tentang yuran"
       }
     },
     "errors": {

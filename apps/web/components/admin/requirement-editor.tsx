@@ -687,29 +687,39 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
       </div>
       {open && (
         <div className="flex flex-col gap-4 border-t border-line px-3 py-3">
-          <div className="flex flex-col gap-2">
-            <p className="text-[12px] font-bold uppercase tracking-wide text-muted">{t.typeLabel}</p>
-            <div role="radiogroup" aria-label={t.typeLabel} className="flex flex-wrap gap-1.5">
-              {EditorRuleTypes.map((x) => (
-                <button
-                  key={x}
-                  type="button"
-                  role="radio"
-                  aria-checked={line.type === x}
-                  onClick={() => onChange({ type: x, join: isUnchecked(x) ? 'and' : line.join })}
-                  className={`rounded-full border px-3 py-1 text-[12px] font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
-                    line.type === x ? 'border-navy bg-navy text-white' : 'border-line bg-white text-navy hover:bg-bg'
-                  }`}
-                >
-                  {t.kinds[x]}
-                </button>
-              ))}
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 text-sm font-semibold">{t.typeLabel}</legend>
+            {/* Plain names with an example each, so the kind is chosen by what the sentence says. */}
+            <div className="grid gap-2 sm:grid-cols-2">
+              {EditorRuleTypes.map((x) => {
+                const on = line.type === x;
+                return (
+                  <label
+                    key={x}
+                    className={`flex cursor-pointer items-start gap-3 rounded-[12px] border px-3 py-2.5 transition-colors duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-navy/40 ${
+                      on ? 'border-navy bg-navy/[0.05]' : 'border-line bg-white hover:border-navy/30'
+                    }`}
+                  >
+                    <input type="radio" name={`kind-${line.key}`} checked={on} onChange={() => onChange({ type: x, join: isUnchecked(x) ? 'and' : line.join })} className="mt-1 size-4 shrink-0 accent-[#1b2a4a]" />
+                    <span className="flex flex-col gap-0.5">
+                      <span className="text-sm font-semibold">{t.kinds[x]}</span>
+                      <span className="text-[12px] text-muted">{t.kindExamples[x]}</span>
+                    </span>
+                  </label>
+                );
+              })}
             </div>
-          </div>
+          </fieldset>
 
+          {unchecked && (
+            <p className="flex items-start gap-2 rounded-[10px] bg-bg px-3 py-2.5 text-[13px] text-muted">
+              <AdminIcon name="info" size={16} className="mt-0.5 shrink-0" />
+              {line.type === 'declaration' ? p.declarationHint : p.noteHint}
+            </p>
+          )}
           {!unchecked && (
             <div className="flex flex-col gap-2">
-              <p className="text-[12px] font-bold uppercase tracking-wide text-muted">{p.title}</p>
+              <p className="text-sm font-semibold">{p.title}</p>
               {/* Written as the official text phrases it. */}
               <div className="flex flex-wrap items-center gap-2 rounded-[12px] border border-dashed border-navy/25 bg-white px-3 py-3">
                 {line.type === 'min_grade' && (
@@ -796,10 +806,17 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
                   />
                 </div>
               )}
+              {/* What the line asks of a student, in plain words, as students will read it. */}
+              <p className="flex items-start gap-2 rounded-[10px] bg-mint px-3 py-2.5 text-[13px] text-[#1f6b47]">
+                <AdminIcon name="checkCircle" size={16} className="mt-0.5 shrink-0" />
+                <span>
+                  <span className="font-semibold">{p.preview}</span> {lineSummary(line, (id) => (id && subjectById.get(id)?.label) || '?', t)}
+                </span>
+              </p>
             </div>
           )}
 
-          <label className="flex flex-col gap-1 text-[12px] font-bold uppercase tracking-wide text-muted">
+          <label className="flex flex-col gap-1 text-sm font-semibold">
             {unchecked ? t.line.textOnly : p.official}
             <textarea
               value={line.text}

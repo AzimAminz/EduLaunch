@@ -971,7 +971,7 @@
         "min_cgpa": "CGPA",
         "min_muet": "MUET"
       },
-      "typeLabel": "Requirement type",
+      "typeLabel": "What is this requirement?",
       "chooseSubject": "Choose subject",
       "searchSubject": "Search subject",
       "grade": "Grade",
@@ -1098,20 +1098,20 @@
         "textOnly": "Official sentence"
       },
       "kinds": {
-        "min_grade": "Grade in one subject",
-        "subjects_from_list": "Grade in N subjects from a list",
-        "min_credits": "Credits in any subjects",
+        "min_grade": "One subject with a minimum grade",
+        "subjects_from_list": "Some subjects from a list",
+        "min_credits": "Number of credits (any subjects)",
         "min_cgpa": "Minimum CGPA",
-        "min_muet": "Minimum MUET",
-        "declaration": "Declaration (student confirms)",
-        "note": "Note (not checked)"
+        "min_muet": "Minimum MUET band",
+        "declaration": "Something the student confirms",
+        "note": "Information only (not checked)"
       },
       "summaryOf": {
-        "grade": "{subject} ≥ {grade}",
-        "list": "{count} of [{subjects}] ≥ {grade}",
-        "credits": "{n} credits at grade {grade}",
-        "cgpa": "CGPA ≥ {value}",
-        "muet": "MUET ≥ Band {value}"
+        "grade": "Grade {grade} or better in {subject}",
+        "list": "Grade {grade} or better in {count} of: {subjects}",
+        "credits": "{n} credits (Grade {grade} or better) in any subjects",
+        "cgpa": "CGPA {value} or higher",
+        "muet": "MUET Band {value} or higher"
       },
       "stepBack": "Back",
       "stepNext": {
@@ -1154,7 +1154,7 @@
         "empty": "This section has no lines yet."
       },
       "phrase": {
-        "title": "What the system checks",
+        "title": "Fill in the details",
         "grade": "Grade",
         "forSubject": "for the subject",
         "in": "in",
@@ -1163,7 +1163,19 @@
         "cgpa": "Cumulative Grade Point Average (CGPA) of at least",
         "muetBefore": "At least BAND",
         "muetAfter": "in MUET",
-        "official": "Official sentence (as on ePanduan)"
+        "official": "Official sentence (as on ePanduan)",
+        "preview": "Students need:",
+        "declarationHint": "The system does not check this. Students are asked to confirm it themselves.",
+        "noteHint": "Shown as information only. Nothing is checked."
+      },
+      "kindExamples": {
+        "min_grade": "Example: Grade C in Bahasa Melayu",
+        "subjects_from_list": "Example: Grade B in 2 of Mathematics, Physics, Chemistry",
+        "min_credits": "Example: 5 credits (Grade C) in any subjects",
+        "min_cgpa": "Example: CGPA 2.50",
+        "min_muet": "Example: Band 2.0",
+        "declaration": "Example: passes an interview, not colour blind",
+        "note": "Example: an opening sentence, a note about fees"
       }
     },
     "errors": {
