@@ -92,7 +92,7 @@ const same = (a: unknown, b: unknown) => {
 };
 
 export function compareFound(found: FoundProgramme[], existing: InstitutionProgramme[], knownNec: ReadonlySet<string>): ImportComparison {
-  const byCode = new Map(existing.filter((p) => p.upuCode).map((p) => [p.upuCode!.toUpperCase(), p]));
+  const byCode = new Map(existing.filter((p) => p.programCode).map((p) => [p.programCode!.toUpperCase(), p]));
   const rows: ImportRow[] = found.map((f) => {
     const match = byCode.get(f.code) ?? null;
     if (!match) return { found: f, existing: null, status: 'new', changes: [], problem: f.level ? null : 'no_level' };
@@ -111,7 +111,7 @@ export function compareFound(found: FoundProgramme[], existing: InstitutionProgr
     return { found: f, existing: match, status: changes.length ? 'changed' : 'same', changes, problem };
   });
   const foundCodes = new Set(found.map((f) => f.code));
-  const missing = existing.filter((p) => p.upuCode && !foundCodes.has(p.upuCode.toUpperCase()) && p.status !== 'archived');
+  const missing = existing.filter((p) => p.programCode && !foundCodes.has(p.programCode.toUpperCase()) && p.status !== 'archived');
   const counts = { new: 0, changed: 0, same: 0, missing: missing.length };
   for (const r of rows) counts[r.status] += 1;
   return { rows, missing, counts };
@@ -132,7 +132,7 @@ export function draftFromFound(f: FoundProgramme, necField: ReadonlyMap<string, 
     studyLevel: f.level!,
     durationSemesters: f.durationSemesters,
     fieldIds: field ? [field] : [],
-    upuCode: f.code,
+    programCode: f.code,
     internalCode: null,
     faculty: null,
     necCode: nec,

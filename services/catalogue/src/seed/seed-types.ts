@@ -1,4 +1,4 @@
-import type { RuleType, StudyLevel } from '@edulaunch/contracts';
+import type { ConditionType, StudyLevel } from '@edulaunch/contracts';
 
 type Riasec = Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>;
 
@@ -14,7 +14,7 @@ export interface SeedDataset {
   requirements: Array<{
     programmeKey: string;
     entryRoute: string;
-    rules: Array<{ groupNo: number; ruleType: RuleType; subjectKey?: string; minGrade?: string; minValue?: number; evidenceQuote: string }>;
+    rules: Array<{ orGroup: number; conditionType: ConditionType; subjectKey?: string; minGrade?: string; minValue?: number; officialText: string }>;
   }>;
   pathways: Array<{ fromKey: string; toKey: string; conditionText: string; minCgpa: number | null }>;
   careers: Array<{ key: string; fieldKey: string; title: string; description: string; minStudyLevel: StudyLevel }>;

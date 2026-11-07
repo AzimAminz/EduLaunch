@@ -186,7 +186,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
                   {missing.map((p) => (
                     <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
                       <span>
-                        <span className="font-mono text-[13px] text-muted">{p.upuCode}</span> {p.name}
+                        <span className="font-mono text-[13px] text-muted">{p.programCode}</span> {p.name}
                       </span>
                       <Link href={`/${locale}/admin/program/${p.id}`} className={buttonClass('secondary', 'sm')}>
                         <IconText icon="eye">{t.institutions.open}</IconText>

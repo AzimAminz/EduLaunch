@@ -33,7 +33,7 @@ const found = (over: Partial<FoundProgramme> = {}): FoundProgramme => ({
 
 const existing = (over: Partial<InstitutionProgramme> = {}): InstitutionProgramme => ({
   id: '00000000-0000-4000-8000-000000000001',
-  upuCode: 'UC6522001',
+  programCode: 'UC6522001',
   name: 'Ijazah Sarjana Muda Kejuruteraan Elektrik dengan Kepujian',
   studyLevel: 'degree',
   durationSemesters: 8,
@@ -66,7 +66,7 @@ describe('compareFound', () => {
   it('marks each found programme new, changed or the same, matched by programme code', () => {
     const result = compareFound(
       [found(), found({ code: 'UC4481002', name: 'Diploma Sains Komputer', level: 'diploma', necCode: '0613' }), found({ code: 'UC6523003', durationSemesters: 9 })],
-      [existing(), existing({ id: '00000000-0000-4000-8000-000000000003', upuCode: 'uc6523003' })],
+      [existing(), existing({ id: '00000000-0000-4000-8000-000000000003', programCode: 'uc6523003' })],
       NEC,
     );
     expect(result.rows.map((r) => [r.found.code, r.status, r.changes])).toEqual([
@@ -80,7 +80,7 @@ describe('compareFound', () => {
   it('ignores letter case and unknown values, and flags catalogue programmes ePanduan no longer lists', () => {
     const result = compareFound(
       [found({ name: 'IJAZAH SARJANA MUDA KEJURUTERAAN ELEKTRIK DENGAN KEPUJIAN', durationSemesters: null, necCode: '9999' })],
-      [existing(), existing({ id: '00000000-0000-4000-8000-000000000002', upuCode: 'UC0000001', name: 'Lama' }), existing({ upuCode: null, name: 'Tanpa kod' })],
+      [existing(), existing({ id: '00000000-0000-4000-8000-000000000002', programCode: 'UC0000001', name: 'Lama' }), existing({ programCode: null, name: 'Tanpa kod' })],
       NEC,
     );
     expect(result.rows[0]).toMatchObject({ status: 'same', changes: [] });
@@ -90,7 +90,7 @@ describe('compareFound', () => {
   it('says why a row cannot be accepted now', () => {
     const rows = compareFound(
       [found({ code: 'UC1111111', level: null }), found({ durationSemesters: 9 }), found({ code: 'UC2222222', durationSemesters: 9 })],
-      [existing({ pendingStatus: 'in_review' }), existing({ id: '00000000-0000-4000-8000-000000000004', upuCode: 'UC2222222', status: 'archived' })],
+      [existing({ pendingStatus: 'in_review' }), existing({ id: '00000000-0000-4000-8000-000000000004', programCode: 'UC2222222', status: 'archived' })],
       NEC,
     ).rows;
     expect(rows.map((r) => r.problem)).toEqual(['no_level', 'change_in_review', 'archived']);
@@ -101,7 +101,7 @@ describe('compareFound', () => {
 describe('drafts and updates from ePanduan', () => {
   it('builds a draft with the code, the known NEC field and its broad field', () => {
     expect(draftFromFound(found(), NEC_FIELD)).toMatchObject({
-      upuCode: 'UC6522001',
+      programCode: 'UC6522001',
       studyLevel: 'degree',
       necCode: '0712',
       fieldIds: ['field-engineering'],

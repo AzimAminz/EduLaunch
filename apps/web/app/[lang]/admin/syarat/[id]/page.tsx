@@ -207,7 +207,7 @@ function Items({ items, mark }: { items: RequirementItem[]; mark: (item: Require
 }
 
 function Quotes({ rules, title }: { rules: AdminRule[]; title: string }) {
-  const quotes = [...new Set(rules.map((r) => r.evidenceQuote?.trim()).filter((q): q is string => !!q))];
+  const quotes = [...new Set(rules.map((r) => r.officialText?.trim()).filter((q): q is string => !!q))];
   if (quotes.length === 0) return null;
   return (
     <div className="flex flex-col gap-2">
@@ -229,8 +229,8 @@ async function epanduanFor(req: RequirementDetail) {
   try {
     const token = (await getAccessToken())!;
     const programme = await getProgrammeDetail(token, req.programmeId);
-    if (!programme.upuCode) return null;
-    const [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.upuCode]), listSpecialRequirements(token, [programme.upuCode])]);
+    if (!programme.programCode) return null;
+    const [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.programCode]), listSpecialRequirements(token, [programme.programCode])]);
     const categories = found?.categories.filter((c) => c.route === req.entryRoute) ?? [];
     if (!categories.length) return null;
     const groups = groupCategories(categories, special);

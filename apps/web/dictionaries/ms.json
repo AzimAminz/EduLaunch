@@ -422,7 +422,7 @@
         "source": "Sumber",
         "more": "Maklumat lanjut"
       },
-      "upuCode": "Kod program (JPT / UPU)",
+      "programCode": "Kod program (JPT / UPU)",
       "upuPlaceholder": "cth. UC6522001",
       "upuHint": "Salin kod seperti yang tertulis dalam ePanduan atau prospektus, contohnya UC6522001.",
       "internalCode": "Kod universiti",

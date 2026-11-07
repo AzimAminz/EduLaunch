@@ -224,7 +224,7 @@ async function ImportTab({ locale, dict, institution }: { locale: Locale; dict: 
     const token = (await getAccessToken())!;
     const [{ run }, existing, nec] = await Promise.all([latestEpanduanRun(token, code), listInstitutionProgrammes(token, institution.id), listNecFields(token)]);
     // Syarat Khas is read only for accepted programmes, so only catalogue codes are asked for.
-    const special = await listSpecialRequirements(token, existing.flatMap((p) => (p.upuCode ? [p.upuCode] : [])).slice(0, 200));
+    const special = await listSpecialRequirements(token, existing.flatMap((p) => (p.programCode ? [p.programCode] : [])).slice(0, 200));
     data = { run, existing, nec, special };
   } catch {
     return <LoadError text={t.errors.generic} />;

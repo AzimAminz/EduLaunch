@@ -6,14 +6,14 @@ const ids = { bm: '00000000-0000-4000-8000-000000000001', math: '00000000-0000-4
 const names = new Map([[ids.bm, 'Bahasa Melayu'], [ids.math, 'Mathematics'], [ids.phy, 'Physics'], [ids.sci, 'Science']]);
 
 let n = 0;
-const rule = (groupNo: number, subjectId: string, minGrade: string): RequirementRuleDto => ({
+const rule = (orGroup: number, subjectId: string, minGrade: string): RequirementRuleDto => ({
   id: `00000000-0000-4000-9000-${String(++n).padStart(12, '0')}`,
-  groupNo,
-  ruleType: 'min_grade',
+  orGroup,
+  conditionType: 'min_grade',
   subjectId,
   minGrade,
   minValue: null,
-  evidenceQuote: 'quote',
+  officialText: 'quote',
   part: 'special',
   section: null,
   subjectIds: [],
@@ -97,8 +97,8 @@ describe('EligibilityEngine', () => {
       ...requirement,
       entryRoute: 'stpm',
       rules: [
-        { ...rule(1, stpmMath, 'C'), ruleType: 'min_grade' },
-        { ...rule(2, ids.bm, 'C'), ruleType: 'min_credits', subjectId: null, minValue: 2 },
+        { ...rule(1, stpmMath, 'C'), conditionType: 'min_grade' },
+        { ...rule(2, ids.bm, 'C'), conditionType: 'min_credits', subjectId: null, minValue: 2 },
       ],
     };
     const snapshot: StudentSnapshot = {
@@ -121,7 +121,7 @@ describe('requirement lines from ePanduan', () => {
   const withLines = (rules: RequirementRuleDto[]): PublishedRequirement => ({ ...requirement, rules });
 
   it('counts grades in N subjects from a list', () => {
-    const twoOf = withLines([line({ groupNo: 1, ruleType: 'subjects_from_list', minGrade: 'C', subjectIds: [ids.math, ids.phy, ids.sci], minCount: 2 })]);
+    const twoOf = withLines([line({ orGroup: 1, conditionType: 'subjects_from_list', minGrade: 'C', subjectIds: [ids.math, ids.phy, ids.sci], minCount: 2 })]);
     const result = (g: Record<string, string>) => engine.check(twoOf, { snapshot: student(g), subjectNames: names });
     expect(result({ [ids.math]: 'B', [ids.phy]: 'C', [ids.sci]: 'D' }).status).toBe('eligible');
     const short = result({ [ids.math]: 'B', [ids.phy]: 'D', [ids.bm]: 'A' });
@@ -131,9 +131,9 @@ describe('requirement lines from ePanduan', () => {
 
   it('lists declarations to confirm and ignores notes, so neither decides eligibility', () => {
     const req = withLines([
-      line({ groupNo: 1, ruleType: 'note', evidenceQuote: 'Memiliki SPM dengan mendapat sekurang-kurangnya:-' }),
+      line({ orGroup: 1, conditionType: 'note', officialText: 'Memiliki SPM dengan mendapat sekurang-kurangnya:-' }),
       rule(2, ids.bm, 'C'),
-      line({ groupNo: 3, ruleType: 'declaration', evidenceQuote: 'Lulus ujian dan / atau temu duga' }),
+      line({ orGroup: 3, conditionType: 'declaration', officialText: 'Lulus ujian dan / atau temu duga' }),
     ]);
     const result = engine.check(req, { snapshot: student({ [ids.bm]: 'B' }), subjectNames: names });
     expect(result.status).toBe('eligible');

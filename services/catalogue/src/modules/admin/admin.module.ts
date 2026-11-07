@@ -5,7 +5,7 @@ import { and, asc, count, desc, eq, ilike, inArray, isNotNull, ne, notExists, or
 import { z } from 'zod';
 import * as schema from '../../infrastructure/db/schema.js';
 
-const { programs, institutions, institutionSources, programFields, programPathways, admissionStats, requirements, requirementRules, necFields } = schema;
+const { programs, institutions, institutionSources, programFields, programPathways, admissionStats, requirements, requirementConditions, conditionSubjects, necFields } = schema;
 
 type Status = (typeof schema.reviewStatus.enumValues)[number];
 const OPEN: Status[] = ['draft', 'returned', 'in_review'];
@@ -291,7 +291,7 @@ export class AdminQueries {
     const rows = await this.db
       .select({
         id: programs.id,
-        upuCode: programs.upuCode,
+        programCode: programs.programCode,
         name: programs.name,
         studyLevel: programs.studyLevel,
         durationSemesters: programs.durationSemesters,
@@ -338,7 +338,7 @@ export class AdminQueries {
         durationSemesters: programs.durationSemesters,
         institutionId: programs.institutionId,
         institutionName: institutions.name,
-        upuCode: programs.upuCode,
+        programCode: programs.programCode,
         internalCode: programs.internalCode,
         faculty: programs.faculty,
         necCode: programs.necCode,
@@ -424,20 +424,26 @@ export class AdminQueries {
       .orderBy(desc(requirements.versionNo))
       .limit(1);
     const ids = previous ? [id, previous.id] : [id];
-    const rules = await this.db.select().from(requirementRules).where(inArray(requirementRules.requirementId, ids)).orderBy(requirementRules.groupNo, requirementRules.position, requirementRules.id);
+    const rules = await this.db.select().from(requirementConditions).where(inArray(requirementConditions.requirementId, ids)).orderBy(requirementConditions.orGroup, requirementConditions.position, requirementConditions.id);
+    const links = rules.length
+      ? await this.db.select().from(conditionSubjects).where(inArray(conditionSubjects.conditionId, rules.map((r) => r.id))).orderBy(conditionSubjects.position)
+      : [];
+    // One subject for a grade line, a list for "N subjects from this list".
+    const subjectsOf = (conditionId: string) => links.filter((l) => l.conditionId === conditionId).map((l) => l.subjectId);
+    const single = (type: string) => type === 'min_grade' || type === 'key_subject';
     const plain = (requirementId: string) =>
       rules
         .filter((r) => r.requirementId === requirementId)
         .map((r) => ({
-          groupNo: r.groupNo,
-          ruleType: r.ruleType,
-          subjectId: r.subjectId,
+          orGroup: r.orGroup,
+          conditionType: r.conditionType,
+          subjectId: single(r.conditionType) ? (subjectsOf(r.id)[0] ?? null) : null,
           minGrade: r.minGrade,
           minValue: r.minValue === null ? null : Number(r.minValue),
-          evidenceQuote: r.evidenceQuote,
+          officialText: r.officialText,
           part: r.part,
           section: r.section,
-          subjectIds: r.subjectIds,
+          subjectIds: single(r.conditionType) ? [] : subjectsOf(r.id),
           minCount: r.minCount,
           position: r.position,
         }));

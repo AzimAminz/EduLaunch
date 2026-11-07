@@ -17,7 +17,7 @@ const pendingColumns = (p: PendingChange | null) => ({
 });
 
 const facts = (p: ProgramFacts): ProgramFacts => ({
-  upuCode: p.upuCode,
+  programCode: p.programCode,
   internalCode: p.internalCode,
   faculty: p.faculty,
   necCode: p.necCode,
@@ -177,7 +177,7 @@ export class DrizzleProgramRepository extends ProgramRepository {
   }
 
   async upuCodeTaken(code: string, exceptId: string | null): Promise<boolean> {
-    const rows = await this.db.select({ id: programs.id }).from(programs).where(eq(programs.upuCode, code));
+    const rows = await this.db.select({ id: programs.id }).from(programs).where(eq(programs.programCode, code));
     return rows.some((r) => r.id !== exceptId);
   }
 

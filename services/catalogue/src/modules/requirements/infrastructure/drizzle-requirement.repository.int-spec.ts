@@ -14,8 +14,8 @@ const programId = randomUUID();
 const subjectId = randomUUID();
 
 const rules = (minGrade = 'B'): RequirementRule[] => [
-  { id: randomUUID(), groupNo: 1, ruleType: 'min_grade', subjectId, minGrade, minValue: null, evidenceQuote: 'sekurang-kurangnya gred B dalam Matematik', ...LINE_DEFAULTS, subjectIds: [] },
-  { id: randomUUID(), groupNo: 2, ruleType: 'min_credits', subjectId: null, minGrade: 'C', minValue: 5, evidenceQuote: 'kepujian dalam lima mata pelajaran', ...LINE_DEFAULTS, subjectIds: [] },
+  { id: randomUUID(), orGroup: 1, conditionType: 'min_grade', subjectId, minGrade, minValue: null, officialText: 'sekurang-kurangnya gred B dalam Matematik', ...LINE_DEFAULTS, subjectIds: [] },
+  { id: randomUUID(), orGroup: 2, conditionType: 'min_credits', subjectId: null, minGrade: 'C', minValue: 5, officialText: 'kepujian dalam lima mata pelajaran', ...LINE_DEFAULTS, subjectIds: [] },
 ];
 
 async function newDraft(entryRoute: string, minGrade = 'B') {
@@ -55,7 +55,7 @@ describe('DrizzleRequirementRepository (integration)', () => {
     const found = (await repo.findById(req.id))!.toSnapshot();
     const byId = (a: { id: string }, b: { id: string }) => a.id.localeCompare(b.id);
     expect({ ...found, rules: [...found.rules].sort(byId) }).toEqual({ ...req.toSnapshot(), rules: [...req.rules].sort(byId) });
-    expect(found.rules.find((r) => r.ruleType === 'min_credits')?.minValue).toBe(5); // numeric column comes back as a number
+    expect(found.rules.find((r) => r.conditionType === 'min_credits')?.minValue).toBe(5); // numeric column comes back as a number
   });
 
   it('keeps the review status and approver after publishing', async () => {

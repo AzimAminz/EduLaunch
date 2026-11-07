@@ -118,7 +118,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
 
   // What students will see, from the complete lines only.
   const previewRules = checked.rules
-    .filter((r) => (r.ruleType === 'min_grade' ? r.subjectId && r.minGrade : r.ruleType === 'subjects_from_list' ? r.subjectIds.length > 0 && r.minGrade : true))
+    .filter((r) => (r.conditionType === 'min_grade' ? r.subjectId && r.minGrade : r.conditionType === 'subjects_from_list' ? r.subjectIds.length > 0 && r.minGrade : true))
     .map((r, i) => ({ ...r, id: `${i}` }));
   const preview = describeRequirement(
     { requirementId: id, programId: programmeId, entryRoute, versionNo: 1, sourceCategory, rules: previewRules },

@@ -163,10 +163,10 @@ function programmeDetails(form: FormData, isStream: boolean) {
   const fieldErrors: Record<string, string> = {};
   if (name.length < 3 || name.length > 160) fieldErrors.name = 'nameRequired';
   if (duration !== null && (!Number.isInteger(duration) || duration < 1 || duration > 16)) fieldErrors.durationSemesters = 'durationInvalid';
-  const upuCode = text(form, 'upuCode').toUpperCase() || null;
+  const programCode = text(form, 'programCode').toUpperCase() || null;
   // Required, with no fixed format yet (the official guideline for these codes is still being checked).
-  if (!isStream && !upuCode) fieldErrors.upuCode = 'upuRequired';
-  if (upuCode && upuCode.length > 30) fieldErrors.upuCode = 'upuTooLong';
+  if (!isStream && !programCode) fieldErrors.programCode = 'upuRequired';
+  if (programCode && programCode.length > 30) fieldErrors.programCode = 'upuTooLong';
   const sourceUrl = text(form, 'sourceUrl') || null;
   if (sourceUrl && !/^https?:\/\/\S+$/.test(sourceUrl)) fieldErrors.sourceUrl = 'sourceInvalid';
   const flag = (name: string) => form.get(name) === 'on';
@@ -176,7 +176,7 @@ function programmeDetails(form: FormData, isStream: boolean) {
       name,
       durationSemesters: duration,
       fieldIds: [...new Set(fieldIds)].slice(0, 10),
-      upuCode,
+      programCode,
       internalCode: text(form, 'internalCode') || null,
       faculty: text(form, 'faculty') || null,
       necCode: /^\d{4}$/.test(text(form, 'necCode')) ? text(form, 'necCode') : null,
@@ -217,7 +217,7 @@ export async function createProgramme(_prev: AdminFormState, form: FormData): Pr
   }
   // Typed by hand with an ePanduan code: keep what an import would (entry routes, average merit), so the programme
   // gets its route tabs and requirements from ePanduan just like an imported one.
-  if (details.upuCode) await keepEpanduanFacts(token, id, details.upuCode).catch(() => null);
+  if (details.programCode) await keepEpanduanFacts(token, id, details.programCode).catch(() => null);
   refresh();
   redirect(`/${locale}/admin/program/${id}`);
 }
@@ -259,7 +259,7 @@ export async function updateProgramme(_prev: AdminFormState, form: FormData): Pr
   const locale = localeOf(form);
   const id = text(form, 'id');
   // The form has no programme code field for a Form 4 stream.
-  const { details, fieldErrors } = programmeDetails(form, !form.has('upuCode'));
+  const { details, fieldErrors } = programmeDetails(form, !form.has('programCode'));
   // A draft that was never published may still move to another institution or level.
   const level = StudyLevel.safeParse(text(form, 'studyLevel'));
   const institutionId = text(form, 'institutionId');
@@ -344,7 +344,7 @@ async function copyInto(token: string, draftId: string, sourceId: string): Promi
     await api.saveRequirementDraft(token, draftId, {
       sourceUrl: source.sourceUrl,
       sourceCategory: source.sourceCategory,
-      rules: source.rules.map((r) => ({ ...r, evidenceQuote: r.evidenceQuote ?? '' })),
+      rules: source.rules.map((r) => ({ ...r, officialText: r.officialText ?? '' })),
     });
     return true;
   } catch {
@@ -427,8 +427,8 @@ export async function removeEntryRoute(_prev: AdminFormState, form: FormData): P
   try {
     if (draftId) await api.discardRequirementDraft(token, draftId);
     const programme = await api.getProgrammeDetail(token, programId);
-    if (programme.entryRoutes.length === 0 && programme.upuCode) {
-      const [found] = await api.listFoundProgrammes(token, [programme.upuCode]);
+    if (programme.entryRoutes.length === 0 && programme.programCode) {
+      const [found] = await api.listFoundProgrammes(token, [programme.programCode]);
       await api.setEntryRoutes(token, programId, found ? entryRoutesFromFound(found).filter((r) => r.entryRoute !== entryRoute) : []);
     } else {
       await api.removeEntryRoute(token, programId, entryRoute);
@@ -457,7 +457,7 @@ export async function startEpanduanImport(_prev: AdminFormState, form: FormData)
 }
 
 const FACT_KEYS = [
-  'upuCode',
+  'programCode',
   'internalCode',
   'faculty',
   'necCode',

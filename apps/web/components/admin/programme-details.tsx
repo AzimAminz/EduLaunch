@@ -21,7 +21,7 @@ function shows(dict: Dictionary, names: DetailNames): Show {
     institutionId: (x) => (x ? (names.institutions.get(String(x)) ?? v.none) : v.none),
     studyLevel: (x) => dict.levels[x as keyof Dictionary['levels']] ?? text(x),
     name: text,
-    upuCode: text,
+    programCode: text,
     internalCode: text,
     faculty: text,
     necCode: (x) => (x ? `${x} · ${names.nec.get(String(x)) ?? ''}` : v.none),
@@ -49,7 +49,7 @@ function labels(dict: Dictionary): Record<keyof PendingDetails, string> {
     institutionId: f.institution,
     studyLevel: f.level,
     name: f.name,
-    upuCode: f.upuCode,
+    programCode: f.programCode,
     internalCode: f.internalCode,
     faculty: f.faculty,
     necCode: f.nec,
@@ -96,7 +96,7 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
       <Group title={f.sections.identity}>
         {!stream && row('institutionId')}
         {row('studyLevel')}
-        {!stream && row('upuCode')}
+        {!stream && row('programCode')}
         {!stream && row('internalCode')}
         {!stream && row('faculty')}
       </Group>

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { CurrentCaller, Public, Roles, ZodPipe, type Caller } from '@edulaunch/nest-kit';
-import { EntryRoutes, RequirementPart, RuleType } from '@edulaunch/contracts';
+import { EntryRoutes, RequirementPart, ConditionType } from '@edulaunch/contracts';
 import { z } from 'zod';
 import {
   CreateRequirementDraft,
@@ -13,12 +13,12 @@ import {
 const Rules = z
   .array(
     z.object({
-      groupNo: z.number().int().min(1),
-      ruleType: RuleType,
+      orGroup: z.number().int().min(1),
+      conditionType: ConditionType,
       subjectId: z.uuid().nullable().default(null),
       minGrade: z.string().max(3).nullable().default(null),
       minValue: z.number().nullable().default(null),
-      evidenceQuote: z.string().min(2).max(1500),
+      officialText: z.string().min(2).max(1500),
       part: RequirementPart.default('special'),
       section: z.string().max(60).nullable().default(null),
       subjectIds: z.array(z.uuid()).max(40).default([]),

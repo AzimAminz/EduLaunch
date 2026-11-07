@@ -23,7 +23,7 @@ beforeAll(async () => {
     { id: outside, institutionId: other, name: `Ijazah C ${tag}`, studyLevel: 'degree', publishStatus: 'published' },
   ]);
   const [req] = await db.insert(schema.requirements).values({ programId: p1, preparedBy: randomUUID(), entryRoute: 'spm', versionNo: 1 }).returning();
-  await db.insert(schema.requirementRules).values({ requirementId: req!.id, groupNo: 1, ruleType: 'min_cgpa', minValue: '2.00', evidenceQuote: 'PNGK 2.00' });
+  await db.insert(schema.requirementConditions).values({ requirementId: req!.id, orGroup: 1, conditionType: 'min_cgpa', minValue: '2.00', officialText: 'PNGK 2.00' });
   await db.insert(schema.admissionStats).values({ programId: p1, intakeYear: 2026, averageMerit: '90.10' });
   // A pathway from another institution's programme into this one goes too, so nothing points at a deleted programme.
   await db.insert(schema.programPathways).values({ fromProgramId: outside, toProgramId: p2 });

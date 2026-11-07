@@ -77,12 +77,12 @@ export const newLine = (part: RequirementPart, over: Partial<EditorLine> = {}): 
 });
 
 interface StoredRule {
-  groupNo: number;
-  ruleType: 'min_grade' | 'key_subject' | 'min_credits' | 'min_cgpa' | 'min_muet' | 'subjects_from_list' | 'declaration' | 'note';
+  orGroup: number;
+  conditionType: 'min_grade' | 'key_subject' | 'min_credits' | 'min_cgpa' | 'min_muet' | 'subjects_from_list' | 'declaration' | 'note';
   subjectId: string | null;
   minGrade: string | null;
   minValue: number | null;
-  evidenceQuote: string | null;
+  officialText: string | null;
   part?: RequirementPart;
   section?: string | null;
   subjectIds?: string[];
@@ -93,10 +93,10 @@ interface StoredRule {
 /** Stored rules → editor lines: Syarat Am first, then Syarat Khas; rules sharing a group become lines joined by ATAU. */
 export function linesFromRules(rules: StoredRule[]): EditorLine[] {
   const partOrder = (r: StoredRule) => (r.part === 'general' ? 0 : 1);
-  const sorted = [...rules].sort((a, b) => partOrder(a) - partOrder(b) || a.groupNo - b.groupNo || (a.position ?? 0) - (b.position ?? 0));
+  const sorted = [...rules].sort((a, b) => partOrder(a) - partOrder(b) || a.orGroup - b.orGroup || (a.position ?? 0) - (b.position ?? 0));
   return sorted.map((r, i) => {
     const previous = sorted[i - 1];
-    const type: EditorRuleType = r.ruleType === 'key_subject' ? 'min_grade' : r.ruleType;
+    const type: EditorRuleType = r.conditionType === 'key_subject' ? 'min_grade' : r.conditionType;
     return newLine(r.part ?? 'special', {
       section: r.section ?? '',
       type,
@@ -106,8 +106,8 @@ export function linesFromRules(rules: StoredRule[]): EditorLine[] {
       // CGPA keeps two decimals and MUET one, as official sources write them ("2.00", "Band 2.0").
       value: r.minValue === null || type === 'subjects_from_list' ? '' : type === 'min_cgpa' ? r.minValue.toFixed(2) : type === 'min_muet' ? r.minValue.toFixed(1) : String(r.minValue),
       count: String(r.minCount ?? 1),
-      text: r.evidenceQuote ?? '',
-      join: previous && previous.groupNo === r.groupNo && (previous.part ?? 'special') === (r.part ?? 'special') ? 'or' : 'and',
+      text: r.officialText ?? '',
+      join: previous && previous.orGroup === r.orGroup && (previous.part ?? 'special') === (r.part ?? 'special') ? 'or' : 'and',
     });
   });
 }
@@ -116,12 +116,12 @@ export function linesFromRules(rules: StoredRule[]): EditorLine[] {
 export type LineProblem = 'subjectRequired' | 'subjectsRequired' | 'gradeRequired' | 'countRange' | 'cgpaRange' | 'muetRange' | 'creditsRange' | 'textRequired';
 
 export interface SavedRule {
-  groupNo: number;
-  ruleType: EditorRuleType;
+  orGroup: number;
+  conditionType: EditorRuleType;
   subjectId: string | null;
   minGrade: string | null;
   minValue: number | null;
-  evidenceQuote: string;
+  officialText: string;
   part: RequirementPart;
   section: string | null;
   subjectIds: string[];
@@ -181,12 +181,12 @@ export function checkLines(lines: EditorLine[]): CheckedLines {
         break;
     }
     rules.push({
-      groupNo: group,
-      ruleType: line.type,
+      orGroup: group,
+      conditionType: line.type,
       subjectId: line.type === 'min_grade' ? line.subjectId : null,
       minGrade: line.type === 'min_grade' || line.type === 'subjects_from_list' || line.type === 'min_credits' ? line.grade || (line.type === 'min_credits' ? 'C' : null) : null,
       minValue: line.type === 'min_cgpa' || line.type === 'min_muet' || line.type === 'min_credits' ? value : null,
-      evidenceQuote: text,
+      officialText: text,
       part: line.part,
       section: line.section.trim() || null,
       subjectIds: line.type === 'subjects_from_list' ? line.subjectIds : [],

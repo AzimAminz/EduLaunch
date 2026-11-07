@@ -64,6 +64,20 @@
       "when": 1793018494600,
       "tag": "0008_custom_field_name",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794063398210,
+      "tag": "0009_drop_old_assessment_and_roadmap",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794063413303,
+      "tag": "0010_question_assessment_roadmap",
+      "breakpoints": true
     }
   ]
 }

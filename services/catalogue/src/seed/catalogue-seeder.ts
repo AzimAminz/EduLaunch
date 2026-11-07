@@ -76,19 +76,20 @@ export class CatalogueSeeder {
           reviewStatus: 'published' as const,
         };
         await tx.insert(schema.requirements).values({ id: requirementId, ...row }).onConflictDoUpdate({ target: schema.requirements.id, set: { ...row, updatedAt: new Date() } });
-        await tx.delete(schema.requirementRules).where(eq(schema.requirementRules.requirementId, requirementId));
-        await tx.insert(schema.requirementRules).values(
+        await tx.delete(schema.requirementConditions).where(eq(schema.requirementConditions.requirementId, requirementId));
+        await tx.insert(schema.requirementConditions).values(
           r.rules.map((rule, i) => ({
             id: seedId(`rule:${r.programmeKey}:${r.entryRoute}:${i}`),
             requirementId,
-            groupNo: rule.groupNo,
-            ruleType: rule.ruleType,
-            subjectId: rule.subjectKey ? id.subject(rule.subjectKey) : null,
+            orGroup: rule.orGroup,
+            conditionType: rule.conditionType,
             minGrade: rule.minGrade ?? null,
             minValue: num(rule.minValue),
-            evidenceQuote: rule.evidenceQuote,
+            officialText: rule.officialText,
           })),
         );
+        const links = r.rules.flatMap((rule, i) => (rule.subjectKey ? [{ conditionId: seedId(`rule:${r.programmeKey}:${r.entryRoute}:${i}`), subjectId: id.subject(rule.subjectKey), position: 0 }] : []));
+        if (links.length) await tx.insert(schema.conditionSubjects).values(links).onConflictDoNothing();
       }
       for (const w of data.pathways) {
         const row = { conditionText: w.conditionText, minCgpa: num(w.minCgpa) };

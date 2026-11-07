@@ -29,14 +29,14 @@ function subjectName(rule: RequirementRuleDto, names: ReadonlyMap<string, string
 }
 
 function describeSingle(rule: RequirementRuleDto, names: ReadonlyMap<string, string>, t: Texts): RequirementItem {
-  switch (rule.ruleType) {
+  switch (rule.conditionType) {
     case 'subjects_from_list':
       return {
         title: format(t.fromList, { count: rule.minCount ?? 1 }),
         detail: format(t.fromListDetail, { grade: rule.minGrade ?? '', count: rule.minCount ?? 1, subjects: rule.subjectIds.map((id) => names.get(id) ?? t.otherSubject).join(', ') }),
       };
     case 'declaration':
-      return { title: t.toConfirm, detail: (rule.evidenceQuote ?? '').replace(SAMPLE_MARKER, '').trim() };
+      return { title: t.toConfirm, detail: (rule.officialText ?? '').replace(SAMPLE_MARKER, '').trim() };
     case 'min_credits':
       return { title: t.credits, detail: format(t.creditsDetail, { count: rule.minValue ?? 0, grade: rule.minGrade ?? 'C' }) };
     case 'min_cgpa':
@@ -62,11 +62,11 @@ function describeGroup(rules: RequirementRuleDto[], names: ReadonlyMap<string, s
 export function describeRequirement(requirement: PublishedRequirement, subjectNames: ReadonlyMap<string, string>, t: Texts): DescribedRequirement {
   const groups = new Map<number, RequirementRuleDto[]>();
   // Notes are context for the admin's view of the source, not requirements a student must meet.
-  for (const rule of requirement.rules.filter((r) => r.ruleType !== 'note')) groups.set(rule.groupNo, [...(groups.get(rule.groupNo) ?? []), rule]);
+  for (const rule of requirement.rules.filter((r) => r.conditionType !== 'note')) groups.set(rule.orGroup, [...(groups.get(rule.orGroup) ?? []), rule]);
   const ordered = [...groups.entries()].sort(([a], [b]) => a - b).map(([, rules]) => rules);
 
   const routes: Record<string, string> = t.routes;
-  const quotes = requirement.rules.map((r) => r.evidenceQuote ?? '').filter(Boolean);
+  const quotes = requirement.rules.map((r) => r.officialText ?? '').filter(Boolean);
   return {
     entryRoute: routes[requirement.entryRoute] ?? requirement.entryRoute,
     items: ordered.map((rules) => describeGroup(rules, subjectNames, t)),

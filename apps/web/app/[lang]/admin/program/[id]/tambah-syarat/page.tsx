@@ -49,10 +49,10 @@ async function Choose({ locale, dict, params, searchParams }: { locale: Locale; 
   }
   let found = null;
   let special: Awaited<ReturnType<typeof listSpecialRequirements>> = [];
-  if (programme.upuCode) {
+  if (programme.programCode) {
     try {
       const token = (await getAccessToken())!;
-      [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.upuCode]), listSpecialRequirements(token, [programme.upuCode])]);
+      [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.programCode]), listSpecialRequirements(token, [programme.programCode])]);
     } catch {
       found = null;
     }
@@ -63,7 +63,7 @@ async function Choose({ locale, dict, params, searchParams }: { locale: Locale; 
   if (programme.institutionId) {
     try {
       const siblings = (await listInstitutionProgrammes((await getAccessToken())!, programme.institutionId)).filter((p) => p.id !== programme.id);
-      const names = new Map(siblings.map((p) => [p.id, p.upuCode ? `${p.name} (${p.upuCode})` : p.name]));
+      const names = new Map(siblings.map((p) => [p.id, p.programCode ? `${p.name} (${p.programCode})` : p.name]));
       for (const r of await getPublishedRequirements(siblings.map((p) => p.id))) {
         (copies[r.entryRoute] ??= []).push({ value: r.requirementId, label: names.get(r.programId) ?? r.programId });
       }

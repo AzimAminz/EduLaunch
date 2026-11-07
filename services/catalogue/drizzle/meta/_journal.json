@@ -78,6 +78,13 @@
       "when": 1793107122527,
       "tag": "0010_drop_single_campus",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794063262891,
+      "tag": "0011_clear_names_and_condition_subject",
+      "breakpoints": true
     }
   ]
 }

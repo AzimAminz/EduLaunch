@@ -1,5 +1,5 @@
 import 'server-only';
-import { EntryRoutes, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, RuleType, StudyLevel, StudyModes } from '@edulaunch/contracts';
+import { EntryRoutes, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, ConditionType, StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://127.0.0.1:4000';
@@ -130,7 +130,7 @@ export type RequirementVersion = z.infer<typeof RequirementVersion>;
 
 /** The standard details every programme has (as JPT and university prospectuses publish them). */
 const ProgrammeFacts = z.object({
-  upuCode: z.string().nullable(),
+  programCode: z.string().nullable(),
   internalCode: z.string().nullable(),
   faculty: z.string().nullable(),
   necCode: z.string().nullable(),
@@ -184,12 +184,12 @@ export type ProgrammeDetail = z.infer<typeof ProgrammeDetail>;
 export const getProgrammeDetail = (token: string, id: string) => call(token, `/admin/programmes/${encodeURIComponent(id)}`, ProgrammeDetail);
 
 export const AdminRule = z.object({
-  groupNo: z.number(),
-  ruleType: RuleType,
+  orGroup: z.number(),
+  conditionType: ConditionType,
   subjectId: z.uuid().nullable(),
   minGrade: z.string().nullable(),
   minValue: z.coerce.number().nullable(),
-  evidenceQuote: z.string().nullable(),
+  officialText: z.string().nullable(),
   part: z.enum(['general', 'special']).default('special'),
   section: z.string().nullable().default(null),
   subjectIds: z.array(z.uuid()).default([]),
@@ -264,7 +264,7 @@ export const createRequirementDraft = (token: string, body: { programId: string;
 export const saveRequirementDraft = (
   token: string,
   id: string,
-  body: { sourceUrl: string | null; sourceCategory: string | null; rules: Array<Omit<AdminRule, 'evidenceQuote'> & { evidenceQuote: string }> },
+  body: { sourceUrl: string | null; sourceCategory: string | null; rules: Array<Omit<AdminRule, 'officialText'> & { officialText: string }> },
 ) =>
   call(token, `/requirements/${encodeURIComponent(id)}`, Status, send(body, 'PUT'));
 export const reviewRequirement = (token: string, id: string, body: Exclude<ReviewAction, { action: 'archive' | 'reopen' | 'withdraw' | 'discard' }>) =>
@@ -319,7 +319,7 @@ export const recordAverageMerit = (token: string, id: string, body: { intakeYear
 /** An institution's programmes with the values an import compares. */
 const InstitutionProgramme = z.object({
   id: z.uuid(),
-  upuCode: z.string().nullable(),
+  programCode: z.string().nullable(),
   name: z.string(),
   studyLevel: StudyLevel,
   durationSemesters: z.number().nullable(),

@@ -13,7 +13,7 @@ async function checkReferences(programs: ProgramRepository, programId: string | 
   const found = await programs.existingFieldIds(fieldIds);
   if (found.length !== new Set(fieldIds).size) throw new DomainError('invalid_program', 'Choose fields from the list');
   if (d.necCode && !(await programs.necCodeExists(d.necCode))) throw new DomainError('invalid_program', 'Choose an NEC field from the list');
-  const upu = d.upuCode?.trim().toUpperCase();
+  const upu = d.programCode?.trim().toUpperCase();
   if (upu && (await programs.upuCodeTaken(upu, programId))) throw new DomainError('upu_code_taken', `Another programme already uses the code ${upu}`);
 }
 

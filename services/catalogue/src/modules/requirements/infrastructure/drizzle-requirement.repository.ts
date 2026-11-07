@@ -5,9 +5,12 @@ import * as schema from '../../../infrastructure/db/schema.js';
 import { Requirement, type ReviewStatus } from '../domain/requirement.js';
 import { RequirementRepository } from '../domain/requirement.repository.js';
 
-const { requirements, requirementRules, programs, subjects } = schema;
+const { requirements, requirementConditions, conditionSubjects, programs, subjects } = schema;
 type RequirementRow = typeof requirements.$inferSelect;
-type RuleRow = typeof requirementRules.$inferSelect;
+type RuleRow = typeof requirementConditions.$inferSelect & { subjectIds: string[] };
+
+/** Lines that name one subject (the rest name a list, or none). */
+const ONE_SUBJECT = new Set(['min_grade', 'key_subject']);
 
 @Injectable()
 export class DrizzleRequirementRepository extends RequirementRepository {
@@ -18,8 +21,7 @@ export class DrizzleRequirementRepository extends RequirementRepository {
   async findById(id: string): Promise<Requirement | null> {
     const [row] = await this.db.select().from(requirements).where(eq(requirements.id, id)).limit(1);
     if (!row) return null;
-    const rules = await this.db.select().from(requirementRules).where(eq(requirementRules.requirementId, id)).orderBy(requirementRules.groupNo, requirementRules.position, requirementRules.id);
-    return this.toDomain(row, rules);
+    return this.toDomain(row, await this.conditionsOf([id]));
   }
 
   async findPublished(programIds: string[]): Promise<Requirement[]> {
@@ -30,12 +32,24 @@ export class DrizzleRequirementRepository extends RequirementRepository {
       .where(and(inArray(requirements.programId, programIds), eq(requirements.reviewStatus, 'published')))
       .orderBy(requirements.programId, requirements.entryRoute, desc(requirements.versionNo));
     if (rows.length === 0) return [];
-    const rules = await this.db
-      .select()
-      .from(requirementRules)
-      .where(inArray(requirementRules.requirementId, rows.map((r) => r.id)))
-      .orderBy(requirementRules.groupNo, requirementRules.position, requirementRules.id);
+    const rules = await this.conditionsOf(rows.map((r) => r.id));
     return rows.map((r) => this.toDomain(r, rules.filter((x) => x.requirementId === r.id)));
+  }
+
+  /** The lines of these requirements in order, each with the subjects it names (condition_subject). */
+  private async conditionsOf(requirementIds: string[]): Promise<RuleRow[]> {
+    const rows = await this.db
+      .select()
+      .from(requirementConditions)
+      .where(inArray(requirementConditions.requirementId, requirementIds))
+      .orderBy(requirementConditions.orGroup, requirementConditions.position, requirementConditions.id);
+    if (rows.length === 0) return [];
+    const links = await this.db
+      .select()
+      .from(conditionSubjects)
+      .where(inArray(conditionSubjects.conditionId, rows.map((r) => r.id)))
+      .orderBy(conditionSubjects.position);
+    return rows.map((r) => ({ ...r, subjectIds: links.filter((l) => l.conditionId === r.id).map((l) => l.subjectId) }));
   }
 
   async nextVersionNo(programId: string, entryRoute: string): Promise<number> {
@@ -68,25 +82,25 @@ export class DrizzleRequirementRepository extends RequirementRepository {
           target: requirements.id,
           set: { sourceUrl: s.sourceUrl, sourceCategory: s.sourceCategory, approvedBy: s.approvedBy, reviewStatus: s.status, returnReason: s.returnReason, updatedAt: new Date() },
         });
-      await tx.delete(requirementRules).where(eq(requirementRules.requirementId, s.id));
+      await tx.delete(requirementConditions).where(eq(requirementConditions.requirementId, s.id));
       if (s.rules.length) {
-        await tx.insert(requirementRules).values(
+        await tx.insert(requirementConditions).values(
           s.rules.map((r) => ({
             id: r.id,
             requirementId: s.id,
-            groupNo: r.groupNo,
-            ruleType: r.ruleType,
-            subjectId: r.subjectId,
+            orGroup: r.orGroup,
+            conditionType: r.conditionType,
             minGrade: r.minGrade,
             minValue: r.minValue === null ? null : String(r.minValue),
-            evidenceQuote: r.evidenceQuote,
+            officialText: r.officialText,
             part: r.part,
             section: r.section,
-            subjectIds: r.subjectIds,
             minCount: r.minCount,
             position: r.position,
           })),
         );
+        const links = s.rules.flatMap((r) => (r.subjectId ? [r.subjectId] : r.subjectIds).map((subjectId, position) => ({ conditionId: r.id, subjectId, position })));
+        if (links.length) await tx.insert(conditionSubjects).values(links).onConflictDoNothing();
       }
     });
   }
@@ -139,15 +153,15 @@ export class DrizzleRequirementRepository extends RequirementRepository {
       returnReason: row.returnReason,
       rules: rules.map((r) => ({
         id: r.id,
-        groupNo: r.groupNo,
-        ruleType: r.ruleType,
-        subjectId: r.subjectId,
+        orGroup: r.orGroup,
+        conditionType: r.conditionType,
+        subjectId: ONE_SUBJECT.has(r.conditionType) ? (r.subjectIds[0] ?? null) : null,
         minGrade: r.minGrade,
         minValue: r.minValue === null ? null : Number(r.minValue),
-        evidenceQuote: r.evidenceQuote,
+        officialText: r.officialText,
         part: r.part === 'general' ? 'general' : 'special',
         section: r.section,
-        subjectIds: r.subjectIds ?? [],
+        subjectIds: ONE_SUBJECT.has(r.conditionType) ? [] : r.subjectIds,
         minCount: r.minCount,
         position: r.position,
       })),

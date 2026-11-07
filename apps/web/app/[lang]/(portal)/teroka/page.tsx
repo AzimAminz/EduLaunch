@@ -84,7 +84,7 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
   const statusFor = (programId: string): RequirementStatus => {
     const req = requirements.find((r) => r.programId === programId);
     if (!req) return 'missing';
-    return req.rules.some((r) => r.evidenceQuote?.startsWith('[Contoh]')) ? 'sample' : 'published';
+    return req.rules.some((r) => r.officialText?.startsWith('[Contoh]')) ? 'sample' : 'published';
   };
   const hasSample = page.items.some((p) => statusFor(p.id) === 'sample');
   const pages = Math.max(1, Math.ceil(page.total / page.pageSize));

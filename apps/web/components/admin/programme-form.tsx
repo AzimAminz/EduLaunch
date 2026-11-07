@@ -56,7 +56,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   const [studyMode, setStudyMode] = useState<string>(values?.studyMode ?? '');
   const [fieldIds, setFieldIds] = useState<string[]>(values?.fieldIds ?? []);
   const [duration, setDuration] = useState(values?.durationSemesters ? String(values.durationSemesters) : '');
-  const [upu, setUpu] = useState(values?.upuCode ?? '');
+  const [upu, setUpu] = useState(values?.programCode ?? '');
   const [source, setSource] = useState(values?.sourceUrl ?? '');
   const [name, setName] = useState(values?.name ?? '');
   const [campuses, setCampuses] = useState<string[]>(values?.campuses ?? []);
@@ -90,7 +90,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   // In ePanduan's order: programme, study, admission, more details (a Form 4 stream has the first two only).
   const steps = isStream ? [f.sections.identity, f.sections.academic] : [f.sections.identity, f.sections.academic, f.sections.admission, f.sections.more];
   const last = step >= steps.length - 1;
-  const STEP_OF: Record<string, number> = { studyLevel: 0, institutionId: 0, name: 0, upuCode: 0, durationSemesters: 1, sourceUrl: 3 };
+  const STEP_OF: Record<string, number> = { studyLevel: 0, institutionId: 0, name: 0, programCode: 0, durationSemesters: 1, sourceUrl: 3 };
 
   /** The same checks as the server, for the fields of one step, so the admin fixes them before moving on. */
   const problemsIn = (n: number): Record<string, string> => {
@@ -100,7 +100,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
       if (canPlace && !isStream && !institutionId) found.institutionId = 'institutionRequired';
       if (name.trim().length < 3 || name.trim().length > 160) found.name = 'nameRequired';
       // Required, with no fixed format yet (the official guideline for these codes is still being checked).
-      if (!isStream && !upu.trim()) found.upuCode = 'upuRequired';
+      if (!isStream && !upu.trim()) found.programCode = 'upuRequired';
     }
     if (n === 1 && duration && (Number(duration) < 1 || Number(duration) > 16)) found.durationSemesters = 'durationInvalid';
     if (n === 3 && source.trim() && !URL_PATTERN.test(source.trim())) found.sourceUrl = 'sourceInvalid';
@@ -154,7 +154,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
     if (withProblems.length) setStep(Math.min(...withProblems));
   }
   // Checked on leaving the field, before the form is sent.
-  const upuError = touched.upuCode && !upu.trim() ? f.errors.upuRequired : fieldError('upuCode');
+  const upuError = touched.programCode && !upu.trim() ? f.errors.upuRequired : fieldError('programCode');
   const sourceError = touched.sourceUrl && source.trim() && !URL_PATTERN.test(source.trim()) ? f.errors.sourceInvalid : fieldError('sourceUrl');
   const semesters = Number(duration);
   const durationHint = Number.isInteger(semesters) && semesters > 0 ? format(f.yearsHint, { years: semesters / 2 }) : f.durationHint;
@@ -298,15 +298,15 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
               <div className="min-w-0 flex-1">
                 <TextField
-                  name="upuCode"
-                  label={required(f.upuCode)}
+                  name="programCode"
+                  label={required(f.programCode)}
                   placeholder={f.upuPlaceholder}
                   value={upu}
                   onChange={(e) => {
                     setUpu(e.target.value.toUpperCase());
                     setFillNote(null);
                   }}
-                  onBlur={() => setTouched({ ...touched, upuCode: true })}
+                  onBlur={() => setTouched({ ...touched, programCode: true })}
                   maxLength={30}
                   hint={f.upuHint}
                   error={upuError}

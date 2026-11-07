@@ -44,12 +44,12 @@ export class EligibilityEngine {
     const groups = new Map<number, EligibilityRule[]>();
     const toConfirm: string[] = [];
     for (const dto of requirement.rules) {
-      if (dto.ruleType === 'declaration') {
-        if (dto.evidenceQuote) toConfirm.push(dto.evidenceQuote);
+      if (dto.conditionType === 'declaration') {
+        if (dto.officialText) toConfirm.push(dto.officialText);
         continue;
       }
-      if (!isChecked(dto.ruleType)) continue; // notes are context for people, not conditions
-      groups.set(dto.groupNo, [...(groups.get(dto.groupNo) ?? []), RuleFactory.create(dto)]);
+      if (!isChecked(dto.conditionType)) continue; // notes are context for people, not conditions
+      groups.set(dto.orGroup, [...(groups.get(dto.orGroup) ?? []), RuleFactory.create(dto)]);
     }
     // Groups in the order of their number, as the requirement lists them.
     const outcomes = [...groups.entries()].sort(([a], [b]) => a - b).map(([, rules]) => new RuleGroup(rules).evaluate(ctx));

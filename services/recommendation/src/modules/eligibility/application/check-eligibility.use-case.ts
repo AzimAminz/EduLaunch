@@ -36,8 +36,8 @@ export class CheckEligibility implements UseCase<{ caller: Caller; programId: st
     if (!requirement) return { state: 'no_route', routes: requirements.map((r) => r.entryRoute) };
 
     // Grade rules need grades; CGPA and MUET rules need those numbers.
-    const needsGrades = requirement.rules.some((r) => r.ruleType === 'min_grade' || r.ruleType === 'key_subject' || r.ruleType === 'min_credits');
-    const needsNumbers = requirement.rules.some((r) => r.ruleType === 'min_cgpa');
+    const needsGrades = requirement.rules.some((r) => r.conditionType === 'min_grade' || r.conditionType === 'key_subject' || r.conditionType === 'min_credits');
+    const needsNumbers = requirement.rules.some((r) => r.conditionType === 'min_cgpa');
     if ((needsGrades && snapshot.grades.length === 0) || (needsNumbers && snapshot.cgpa === null)) {
       return { state: 'no_results', entryRoute: requirement.entryRoute };
     }

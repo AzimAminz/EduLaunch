@@ -27,25 +27,25 @@ export type ProgramSummary = z.infer<typeof ProgramSummary>;
  * - declaration: something the student confirms or the university checks (citizenship, health, interview).
  * - note: context shown with the requirements, never checked ("Memiliki SPM dengan mendapat sekurang-kurangnya:-").
  */
-export const RuleType = z.enum(['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject', 'subjects_from_list', 'declaration', 'note']);
-export type RuleType = z.infer<typeof RuleType>;
+export const ConditionType = z.enum(['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject', 'subjects_from_list', 'declaration', 'note']);
+export type ConditionType = z.infer<typeof ConditionType>;
 
 /** Syarat Am (general, set per university and route) or Syarat Khas (special, set per programme). */
 export const RequirementPart = z.enum(['general', 'special']);
 export type RequirementPart = z.infer<typeof RequirementPart>;
 
 /**
- * One requirement line. Rules with the same `groupNo` are alternatives ("ATAU", at least one of); different groups
+ * One requirement line. Rules with the same `orGroup` are alternatives ("ATAU", at least one of); different groups
  * must all pass ("DAN"). Lines are shown by part, then group, then `position`, under their `section` (SPM, STPM, MUET).
  */
 export const RequirementRuleDto = z.object({
   id: z.uuid(),
-  groupNo: z.number().int(),
-  ruleType: RuleType,
+  orGroup: z.number().int(),
+  conditionType: ConditionType,
   subjectId: z.uuid().nullable(),
   minGrade: z.string().nullable(),
   minValue: z.number().nullable(),
-  evidenceQuote: z.string().nullable(),
+  officialText: z.string().nullable(),
   part: RequirementPart.default('special'),
   section: z.string().nullable().default(null),
   /** subjects_from_list: the subjects to choose from, and how many must reach `minGrade`. */

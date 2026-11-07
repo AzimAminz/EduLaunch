@@ -15,7 +15,7 @@ const timestamps = {
 
 export const reviewStatus = catalogue.enum('review_status', ['draft', 'in_review', 'returned', 'published', 'archived']);
 export const studyLevel = catalogue.enum('study_level', ['form4_stream', 'certificate', 'skills', 'foundation', 'matriculation', 'stpm', 'diploma', 'degree']);
-export const ruleType = catalogue.enum('rule_type', ['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject', 'subjects_from_list', 'declaration', 'note']);
+export const conditionTypeEnum = catalogue.enum('condition_type', ['min_grade', 'min_credits', 'min_cgpa', 'min_muet', 'key_subject', 'subjects_from_list', 'declaration', 'note']);
 
 export const institutions = catalogue.table('institution', {
   id: id(),
@@ -81,7 +81,7 @@ export const programs = catalogue.table('program', {
   studyLevel: studyLevel('study_level').notNull(),
   durationSemesters: integer('duration_semesters'),
   /** Programme code used by JPT / UPU, for example UC6522001. */
-  upuCode: text('upu_code').unique(),
+  programCode: text('program_code').unique(),
   /** The university's own code, for example BELG. */
   internalCode: text('internal_code'),
   faculty: text('faculty'),
@@ -143,7 +143,8 @@ export const programPathways = catalogue.table(
   (t) => [primaryKey({ columns: [t.fromProgramId, t.toProgramId] })],
 );
 
-export const requirements = catalogue.table('requirement', {
+/** The entry requirements of one programme for one entry route, as versions reviewed by another admin. */
+export const requirements = catalogue.table('entry_requirement', {
   id: id(),
   programId: uuid('program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
   sourceId: uuid('source_id'),
@@ -161,36 +162,47 @@ export const requirements = catalogue.table('requirement', {
   ...timestamps,
 });
 
-export const requirementRules = catalogue.table('requirement_rule', {
+/**
+ * One line of an entry requirement (as on ePanduan): its part (Syarat Am / Khas), section heading, what it checks
+ * (condition_type with min_grade / min_value / min_count) and the official sentence. Lines sharing an or_group are
+ * alternatives (ATAU); the subjects a line names are in condition_subject.
+ */
+export const requirementConditions = catalogue.table('requirement_condition', {
   id: id(),
   requirementId: uuid('requirement_id').notNull().references(() => requirements.id, { onDelete: 'cascade' }),
-  groupNo: integer('group_no').notNull(),
-  ruleType: ruleType('rule_type').notNull(),
-  subjectId: uuid('subject_id').references(() => subjects.id),
-  relatedFieldId: uuid('related_field_id').references(() => fields.id),
+  orGroup: integer('or_group').notNull(),
+  conditionType: conditionTypeEnum('condition_type').notNull(),
+  fieldId: uuid('field_id').references(() => fields.id),
   minGrade: text('min_grade'),
   minValue: numeric('min_value', { precision: 5, scale: 2 }),
-  evidenceQuote: text('evidence_quote'),
+  officialText: text('official_text'),
   /** Syarat Am (general) or Syarat Khas (special). */
   part: text('part').notNull().default('special'),
   /** The heading the line sits under in the source: SPM, STPM, MUET, Matrikulasi / Asasi, Diploma… */
   section: text('section'),
-  /** subjects_from_list: the subjects to choose from and how many must reach min_grade. */
-  subjectIds: uuid('subject_ids').array().notNull().default(sql`'{}'::uuid[]`),
+  /** subjects_from_list: how many of the line's subjects must reach min_grade. */
   minCount: integer('min_count'),
   /** Order of the line within its part and group. */
   position: integer('position').notNull().default(0),
 });
 
-export const meritFormulas = catalogue.table('merit_formula', {
-  id: id(),
-  approvedBy: uuid('approved_by'),
-  entryRoute: text('entry_route').notNull(),
-  academicWeight: numeric('academic_weight', { precision: 5, scale: 2 }).notNull(),
-  cocurricularWeight: numeric('cocurricular_weight', { precision: 5, scale: 2 }).notNull(),
-  versionNo: integer('version_no').notNull(),
-  reviewStatus: reviewStatus('review_status').notNull().default('draft'),
-});
+/**
+ * The subjects a requirement line names: the one subject of a grade line, or the list of an "N subjects from this
+ * list" line, in the order the official text lists them.
+ */
+export const conditionSubjects = catalogue.table(
+  'condition_subject',
+  {
+    conditionId: uuid('condition_id')
+      .notNull()
+      .references(() => requirementConditions.id, { onDelete: 'cascade' }),
+    subjectId: uuid('subject_id')
+      .notNull()
+      .references(() => subjects.id),
+    position: integer('position').notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.conditionId, t.subjectId] }), index('condition_subject_subject_idx').on(t.subjectId)],
+);
 
 /**
  * The entry routes a programme takes candidates from (spm, stpm, matrikulasi, diploma, dkm, dvm…), as the official

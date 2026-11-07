@@ -48,7 +48,7 @@ const liveDetails = (p: ProgrammeDetail): PendingDetails => ({
   studyLevel: p.studyLevel,
   durationSemesters: p.durationSemesters,
   fieldIds: p.fieldIds,
-  upuCode: p.upuCode,
+  programCode: p.programCode,
   internalCode: p.internalCode,
   faculty: p.faculty,
   necCode: p.necCode,
@@ -118,7 +118,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         title={programme.name}
         intro={
           <span className="flex flex-wrap items-center gap-2">
-            <span>{[programme.institutionName, dict.levels[programme.studyLevel], programme.upuCode].filter(Boolean).join(' · ')}</span>
+            <span>{[programme.institutionName, dict.levels[programme.studyLevel], programme.programCode].filter(Boolean).join(' · ')}</span>
             <StatusChip status={programme.status} t={t} />
             {programme.pendingStatus && <span className="rounded-full bg-yellow px-2.5 py-1 text-xs font-semibold">{t.programmes.changeBadge}</span>}
             {programme.entryRoutes.length > 0 && (
@@ -207,10 +207,10 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
   const routes: Record<string, string> = dict.requirements.routes;
   let found = null;
   let special: Awaited<ReturnType<typeof listSpecialRequirements>> = [];
-  if (programme.upuCode) {
+  if (programme.programCode) {
     try {
       const token = (await getAccessToken())!;
-      [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.upuCode]), listSpecialRequirements(token, [programme.upuCode])]);
+      [[found], special] = await Promise.all([listFoundProgrammes(token, [programme.programCode]), listSpecialRequirements(token, [programme.programCode])]);
     } catch {
       // ePanduan is a help, not part of the programme: without the content service requirements are still added.
       found = null;

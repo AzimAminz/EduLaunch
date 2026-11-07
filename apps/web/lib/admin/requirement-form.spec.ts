@@ -4,10 +4,10 @@ import { checkLines, gradesFor, linesFromRules, newLine, subjectQualificationsFo
 describe('linesFromRules', () => {
   it('puts Syarat Am first, keeps sections, and turns a shared group into lines joined by ATAU', () => {
     const lines = linesFromRules([
-      { groupNo: 3, ruleType: 'min_grade', subjectId: 'phy', minGrade: 'C', minValue: null, evidenceQuote: 'Fizik atau Sains', part: 'special', position: 0 },
-      { groupNo: 3, ruleType: 'key_subject', subjectId: 'sci', minGrade: 'C', minValue: null, evidenceQuote: 'Fizik atau Sains', part: 'special', position: 1 },
-      { groupNo: 1, ruleType: 'note', subjectId: null, minGrade: null, minValue: null, evidenceQuote: 'Memiliki SPM:-', part: 'general', section: 'SPM' },
-      { groupNo: 2, ruleType: 'subjects_from_list', subjectId: null, minGrade: 'C', minValue: null, evidenceQuote: 'Gred C dalam DUA (2)', part: 'special', subjectIds: ['a', 'b', 'c'], minCount: 2 },
+      { orGroup: 3, conditionType: 'min_grade', subjectId: 'phy', minGrade: 'C', minValue: null, officialText: 'Fizik atau Sains', part: 'special', position: 0 },
+      { orGroup: 3, conditionType: 'key_subject', subjectId: 'sci', minGrade: 'C', minValue: null, officialText: 'Fizik atau Sains', part: 'special', position: 1 },
+      { orGroup: 1, conditionType: 'note', subjectId: null, minGrade: null, minValue: null, officialText: 'Memiliki SPM:-', part: 'general', section: 'SPM' },
+      { orGroup: 2, conditionType: 'subjects_from_list', subjectId: null, minGrade: 'C', minValue: null, officialText: 'Gred C dalam DUA (2)', part: 'special', subjectIds: ['a', 'b', 'c'], minCount: 2 },
     ]);
     expect(lines.map((l) => [l.part, l.type, l.join])).toEqual([
       ['general', 'note', 'and'],
@@ -30,7 +30,7 @@ describe('checkLines', () => {
       newLine('special', { type: 'subjects_from_list', subjectIds: ['a', 'b', 'c'], grade: 'C', count: '2', text: 'Gred C dalam DUA (2)' }),
     ]);
     expect(problems).toEqual([]);
-    expect(rules.map((r) => [r.part, r.groupNo, r.ruleType, r.position])).toEqual([
+    expect(rules.map((r) => [r.part, r.orGroup, r.conditionType, r.position])).toEqual([
       ['general', 1, 'note', 0],
       ['special', 2, 'min_grade', 1],
       ['special', 2, 'min_grade', 2],

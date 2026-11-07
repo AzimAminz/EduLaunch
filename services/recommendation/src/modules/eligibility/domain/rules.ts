@@ -2,8 +2,8 @@ import type { RequirementRuleDto, StudentSnapshot } from '@edulaunch/contracts';
 import { Grade } from './grade.js';
 
 /** Declarations (the student or the university confirms) and notes are read, not checked against results. */
-export type CheckedRuleType = Exclude<RequirementRuleDto['ruleType'], 'declaration' | 'note'>;
-export const isChecked = (type: RequirementRuleDto['ruleType']): type is CheckedRuleType => type !== 'declaration' && type !== 'note';
+export type CheckedRuleType = Exclude<RequirementRuleDto['conditionType'], 'declaration' | 'note'>;
+export const isChecked = (type: RequirementRuleDto['conditionType']): type is CheckedRuleType => type !== 'declaration' && type !== 'note';
 
 export interface RuleContext {
   snapshot: StudentSnapshot;
@@ -15,7 +15,7 @@ export interface RuleContext {
  * ("Mathematics: B needed, you have C+"). `actual` is null when the student has not entered it.
  */
 export interface RuleDetail {
-  type: RequirementRuleDto['ruleType'];
+  type: RequirementRuleDto['conditionType'];
   subjectId: string | null;
   required: string | number | null;
   actual: string | number | null;
@@ -45,7 +45,7 @@ export abstract class EligibilityRule {
   }
 
   protected detail(required: string | number | null, actual: string | number | null, passed: boolean): RuleDetail {
-    return { type: this.dto.ruleType, subjectId: this.dto.subjectId, required, actual, passed };
+    return { type: this.dto.conditionType, subjectId: this.dto.subjectId, required, actual, passed };
   }
 }
 
@@ -137,7 +137,7 @@ export class RuleFactory {
   };
 
   static create(dto: RequirementRuleDto): EligibilityRule {
-    if (!isChecked(dto.ruleType)) throw new Error(`${dto.ruleType} lines are not checked`);
-    return new RuleFactory.registry[dto.ruleType](dto);
+    if (!isChecked(dto.conditionType)) throw new Error(`${dto.conditionType} lines are not checked`);
+    return new RuleFactory.registry[dto.conditionType](dto);
   }
 }

@@ -422,7 +422,7 @@
         "source": "Source",
         "more": "More details"
       },
-      "upuCode": "Programme code (JPT / UPU)",
+      "programCode": "Programme code (JPT / UPU)",
       "upuPlaceholder": "e.g. UC6522001",
       "upuHint": "Copy the code as written in ePanduan or the prospectus, for example UC6522001.",
       "internalCode": "University code",

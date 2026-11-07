@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
 import type { HigherQualification, RecordQualification } from '@edulaunch/contracts';
-import { and, desc, eq, inArray, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import * as schema from './schema.js';
 import { Student } from '../../modules/students/domain/student.js';
 import { StudentRepository } from '../../modules/students/domain/student.repository.js';
 import { AcademicRecord, type RecordKind } from '../../modules/academic-records/domain/academic-record.js';
 import { AcademicRecordRepository } from '../../modules/academic-records/domain/academic-record.repository.js';
 
-const { accounts, students, academicRecords, recordSubjects, assessments } = schema;
+const { accounts, students, academicRecords, recordSubjects } = schema;
 const num = (v: string | null) => (v === null ? null : Number(v));
 
 @Injectable()
@@ -43,12 +43,7 @@ export class DrizzleStudentRepository extends StudentRepository {
   }
 
   async latestRiasec(studentId: string) {
-    const [row] = await this.db
-      .select({ scores: assessments.riasecScores })
-      .from(assessments)
-      .where(and(eq(assessments.studentId, studentId), isNotNull(assessments.completedAt)))
-      .orderBy(desc(assessments.completedAt))
-      .limit(1);
+    const [row] = await this.db.select({ scores: students.riasecScores }).from(students).where(eq(students.id, studentId)).limit(1);
     return row?.scores ?? null;
   }
 
@@ -144,7 +139,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       await tx.delete(recordSubjects).where(eq(recordSubjects.recordId, s.id));
       if (s.subjects.length) {
         await tx.insert(recordSubjects).values(
-          s.subjects.map((x) => ({ recordId: s.id, subjectId: x.subjectId, grade: x.grade, customName: x.customName, readConfidence: x.readConfidence === null ? null : String(x.readConfidence) })),
+          s.subjects.map((x) => ({ recordId: s.id, subjectId: x.subjectId, grade: x.grade, customName: x.customName, ocrConfidence: x.ocrConfidence === null ? null : String(x.ocrConfidence) })),
         );
       }
     });
@@ -165,7 +160,7 @@ export class DrizzleAcademicRecordRepository extends AcademicRecordRepository {
       qualificationLevel: row.qualificationLevel,
       stream: row.stream,
       semesterGpas: row.semesterGpas ?? null,
-      subjects: subjects.map((x) => ({ subjectId: x.subjectId, grade: x.grade, customName: x.customName, readConfidence: num(x.readConfidence) })),
+      subjects: subjects.map((x) => ({ subjectId: x.subjectId, grade: x.grade, customName: x.customName, ocrConfidence: num(x.ocrConfidence) })),
       status: row.recordStatus,
       confirmedAt: row.confirmedAt,
     });

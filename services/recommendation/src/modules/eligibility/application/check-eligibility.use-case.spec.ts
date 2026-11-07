@@ -15,12 +15,12 @@ const spmRequirement: PublishedRequirement = {
   rules: [
     {
       id: '00000000-0000-4000-9000-000000000001',
-      groupNo: 1,
-      ruleType: 'min_grade',
+      orGroup: 1,
+      conditionType: 'min_grade',
       subjectId: bm,
       minGrade: 'C',
       minValue: null,
-      evidenceQuote: null,
+      officialText: null,
       part: 'special',
       section: null,
       subjectIds: [],

@@ -1,16 +1,16 @@
 import { AggregateRoot, DomainError, createEvent } from '@edulaunch/ddd';
-import { Events, isEntryRoute, type RequirementPart, type RequirementRuleDto, type RuleType } from '@edulaunch/contracts';
+import { Events, isEntryRoute, type RequirementPart, type RequirementRuleDto, type ConditionType } from '@edulaunch/contracts';
 
 export type ReviewStatus = 'draft' | 'in_review' | 'returned' | 'published' | 'archived';
 
 export interface RequirementRule {
   id: string;
-  groupNo: number;
-  ruleType: RuleType;
+  orGroup: number;
+  conditionType: ConditionType;
   subjectId: string | null;
   minGrade: string | null;
   minValue: number | null;
-  evidenceQuote: string | null;
+  officialText: string | null;
   part: RequirementPart;
   section: string | null;
   subjectIds: string[];
@@ -44,10 +44,10 @@ interface RequirementProps {
 const MAX_RULES = 80;
 const MAX_LIST = 40;
 /** Lines that are read, not checked: each stands alone in its group, so it can never make an "ATAU" pass. */
-const UNCHECKED: readonly RuleType[] = ['declaration', 'note'];
+const UNCHECKED: readonly ConditionType[] = ['declaration', 'note'];
 
 /** Allowed minimum values per rule type: CGPA 0–4, MUET band 1–6, number of credits 1–20. */
-const VALUE_RANGES: Partial<Record<RuleType, { min: number; max: number; integer?: boolean }>> = {
+const VALUE_RANGES: Partial<Record<ConditionType, { min: number; max: number; integer?: boolean }>> = {
   min_cgpa: { min: 0, max: 4 },
   min_muet: { min: 1, max: 6 },
   min_credits: { min: 1, max: 20, integer: true },
@@ -140,14 +140,14 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
     this.assertEditable();
     if (rules.length > MAX_RULES) throw new DomainError('invalid_rule', `At most ${MAX_RULES} rules per requirement`);
     for (const rule of rules) {
-      if (!rule.evidenceQuote?.trim()) throw new DomainError('missing_evidence', 'Every rule needs the sentence from the official source');
-      if (!Number.isInteger(rule.groupNo) || rule.groupNo < 1) throw new DomainError('invalid_rule', 'Group numbers start at 1');
-      if ((rule.ruleType === 'min_grade' || rule.ruleType === 'key_subject') && (!rule.subjectId || !rule.minGrade)) {
+      if (!rule.officialText?.trim()) throw new DomainError('missing_evidence', 'Every rule needs the sentence from the official source');
+      if (!Number.isInteger(rule.orGroup) || rule.orGroup < 1) throw new DomainError('invalid_rule', 'Group numbers start at 1');
+      if ((rule.conditionType === 'min_grade' || rule.conditionType === 'key_subject') && (!rule.subjectId || !rule.minGrade)) {
         throw new DomainError('invalid_rule', 'A grade rule needs a subject and a minimum grade');
       }
       if (rule.part !== 'general' && rule.part !== 'special') throw new DomainError('invalid_rule', 'A line is Syarat Am (general) or Syarat Khas (special)');
       if (rule.section && rule.section.trim().length > 60) throw new DomainError('invalid_rule', 'A section name has at most 60 characters');
-      if (rule.ruleType === 'subjects_from_list') {
+      if (rule.conditionType === 'subjects_from_list') {
         const count = rule.minCount ?? 0;
         if (!rule.minGrade || rule.subjectIds.length === 0 || rule.subjectIds.length > MAX_LIST) {
           throw new DomainError('invalid_rule', `A subject list needs a grade and 1 to ${MAX_LIST} subjects`);
@@ -156,19 +156,19 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
           throw new DomainError('invalid_rule', 'How many subjects is between 1 and the number of subjects listed');
         }
       }
-      if (UNCHECKED.includes(rule.ruleType) && rules.some((other) => other !== rule && other.groupNo === rule.groupNo)) {
+      if (UNCHECKED.includes(rule.conditionType) && rules.some((other) => other !== rule && other.orGroup === rule.orGroup)) {
         throw new DomainError('invalid_rule', 'A note or a declaration stands alone, not as an alternative');
       }
-      const range = VALUE_RANGES[rule.ruleType];
+      const range = VALUE_RANGES[rule.conditionType];
       if (range) {
         const v = rule.minValue;
-        if (v === null) throw new DomainError('invalid_rule', `${rule.ruleType} needs a minimum value`);
+        if (v === null) throw new DomainError('invalid_rule', `${rule.conditionType} needs a minimum value`);
         if (v < range.min || v > range.max || (range.integer && !Number.isInteger(v))) {
-          throw new DomainError('invalid_rule', `${rule.ruleType} must be between ${range.min} and ${range.max}`);
+          throw new DomainError('invalid_rule', `${rule.conditionType} must be between ${range.min} and ${range.max}`);
         }
       }
     }
-    this.props.rules = rules.map((r) => ({ ...r, evidenceQuote: r.evidenceQuote!.trim(), section: r.section?.trim() || null, subjectIds: [...new Set(r.subjectIds)] }));
+    this.props.rules = rules.map((r) => ({ ...r, officialText: r.officialText!.trim(), section: r.section?.trim() || null, subjectIds: [...new Set(r.subjectIds)] }));
   }
 
   submitForReview(by: string): void {

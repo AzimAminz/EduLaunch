@@ -6,7 +6,7 @@ export type PublishStatus = 'draft' | 'in_review' | 'returned' | 'published' | '
 /** The details JPT and university prospectuses publish for every programme, so all programmes share one standard. */
 export interface ProgramFacts {
   /** JPT / UPU code as the official source writes it (for example UC6522001); no fixed format is enforced yet. */
-  upuCode: string | null;
+  programCode: string | null;
   /** The university's own code, for example BELG. */
   internalCode: string | null;
   faculty: string | null;
@@ -49,7 +49,7 @@ const given = <T extends object>(details: T): T => Object.fromEntries(Object.ent
 
 /** Facts of a programme nobody has filled in yet. */
 export const NO_FACTS: ProgramFacts = {
-  upuCode: null,
+  programCode: null,
   internalCode: null,
   faculty: null,
   necCode: null,
@@ -278,7 +278,7 @@ export class Program extends AggregateRoot<string, ProgramProps> {
       if (long) throw new DomainError('invalid_program', `${what} must be at most ${max} characters`);
       return out;
     };
-    const upuCode = text(d.upuCode, 30, 'Programme code')?.toUpperCase() ?? null;
+    const programCode = text(d.programCode, 30, 'Programme code')?.toUpperCase() ?? null;
     if (d.necCode && !/^\d{4}$/.test(d.necCode)) throw new DomainError('invalid_program', 'NEC code has four digits');
     if (d.studyMode && !(StudyModes as readonly string[]).includes(d.studyMode)) throw new DomainError('invalid_program', `Unknown study mode ${d.studyMode}`);
     const sourceUrl = text(d.sourceUrl, 500, 'Source link');
@@ -287,7 +287,7 @@ export class Program extends AggregateRoot<string, ProgramProps> {
       ...d,
       name,
       fieldIds: [...new Set(d.fieldIds)],
-      upuCode,
+      programCode,
       internalCode: text(d.internalCode, 20, 'University code'),
       faculty: text(d.faculty, 160, 'Faculty'),
       campuses: list(d.campuses, 20, 120, 'Campus'),
