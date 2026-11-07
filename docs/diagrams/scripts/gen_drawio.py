@@ -116,13 +116,12 @@ def full_layout():
                     c += 8
         return c
     MANUAL = {
-        'ASSESSMENT': (0, 0), 'ACTIVITY_ATTEMPT': (1, 0), 'STUDENT': (2, 0), 'USER': (3, 0), 'MERIT_FORMULA': (4, 0), 'SUPPORT_TICKET': (5, 0),
-        'ACTIVITY': (0, 1), 'ACADEMIC_RECORD': (1, 1), 'RECOMMENDATION': (2, 1), 'SAVED_PROGRAM': (3, 1), 'ROADMAP': (4, 1),
-        'RECORD_SUBJECT': (1, 2), 'PROGRAM': (2, 2), 'ROADMAP_STEP': (3, 2), 'REQUIREMENT': (4, 2), 'ADMISSION_STAT': (5, 2),
-        'FIELD': (0, 3), 'SUBJECT': (1, 3), 'PROGRAM_FIELD': (2, 3), 'INSTITUTION': (3, 3), 'REQUIREMENT_RULE': (4, 3), 'DATA_SOURCE': (5, 3),
-        'CAREER': (0, 4), 'PROGRAM_PATHWAY': (2, 4),
-        'NEC_FIELD': (1, 4), 'INSTITUTION_SOURCE': (3, 4), 'EPANDUAN_REQUIREMENT': (4, 4), 'EPANDUAN_RUN': (5, 4),
-        'PROGRAM_ENTRY_ROUTE': (1, 5), 'EPANDUAN_FOUND': (5, 5),
+        'QUESTION': (0, 0), 'ASSESSMENT': (1, 0), 'STUDENT': (2, 0), 'ACCOUNT': (3, 0), 'NOTIFICATION': (4, 0), 'SUPPORT_TICKET': (5, 0),
+        'ACTIVITY': (0, 1), 'ACTIVITY_ATTEMPT': (1, 1), 'RECOMMENDATION': (2, 1), 'SAVED_PROGRAM': (3, 1), 'ROADMAP_STEP': (4, 1), 'IMPORT_RUN': (5, 1),
+        'ACADEMIC_RECORD': (0, 2), 'RECORD_SUBJECT': (1, 2), 'PROGRAM': (2, 2), 'ENTRY_REQUIREMENT': (3, 2), 'ADMISSION_STAT': (4, 2), 'IMPORT_PROGRAM': (5, 2),
+        'FIELD': (0, 3), 'SUBJECT': (1, 3), 'PROGRAM_FIELD': (2, 3), 'REQUIREMENT_CONDITION': (3, 3), 'INSTITUTION': (4, 3), 'IMPORT_REQUIREMENT': (5, 3),
+        'CAREER': (0, 4), 'NEC_FIELD': (1, 4), 'PROGRAM_PATHWAY': (2, 4), 'CONDITION_SUBJECT': (3, 4), 'INSTITUTION_SOURCE': (4, 4),
+        'PROGRAM_ENTRY_ROUTE': (2, 5),
     }
     best = None
     for restart in range(3):

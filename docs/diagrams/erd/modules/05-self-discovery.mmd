@@ -1,11 +1,17 @@
 erDiagram
+    QUESTION {
+        ​PK question_id
+        ​ question_text
+        ​ riasec_type
+        ​ test_version
+        ​ display_order
+        ​ is_active
+    }
     ASSESSMENT {
-        ​PK assessment_id
-        ​FK student_id
-        ​ instrument_version
-        ​ answers
-        ​ riasec_scores
-        ​ completed_at
+        ​PK,FK student_id
+        ​PK,FK question_id
+        ​ answer
+        ​ answered_at
     }
     ACTIVITY {
         ​PK activity_id
@@ -27,7 +33,8 @@ erDiagram
         ​PK student_id
     }
 
-    STUDENT ||--o{ ASSESSMENT : "takes"
+    STUDENT ||--o{ ASSESSMENT : "answers"
+    QUESTION ||--o{ ASSESSMENT : "answered in"
     FIELD ||..o{ ACTIVITY : "field activity"
     STUDENT ||--o{ ACTIVITY_ATTEMPT : "attempts"
     ACTIVITY ||--o{ ACTIVITY_ATTEMPT : "attempted in"

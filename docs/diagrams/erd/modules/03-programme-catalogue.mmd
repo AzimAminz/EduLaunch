@@ -22,8 +22,8 @@ erDiagram
         ​FK nec_code
         ​FK prepared_by
         ​FK approved_by
+        ​ program_code
         ​ program_name
-        ​ upu_code
         ​ study_level
         ​ duration_semesters
         ​ study_mode
@@ -68,29 +68,24 @@ erDiagram
         ​PK,FK to_program_id
         ​ condition_text
         ​ min_cgpa
-        ​FK source_id
     }
-    DATA_SOURCE {
-        ​PK source_id
+    ACCOUNT {
+        ​PK account_id
     }
     STUDENT {
         ​PK student_id
     }
-    USER {
-        ​PK user_id
-    }
 
     INSTITUTION ||--o{ PROGRAM : "offers"
+    INSTITUTION ||--o{ INSTITUTION_SOURCE : "lists"
     PROGRAM ||--|{ PROGRAM_FIELD : "belongs to"
     FIELD ||--o{ PROGRAM_FIELD : "covers"
     FIELD |o..o{ FIELD : "sub-field"
-    PROGRAM ||--o{ PROGRAM_PATHWAY : "leads to"
-    PROGRAM ||--o{ PROGRAM_PATHWAY : "reached from"
-    DATA_SOURCE |o..o{ PROGRAM_PATHWAY : "source of"
-    STUDENT ||--o{ SAVED_PROGRAM : "saves"
-    PROGRAM ||--o{ SAVED_PROGRAM : "saved by"
-    INSTITUTION ||--o{ INSTITUTION_SOURCE : "lists"
     FIELD |o..o{ NEC_FIELD : "suggested by"
     NEC_FIELD |o..o{ PROGRAM : "classifies"
     PROGRAM ||--o{ PROGRAM_ENTRY_ROUTE : "takes"
-    USER |o..o{ PROGRAM : "prepares"
+    PROGRAM ||--o{ PROGRAM_PATHWAY : "leads to"
+    PROGRAM ||--o{ PROGRAM_PATHWAY : "reached from"
+    ACCOUNT |o..o{ PROGRAM : "prepares"
+    STUDENT ||--o{ SAVED_PROGRAM : "saves"
+    PROGRAM ||--o{ SAVED_PROGRAM : "saved by"

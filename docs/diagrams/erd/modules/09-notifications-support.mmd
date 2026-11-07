@@ -1,20 +1,31 @@
 erDiagram
+    NOTIFICATION {
+        ​PK notification_id
+        ​FK account_id
+        ​FK program_id
+        ​ notification_type
+        ​ message
+        ​ read_at
+    }
     SUPPORT_TICKET {
         ​PK ticket_id
-        ​FK user_id
+        ​FK account_id
         ​FK assigned_admin_id
         ​FK program_id
         ​ category
         ​ message
+        ​ admin_reply
         ​ ticket_status
+    }
+    ACCOUNT {
+        ​PK account_id
     }
     PROGRAM {
         ​PK program_id
     }
-    USER {
-        ​PK user_id
-    }
 
-    USER |o..o{ SUPPORT_TICKET : "opens"
-    USER |o..o{ SUPPORT_TICKET : "handles"
+    ACCOUNT ||--o{ NOTIFICATION : "receives"
+    PROGRAM |o..o{ NOTIFICATION : "about"
+    ACCOUNT |o..o{ SUPPORT_TICKET : "opens"
+    ACCOUNT |o..o{ SUPPORT_TICKET : "handles"
     PROGRAM |o..o{ SUPPORT_TICKET : "reported in"

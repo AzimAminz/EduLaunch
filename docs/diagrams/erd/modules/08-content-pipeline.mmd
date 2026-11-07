@@ -1,14 +1,5 @@
 erDiagram
-    DATA_SOURCE {
-        ​PK source_id
-        ​FK institution_id
-        ​ source_url
-        ​ source_type
-        ​ content_checksum
-        ​ last_checked_at
-        ​ crawl_status
-    }
-    EPANDUAN_RUN {
+    IMPORT_RUN {
         ​PK run_id
         ​FK requested_by
         ​ institution_code
@@ -19,12 +10,12 @@ erDiagram
         ​ error
         ​ started_at
     }
-    EPANDUAN_FOUND {
+    IMPORT_PROGRAM {
         ​PK,FK run_id
         ​PK code
         ​ data
     }
-    EPANDUAN_REQUIREMENT {
+    IMPORT_REQUIREMENT {
         ​PK code
         ​PK category
         ​ jenprog
@@ -32,18 +23,14 @@ erDiagram
         ​ special_text
         ​ read_at
     }
-    INSTITUTION {
-        ​PK institution_id
+    ACCOUNT {
+        ​PK account_id
     }
     PROGRAM {
         ​PK program_id
     }
-    USER {
-        ​PK user_id
-    }
 
-    INSTITUTION ||--o{ DATA_SOURCE : "publishes"
-    USER |o..o{ EPANDUAN_RUN : "starts"
-    EPANDUAN_RUN ||--o{ EPANDUAN_FOUND : "finds"
-    PROGRAM |o..o{ EPANDUAN_FOUND : "matched by code"
-    PROGRAM |o..o{ EPANDUAN_REQUIREMENT : "matched by code"
+    ACCOUNT |o..o{ IMPORT_RUN : "starts"
+    IMPORT_RUN ||--o{ IMPORT_PROGRAM : "finds"
+    PROGRAM |o..o{ IMPORT_PROGRAM : "matched by code"
+    PROGRAM |o..o{ IMPORT_REQUIREMENT : "matched by code"

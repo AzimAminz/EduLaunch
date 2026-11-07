@@ -23,11 +23,11 @@ Browser ──► apps/web (Next.js :3000) ──/api/*──► apps/gateway (N
 
 | Service | System-design modules | Tables |
 |---|---|---|
-| catalogue | 3.3 Programme Catalogue, 3.4 Eligibility data, 3.10 Administration (review workflow) | institution, field, subject, program (incl. Form 4 streams), program_field, program_pathway, requirement, requirement_rule, merit_formula, admission_stat, career, activity |
-| profile | 3.1 Identity (profile part), 3.2 Academic Profile, 3.5 Self Discovery, 3.7 Planning | account, student, academic_record, record_subject, assessment, activity_attempt, saved_program, roadmap, roadmap_step |
+| catalogue | 3.3 Programme Catalogue, 3.4 Eligibility data, 3.10 Administration (review workflow) | institution, field, subject, program (incl. Form 4 streams), nec_field, program_field, program_entry_route, program_pathway, institution_source, entry_requirement, requirement_condition, condition_subject, admission_stat, career, activity |
+| profile | 3.1 Identity (profile part), 3.2 Academic Profile, 3.5 Self Discovery, 3.7 Planning | account, student, academic_record, record_subject, question, assessment, activity_attempt, saved_program, roadmap_step |
 | recommendation | 3.4 Eligibility engine, 3.6 Recommendation | recommendation |
 | engagement | 3.9 Notifications & Support | support_ticket, notification |
-| content | 3.8 Content Pipeline, Ask AI (later) | data_source, extraction_draft, content_chunk |
+| content | 3.8 Content Pipeline | import_run, import_program, import_requirement |
 
 Identity itself is **Supabase Auth**. `profile.account.id` is the Supabase user id; the admin role is `app_metadata.role = "admin"`.
 

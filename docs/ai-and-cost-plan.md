@@ -144,7 +144,7 @@ Official source list ──► Fetch (weekly) ──► Extract text ──► C
 ### 5.1 Sources
 - Only whitelisted official domains (university and agency sites, prospectus PDFs).
 - Respect `robots.txt`; one request every few seconds per site; identify the crawler.
-- Store the URL, last check time and a checksum in `DATA_SOURCE`.
+- Store the URL and label of each official source in `INSTITUTION_SOURCE`.
 
 ### 5.2 Fetch and extract
 - HTML: fetch and strip menus and footers (for example with `trafilatura`).
@@ -217,7 +217,7 @@ ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-universit
 | Stage | What happens | Kept |
 |---|---|---|
 | 1. Fetch | Weekly, at night, one request every 3–5 seconds, user agent `EduLaunchBot` with a contact address; list pages with plain HTTP, requirement panels with Playwright pressing **Syarat** like a visitor | Raw page in storage with URL, time and checksum |
-| 2. Parse | `selectolax` (Python, in the content service) reads each card **by its label text**, not by position or CSS classes | Staging rows (`content.epanduan_run`, `content.epanduan_found`), never the catalogue directly |
+| 2. Parse | `selectolax` (Python, in the content service) reads each card **by its label text**, not by position or CSS classes | Staging rows (`content.import_run`, `content.import_program`), never the catalogue directly |
 | 3. Clean | Strip scripts, styles and tags; decode entities; Unicode NFC; one kind of space and dash; title case for names ("BACELOR … DENGAN KEPUJIAN" → "Bacelor … dengan Kepujian"); `99.43%` → `99.43`, `-`/`Tiada` → null; `07 Semester` → 7; `0311 Ekonomi` → code + name; programme codes must match `^[A-Z]{2}\d{7}$`; de-duplicate by (code, route, year) | Plain text only: scraped HTML is never shown again (no XSS) |
 | 4. Match and check | Institutions and subjects through alias lists ("BAHASA MELAYU / BAHASA MELAYU (KERTAS JULAI)" → Bahasa Melayu; "Kepujian" → C, "Lulus" → E for SPM); requirement text parsed by rules first, **Claude** only for lines rules cannot read; every value must carry an exact quote found in the cleaned text; grades must be valid for the subject; numbers in range | Lines that fail are quarantined and marked "needs review", never dropped silently |
 | 5. Hand over | Step 9: the admin sees found programmes as new / changed / same / missing on the institution's **Import ePanduan** tab and accepts the chosen ones; new ones become drafts and changed ones get only their changed details, prepared by that admin; another admin approves each. (Planned for requirements: drafts prepared by a "Pembantu JPT" account in the admin task inbox; an admin approves them on the Step 8 review screen; merit averages go to `ADMISSION_STAT` with year and source link | A report per run: found, matched, changed, needs review |
@@ -252,7 +252,7 @@ The student roadmap ("work now or continue?", "which branches are open?") is **b
 4. Automatic checks: the MASCO code exists, the qualification level fits (MQF), the link is on an allowed domain, the quote is found in the source. Failures are marked for the admin.
 5. An admin approves; from then on every student in that field sees it. Each field is reviewed once, then rechecked yearly or when its source changes.
 
-**Allowed sources (whitelist, kept in `DATA_SOURCE`):**
+**Allowed sources (whitelist, kept in `INSTITUTION_SOURCE`):**
 - MASCO 2020 (Malaysian Standard Classification of Occupations): occupation names and skill levels.
 - TalentCorp MyCOL: critical occupations.
 - MQA and the Malaysian Qualifications Framework: qualification levels (for example diploma = MQF level 4).
@@ -266,7 +266,7 @@ Every career and pathway shows its source and year, and the label "guidance, not
 
 ## 6. "Ask AI" with sources (RAG)
 
-1. Published pages are split into chunks of 300–500 words and embedded **once**, when published (`CONTENT_CHUNK`).
+1. Published pages are split into chunks of 300–500 words and embedded **once**, when published (a `content_chunk` table added when Ask AI is built).
 2. A question is embedded and the 4–6 closest chunks are retrieved with pgvector.
 3. The LLM answers only from those chunks and cites them. If nothing relevant is found, it says it does not know and suggests contacting the institution.
 4. Common questions are answered from the FAQ first, without an LLM.
