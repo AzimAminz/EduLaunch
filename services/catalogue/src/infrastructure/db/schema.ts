@@ -138,8 +138,7 @@ export const programPathways = catalogue.table(
     toProgramId: uuid('to_program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
     conditionText: text('condition_text'),
     minCgpa: numeric('min_cgpa', { precision: 3, scale: 2 }),
-    sourceId: uuid('source_id'),
-  },
+    },
   (t) => [primaryKey({ columns: [t.fromProgramId, t.toProgramId] })],
 );
 
@@ -147,7 +146,6 @@ export const programPathways = catalogue.table(
 export const requirements = catalogue.table('entry_requirement', {
   id: id(),
   programId: uuid('program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
-  sourceId: uuid('source_id'),
   /** The official page or document the rules were taken from, until sources are registered in the content service. */
   sourceUrl: text('source_url'),
   preparedBy: uuid('prepared_by').notNull(),
@@ -226,7 +224,6 @@ export const programEntryRoutes = catalogue.table(
 export const admissionStats = catalogue.table('admission_stat', {
   id: id(),
   programId: uuid('program_id').notNull().references(() => programs.id, { onDelete: 'cascade' }),
-  sourceId: uuid('source_id'),
   intakeYear: integer('intake_year').notNull(),
   lowestMerit: numeric('lowest_merit', { precision: 6, scale: 2 }),
   averageMerit: numeric('average_merit', { precision: 6, scale: 2 }),
@@ -237,7 +234,6 @@ export const admissionStats = catalogue.table('admission_stat', {
 export const careers = catalogue.table('career', {
   id: id(),
   fieldId: uuid('field_id').notNull().references(() => fields.id),
-  sourceId: uuid('source_id'),
   title: text('career_title').notNull(),
   description: text('description'),
   minStudyLevel: studyLevel('min_study_level').notNull(),

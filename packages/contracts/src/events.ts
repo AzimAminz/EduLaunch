@@ -10,7 +10,6 @@ export const Events = {
   AcademicRecordConfirmed: 'profile.academic-record.confirmed',
   AssessmentCompleted: 'profile.assessment.completed',
   RecommendationsGenerated: 'recommendation.list.generated',
-  ContentDraftCreated: 'content.draft.created',
 } as const;
 
 export type EventName = (typeof Events)[keyof typeof Events];
@@ -23,7 +22,7 @@ export interface EventPayloads {
   /** A draft or archived programme was deleted with its requirements; other services drop what points to it. */
   [Events.ProgrammeDeleted]: { programId: string };
   [Events.AcademicRecordConfirmed]: { studentId: string; recordId: string };
-  [Events.AssessmentCompleted]: { studentId: string; assessmentId: string };
+  /** The student finished the interest test; the result is on the student. */
+  [Events.AssessmentCompleted]: { studentId: string };
   [Events.RecommendationsGenerated]: { studentId: string; count: number; topProgramId: string | null };
-  [Events.ContentDraftCreated]: { sourceId: string; draftId: string; changedFields: number };
 }

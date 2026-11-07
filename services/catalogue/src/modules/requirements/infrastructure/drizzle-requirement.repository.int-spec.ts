@@ -20,7 +20,7 @@ const rules = (minGrade = 'B'): RequirementRule[] => [
 
 async function newDraft(entryRoute: string, minGrade = 'B') {
   const versionNo = await repo.nextVersionNo(programId, entryRoute);
-  const req = Requirement.draft(randomUUID(), { programId, entryRoute, versionNo, sourceId: null, sourceUrl: 'https://contoh.edu.my/syarat', preparedBy: randomUUID(), rules: rules(minGrade) });
+  const req = Requirement.draft(randomUUID(), { programId, entryRoute, versionNo, sourceUrl: 'https://contoh.edu.my/syarat', preparedBy: randomUUID(), rules: rules(minGrade) });
   await repo.save(req);
   return req;
 }

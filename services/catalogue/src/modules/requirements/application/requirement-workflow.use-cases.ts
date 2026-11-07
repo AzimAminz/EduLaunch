@@ -9,7 +9,6 @@ import { RequirementRepository } from '../domain/requirement.repository.js';
 export interface DraftInput {
   programId: string;
   entryRoute: string;
-  sourceId: string | null;
   sourceUrl?: string | null;
   rules: Omit<RequirementRule, 'id'>[];
   adminId: string;
@@ -53,7 +52,6 @@ export class CreateRequirementDraft implements UseCase<DraftInput, { id: string;
           programId: input.programId,
           entryRoute: input.entryRoute,
           versionNo,
-          sourceId: input.sourceId,
           sourceUrl: input.sourceUrl ?? null,
           preparedBy: input.adminId,
           rules: input.rules.map((r) => ({ ...r, id: randomUUID() })),

@@ -16,11 +16,11 @@ const rule = (over: Partial<RequirementRule> = {}): RequirementRule => ({
 });
 
 const draft = () =>
-  Requirement.draft('req1', { programId: 'p1', entryRoute: 'spm', versionNo: 2, sourceId: null, sourceUrl: 'https://contoh.edu.my/prospektus', preparedBy: 'aina', rules: [rule()] });
+  Requirement.draft('req1', { programId: 'p1', entryRoute: 'spm', versionNo: 2, sourceUrl: 'https://contoh.edu.my/prospektus', preparedBy: 'aina', rules: [rule()] });
 
 describe('Requirement', () => {
   it('rejects a rule without evidence from the source', () => {
-    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [rule({ officialText: ' ' })] })).toThrow(DomainError);
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, preparedBy: 'aina', rules: [rule({ officialText: ' ' })] })).toThrow(DomainError);
   });
 
   it('does not let the preparer approve their own draft', () => {
@@ -62,12 +62,12 @@ describe('Requirement', () => {
   });
 
   it('accepts known entry routes only', () => {
-    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'upu', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [] })).toThrow(/entry route/);
-    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'svm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [] })).not.toThrow();
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'upu', versionNo: 1, preparedBy: 'aina', rules: [] })).toThrow(/entry route/);
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'svm', versionNo: 1, preparedBy: 'aina', rules: [] })).not.toThrow();
   });
 
   it('needs a link to the official source before review', () => {
-    const req = Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [rule()] });
+    const req = Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, preparedBy: 'aina', rules: [rule()] });
     expect(() => req.submitForReview('aina')).toThrow(/link to the official source/);
     expect(() => req.edit('aina', { rules: [rule()], sourceUrl: 'prospektus.pdf' })).toThrow(/web link/);
     req.edit('aina', { rules: [rule()], sourceUrl: ' https://contoh.edu.my/a.pdf ' });

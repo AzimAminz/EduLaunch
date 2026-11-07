@@ -28,7 +28,6 @@ interface RequirementProps {
   programId: string;
   entryRoute: string;
   versionNo: number;
-  sourceId: string | null;
   /** The official page or document the rules come from; needed before review. */
   sourceUrl: string | null;
   /** The official candidate category the rules come from (ePanduan, e.g. "stpm:S"). */
@@ -57,7 +56,6 @@ export interface DraftInput {
   programId: string;
   entryRoute: string;
   versionNo: number;
-  sourceId: string | null;
   sourceUrl?: string | null;
   sourceCategory?: string | null;
   preparedBy: string;
@@ -85,7 +83,6 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
       programId: p.programId,
       entryRoute: p.entryRoute,
       versionNo,
-      sourceId: p.sourceId,
       sourceUrl: p.sourceUrl,
       sourceCategory: p.sourceCategory,
       preparedBy,

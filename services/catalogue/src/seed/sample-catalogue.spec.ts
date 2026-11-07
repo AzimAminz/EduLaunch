@@ -82,7 +82,7 @@ describe('sample catalogue', () => {
           programId: seedId(`programme:${r.programmeKey}`),
           entryRoute: r.entryRoute,
           versionNo: 1,
-          sourceId: null,
+         
           preparedBy: seedId('admin:a'),
           rules: r.rules.map((rule, i) => ({
             id: seedId(`rule:${r.programmeKey}:${r.entryRoute}:${i}`),
