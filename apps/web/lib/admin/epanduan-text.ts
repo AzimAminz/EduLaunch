@@ -134,6 +134,20 @@ export function suggestRules(block: Item, subjects: MatchableSubject[], validGra
   return { kind: 'text', type: DECLARATION.test(text) ? 'declaration' : 'note' };
 }
 
+/**
+ * What one sentence typed or pasted by the admin means, as the line's kind and values: the same reading as filling
+ * from ePanduan. A list written after a colon ("…: Mathematics T; Chemistry; Biology") is read as the subjects.
+ * Alternatives in one sentence ("A atau B") give the first; the admin adds the other line.
+ */
+export function readSentence(text: string, section: string | null, subjects: MatchableSubject[], validGrade: (subjectId: string, grade: string) => boolean): Partial<EditorLine> {
+  const [head, list] = text.includes(':') ? [text.slice(0, text.lastIndexOf(':') + 1), text.slice(text.lastIndexOf(':') + 1)] : [text, ''];
+  const listed = list.split(/;|\n/).map((x) => x.trim().replace(/\.$/, '')).filter(Boolean);
+  const block: Item = { kind: 'item', text: listed.length > 1 ? head.trim() : text.trim(), subjects: listed.length > 1 ? listed : [], section };
+  const suggestion = suggestRules(block, subjects, validGrade);
+  if (suggestion.kind === 'text') return { type: suggestion.type, join: 'and' };
+  return suggestion.rules[0]!;
+}
+
 const sentence = (item: Item) => (item.subjects.length ? `${item.text} ${item.subjects.join('; ')}` : item.text).slice(0, 1500);
 
 /**

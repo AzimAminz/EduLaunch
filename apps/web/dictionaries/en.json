@@ -1095,7 +1095,12 @@
         "section": "Section heading",
         "sectionPlaceholder": "For example SPM, STPM, MUET",
         "text": "Official sentence (evidence)",
-        "textOnly": "Official sentence"
+        "textOnly": "Official sentence",
+        "sentence": "Requirement sentence",
+        "sentencePlaceholder": "Type or paste the sentence as on ePanduan, for example: Gred C bagi matapelajaran Bahasa Melayu.",
+        "readAgain": "Read this sentence again",
+        "sentenceHint": "Type or paste the sentence as on ePanduan. When you leave this box, the system fills the kind and details below.",
+        "changedSentence": "This sentence has changed. Read it again and update the details below?"
       },
       "kinds": {
         "min_grade": "One subject with a minimum grade",

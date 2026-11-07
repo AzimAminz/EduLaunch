@@ -1095,7 +1095,12 @@
         "section": "Tajuk bahagian",
         "sectionPlaceholder": "Contoh: SPM, STPM, MUET",
         "text": "Ayat rasmi (bukti)",
-        "textOnly": "Ayat rasmi"
+        "textOnly": "Ayat rasmi",
+        "sentence": "Ayat syarat",
+        "sentencePlaceholder": "Taip atau tampal ayat syarat seperti di ePanduan, contohnya: Gred C bagi matapelajaran Bahasa Melayu.",
+        "readAgain": "Baca semula ayat ini",
+        "sentenceHint": "Taip atau tampal ayat seperti di ePanduan. Bila anda keluar dari kotak ini, sistem mengisi jenis dan butiran di bawah.",
+        "changedSentence": "Ayat ini telah diubah. Mahu sistem membacanya semula dan mengemas kini butiran di bawah?"
       },
       "kinds": {
         "min_grade": "Satu subjek dengan gred minimum",

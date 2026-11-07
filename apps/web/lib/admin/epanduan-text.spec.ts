@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupCategories, linesFromText, parseRequirementText, rulesFromGroup, suggestRules, type MatchableSubject, type TextBlock } from './epanduan-text';
+import { groupCategories, linesFromText, parseRequirementText, readSentence, rulesFromGroup, suggestRules, type MatchableSubject, type TextBlock } from './epanduan-text';
 
 // Real text from ePanduan (UTM, STPM category), as the content service keeps it.
 const GENERAL = [
@@ -130,6 +130,28 @@ describe('rulesFromGroup', () => {
   it('keeps a line it cannot check as read as a note, with its sentence', () => {
     const rules = rulesFromGroup(group('• Gred A bagi matapelajaran ASTRONOMI.'), SUBJECTS, anyGrade);
     expect(rules.find((r) => r.part === 'special')).toMatchObject({ conditionType: 'note', officialText: 'Gred A bagi matapelajaran ASTRONOMI.' });
+  });
+});
+
+describe('readSentence', () => {
+  it('reads what a typed or pasted sentence checks', () => {
+    expect(readSentence('DUA (2) Gred C dalam mana-mana matapelajaran yang belum dikira.', 'STPM', SUBJECTS, anyGrade)).toMatchObject({ type: 'min_credits', value: '2', grade: 'C' });
+    expect(readSentence('Purata Nilai Gred Kumulatif (PNGK) 2.50.', null, SUBJECTS, anyGrade)).toMatchObject({ type: 'min_cgpa', value: '2.50' });
+    expect(readSentence('Gred C bagi matapelajaran BAHASA MELAYU.', 'SPM', SUBJECTS, anyGrade)).toMatchObject({ type: 'min_grade', subjectId: 'bm', grade: 'C' });
+  });
+
+  it('reads a list written after a colon, as the editor shows it', () => {
+    expect(readSentence('Mendapat sekurang-kurangnya Gred B dalam DUA (2) mata pelajaran di peringkat STPM: Physics; Chemistry', null, SUBJECTS, anyGrade)).toMatchObject({
+      type: 'subjects_from_list',
+      subjectIds: ['fiz-stpm', 'kim-stpm'],
+      grade: 'B',
+      count: '2',
+    });
+  });
+
+  it('keeps conditions and anything else as text kinds', () => {
+    expect(readSentence('Calon perlu lulus temu duga.', null, SUBJECTS, anyGrade)).toMatchObject({ type: 'declaration' });
+    expect(readSentence('Memiliki Sijil Pelajaran Malaysia (SPM) dengan mendapat sekurang-kurangnya:-', 'SPM', SUBJECTS, anyGrade)).toMatchObject({ type: 'note' });
   });
 });
 

@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type { EntryRoute, RequirementPart } from '@edulaunch/contracts';
 import { discardRequirement, saveRequirement, type AdminFormState } from '@/lib/admin/actions';
-import { linesFromGroup, type CategoryGroup } from '@/lib/admin/epanduan-text';
+import { linesFromGroup, readSentence, type CategoryGroup } from '@/lib/admin/epanduan-text';
 import { checkLines, EditorRuleTypes, gradesFor, isUnchecked, lineSummary, newLine, SectionSuggestions, subjectQualificationsFor, type EditorLine, type LineProblem } from '@/lib/admin/requirement-form';
 import { describeRequirement } from '@/lib/catalogue/requirements';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
@@ -149,6 +149,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
       const last = list.findLastIndex((l) => l.part === part && l.section === section);
       return last < 0 ? [...list, line] : [...list.slice(0, last + 1), line, ...list.slice(last + 1)];
     });
+    // A new line opens with its sentence field ready to type (it fills the kind and values).
     setOpen(line.key);
   };
   const removeSection = (part: RequirementPart, section: string) => setLines((list) => list.filter((l) => l.part !== part || l.section !== section));
@@ -298,6 +299,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
                 onMove={move}
                 onAdd={(section) => add(part, section)}
                 onRemoveSection={(section) => removeSection(part, section)}
+                readLine={(text, section) => readSentence(text, section || null, subjects, validGrade)}
               />
             </div>
           ))}
@@ -450,6 +452,7 @@ interface PartProps {
   onMove: (key: string, by: -1 | 1) => void;
   onAdd: (section: string) => void;
   onRemoveSection: (section: string) => void;
+  readLine: (text: string, section: string) => Partial<EditorLine>;
 }
 
 /**
@@ -457,7 +460,7 @@ interface PartProps {
  * or "general" for lines under no heading), each with its lines joined by DAN or ATAU. Sections follow one another
  * with DAN. A line is added to the open section; sections can be added and removed.
  */
-function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, subjectById, problemsOf, onChange, onRemove, onMove, onAdd, onRemoveSection }: PartProps) {
+function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, subjectById, problemsOf, onChange, onRemove, onMove, onAdd, onRemoveSection, readLine }: PartProps) {
   const present = [...new Set(lines.map((l) => l.section))];
   // Sections added but not given a line yet.
   const [added, setAdded] = useState<string[]>([]);
@@ -564,6 +567,7 @@ function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, 
                 onChange={(change) => onChange(line.key, change)}
                 onRemove={() => onRemove(line.key)}
                 onMove={(by) => onMove(line.key, by)}
+                readLine={readLine}
               />
             </div>
           );
@@ -616,6 +620,8 @@ interface LineProps {
   onChange: (change: Partial<EditorLine>) => void;
   onRemove: () => void;
   onMove: (by: -1 | 1) => void;
+  /** What a sentence checks (kind and values), read the same way as filling from ePanduan. */
+  readLine: (text: string, section: string) => Partial<EditorLine>;
 }
 
 /**
@@ -623,8 +629,17 @@ interface LineProps {
  * the official text phrases it: "Gred [C] bagi matapelajaran [Bahasa Melayu]", "[2] Gred [C] dalam mana-mana
  * matapelajaran", "BAND [1.0] dalam MUET", with the official sentence kept underneath.
  */
-function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOptions, subjectById, problems, onChange, onRemove, onMove }: LineProps) {
+function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOptions, subjectById, problems, onChange, onRemove, onMove, readLine }: LineProps) {
   const bad = problems.length > 0;
+  const [textBefore, setTextBefore] = useState(line.text);
+  const [offerRead, setOfferRead] = useState(false);
+  const sentenceRef = useRef<HTMLTextAreaElement>(null);
+  // A line just added (or opened while still empty) starts with its sentence ready to type.
+  useEffect(() => {
+    if (open && !line.text) sentenceRef.current?.focus();
+    // When the line opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
   const unchecked = isUnchecked(line.type);
   const p = t.phrase;
   const gradeSubject = line.type === 'min_grade' ? line.subjectId : line.subjectIds[0];
@@ -673,11 +688,17 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
     <div className={`rounded-[12px] border transition-colors duration-150 ${bad ? 'border-red/60 bg-red/5' : open ? 'border-navy/40 bg-bg/60' : 'border-transparent hover:bg-bg/80'}`}>
       <div className="flex items-start gap-2 px-3 py-2.5">
         <span aria-hidden className={`mt-[7px] size-1.5 shrink-0 rounded-full ${unchecked ? 'bg-muted/50' : 'bg-navy/60'}`} />
-        <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 flex-col items-start gap-1 text-left">
-          <span className="text-[13px] leading-relaxed">{line.text || <span className="text-muted">{t.line.noText}</span>}</span>
-          <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${unchecked ? 'bg-bg text-muted' : 'bg-blue text-navy'}`}>{lineSummary(line, (id) => (id && subjectById.get(id)?.label) || '?', t)}</span>
-          {bad && <span className="text-[12px] text-red">{problems.map((x) => t.problems[x]).join(' ')}</span>}
-        </button>
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+          <button type="button" onClick={onOpen} className="px-1 py-0.5 text-left text-[13px] leading-relaxed">
+            {line.text || <span className="text-muted">{t.line.noText}</span>}
+          </button>
+          <span className="flex flex-wrap items-center gap-2 px-1">
+            <button type="button" onClick={onOpen} className={`rounded-full px-2 py-0.5 text-left text-[11px] font-semibold ${unchecked ? 'bg-bg text-muted' : 'bg-blue text-navy'} hover:ring-1 hover:ring-navy/30`}>
+              {lineSummary(line, (id) => (id && subjectById.get(id)?.label) || '?', t)}
+            </button>
+          </span>
+          {bad && <span className="px-1 text-[12px] text-red">{problems.map((x) => t.problems[x]).join(' ')}</span>}
+        </div>
         <span className="flex shrink-0 items-center">
           {action(open ? t.line.done : t.line.edit, onOpen, <AdminIcon name={open ? 'check' : 'pencil'} size={15} />)}
           {action(t.line.up, () => onMove(-1), <AdminIcon name="arrowLeft" size={15} className="rotate-90" />, { disabled: first })}
@@ -687,29 +708,59 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
       </div>
       {open && (
         <div className="flex flex-col gap-4 border-t border-line px-3 py-3">
-          <fieldset className="flex flex-col gap-2">
-            <legend className="mb-2 text-sm font-semibold">{t.typeLabel}</legend>
+          {/* The sentence first: typed or pasted as on ePanduan, it fills the kind and values below when left. */}
+          <label className="flex flex-col gap-1.5 text-sm font-semibold">
+            {t.line.sentence}
+            <textarea
+              ref={sentenceRef}
+              value={line.text}
+              onChange={(e) => onChange({ text: e.target.value })}
+              onFocus={() => setTextBefore(line.text)}
+              onBlur={(e) => {
+                // The textarea's own value: the line's props may not have caught up with the last keystroke yet.
+                const text = e.currentTarget.value;
+                if (text.trim() === textBefore.trim() || text.trim().length < 2) return;
+                // A new or unfinished line takes what the sentence says; a finished one offers it instead.
+                if (!textBefore.trim() || bad || line.type === 'note') onChange({ text, ...readLine(text, line.section) });
+                else setOfferRead(true);
+              }}
+              rows={2}
+              maxLength={1500}
+              aria-invalid={problems.includes('textRequired') || undefined}
+              placeholder={t.line.sentencePlaceholder}
+              className={`field-sizing-content min-h-[64px] w-full rounded-[10px] border bg-white px-3 py-2 text-sm font-normal leading-relaxed text-navy outline-none focus:border-navy focus:ring-2 focus:ring-navy/15 ${problems.includes('textRequired') ? 'border-red' : 'border-[#9aa3b2]'}`}
+            />
+            <span className="text-[12px] font-normal text-muted">{t.line.sentenceHint}</span>
+          </label>
+          {offerRead && (
+            <p className="flex flex-wrap items-center gap-2 rounded-[10px] bg-cream px-3 py-2 text-[13px]">
+              <AdminIcon name="info" size={16} className="shrink-0" />
+              <span className="flex-1">{t.line.changedSentence}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange({ text: line.text, ...readLine(line.text, line.section) });
+                  setOfferRead(false);
+                }}
+                className={buttonClass('secondary', 'sm')}
+              >
+                {t.line.readAgain}
+              </button>
+            </p>
+          )}
+          <div className="flex flex-col gap-1.5">
             {/* Plain names with an example each, so the kind is chosen by what the sentence says. */}
-            <div className="grid gap-2 sm:grid-cols-2">
-              {EditorRuleTypes.map((x) => {
-                const on = line.type === x;
-                return (
-                  <label
-                    key={x}
-                    className={`flex cursor-pointer items-start gap-3 rounded-[12px] border px-3 py-2.5 transition-colors duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-navy/40 ${
-                      on ? 'border-navy bg-navy/[0.05]' : 'border-line bg-white hover:border-navy/30'
-                    }`}
-                  >
-                    <input type="radio" name={`kind-${line.key}`} checked={on} onChange={() => onChange({ type: x, join: isUnchecked(x) ? 'and' : line.join })} className="mt-1 size-4 shrink-0 accent-[#1b2a4a]" />
-                    <span className="flex flex-col gap-0.5">
-                      <span className="text-sm font-semibold">{t.kinds[x]}</span>
-                      <span className="text-[12px] text-muted">{t.kindExamples[x]}</span>
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
+            <Dropdown
+              label={t.typeLabel}
+              value={line.type}
+              onChange={(x) => onChange({ type: x as EditorLine['type'], join: isUnchecked(x as EditorLine['type']) ? 'and' : line.join })}
+              options={EditorRuleTypes.map((x) => ({ value: x, label: t.kinds[x], detail: t.kindExamples[x] }))}
+              placeholder={t.typeLabel}
+              noMatchesLabel={noMatches}
+              searchable={false}
+            />
+            <p className="text-[12px] text-muted">{t.kindExamples[line.type]}</p>
+          </div>
 
           {unchecked && (
             <p className="flex items-start gap-2 rounded-[10px] bg-bg px-3 py-2.5 text-[13px] text-muted">
@@ -816,18 +867,6 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
             </div>
           )}
 
-          <label className="flex flex-col gap-1 text-sm font-semibold">
-            {unchecked ? t.line.textOnly : p.official}
-            <textarea
-              value={line.text}
-              onChange={(e) => onChange({ text: e.target.value })}
-              rows={unchecked ? 3 : 2}
-              maxLength={1500}
-              placeholder={t.quotePlaceholder}
-              aria-invalid={problems.includes('textRequired') || undefined}
-              className={`rounded-[10px] border bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-navy outline-none focus:border-navy ${problems.includes('textRequired') ? 'border-red' : 'border-line'}`}
-            />
-          </label>
         </div>
       )}
     </div>
