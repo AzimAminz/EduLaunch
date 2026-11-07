@@ -352,7 +352,22 @@
         "waiting": "Tiada draf anda yang sedang menunggu."
       },
       "institution": "Permintaan padam institusi (bersama semua programnya)",
-      "change": "Perubahan pada program diterbitkan"
+      "change": "Perubahan pada program diterbitkan",
+      "bulk": {
+        "selectAll": "Pilih semua di halaman ini",
+        "selected": "{count} daripada {total} dipilih",
+        "approve": "Luluskan yang dipilih ({count})",
+        "submit": "Hantar yang dipilih untuk semakan ({count})",
+        "approveTitle": "Luluskan {count} item?",
+        "approveBody": "Pelajar akan nampak program dan syarat ini (atau perubahannya). Luluskan hanya yang sudah anda semak.",
+        "submitTitle": "Hantar {count} draf untuk semakan?",
+        "submitBody": "Admin lain akan nampak draf ini dalam Peti tugasan mereka untuk disemak.",
+        "yes": "Ya, teruskan",
+        "cancel": "Batal",
+        "approved": "{count} item diluluskan.",
+        "sent": "{count} draf dihantar untuk semakan.",
+        "failed": "{count} tidak dapat diteruskan:"
+      }
     },
     "programmes": {
       "title": "Program",

@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
+import { BulkTasks } from '@/components/admin/bulk-tasks';
 import { TaskList } from '@/components/admin/task-list';
 import type { AdminIconName } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, LoadError, Pagination } from '@/components/admin/ui';
@@ -42,13 +43,24 @@ async function Inbox({ locale, dict, searchParams }: { locale: Locale; dict: Dic
     return <LoadError text={dict.admin.errors.generic} />;
   }
   const shown = pageOf(tasks[tab], page, PAGE_SIZE);
+  const bulk = tab === 'toReview' ? 'approve' : tab === 'myDrafts' || tab === 'returned' ? 'submit' : null;
+  const list = (
+    <TaskList tasks={shown.items} locale={locale} dict={dict} now={new Date().getTime()} action={tab === 'toReview' ? t.review : t.open} empty={t.empty[tab]} selectable={!!bulk} />
+  );
   return (
     <>
       <AdminTabs
         label={t.title}
         items={TABS.map((key) => ({ href: `/${locale}/admin/tugasan?tab=${key}`, label: t.tabs[key], icon: TAB_ICON[key], current: key === tab, count: tasks[key].length }))}
       />
-      <TaskList tasks={shown.items} locale={locale} dict={dict} now={new Date().getTime()} action={tab === 'toReview' ? t.review : t.open} empty={t.empty[tab]} />
+      {bulk ? (
+        // Send many drafts, or approve many items, at once; each still follows the one-at-a-time rules.
+        <BulkTasks locale={locale} action={bulk} total={shown.items.filter((x) => x.kind !== 'institution').length} t={t.bulk} errors={dict.admin.errors}>
+          {list}
+        </BulkTasks>
+      ) : (
+        list
+      )}
       <Pagination
         page={shown.page}
         pageSize={PAGE_SIZE}

@@ -352,7 +352,22 @@
         "waiting": "None of your drafts are waiting."
       },
       "institution": "Request to delete an institution (with all its programmes)",
-      "change": "Change to a published programme"
+      "change": "Change to a published programme",
+      "bulk": {
+        "selectAll": "Select all on this page",
+        "selected": "{count} of {total} selected",
+        "approve": "Approve selected ({count})",
+        "submit": "Send selected for review ({count})",
+        "approveTitle": "Approve {count} items?",
+        "approveBody": "Students will see these programmes and requirements (or their changes). Approve only what you have checked.",
+        "submitTitle": "Send {count} drafts for review?",
+        "submitBody": "Other admins will see these drafts in their task inbox to review.",
+        "yes": "Yes, continue",
+        "cancel": "Cancel",
+        "approved": "{count} items approved.",
+        "sent": "{count} drafts sent for review.",
+        "failed": "{count} could not go through:"
+      }
     },
     "programmes": {
       "title": "Programmes",

@@ -46,6 +46,8 @@ export interface AdminFormState {
   status?: 'requested' | 'cancelled';
   /** ePanduan import: how many found programmes became drafts or changes, and how many could not be saved. */
   imported?: { created: number; updated: number; failed: number };
+  /** Bulk send or approve from the task inbox: how many went through, and which did not and why. */
+  bulk?: { done: number; failed: Array<{ name: string; error: AdminErrorKey }> };
 }
 
 const localeOf = (form: FormData): Locale => {
@@ -503,6 +505,41 @@ export async function draftFromEpanduan(_prev: AdminFormState, form: FormData): 
   refresh();
   if (only && opened) redirect(`/${locale}/admin/syarat/${opened}?disalin=epanduan`);
   redirect(`/${locale}/admin/program/${programId}?tab=syarat&selesai=dari-epanduan`);
+}
+
+/**
+ * Sends the chosen drafts for review, or approves the chosen items, from the task inbox. Each item goes through the
+ * same rules as one at a time (another admin approves; requirements need lines and a source), so some may be
+ * refused: those are listed with the reason and the rest go through. Institution deletions are never in a bulk.
+ */
+export async function bulkReview(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const token = await adminToken(locale);
+  const action = text(form, 'bulkAction');
+  if (action !== 'submit' && action !== 'approve') return { error: 'generic' };
+  const items = form
+    .getAll('items')
+    .map(String)
+    .map((v) => {
+      const [kind = '', id = ''] = v.split('|');
+      return { kind, id, name: text(form, `name-${id}`) || id };
+    })
+    .filter((x) => (x.kind === 'programme' || x.kind === 'requirement') && z.uuid().safeParse(x.id).success)
+    .slice(0, 100);
+  if (items.length === 0) return { error: 'generic' };
+  const failed: Array<{ name: string; error: AdminErrorKey }> = [];
+  let done = 0;
+  for (const item of items) {
+    try {
+      if (item.kind === 'programme') await api.reviewProgramme(token, item.id, { action });
+      else await api.reviewRequirement(token, item.id, { action });
+      done += 1;
+    } catch (err) {
+      failed.push({ name: item.name, error: errorKey(err) });
+    }
+  }
+  refresh();
+  return { bulk: { done, failed }, savedAt: Date.now() };
 }
 
 /** Starts reading an institution's programmes on ePanduan; the import tab shows the progress and then the result. */
