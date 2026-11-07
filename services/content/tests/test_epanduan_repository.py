@@ -18,8 +18,8 @@ def runs():
     pool = ConnectionPool(get_settings().database_url, min_size=1, max_size=2, open=True)
     yield PostgresEpanduanRuns(pool)
     with pool.connection() as conn:
-        conn.execute("delete from epanduan_run where institution_code = %s", (CODE,))
-        conn.execute("delete from epanduan_requirement where code like %s", (CODE + "%",))
+        conn.execute("delete from import_run where institution_code = %s", (CODE,))
+        conn.execute("delete from import_requirement where code like %s", (CODE + "%",))
     pool.close()
 
 

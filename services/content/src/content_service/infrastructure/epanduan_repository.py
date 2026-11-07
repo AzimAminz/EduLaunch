@@ -25,18 +25,18 @@ class PostgresEpanduanRuns(EpanduanRuns):
     def start(self, institution_code: str, requested_by: UUID | None) -> UUID | None:
         with self._pool.connection() as conn:
             conn.execute(
-                """update epanduan_run set status = 'failed', error = 'stopped: the service restarted', finished_at = now()
+                """update import_run set status = 'failed', error = 'stopped: the service restarted', finished_at = now()
                    where institution_code = %s and status = 'running'
                      and started_at < now() - make_interval(mins => %s)""",
                 (institution_code, STALE_MINUTES),
             )
             busy = conn.execute(
-                "select 1 from epanduan_run where institution_code = %s and status = 'running'", (institution_code,)
+                "select 1 from import_run where institution_code = %s and status = 'running'", (institution_code,)
             ).fetchone()
             if busy:
                 return None
             row = conn.execute(
-                "insert into epanduan_run (institution_code, requested_by) values (%s, %s) returning id",
+                "insert into import_run (institution_code, requested_by) values (%s, %s) returning id",
                 (institution_code, requested_by),
             ).fetchone()
             return row[0]
@@ -44,7 +44,7 @@ class PostgresEpanduanRuns(EpanduanRuns):
     def progress(self, run_id: UUID, pages_read: int, category: str | None = None) -> None:
         with self._pool.connection() as conn:
             conn.execute(
-                "update epanduan_run set pages_read = %s, current_category = coalesce(%s, current_category) where id = %s",
+                "update import_run set pages_read = %s, current_category = coalesce(%s, current_category) where id = %s",
                 (pages_read, category, run_id),
             )
 
@@ -52,37 +52,37 @@ class PostgresEpanduanRuns(EpanduanRuns):
         with self._pool.connection() as conn, conn.transaction():
             with conn.cursor() as cur:
                 cur.executemany(
-                    "insert into epanduan_found (run_id, code, data) values (%s, %s, %s)",
+                    "insert into import_program (run_id, code, data) values (%s, %s, %s)",
                     [(run_id, p.code, Jsonb(p.to_dict())) for p in programmes],
                 )
             row = conn.execute(
-                """update epanduan_run set status = 'done', found = %s, pages_read = %s, finished_at = now()
+                """update import_run set status = 'done', found = %s, pages_read = %s, finished_at = now()
                    where id = %s returning institution_code""",
                 (len(programmes), pages_read, run_id),
             ).fetchone()
             conn.execute(
-                """delete from epanduan_run where institution_code = %s and id not in (
-                     select id from epanduan_run where institution_code = %s order by started_at desc limit %s)""",
+                """delete from import_run where institution_code = %s and id not in (
+                     select id from import_run where institution_code = %s order by started_at desc limit %s)""",
                 (row[0], row[0], KEEP_RUNS),
             )
 
     def fail(self, run_id: UUID, error: str, pages_read: int) -> None:
         with self._pool.connection() as conn:
             conn.execute(
-                "update epanduan_run set status = 'failed', error = %s, pages_read = %s, finished_at = now() where id = %s",
+                "update import_run set status = 'failed', error = %s, pages_read = %s, finished_at = now() where id = %s",
                 (error[:500], pages_read, run_id),
             )
 
     def latest(self, institution_code: str) -> dict | None:
         with self._pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                "select * from epanduan_run where institution_code = %s order by started_at desc limit 1",
+                "select * from import_run where institution_code = %s order by started_at desc limit 1",
                 (institution_code,),
             )
             run = cur.fetchone()
             if not run:
                 return None
-            cur.execute("select data from epanduan_found where run_id = %s order by code", (run["id"],))
+            cur.execute("select data from import_program where run_id = %s order by code", (run["id"],))
             programmes = [r["data"] for r in cur.fetchall()]
         return {
             "id": str(run["id"]),
@@ -102,8 +102,8 @@ class PostgresEpanduanRuns(EpanduanRuns):
             return []
         with self._pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                """select f.data from epanduan_found f
-                   where f.run_id = (select id from epanduan_run where institution_code = %s and status = 'done'
+                """select f.data from import_program f
+                   where f.run_id = (select id from import_run where institution_code = %s and status = 'done'
                                      order by started_at desc limit 1)
                      and f.code = any(%s)""",
                 (institution_code, codes),
@@ -113,7 +113,7 @@ class PostgresEpanduanRuns(EpanduanRuns):
     def request_special(self, items: list[tuple[str, str, str]]) -> None:
         with self._pool.connection() as conn, conn.cursor() as cur:
             cur.executemany(
-                """insert into epanduan_requirement (code, jenprog, category, status, requested_at)
+                """insert into import_requirement (code, jenprog, category, status, requested_at)
                    values (%s, %s, %s, 'pending', now())
                    on conflict (code, category) do update set status = 'pending', error = null, requested_at = now()""",
                 [(code, jenprog, category) for jenprog, category, code in items],
@@ -122,7 +122,7 @@ class PostgresEpanduanRuns(EpanduanRuns):
     def save_special(self, code: str, category: str, text: str | None) -> None:
         with self._pool.connection() as conn:
             conn.execute(
-                """update epanduan_requirement set status = 'done', special_text = %s, error = null, read_at = now()
+                """update import_requirement set status = 'done', special_text = %s, error = null, read_at = now()
                    where code = %s and category = %s""",
                 (text, code, category),
             )
@@ -130,7 +130,7 @@ class PostgresEpanduanRuns(EpanduanRuns):
     def fail_special(self, items: list[tuple[str, str, str]], error: str) -> None:
         with self._pool.connection() as conn, conn.cursor() as cur:
             cur.executemany(
-                """update epanduan_requirement set status = 'failed', error = %s
+                """update import_requirement set status = 'failed', error = %s
                    where code = %s and category = %s and status = 'pending'""",
                 [(error[:500], code, category) for _, category, code in items],
             )
@@ -140,7 +140,7 @@ class PostgresEpanduanRuns(EpanduanRuns):
             return []
         with self._pool.connection() as conn, conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
-                "select * from epanduan_requirement where code = any(%s) order by code, jenprog desc, category",
+                "select * from import_requirement where code = any(%s) order by code, jenprog desc, category",
                 (codes,),
             )
             return [

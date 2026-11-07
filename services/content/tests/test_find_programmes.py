@@ -6,8 +6,8 @@ import pytest
 
 from content_service.application.find_programmes import FindInstitutionProgrammes, ReadSpecialRequirements
 from content_service.domain.epanduan import CATEGORIES_TO_READ
+from content_service.domain.errors import DomainError
 from content_service.domain.ports import EpanduanRuns, EpanduanSource
-from content_service.domain.source import DomainError
 from content_service.infrastructure.epanduan_client import EpanduanUnavailable
 
 FIXTURES = Path(__file__).parent / "fixtures"

@@ -7,8 +7,8 @@ import re
 from uuid import UUID
 
 from ..domain.epanduan import CATEGORIES_TO_READ, FoundProgramme
+from ..domain.errors import DomainError
 from ..domain.ports import EpanduanRuns, EpanduanSource
-from ..domain.source import DomainError
 from ..infrastructure.epanduan_parser import PageIncomplete, PageLayoutChanged, parse_listing
 
 log = logging.getLogger(__name__)
