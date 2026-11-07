@@ -75,7 +75,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
   const sp = await searchParams;
   const tab: Tab = TABS.find((x) => x === sp.tab) ?? 'maklumat';
   // Set by the requirement editor after saving: what was just done.
-  const done = sp.selesai === 'draf' ? 'draft' : sp.selesai === 'hantar' ? 'sent' : null;
+  const done = sp.selesai === 'draf' ? 'draft' : sp.selesai === 'hantar' ? 'sent' : sp.selesai === 'dari-epanduan' ? 'drafted' : null;
   const t = dict.admin;
 
   let programme: ProgrammeDetail;
@@ -248,10 +248,13 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
             ? format(r.tabOpen, { status: t.status[open.status], who: who(open.preparedBy, me, t) })
             : published
               ? format(r.chipPublished, { version: published.versionNo })
-              : r.none,
+              : slot.group
+                ? r.readyFromEpanduan
+                : r.none,
       href: target ? `/${locale}/admin/syarat/${target.id}` : null,
       startHref: `/${locale}/admin/program/${programme.id}/tambah-syarat?laluan=${slot.route}${slot.category ? `&kategori=${encodeURIComponent(slot.category)}` : ''}`,
       groups: slot.group ? [slot.group] : [],
+      ready: !!slot.group && slot.versions.length === 0,
       removable:
         !published && (!open || (open.status !== 'in_review' && open.preparedBy === me))
           ? { draftId: open?.id ?? null, programId: programme.id, entryRoute: slot.route, categories: slot.categories, name: detail ? `${name} (${detail})` : name }
@@ -259,7 +262,7 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
     };
   });
   const byRoute = (
-    <RouteTabs locale={locale} tabs={tabs} addHref={`/${locale}/admin/program/${programme.id}/tambah-syarat`} t={r} m={m} errors={t.errors} />
+    <RouteTabs locale={locale} programId={programme.id} tabs={tabs} addHref={`/${locale}/admin/program/${programme.id}/tambah-syarat`} t={r} m={m} errors={t.errors} />
   );
 
   return (

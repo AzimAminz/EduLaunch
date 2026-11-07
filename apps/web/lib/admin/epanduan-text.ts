@@ -1,5 +1,5 @@
 import type { RequirementPart } from '@edulaunch/contracts';
-import { newLine, type EditorLine } from './requirement-form';
+import { checkLines, newLine, type EditorLine, type SavedRule } from './requirement-form';
 
 /**
  * ePanduan requirement text (Syarat Am / Syarat Khas, kept as plain lines by the content service) read into blocks
@@ -187,3 +187,24 @@ export function groupCategories(
   }
   return [...groups.values()];
 }
+
+/** Both parts of one group's text (Syarat Am, and Syarat Khas once read) as editor lines. */
+export function linesFromGroup(group: CategoryGroup, subjects: MatchableSubject[], validGrade: (subjectId: string, grade: string) => boolean): EditorLine[] {
+  const special = group.special?.status === 'done' ? group.special.text : null;
+  return [...linesFromText(group.general, 'general', subjects, validGrade), ...linesFromText(special, 'special', subjects, validGrade)];
+}
+
+/**
+ * Rules to save as a draft straight from one group's ePanduan text. A line that cannot be checked as read (a subject
+ * not known, a grade not on its scale) keeps its sentence as a note, for the admin to finish in the editor.
+ */
+export function rulesFromGroup(group: CategoryGroup, subjects: MatchableSubject[], validGrade: (subjectId: string, grade: string) => boolean): SavedRule[] {
+  const lines = linesFromGroup(group, subjects, validGrade).filter((l) => l.text.trim().length >= 2);
+  const bad = new Set(checkLines(lines).problems.map((p) => p.line));
+  return checkLines(lines.map((l, i) => (bad.has(i) ? { ...l, type: 'note' as const, join: 'and' as const } : l))).rules;
+}
+
+/** The ePanduan list page a group's text comes from (its first category). */
+export const groupSourceUrl = (group: CategoryGroup) =>
+  `https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/${group.categories[0]!.category}?jenprog=${group.categories[0]!.jenprog}`;
+

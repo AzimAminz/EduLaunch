@@ -555,7 +555,8 @@
         "empty": "No requirements yet. Choose a route below to start.",
         "done": {
           "draft": "Requirement draft saved. Continue any time with \"Open draft\".",
-          "sent": "Requirements sent for review. Other admins will see them in their task inbox."
+          "sent": "Requirements sent for review. Other admins will see them in their task inbox.",
+          "drafted": "Drafts made from the ePanduan text. Open each tab to check, edit and send for review."
         },
         "start": "Start requirements",
         "fromCategory": "Written from the ePanduan category: {category}",
@@ -586,7 +587,10 @@
         "routeHeading": "{route} requirements",
         "tabOpen": "{status} · {who}",
         "tabChange": "v{version} · change {status}",
-        "ownSlot": "Written by hand"
+        "ownSlot": "Written by hand",
+        "draftAll": "Make drafts from ePanduan ({count})",
+        "editFromEpanduan": "Edit requirements",
+        "readyFromEpanduan": "ePanduan text ready to review"
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",

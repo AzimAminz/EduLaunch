@@ -555,7 +555,8 @@
         "empty": "Belum ada syarat. Pilih laluan di bawah untuk bermula.",
         "done": {
           "draft": "Draf syarat disimpan. Anda boleh sambung bila-bila masa dengan \"Buka draf\".",
-          "sent": "Syarat dihantar untuk semakan. Admin lain akan nampak dalam Peti tugasan mereka."
+          "sent": "Syarat dihantar untuk semakan. Admin lain akan nampak dalam Peti tugasan mereka.",
+          "drafted": "Draf dibuat daripada teks ePanduan. Buka setiap tab untuk semak, sunting dan hantar untuk semakan."
         },
         "start": "Mula syarat",
         "fromCategory": "Ditulis daripada kategori ePanduan: {category}",
@@ -586,7 +587,10 @@
         "routeHeading": "Syarat {route}",
         "tabOpen": "{status} · {who}",
         "tabChange": "v{version} · perubahan {status}",
-        "ownSlot": "Tulis sendiri"
+        "ownSlot": "Tulis sendiri",
+        "draftAll": "Buat draf dari ePanduan ({count})",
+        "editFromEpanduan": "Sunting syarat",
+        "readyFromEpanduan": "Teks ePanduan sedia untuk disemak"
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",

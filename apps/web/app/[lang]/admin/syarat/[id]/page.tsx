@@ -80,7 +80,7 @@ async function Requirement({ locale, dict, params, searchParams }: {
             initial={{ sourceUrl: req.sourceUrl ?? '', sourceCategory: req.sourceCategory, lines: linesFromRules(req.rules) }}
             epanduan={epanduan}
             autoFill={typeof sp.isi === 'string' ? sp.isi : null}
-            copied={sp.disalin === '1'}
+            copied={sp.disalin === '1' ? 'copy' : sp.disalin === 'epanduan' ? 'epanduan' : null}
             subjects={reference.subjects.map((s) => ({ id: s.id, label: localName(s, locale), qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }))}
             dict={{ admin: t, requirements: dict.requirements, directory: dict.directory }}
           />

@@ -1,6 +1,6 @@
 'use server';
 
-import { EpanduanInstitutions, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
+import { EntryRoutes, EpanduanInstitutions, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -8,7 +8,10 @@ import { isLocale, type Locale } from '../i18n/locale';
 import { getAccount, getAccessToken } from '../supabase/server';
 import * as api from './api';
 import { acceptable, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
-import { checkLines, EditorState, type CheckedLines } from './requirement-form';
+import { checkLines, EditorState, gradesFor, type CheckedLines } from './requirement-form';
+import { groupSourceUrl, rulesFromGroup } from './epanduan-text';
+import { requirementSlots } from './requirement-slots';
+import { getReferenceData } from '../catalogue/api';
 
 /** Error keys shown from `dict.admin.errors` (or a form's own `errors`). */
 export type AdminErrorKey =
@@ -460,6 +463,46 @@ export async function removeEntryRoute(_prev: AdminFormState, form: FormData): P
   }
   refresh();
   redirect(`/${locale}/admin/program/${programId}?tab=syarat`);
+}
+
+/**
+ * Turns ePanduan's requirement text into drafts, so the admin reviews and edits instead of writing from nothing: one
+ * draft per requirement slot (route and group of categories with the same text) that has none yet, or only the slot
+ * given (`slot`), which then opens in the editor. Lines that cannot be checked as read stay as notes to finish.
+ */
+export async function draftFromEpanduan(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const token = await adminToken(locale);
+  const programId = text(form, 'programId');
+  const only = text(form, 'slot');
+  let opened: string | null = null;
+  try {
+    const programme = await api.getProgrammeDetail(token, programId);
+    if (!programme.programCode) return { error: 'conflict' };
+    const [[found], special, reference] = await Promise.all([
+      api.listFoundProgrammes(token, [programme.programCode]),
+      api.listSpecialRequirements(token, [programme.programCode]),
+      getReferenceData(),
+    ]);
+    if (!found) return { error: 'conflict' };
+    const kept = new Set(programme.entryRoutes);
+    const categories = found.categories.filter((c) => c.route && (kept.size === 0 || kept.has(c.route)));
+    const subjects = reference.subjects.map((s) => ({ id: s.id, qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }));
+    const qualification = new Map(reference.subjects.map((s) => [s.id, s.qualification]));
+    const validGrade = (subjectId: string, grade: string) => gradesFor(qualification.get(subjectId)).includes(grade);
+    const slots = requirementSlots(EntryRoutes, categories, special, programme.requirements).filter((s) => s.group && s.versions.length === 0 && (!only || s.key === only));
+    for (const slot of slots) {
+      const { id } = await api.createRequirementDraft(token, { programId, entryRoute: slot.route, sourceCategory: slot.category });
+      const rules = rulesFromGroup(slot.group!, subjects, validGrade);
+      if (rules.length) await api.saveRequirementDraft(token, id, { sourceUrl: groupSourceUrl(slot.group!), sourceCategory: slot.category, rules });
+      opened = id;
+    }
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
+  refresh();
+  if (only && opened) redirect(`/${locale}/admin/syarat/${opened}?disalin=epanduan`);
+  redirect(`/${locale}/admin/program/${programId}?tab=syarat&selesai=dari-epanduan`);
 }
 
 /** Starts reading an institution's programmes on ePanduan; the import tab shows the progress and then the result. */

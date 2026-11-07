@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groupCategories, linesFromText, parseRequirementText, suggestRules, type MatchableSubject, type TextBlock } from './epanduan-text';
+import { groupCategories, linesFromText, parseRequirementText, rulesFromGroup, suggestRules, type MatchableSubject, type TextBlock } from './epanduan-text';
 
 // Real text from ePanduan (UTM, STPM category), as the content service keeps it.
 const GENERAL = [
@@ -115,3 +115,21 @@ describe('groupCategories', () => {
     expect(groups[1]!.special).toBeNull();
   });
 });
+
+describe('rulesFromGroup', () => {
+  const group = (special: string | null) => ({ key: 'g', categories: [{ jenprog: 'stpm', category: 'S', route: 'stpm' }], general: GENERAL, special: special === null ? null : { status: 'done' as const, text: special } });
+
+  it('makes savable rules from both parts, Syarat Khas once read', () => {
+    const am = rulesFromGroup(group(null), SUBJECTS, anyGrade);
+    expect(am.length).toBeGreaterThan(0);
+    expect(am.every((r) => r.part === 'general')).toBe(true);
+    const both = rulesFromGroup(group(SPECIAL), SUBJECTS, anyGrade);
+    expect(both.some((r) => r.part === 'special')).toBe(true);
+  });
+
+  it('keeps a line it cannot check as read as a note, with its sentence', () => {
+    const rules = rulesFromGroup(group('• Gred A bagi matapelajaran ASTRONOMI.'), SUBJECTS, anyGrade);
+    expect(rules.find((r) => r.part === 'special')).toMatchObject({ conditionType: 'note', officialText: 'Gred A bagi matapelajaran ASTRONOMI.' });
+  });
+});
+

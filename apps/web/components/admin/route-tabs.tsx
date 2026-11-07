@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import type { CategoryGroup } from '@/lib/admin/epanduan-text';
+import { draftFromEpanduan, type AdminFormState } from '@/lib/admin/actions';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { useFormAction } from '@/components/ui/use-form-action';
 import { CategoryTabs } from './category-tabs';
 import { AdminIcon } from './icons';
 import { RemoveDraftModal } from './remove-draft-modal';
@@ -23,6 +25,8 @@ export interface RouteTab {
   statusText: string;
   /** The requirement to open, or null when none is written yet. */
   href: string | null;
+  /** ePanduan has text for it and nothing is written yet: a draft can be made from that text at once. */
+  ready: boolean;
   /** Starts writing requirements for this route (step 1 with the route chosen). */
   startHref: string;
   /** ePanduan categories for this route (empty for a route written without ePanduan). */
@@ -47,8 +51,9 @@ type Texts = Dictionary['admin']['programme']['requirements'];
  * category when several), with "open" or "write requirements". The row ends with edit (delete a route with its
  * draft, after a confirm) and add requirements.
  */
-export function RouteTabs({ locale, tabs, addHref, t, m, errors }: {
+export function RouteTabs({ locale, programId, tabs, addHref, t, m, errors }: {
   locale: Locale;
+  programId: string;
   tabs: RouteTab[];
   addHref: string;
   t: Texts;
@@ -107,9 +112,18 @@ export function RouteTabs({ locale, tabs, addHref, t, m, errors }: {
               <IconText icon={editing ? 'check' : 'pencil'}>{editing ? t.manage.done : t.manage.edit}</IconText>
             </button>
           )}
-          <Link href={addHref} className={buttonClass('accent', 'sm')}>
-            <IconText icon="plus">{t.manage.add}</IconText>
-          </Link>
+          {tabs.some((x) => x.ready) ? (
+            <>
+              <Link href={addHref} className={buttonClass('secondary', 'sm')}>
+                <IconText icon="plus">{t.manage.add}</IconText>
+              </Link>
+              <DraftFromEpanduan locale={locale} programId={programId} label={format(t.draftAll, { count: tabs.filter((x) => x.ready).length })} errors={errors} />
+            </>
+          ) : (
+            <Link href={addHref} className={buttonClass('accent', 'sm')}>
+              <IconText icon="plus">{t.manage.add}</IconText>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -130,6 +144,8 @@ export function RouteTabs({ locale, tabs, addHref, t, m, errors }: {
               <Link href={tab.href} className={buttonClass('primary', 'sm')}>
                 <IconText icon={tab.status === 'published' ? 'eye' : 'pencil'}>{tab.status === 'published' ? t.view : t.openDraft}</IconText>
               </Link>
+            ) : tab.ready ? (
+              <DraftFromEpanduan locale={locale} programId={programId} slot={tab.key} label={t.editFromEpanduan} errors={errors} />
             ) : (
               <Link href={tab.startHref} className={buttonClass('accent', 'sm')}>
                 <IconText icon="plus">{t.start}</IconText>
@@ -144,3 +160,26 @@ export function RouteTabs({ locale, tabs, addHref, t, m, errors }: {
     </div>
   );
 }
+
+/** Makes drafts from ePanduan's text (one tab's, or every tab without one) and opens the editor for a single tab. */
+function DraftFromEpanduan({ locale, programId, slot, label, errors }: { locale: Locale; programId: string; slot?: string; label: string; errors: Dictionary['admin']['errors'] }) {
+  const [state, onSubmit, pending] = useFormAction<AdminFormState>(draftFromEpanduan, {});
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col items-end gap-1">
+      <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="programId" value={programId} />
+      {slot && <input type="hidden" name="slot" value={slot} />}
+      <button type="submit" disabled={pending} className={buttonClass(slot ? 'primary' : 'accent', 'sm')}>
+        <IconText icon={slot ? 'pencil' : 'external'} busy={pending}>
+          {label}
+        </IconText>
+      </button>
+      {!pending && state.error && (
+        <p role="alert" className="text-[12px] text-red">
+          {errors[state.error]}
+        </p>
+      )}
+    </form>
+  );
+}
+
