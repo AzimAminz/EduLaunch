@@ -88,6 +88,8 @@ async function Edit({ locale, dict, params }: { locale: Locale; dict: Dictionary
             necFields={necOptions(nec)}
             mode={published ? 'change' : 'draft'}
             values={values}
+            routeNames={dict.requirements.routes}
+            admission={{ entryRouteRows: programme.entryRouteRows, averageMerit: programme.averageMerit }}
             cancelHref={back}
           />
         </FreshOnNavigate>

@@ -385,12 +385,28 @@ export class AdminQueries {
         .where(eq(requirements.programId, id))
         .orderBy(requirements.entryRoute, desc(requirements.versionNo)),
     ]);
-    const routes = await this.db
-      .selectDistinct({ entryRoute: schema.programEntryRoutes.entryRoute })
-      .from(schema.programEntryRoutes)
-      .where(eq(schema.programEntryRoutes.programId, id))
-      .orderBy(schema.programEntryRoutes.entryRoute);
-    return { ...row, fieldIds: fieldRows.map((f) => f.fieldId), requirements: versions, entryRoutes: routes.map((r) => r.entryRoute) };
+    const [routes, [merit]] = await Promise.all([
+      this.db
+        .select({ entryRoute: schema.programEntryRoutes.entryRoute, sourceCategory: schema.programEntryRoutes.sourceCategory })
+        .from(schema.programEntryRoutes)
+        .where(eq(schema.programEntryRoutes.programId, id))
+        .orderBy(schema.programEntryRoutes.entryRoute, schema.programEntryRoutes.sourceCategory),
+      this.db
+        .select({ intakeYear: admissionStats.intakeYear, value: admissionStats.averageMerit })
+        .from(admissionStats)
+        .where(and(eq(admissionStats.programId, id), isNotNull(admissionStats.averageMerit)))
+        .orderBy(desc(admissionStats.intakeYear))
+        .limit(1),
+    ]);
+    return {
+      ...row,
+      fieldIds: fieldRows.map((f) => f.fieldId),
+      requirements: versions,
+      entryRoutes: [...new Set(routes.map((r) => r.entryRoute))],
+      // Each route with the ePanduan category it came from, so the form can keep them when routes are edited.
+      entryRouteRows: routes,
+      averageMerit: merit ? { intakeYear: merit.intakeYear, value: Number(merit.value) } : null,
+    };
   }
 
   /** One requirement version with its rules, and the published version it would replace (to compare). */

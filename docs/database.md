@@ -94,9 +94,11 @@ matrikulasi, diploma…); `source_category` (the ePanduan category, stpm:S).
 
 ### Eligibility (`catalogue`)
 
-**entry_requirement**: one version of a programme's requirements for one route. `program_id`; `entry_route`;
-`version_no`; `review_status`; `source_url` and `source_category` (where it was written from); `prepared_by`;
-`approved_by`; `return_reason`.
+**entry_requirement**: one version of a programme's requirements for one route and one ePanduan candidate category
+(STPM Sains and STPM Sastera can differ; categories with the same text share one requirement). `program_id`;
+`entry_route`; `source_category` (stpm:S; null when written without ePanduan); `version_no`; `review_status`;
+`source_url`; `prepared_by`; `approved_by`; `return_reason`. A student qualifies through whichever category of their
+route they meet.
 
 **requirement_condition**: one line of a requirement. `requirement_id`; `part` (general = Syarat Am, special =
 Syarat Khas); `section` (SPM, STPM, MUET…); `position`; `or_group` (lines with the same number are alternatives,

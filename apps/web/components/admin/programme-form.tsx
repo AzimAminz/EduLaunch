@@ -5,7 +5,8 @@ import { useEffect, useRef, useState, useTransition, type FormEvent, type Keyboa
 import { StudyModes } from '@edulaunch/contracts';
 import { createProgramme, lookupEpanduanProgramme, updateProgramme, type AdminFormState } from '@/lib/admin/actions';
 import type { PendingDetails } from '@/lib/admin/api';
-import { draftFromFound } from '@/lib/admin/epanduan-import';
+import { EntryRoutes } from '@edulaunch/contracts';
+import { differencesFromEpanduan, draftFromFound, entryRoutesFromFound, type EpanduanFormField } from '@/lib/admin/epanduan-import';
 import { STUDY_LEVEL_OPTIONS } from '@/lib/catalogue/presentation';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, TextField } from '@/components/auth/fields';
@@ -34,7 +35,22 @@ interface ProgrammeFormProps {
   values?: PendingDetails & { id: string };
   /** A new programme started from an institution's page: that institution is chosen already. */
   initialInstitutionId?: string;
+  /** Entry routes (with the ePanduan category each came from) and the newest average merit, kept outside `values`. */
+  admission?: { entryRouteRows: RouteRow[]; averageMerit: { intakeYear: number; value: number } | null };
+  /** Names of the entry routes ("Lepasan STPM"). */
+  routeNames: Record<string, string>;
   cancelHref: string;
+}
+
+type RouteRow = { entryRoute: string; sourceCategory: string | null };
+
+/** What ePanduan gives for this programme, in the form's terms. */
+interface FromEpanduan {
+  year: number | null;
+  sourceUrl: string | null;
+  values: Record<EpanduanFormField, unknown>;
+  routes: RouteRow[];
+  merit: number | null;
 }
 
 const URL_PATTERN = /^https?:\/\/\S+$/;
@@ -47,7 +63,7 @@ type Flag = (typeof FLAGS)[number];
  * With a programme code, "fill from ePanduan" fills every step from the last ePanduan reading, for the admin to
  * check; without one (a private college, a programme not on ePanduan) everything is typed in the same fields.
  */
-export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fields, necFields, mode, values, initialInstitutionId, cancelHref }: ProgrammeFormProps) {
+export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fields, necFields, mode, values, initialInstitutionId, admission, routeNames, cancelHref }: ProgrammeFormProps) {
   const f = t.programmeForm;
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(mode === 'new' ? createProgramme : updateProgramme, {});
   const [institutionId, setInstitutionId] = useState(values?.institutionId ?? initialInstitutionId ?? '');
@@ -64,6 +80,10 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   const [fees, setFees] = useState(values?.fees ?? '');
   const [note, setNote] = useState(values?.note ?? '');
   const [flags, setFlags] = useState<Record<Flag, boolean>>(() => Object.fromEntries(FLAGS.map((k) => [k, values?.[k] ?? false])) as Record<Flag, boolean>);
+  const [routeRows, setRouteRows] = useState<RouteRow[]>(admission?.entryRouteRows ?? []);
+  const [merit, setMerit] = useState(admission?.averageMerit ? String(admission.averageMerit.value) : '');
+  const [meritYear, setMeritYear] = useState(admission?.averageMerit ? String(admission.averageMerit.intakeYear) : '');
+  const [epanduan, setEpanduan] = useState<FromEpanduan | null>(null);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [step, setStep] = useState(0);
   /** Problems found before moving to the next step, by field name, as keys of `f.errors`. */
@@ -171,6 +191,68 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
     setFieldIds(suggestField(code, fieldIds));
   };
 
+  const necMap = new Map(necFields.map((n) => [n.value, n.fieldId]));
+  /** The last ePanduan reading of this code, in the form's terms; null when ePanduan does not have it. */
+  const read = async (): Promise<{ status: 'found'; data: FromEpanduan; institutionId: string | null; level: string | null } | { status: 'not_found' | 'unavailable' }> => {
+    const result = await lookupEpanduanProgramme(locale, upu);
+    if (result.status !== 'found') return result;
+    const found = result.programme;
+    const draft = draftFromFound({ ...found, level: found.level ?? (level as never) }, necMap);
+    const data: FromEpanduan = {
+      year: found.year,
+      sourceUrl: draft.sourceUrl,
+      values: { ...Object.fromEntries(FLAGS.map((k) => [k, draft[k]])), name: draft.name, durationSemesters: draft.durationSemesters, necCode: draft.necCode, studyMode: draft.studyMode, campuses: draft.campuses, careers: draft.careers, fees: draft.fees, note: draft.note } as Record<EpanduanFormField, unknown>,
+      routes: entryRoutesFromFound(found),
+      merit: found.merit,
+    };
+    return { status: 'found', data, institutionId: result.institutionId, level: found.level };
+  };
+  // An existing programme with a code is compared with ePanduan when the form opens, so differences show by each field.
+  useEffect(() => {
+    if (mode === 'new' || !values?.programCode) return;
+    let live = true;
+    read().then((r) => live && r.status === 'found' && setEpanduan(r.data)).catch(() => null);
+    return () => {
+      live = false;
+    };
+    // Once, for the stored code.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Takes ePanduan's value for one field. */
+  const use = (field: EpanduanFormField | 'routes' | 'merit', data = epanduan) => {
+    if (!data) return;
+    const v = data.values;
+    switch (field) {
+      case 'name':
+        return setName(String(v.name));
+      case 'durationSemesters':
+        return v.durationSemesters && setDuration(String(v.durationSemesters));
+      case 'necCode':
+        if (!v.necCode) return;
+        setNecCode(String(v.necCode));
+        return setFieldIds((ids) => suggestField(String(v.necCode), ids));
+      case 'studyMode':
+        return v.studyMode && setStudyMode(String(v.studyMode));
+      case 'campuses':
+        return setCampuses(v.campuses as string[]);
+      case 'careers':
+        return setCareers(v.careers as string[]);
+      case 'fees':
+        return setFees(String(v.fees ?? ''));
+      case 'note':
+        return setNote(String(v.note ?? ''));
+      case 'routes':
+        return data.routes.length && setRouteRows(data.routes);
+      case 'merit':
+        if (data.merit === null) return;
+        setMerit(String(data.merit));
+        return data.year && setMeritYear(String(data.year));
+      default:
+        return setFlags((x) => ({ ...x, [field]: Boolean(v[field]) }));
+    }
+  };
+
   /** Fills every step from the last ePanduan reading of this code; what ePanduan does not give is left as it is. */
   const fill = () => {
     if (!upu.trim()) {
@@ -178,32 +260,69 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
       return;
     }
     startFill(async () => {
-      const result = await lookupEpanduanProgramme(locale, upu);
+      const result = await read();
       if (result.status !== 'found') {
         setFillNote({ tone: 'warn', text: result.status === 'unavailable' ? f.fill.unavailable : f.fill.notFound });
         return;
       }
-      const found = result.programme;
-      const draft = draftFromFound({ ...found, level: found.level ?? (level as never) }, new Map(necFields.map((n) => [n.value, n.fieldId])));
-      setName(draft.name);
-      if (canPlace && found.level) setLevel(found.level);
+      if (canPlace && result.level) setLevel(result.level);
       if (canPlace && result.institutionId && !institutionId) setInstitutionId(result.institutionId);
-      if (draft.durationSemesters) setDuration(String(draft.durationSemesters));
-      if (draft.necCode) {
-        setNecCode(draft.necCode);
-        setFieldIds(suggestField(draft.necCode, fieldIds));
-      }
-      if (draft.studyMode) setStudyMode(draft.studyMode);
-      if (draft.campuses.length) setCampuses(draft.campuses);
-      if (draft.careers.length) setCareers(draft.careers);
-      if (draft.fees) setFees(draft.fees);
-      if (draft.note) setNote(draft.note);
-      if (draft.sourceUrl) setSource(draft.sourceUrl);
-      setFlags(Object.fromEntries(FLAGS.map((k) => [k, draft[k]])) as Record<Flag, boolean>);
+      for (const field of [...(Object.keys(result.data.values) as EpanduanFormField[]), 'routes', 'merit'] as const) use(field, result.data);
+      if (result.data.sourceUrl) setSource(result.data.sourceUrl);
+      setEpanduan(result.data);
       setStepErrors({});
-      setFillNote({ tone: 'ok', text: found.year ? format(f.fill.done, { year: found.year }) : f.fill.doneNoYear });
+      setFillNote({ tone: 'ok', text: result.data.year ? format(f.fill.done, { year: result.data.year }) : f.fill.doneNoYear });
     });
   };
+
+  // Where the form differs from ePanduan (shown by each field, and counted at the top).
+  const current: Record<EpanduanFormField, unknown> = {
+    ...flags,
+    name,
+    durationSemesters: duration ? Number(duration) : null,
+    necCode: necCode || null,
+    studyMode: studyMode || null,
+    campuses,
+    careers,
+    fees: fees || null,
+    note: note || null,
+  };
+  const routeKey = (rows: RouteRow[]) => [...new Set(rows.map((r) => r.entryRoute))].sort().join(',');
+  const differs = new Set<EpanduanFormField | 'routes' | 'merit'>(epanduan ? differencesFromEpanduan(current, epanduan.values) : []);
+  if (epanduan?.routes.length && routeKey(epanduan.routes) !== routeKey(routeRows)) differs.add('routes');
+  if (epanduan?.merit !== null && epanduan?.merit !== undefined && Number(merit) !== epanduan.merit) differs.add('merit');
+  const fieldName: Record<EpanduanFormField | 'routes' | 'merit', string> = {
+    name: f.name,
+    durationSemesters: f.duration,
+    necCode: f.nec,
+    studyMode: f.studyMode,
+    campuses: f.campuses,
+    hasInterview: f.interview,
+    bumiputeraOnly: f.bumiputera,
+    isStem: f.stem,
+    isTvet: f.tvet,
+    jointDegree: f.jointDegree,
+    feeder: f.feeder,
+    careers: f.careers,
+    fees: f.fees,
+    note: f.note,
+    routes: f.entryRoutes,
+    merit: f.merit,
+  };
+  /** ePanduan's value for one field, as words. */
+  const shown = (field: EpanduanFormField | 'routes' | 'merit'): string => {
+    if (!epanduan) return '';
+    if (field === 'routes') return [...new Set(epanduan.routes.map((r) => routeNames[r.entryRoute] ?? r.entryRoute))].join(', ');
+    if (field === 'merit') return `${epanduan.merit}${epanduan.year ? ` (${epanduan.year})` : ''}`;
+    const v = epanduan.values[field];
+    if (typeof v === 'boolean') return v ? t.programme.values.yes : t.programme.values.no;
+    if (Array.isArray(v)) return v.join(field === 'campuses' ? '; ' : ', ');
+    if (field === 'studyMode' && v) return f.studyModes[v as keyof typeof f.studyModes];
+    if (field === 'necCode' && v) return necFields.find((n) => n.value === v)?.label ?? String(v);
+    return String(v ?? '');
+  };
+  const hint = (field: EpanduanFormField | 'routes' | 'merit') =>
+    differs.has(field) ? <EpanduanHint label={f.fill.differs} value={shown(field)} use={f.fill.use} onUse={() => use(field)} /> : null;
   const required = (label: string) => `${label} *`;
 
   return (
@@ -228,6 +347,13 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
           {FLAGS.filter((k) => flags[k]).map((k) => (
             <input key={k} type="hidden" name={k} value="on" />
           ))}
+          {/* Entry routes and merit are saved with the programme (they apply at once, like an import). */}
+          <input type="hidden" name="admission" value="1" />
+          {routeRows.map((r) => (
+            <input key={`${r.entryRoute}|${r.sourceCategory ?? ''}`} type="hidden" name="entryRouteRows" value={`${r.entryRoute}|${r.sourceCategory ?? ''}`} />
+          ))}
+          <input type="hidden" name="averageMerit" value={merit} />
+          <input type="hidden" name="meritYear" value={meritYear} />
         </>
       )}
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
@@ -324,9 +450,25 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
                 {fillNote.text}
               </p>
             )}
+            {!fillNote && differs.size > 0 && (
+              <div role="status" className="flex flex-wrap items-center gap-3 rounded-[12px] border border-[#e0a800]/50 bg-cream px-4 py-3 text-sm">
+                <AdminIcon name="info" size={18} className="shrink-0" />
+                <span className="flex-1">
+                  {format(f.fill.summary, { count: differs.size, year: epanduan?.year ?? '' })} <span className="font-semibold">{[...differs].map((k) => fieldName[k]).join(', ')}</span>
+                </span>
+                <button type="button" onClick={fill} disabled={filling} className={buttonClass('secondary', 'sm')}>
+                  <IconText icon="external" busy={filling}>
+                    {f.fill.useAll}
+                  </IconText>
+                </button>
+              </div>
+            )}
           </div>
         )}
-        <TextField name="name" label={required(f.name)} placeholder={f.namePlaceholder} value={name} onChange={(e) => setName(e.target.value)} maxLength={160} error={fieldError('name')} />
+        <div className="flex flex-col gap-1.5">
+          <TextField name="name" label={required(f.name)} placeholder={f.namePlaceholder} value={name} onChange={(e) => setName(e.target.value)} maxLength={160} error={fieldError('name')} />
+          {hint('name')}
+        </div>
         {!isStream && (
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField name="internalCode" label={f.internalCode} placeholder={f.internalPlaceholder} defaultValue={values?.internalCode ?? ''} maxLength={20} />
@@ -339,6 +481,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
         {!isStream && (
           <div className="flex flex-col gap-2">
             <Dropdown label={f.nec} value={necCode} onChange={chooseNec} options={necFields} placeholder={f.necPlaceholder} noMatchesLabel={noMatches} />
+            {hint('necCode')}
             <p className="text-[13px] text-muted">{f.necHint}</p>
           </div>
         )}
@@ -365,6 +508,8 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
             />
           )}
         </div>
+        {hint('durationSemesters')}
+        {hint('studyMode')}
         {!isStream && (
           <ListInput
             id="campuses"
@@ -379,6 +524,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
             remove={f.removeItem}
           />
         )}
+        {!isStream && hint('campuses')}
         <div className="flex flex-col gap-2">
           <Dropdown
             label={f.fields}
@@ -417,7 +563,40 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
               />
             ))}
           </div>
+          {FLAGS.filter((k) => differs.has(k)).map((k) => (
+            <EpanduanHint key={k} label={`${fieldName[k]} · ${f.fill.differs}`} value={shown(k)} use={f.fill.use} onUse={() => use(k)} />
+          ))}
           <p className="text-[13px] text-muted">{f.flagsHint}</p>
+
+          {/* Entry routes and the average merit: from ePanduan's candidate lists, kept with the programme. */}
+          <div className="flex flex-col gap-2 border-t border-line pt-4">
+            <p className="text-sm font-semibold">{f.entryRoutes}</p>
+            <div className="flex flex-wrap gap-2">
+              {EntryRoutes.map((route) => {
+                const on = routeRows.some((r) => r.entryRoute === route);
+                return (
+                  <button
+                    key={route}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setRouteRows((rows) => (on ? rows.filter((r) => r.entryRoute !== route) : [...rows, { entryRoute: route, sourceCategory: null }]))}
+                    className={`rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                      on ? 'border-navy bg-navy text-white' : 'border-line bg-white text-navy hover:bg-bg'
+                    }`}
+                  >
+                    {routeNames[route] ?? route}
+                  </button>
+                );
+              })}
+            </div>
+            {hint('routes')}
+            <p className="text-[13px] text-muted">{f.entryRoutesHint}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <TextField name="meritInput" label={f.merit} inputMode="decimal" value={merit} onChange={(e) => setMerit(e.target.value.replace(/[^\d.]/g, ''))} placeholder="83.29" hint={f.meritHint} />
+            <TextField name="meritYearInput" label={f.meritYear} inputMode="numeric" value={meritYear} onChange={(e) => setMeritYear(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="2026" />
+          </div>
+          {hint('merit')}
         </Section>
       )}
 
@@ -435,8 +614,11 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
             add={f.addItem}
             remove={f.removeItem}
           />
+          {hint('careers')}
           <Area name="fees" label={f.fees} placeholder={f.feesPlaceholder} value={fees} onChange={setFees} max={1000} />
+          {hint('fees')}
           <Area name="note" label={f.note} placeholder={f.notePlaceholder} value={note} onChange={setNote} max={2000} />
+          {hint('note')}
           <TextField
             name="sourceUrl"
             label={f.sourceUrl}
@@ -602,3 +784,17 @@ function ListInput({ id, label, placeholder, hint, items, onChange, most, max, a
     </div>
   );
 }
+
+/** "ePanduan: <value>  [Use]" under a field whose value differs from ePanduan's. */
+function EpanduanHint({ label, value, use, onUse }: { label: string; value: string; use: string; onUse: () => void }) {
+  return (
+    <p className="flex flex-wrap items-start gap-2 rounded-[10px] bg-cream/70 px-3 py-2 text-[13px]">
+      <span className="font-semibold">{label}</span>
+      <span className="min-w-0 flex-1 break-words">{value.length > 220 ? `${value.slice(0, 220)}…` : value}</span>
+      <button type="button" onClick={onUse} className="shrink-0 rounded-md px-2 py-0.5 font-semibold text-navy underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40">
+        {use}
+      </button>
+    </p>
+  );
+}
+

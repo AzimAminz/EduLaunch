@@ -56,6 +56,7 @@ async function NewProgramme({ locale, dict, searchParams }: { locale: Locale; di
             necFields={necOptions(nec)}
             initialInstitutionId={from?.id}
             mode="new"
+            routeNames={dict.requirements.routes}
             cancelHref={from ? `/${locale}/admin/institusi/${from.id}?tab=program` : `/${locale}/admin/program`}
             fields={reference.fields.map((f) => ({ value: f.id, label: fieldName(f, locale) })).sort((a, b) => a.label.localeCompare(b.label, locale))}
           />

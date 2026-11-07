@@ -11,6 +11,7 @@ import { RouteTabs, type RouteTab } from '@/components/admin/route-tabs';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail } from '@/lib/admin/api';
+import { differencesFromEpanduan, draftFromFound, type EpanduanFormField } from '@/lib/admin/epanduan-import';
 import { requirementSlots } from '@/lib/admin/requirement-slots';
 import { programmeWorkflow } from '@/lib/admin/programme-workflow';
 import { fieldName, getReferenceData } from '@/lib/catalogue/api';
@@ -166,6 +167,11 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
           {programme.pendingChanges && (
             <ProgrammeChanges live={live} proposed={programme.pendingChanges} dict={dict} names={names} by={who(programme.pendingPreparedBy, me, t)} />
           )}
+          {workflow.canEdit && programme.programCode && (
+            <Suspense fallback={null}>
+              <EpanduanDifferences locale={locale} dict={dict} programme={programme} details={programme.pendingChanges ?? live} />
+            </Suspense>
+          )}
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="flex items-center gap-2 text-lg font-semibold">
@@ -267,6 +273,53 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
       </div>
       {found ? <FoundDetailsBody programme={found} special={special} m={m} requirements={byRoute} /> : byRoute}
     </Card>
+  );
+}
+
+/**
+ * Where the catalogue's details differ from the last ePanduan reading (careers, fees, campuses…), with the way to
+ * take ePanduan's values: the edit form shows each difference by its field.
+ */
+async function EpanduanDifferences({ locale, dict, programme, details }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; details: PendingDetails }) {
+  let found;
+  let nec;
+  try {
+    const token = (await getAccessToken())!;
+    [[found], nec] = await Promise.all([listFoundProgrammes(token, [programme.programCode!]), listNecFields(token)]);
+  } catch {
+    return null;
+  }
+  if (!found?.level) return null;
+  const draft = draftFromFound(found, new Map(nec.map((n) => [n.code, n.fieldId])));
+  const fields = differencesFromEpanduan(details as unknown as Record<EpanduanFormField, unknown>, draft as unknown as Record<EpanduanFormField, unknown>);
+  if (fields.length === 0) return null;
+  const f = dict.admin.programmeForm;
+  const label: Record<EpanduanFormField, string> = {
+    name: f.name,
+    durationSemesters: f.duration,
+    necCode: f.nec,
+    studyMode: f.studyMode,
+    campuses: f.campuses,
+    hasInterview: f.interview,
+    bumiputeraOnly: f.bumiputera,
+    isStem: f.stem,
+    isTvet: f.tvet,
+    jointDegree: f.jointDegree,
+    feeder: f.feeder,
+    careers: f.careers,
+    fees: f.fees,
+    note: f.note,
+  };
+  return (
+    <div role="status" className="flex flex-wrap items-center gap-3 rounded-[14px] border border-[#e0a800]/50 bg-cream px-4 py-3 text-sm">
+      <AdminIcon name="info" size={18} className="shrink-0" />
+      <span className="flex-1">
+        {format(f.fill.summary, { count: fields.length, year: found.year ?? '' })} <span className="font-semibold">{fields.map((k) => label[k]).join(', ')}</span>
+      </span>
+      <Link href={`/${locale}/admin/program/${programme.id}/sunting`} className={buttonClass('secondary', 'sm')}>
+        <IconText icon="pencil">{f.fill.review}</IconText>
+      </Link>
+    </div>
   );
 }
 

@@ -94,7 +94,9 @@ function foundValues(f: FoundProgramme, knownNec: ReadonlySet<string>): Record<C
 }
 
 const same = (a: unknown, b: unknown) => {
-  if (Array.isArray(a) && Array.isArray(b)) return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+  // Lists in any order, and words in any case ("Utm Johor Bahru" is "UTM Johor Bahru").
+  const key = (x: unknown[]) => JSON.stringify(x.map((v) => (typeof v === 'string' ? v.trim().toLocaleLowerCase() : v)).sort());
+  if (Array.isArray(a) && Array.isArray(b)) return key(a) === key(b);
   return typeof a === 'string' && typeof b === 'string' ? a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase() : a === b;
 };
 
@@ -179,3 +181,32 @@ export const entryRoutesFromFound = (f: FoundProgramme) =>
 
 /** Whether a changed row only needs its entry routes saved (the programme's own details are the same). */
 export const onlyRoutesChanged = (row: ImportRow) => row.changes.length > 0 && row.changes.every((c) => c === 'entryRoutes');
+
+/** The programme form's fields that ePanduan also gives, in the form's order. */
+export const EpanduanFormFields = [
+  'name',
+  'durationSemesters',
+  'necCode',
+  'studyMode',
+  'campuses',
+  'hasInterview',
+  'bumiputeraOnly',
+  'isStem',
+  'isTvet',
+  'jointDegree',
+  'feeder',
+  'careers',
+  'fees',
+  'note',
+] as const;
+export type EpanduanFormField = (typeof EpanduanFormFields)[number];
+
+/**
+ * The form fields whose value differs from what ePanduan gives. A value ePanduan leaves empty never counts (the admin
+ * may have filled it from another source).
+ */
+export function differencesFromEpanduan(current: Record<EpanduanFormField, unknown>, fromEpanduan: Record<EpanduanFormField, unknown>): EpanduanFormField[] {
+  const empty = (v: unknown) => v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0);
+  return EpanduanFormFields.filter((k) => !empty(fromEpanduan[k]) && !same(current[k] ?? null, fromEpanduan[k]) && !(empty(current[k]) && fromEpanduan[k] === false));
+}
+

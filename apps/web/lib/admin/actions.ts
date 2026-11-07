@@ -215,21 +215,33 @@ export async function createProgramme(_prev: AdminFormState, form: FormData): Pr
   } catch (err) {
     return { error: errorKey(err) };
   }
-  // Typed by hand with an ePanduan code: keep what an import would (entry routes, average merit), so the programme
-  // gets its route tabs and requirements from ePanduan just like an imported one.
-  if (details.programCode) await keepEpanduanFacts(token, id, details.programCode).catch(() => null);
+  await saveAdmission(token, id, form).catch(() => null);
+  // Typed with an ePanduan code: Syarat Khas is read in the background, as for accepted programmes.
+  if (details.programCode) await api.readSpecialRequirements(token, details.programCode.slice(0, 2), [details.programCode]).catch(() => null);
   refresh();
   redirect(`/${locale}/admin/program/${id}`);
 }
 
-async function keepEpanduanFacts(token: string, id: string, code: string) {
-  const [found] = await api.listFoundProgrammes(token, [code]);
-  if (!found) return;
-  const routes = entryRoutesFromFound(found);
-  if (routes.length) await api.setEntryRoutes(token, id, routes);
-  if (found.merit !== null && found.year) await api.recordAverageMerit(token, id, { intakeYear: found.year, averageMerit: found.merit });
-  // Syarat Khas, read in the background as for accepted programmes.
-  await api.readSpecialRequirements(token, code.slice(0, 2), [code]).catch(() => null);
+/**
+ * Entry routes ("route|category" values) and the average merit from the programme form. They apply at once, as an
+ * import does; the programme's own details go through review.
+ */
+async function saveAdmission(token: string, id: string, form: FormData) {
+  if (!form.has('admission')) return;
+  const rows = form
+    .getAll('entryRouteRows')
+    .map(String)
+    .map((v) => {
+      const [entryRoute = '', category = ''] = v.split('|');
+      return { entryRoute, sourceCategory: CATEGORY.test(category) ? category : null };
+    })
+    .filter((r) => isEntryRoute(r.entryRoute));
+  await api.setEntryRoutes(token, id, rows);
+  const merit = Number(text(form, 'averageMerit'));
+  const year = Number(text(form, 'meritYear'));
+  if (text(form, 'averageMerit') && merit >= 0 && merit <= 100 && Number.isInteger(year) && year >= 2000 && year <= 2100) {
+    await api.recordAverageMerit(token, id, { intakeYear: year, averageMerit: merit });
+  }
 }
 
 export type EpanduanLookup =
@@ -269,6 +281,7 @@ export async function updateProgramme(_prev: AdminFormState, form: FormData): Pr
   const token = await adminToken(locale);
   try {
     await api.updateProgramme(token, id, { ...details, ...placement });
+    await saveAdmission(token, id, form);
   } catch (err) {
     return { error: errorKey(err) };
   }

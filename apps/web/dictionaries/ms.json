@@ -496,8 +496,18 @@
         "doneNoYear": "Diisi dari ePanduan. Semak setiap langkah, kemudian simpan.",
         "notFound": "Kod ini belum ada dalam data ePanduan yang dibaca. Buka tab Import pada institusinya dan tekan \"Semak semula\", atau isi sendiri.",
         "unavailable": "Data ePanduan tidak dapat dibuka sekarang. Cuba lagi sebentar, atau isi sendiri.",
-        "institution": "Institusi dipilih daripada kod program."
-      }
+        "institution": "Institusi dipilih daripada kod program.",
+        "differs": "ePanduan:",
+        "use": "Guna",
+        "useAll": "Guna semua",
+        "summary": "{count} medan berbeza dengan ePanduan ({year}):",
+        "review": "Semak dan kemas kini"
+      },
+      "entryRoutes": "Laluan masuk",
+      "entryRoutesHint": "Laluan calon yang diterima program ini, seperti senarai kategori di ePanduan. Disimpan terus (tidak perlu semakan admin lain).",
+      "merit": "Purata markah merit",
+      "meritYear": "Tahun data merit",
+      "meritHint": "Seperti di ePanduan, contohnya 83.29."
     },
     "programme": {
       "back": "← Semua program",

@@ -180,6 +180,10 @@ const ProgrammeDetail = ProgrammeFacts.extend({
   fieldIds: z.array(z.uuid()),
   requirements: z.array(RequirementVersion),
   entryRoutes: z.array(z.string()).default([]),
+  /** Each entry route with the ePanduan category it came from. */
+  entryRouteRows: z.array(z.object({ entryRoute: z.string(), sourceCategory: z.string().nullable() })).default([]),
+  /** The newest average merit an official source published. */
+  averageMerit: z.object({ intakeYear: z.number(), value: z.number() }).nullable().default(null),
 });
 export type ProgrammeDetail = z.infer<typeof ProgrammeDetail>;
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { FoundProgramme, InstitutionProgramme } from './api';
-import { acceptable, careerList, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
+import { acceptable, careerList, compareFound, differencesFromEpanduan, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
 
 const found = (over: Partial<FoundProgramme> = {}): FoundProgramme => ({
   code: 'UC6522001',
@@ -157,6 +157,19 @@ describe('careerList', () => {
     expect(draftFromFound(found({ careers: 'JURUTERA, USAHAWAN' }), NEC_FIELD)).toMatchObject({ careers: ['Jurutera', 'Usahawan'], note: null });
     const prose = 'Graduan boleh bekerja dalam pelbagai sektor awam dan swasta sebagai pegawai yang menguruskan pembangunan tanah.';
     expect(draftFromFound(found({ careers: prose, note: 'Kampus KL.' }), NEC_FIELD)).toMatchObject({ careers: [], note: `Kampus KL.\n\n${prose}` });
+  });
+});
+
+describe('differencesFromEpanduan', () => {
+  const base = { name: 'Diploma Sains', durationSemesters: 6, necCode: '0613', studyMode: 'conventional', campuses: ['Kampus Induk'], hasInterview: false, bumiputeraOnly: false, isStem: true, isTvet: false, jointDegree: false, feeder: false, careers: ['Jurutera'], fees: 'RM1,000', note: null };
+
+  it('lists the fields that differ, case and order aside', () => {
+    expect(differencesFromEpanduan(base, { ...base, name: 'DIPLOMA SAINS', campuses: ['KAMPUS INDUK'] })).toEqual([]);
+    expect(differencesFromEpanduan({ ...base, careers: [], fees: null }, base)).toEqual(['careers', 'fees']);
+  });
+
+  it('ignores what ePanduan leaves empty', () => {
+    expect(differencesFromEpanduan({ ...base, note: 'Kampus KL.' }, base)).toEqual([]);
   });
 });
 

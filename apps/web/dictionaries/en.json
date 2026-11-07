@@ -496,8 +496,18 @@
         "doneNoYear": "Filled from ePanduan. Check each step, then save.",
         "notFound": "This code is not in the ePanduan data read so far. Open its institution's Import tab and press \"Check again\", or fill it in yourself.",
         "unavailable": "ePanduan data cannot be opened right now. Try again shortly, or fill it in yourself.",
-        "institution": "Institution chosen from the programme code."
-      }
+        "institution": "Institution chosen from the programme code.",
+        "differs": "ePanduan:",
+        "use": "Use",
+        "useAll": "Use all",
+        "summary": "{count} fields differ from ePanduan ({year}):",
+        "review": "Review and update"
+      },
+      "entryRoutes": "Entry routes",
+      "entryRoutesHint": "The candidate routes this programme takes, as ePanduan's category lists show. Saved at once (no second admin needed).",
+      "merit": "Average merit score",
+      "meritYear": "Merit data year",
+      "meritHint": "As on ePanduan, for example 83.29."
     },
     "programme": {
       "back": "← All programmes",
