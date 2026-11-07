@@ -9,6 +9,7 @@ from content_service.domain.epanduan import (
     parse_duration_semesters,
     parse_merit,
     parse_nec,
+    spell_names,
     study_level,
     study_mode,
     title_case,
@@ -43,6 +44,16 @@ def test_names_are_title_cased_with_small_words_and_acronyms_kept():
     )
     assert title_case("SARJANA MUDA PENDIDIKAN (TESL) DENGAN KEPUJIAN") == "Sarjana Muda Pendidikan (TESL) dengan Kepujian"
     assert title_case("ASASI SAINS / FOUNDATION IN SCIENCE") == "Asasi Sains / Foundation in Science"
+    assert title_case("SARJANA MUDA KEJURUTERAAN SISTEM ELEKTRONIK DENGAN KEPUJIAN (MJIIT, UTM KL)") == (
+        "Sarjana Muda Kejuruteraan Sistem Elektronik dengan Kepujian (MJIIT, UTM KL)"
+    )
+
+
+def test_university_and_technical_names_are_spelt_as_they_are_written():
+    assert spell_names("Utm Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur") == "UTM Kuala Lumpur, Wilayah Persekutuan Kuala Lumpur"
+    assert spell_names("Uitm Shah Alam") == "UiTM Shah Alam"
+    assert spell_names("R&d Electronics Engineer") == "R&D Electronics Engineer"
+    assert spell_names("Kampus Induk, Melaka") == "Kampus Induk, Melaka"
 
 
 def test_levels_and_modes_map_to_edulaunch_values():
@@ -70,6 +81,8 @@ def test_reads_a_degree_list_page_by_its_labels():
     assert first.note is None
     assert first.routes == ["stpm"]
     assert first.fees.startswith("Yuran Pengajian adalah ditetapkan oleh pihak UA/IPTA")
+    # One line per line break on the page, so careers listed without commas stay apart.
+    assert page.programmes[1].careers.splitlines() == ["JURUTERA,USAHAWAN,", "JABATAN KERAJAAN,", "PENDIDIK/TENAGA PENGAJAR,", "JURUTERA REKABENTUK DAN PENYELIDIKAN"]
     general = first.categories[0].general_requirements
     assert general.splitlines()[:3] == [
         "SPM",

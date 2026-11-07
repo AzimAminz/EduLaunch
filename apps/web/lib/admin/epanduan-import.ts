@@ -45,18 +45,23 @@ export interface ImportComparison {
   counts: Record<ImportStatus | 'missing', number>;
 }
 
+/** Words kept as they are spelt when a career written in capitals is put in sentence case. */
+const SPELLED = new Map(['R&D', 'IoT', 'PCB', 'RF', 'IT', 'ICT', 'AI', 'HR', 'UI', 'UX', 'CEO', 'QA', 'QC'].map((w) => [w.toUpperCase(), w]));
+
 /**
- * "PENILAI HARTA TANAH, PENGURUS ASET, SERTA PENASIHAT PELABURAN." → ["Penilai harta tanah", "Pengurus aset",
- * "Penasihat pelaburan"]. Null when the text is prose rather than a list.
+ * "PENILAI HARTA TANAH, PENGURUS ASET, SERTA PENASIHAT PELABURAN." (or one career per line) → ["Penilai harta tanah",
+ * "Pengurus aset", "Penasihat pelaburan"]. Null when the text is prose rather than a list.
  */
 export function careerList(text: string | null): string[] | null {
   if (!text) return null;
   const parts = text
-    .split(/\s*[,;]\s*/)
+    .split(/\s*[,;\n]\s*/)
     .map((p) => p.trim().replace(/^(serta|dan|and)\s+/i, '').replace(/\.$/, '').trim())
     .filter(Boolean);
   if (parts.length < 2 || parts.some((p) => p.length > 60)) return null;
-  return parts.map((p) => (p === p.toUpperCase() ? p.charAt(0) + p.slice(1).toLowerCase() : p));
+  const sentence = (p: string) =>
+    (p.charAt(0) + p.slice(1).toLowerCase()).replace(/[A-Za-z&]+/g, (w) => SPELLED.get(w.toUpperCase()) ?? w);
+  return [...new Set(parts.map((p) => (p === p.toUpperCase() ? sentence(p) : p)))];
 }
 
 /** Careers to keep, and the text to keep as a note when ePanduan wrote them as prose. */

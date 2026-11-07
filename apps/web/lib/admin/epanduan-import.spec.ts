@@ -145,6 +145,10 @@ describe('careerList', () => {
     expect(careerList('PENILAI HARTA TANAH, PENGURUS ASET, SERTA PENASIHAT PELABURAN HARTA TANAH.')).toEqual(['Penilai harta tanah', 'Pengurus aset', 'Penasihat pelaburan harta tanah']);
   });
 
+  it('splits careers given one per line, keeping names such as R&D', () => {
+    expect(careerList('JURUTERA,USAHAWAN,\nJABATAN KERAJAAN,\nR&D ELECTRONICS ENGINEER\nIOT ENGINEER')).toEqual(['Jurutera', 'Usahawan', 'Jabatan kerajaan', 'R&D electronics engineer', 'IoT engineer']);
+  });
+
   it('keeps prose as prose', () => {
     expect(careerList('Graduan boleh bekerja dalam pelbagai sektor awam dan swasta sebagai pegawai yang menguruskan pembangunan tanah.')).toBeNull();
   });

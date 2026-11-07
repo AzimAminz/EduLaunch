@@ -25,6 +25,7 @@ from ..domain.epanduan import (
     parse_merit,
     parse_nec,
     parse_yes_no,
+    spell_names,
     study_level,
     study_mode,
     title_case,
@@ -91,7 +92,11 @@ def result_count(html: str) -> int:
 
 
 def parse_listing(
-    html: str, jenprog: str | None = None, category: str | None = None, source_url: str | None = None, page: int | None = None
+    html: str,
+    jenprog: str | None = None,
+    category: str | None = None,
+    source_url: str | None = None,
+    page: int | None = None,
 ) -> ListingPage:
     total = result_count(html)
     blocks = html.split(_CARD_START)[1:]
@@ -147,9 +152,11 @@ def _programme(block_html: str, jenprog: str | None, category: str | None, sourc
         name_marks=marks,
         note=details.get("catatan") or None,
         campuses=_campuses(panels.get("kampus")),
-        careers=panels.get("laluan kerjaya"),
-        fees=panels.get("yuran pengajian") or None,
-        categories=[FoundCategory(jenprog, category, requirement_text(general.html if general else None))] if jenprog and category else [],
+        careers=_careers(panels.get("laluan kerjaya")),
+        fees=clean_text(panels.get("yuran pengajian")) or None,
+        categories=[FoundCategory(jenprog, category, requirement_text(general.html if general else None))]
+        if jenprog and category
+        else [],
         source_url=source_url,
     )
 
@@ -160,7 +167,9 @@ def _labelled_values(tree: Node) -> dict[str, str]:
     for label in tree.css(".executive-data-label"):
         key = (_text(label) or "").upper()
         value = label.next
-        while value is not None and not (value.tag == "span" and "executive-data-value" in (value.attributes.get("class") or "")):
+        while value is not None and not (
+            value.tag == "span" and "executive-data-value" in (value.attributes.get("class") or "")
+        ):
             value = value.next
         if key and value is not None:
             values[key] = _text(value) or ""
@@ -193,11 +202,21 @@ def _panels(tree: Node) -> dict[str, str]:
         if body is None or key in panels:
             continue
         header = body.css_first(".compact-modal-header")
-        text = _text(body) or ""
-        if header is not None:
-            text = text.replace(_text(header) or "", "", 1)
-        panels[key] = clean_text(text) or ""
+        # Line by line, so items separated only by line breaks (careers) stay apart.
+        skip = {clean_text(x) for x in (header.text(separator="\n").split("\n") if header is not None else [])}
+        lines = [
+            line for line in (clean_text(x) for x in body.text(separator="\n").split("\n")) if line and line not in skip
+        ]
+        panels[key] = "\n".join(lines)
     return panels
+
+
+def _careers(text: str | None) -> str | None:
+    """Careers as ePanduan lists them, one line per line break (commas are left for the reader to split), with names
+    such as R&D spelt right."""
+    if not text:
+        return None
+    return "\n".join(spell_names(line) for line in text.split("\n") if line) or None
 
 
 def _campuses(text: str | None) -> list[str]:
@@ -205,4 +224,4 @@ def _campuses(text: str | None) -> list[str]:
     if not text:
         return []
     parts = [clean_text(p) for p in re.split(r"(?:^|\s)-\s", " " + text)]
-    return [p for p in parts if p]
+    return [spell_names(p) for p in parts if p]

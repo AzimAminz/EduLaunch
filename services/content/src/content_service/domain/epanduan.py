@@ -55,9 +55,78 @@ PROGRAMME_CODE = re.compile(r"^[A-Z]{2}\d{7}$")
 
 # Words kept in lower case inside a title-cased name (Malay and English).
 _SMALL_WORDS = frozenset(
-    ["dan", "dengan", "di", "dalam", "untuk", "bagi", "atau", "serta", "ke", "kepada", "daripada", "dari", "secara", "of", "and", "in", "the", "for", "with", "on", "to"]
+    [
+        "dan",
+        "dengan",
+        "di",
+        "dalam",
+        "untuk",
+        "bagi",
+        "atau",
+        "serta",
+        "ke",
+        "kepada",
+        "daripada",
+        "dari",
+        "secara",
+        "of",
+        "and",
+        "in",
+        "the",
+        "for",
+        "with",
+        "on",
+        "to",
+    ]
 )
 _ACRONYMS = frozenset(["ICT", "IT", "TESL", "TVET", "STEM", "AI", "UA", "IPTA", "MBBS", "IB", "BSC", "HR"])
+
+# Names written in capitals on ePanduan, or in title case where they should not be ("Utm Kl"), as they are spelt.
+_SPELLED = {
+    w.upper(): w
+    for w in [
+        "UTM",
+        "UKM",
+        "UPM",
+        "USM",
+        "UM",
+        "UUM",
+        "UMS",
+        "UNIMAS",
+        "UTHM",
+        "UTeM",
+        "UMP",
+        "UMPSA",
+        "UniSZA",
+        "UPSI",
+        "UMT",
+        "UMK",
+        "UPNM",
+        "UniMAP",
+        "USIM",
+        "UiTM",
+        "UIAM",
+        "UIA",
+        "MJIIT",
+        "KL",
+        "KPM",
+        "IPTS",
+        "ILKA",
+        "MUET",
+        "SPM",
+        "STPM",
+        "R&D",
+        "IoT",
+        "PCB",
+        "RF",
+        "UTM-MJIIT",
+    ]
+}
+
+
+def spell_names(text: str) -> str:
+    """'Utm Kuala Lumpur' -> 'UTM Kuala Lumpur', '(Mjiit, Utm Kl)' -> '(MJIIT, UTM KL)'; other words as they are."""
+    return re.sub(r"[A-Za-z&-]+", lambda m: _SPELLED.get(m.group(0).upper(), m.group(0)), text)
 
 
 def clean_text(value: str | None) -> str | None:
@@ -78,6 +147,8 @@ def title_case(value: str) -> str:
 
     def word(w: str, first: bool) -> str:
         core = w.strip("()[],.;:/")
+        if core.upper() in _SPELLED:
+            return w.replace(core, _SPELLED[core.upper()])
         if core.upper() in _ACRONYMS:
             return w.upper()
         lower = w.lower()
