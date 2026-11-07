@@ -113,12 +113,12 @@ export class ProgrammesController {
     return this.setEntryRoutes.execute({ id, ...body });
   }
 
-  /** Stops taking candidates from one entry route. */
+  /** Stops taking candidates from one entry route, or only from some of its candidate categories (?categories=stpm:S). */
   @Roles('admin')
   @Delete(':id/entry-routes/:route')
   @HttpCode(204)
-  removeRoute(@Param('id', ParseUUIDPipe) id: string, @Param('route') route: string) {
-    return this.removeEntryRoute.execute({ id, entryRoute: route });
+  removeRoute(@Param('id', ParseUUIDPipe) id: string, @Param('route') route: string, @Query('categories') categories?: string) {
+    return this.removeEntryRoute.execute({ id, entryRoute: route, categories: categories ? categories.split(',').filter(Boolean).slice(0, 20) : undefined });
   }
 
   /** The average merit of one intake year, as an official source (ePanduan) published it. */

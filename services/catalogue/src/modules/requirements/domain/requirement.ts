@@ -106,6 +106,10 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
     return this.props.programId;
   }
 
+  get sourceCategory(): string | null {
+    return this.props.sourceCategory;
+  }
+
   get entryRoute(): string {
     return this.props.entryRoute;
   }

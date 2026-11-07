@@ -9,6 +9,8 @@ import { RequirementRepository } from '../domain/requirement.repository.js';
 export interface DraftInput {
   programId: string;
   entryRoute: string;
+  /** The official candidate category the requirement is for (ePanduan, e.g. "stpm:S"); null when there is none. */
+  sourceCategory?: string | null;
   sourceUrl?: string | null;
   rules: Omit<RequirementRule, 'id'>[];
   adminId: string;
@@ -31,8 +33,9 @@ async function checkGrades(requirements: RequirementRepository, rules: Omit<Requ
 }
 
 /**
- * Starts a draft for a programme and route. When a version is already published, the draft starts from
- * its rules (the admin changes what changed). Only one open draft per programme and route at a time.
+ * Starts a draft for a programme, route and candidate category (STPM Sains and STPM Sastera can differ). When a
+ * version is already published, the draft starts from its rules (the admin changes what changed). Only one open
+ * draft per programme, route and category at a time.
  */
 @Injectable()
 export class CreateRequirementDraft implements UseCase<DraftInput, { id: string; versionNo: number }> {
@@ -40,12 +43,13 @@ export class CreateRequirementDraft implements UseCase<DraftInput, { id: string;
 
   async execute(input: DraftInput) {
     if (!(await this.requirements.programExists(input.programId))) throw new NotFoundError('Programme', input.programId);
-    const open = await this.requirements.findOpen(input.programId, input.entryRoute);
+    const category = input.sourceCategory ?? null;
+    const open = await this.requirements.findOpen(input.programId, input.entryRoute, category);
     if (open) throw new DomainError('draft_exists', `A draft for this route already exists (${open.id})`);
     await checkGrades(this.requirements, input.rules);
 
-    const versionNo = await this.requirements.nextVersionNo(input.programId, input.entryRoute);
-    const published = input.rules.length === 0 ? await this.requirements.findLatestPublished(input.programId, input.entryRoute) : null;
+    const versionNo = await this.requirements.nextVersionNo(input.programId, input.entryRoute, category);
+    const published = input.rules.length === 0 ? await this.requirements.findLatestPublished(input.programId, input.entryRoute, category) : null;
     const req = published
       ? Requirement.nextVersion(randomUUID(), published, versionNo, input.adminId, randomUUID)
       : Requirement.draft(randomUUID(), {
@@ -53,6 +57,7 @@ export class CreateRequirementDraft implements UseCase<DraftInput, { id: string;
           entryRoute: input.entryRoute,
           versionNo,
           sourceUrl: input.sourceUrl ?? null,
+          sourceCategory: category,
           preparedBy: input.adminId,
           rules: input.rules.map((r) => ({ ...r, id: randomUUID() })),
         });
@@ -77,7 +82,8 @@ export class EditRequirementDraft implements UseCase<EditDraftInput, { status: s
     const req = await this.requirements.findById(input.id);
     if (!req) throw new NotFoundError('Requirement', input.id);
     await checkGrades(this.requirements, input.rules);
-    req.edit(input.adminId, { sourceUrl: input.sourceUrl, sourceCategory: input.sourceCategory, rules: input.rules.map((r) => ({ ...r, id: randomUUID() })) });
+    // The category is what the requirement is for, set when it starts; editing never moves it to another one.
+    req.edit(input.adminId, { sourceUrl: input.sourceUrl, sourceCategory: req.sourceCategory ?? input.sourceCategory, rules: input.rules.map((r) => ({ ...r, id: randomUUID() })) });
     await this.requirements.save(req);
     return { status: req.status };
   }

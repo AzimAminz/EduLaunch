@@ -99,13 +99,13 @@ export class SetEntryRoutes implements UseCase<{ id: string; routes: Array<{ ent
 
 /** Removes one entry route from a programme (its requirement versions, if any, are kept). */
 @Injectable()
-export class RemoveEntryRoute implements UseCase<{ id: string; entryRoute: string }, void> {
+export class RemoveEntryRoute implements UseCase<{ id: string; entryRoute: string; categories?: string[] }, void> {
   constructor(private readonly programs: ProgramRepository) {}
 
-  async execute({ id, entryRoute }: { id: string; entryRoute: string }) {
+  async execute({ id, entryRoute, categories }: { id: string; entryRoute: string; categories?: string[] }) {
     if (!(await this.programs.findById(id))) throw new NotFoundError('Programme', id);
     if (!isEntryRoute(entryRoute)) throw new DomainError('invalid_program', `Unknown entry route ${entryRoute}`);
-    await this.programs.removeEntryRoute(id, entryRoute);
+    await this.programs.removeEntryRoute(id, entryRoute, categories);
   }
 }
 

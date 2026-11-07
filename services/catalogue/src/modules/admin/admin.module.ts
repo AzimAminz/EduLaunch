@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Injectable, Module, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { NotFoundError } from '@edulaunch/ddd';
 import { CurrentCaller, DRIZZLE, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
-import { and, asc, count, desc, eq, ilike, inArray, isNotNull, ne, notExists, or, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNotNull, isNull, ne, notExists, or, type SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import * as schema from '../../infrastructure/db/schema.js';
 
@@ -375,6 +375,7 @@ export class AdminQueries {
         .select({
           id: requirements.id,
           entryRoute: requirements.entryRoute,
+          sourceCategory: requirements.sourceCategory,
           versionNo: requirements.versionNo,
           status: requirements.reviewStatus,
           preparedBy: requirements.preparedBy,
@@ -420,7 +421,16 @@ export class AdminQueries {
     const [previous] = await this.db
       .select({ id: requirements.id, versionNo: requirements.versionNo, sourceUrl: requirements.sourceUrl })
       .from(requirements)
-      .where(and(eq(requirements.programId, row.programmeId), eq(requirements.entryRoute, row.entryRoute), eq(requirements.reviewStatus, 'published'), ne(requirements.id, id)))
+      .where(
+        and(
+          eq(requirements.programId, row.programmeId),
+          eq(requirements.entryRoute, row.entryRoute),
+          // The version it replaces is the published one of the same candidate category.
+          row.sourceCategory === null ? isNull(requirements.sourceCategory) : eq(requirements.sourceCategory, row.sourceCategory),
+          eq(requirements.reviewStatus, 'published'),
+          ne(requirements.id, id),
+        ),
+      )
       .orderBy(desc(requirements.versionNo))
       .limit(1);
     const ids = previous ? [id, previous.id] : [id];

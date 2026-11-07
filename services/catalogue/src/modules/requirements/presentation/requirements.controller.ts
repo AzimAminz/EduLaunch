@@ -32,6 +32,7 @@ const Rules = z
 const DraftBody = z.object({
   programId: z.uuid(),
   entryRoute: z.enum(EntryRoutes),
+  sourceCategory: z.string().max(20).nullable().default(null),
   sourceUrl: z.string().max(600).nullable().default(null),
   rules: Rules.default([]),
 });
