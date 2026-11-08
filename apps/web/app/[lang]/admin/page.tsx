@@ -8,6 +8,7 @@ import { getTasks, type AdminTasks } from '@/lib/admin/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 /** Admin home (Figma B1 "Laman utama · pilih tugas"): what to do today, then the admin's own pending work. */
 export default async function AdminHomePage({ params }: PageProps<'/[lang]/admin'>) {
@@ -15,7 +16,7 @@ export default async function AdminHomePage({ params }: PageProps<'/[lang]/admin
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       <AdminHome locale={lang} dict={dict} />
     </Suspense>
   );

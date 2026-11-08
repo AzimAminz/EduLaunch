@@ -16,6 +16,7 @@ import { describeRequirement, type RequirementItem } from '@/lib/catalogue/requi
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 /**
  * One requirement version. The admin preparing a draft edits it (wizard); another admin reviews it next to
@@ -26,7 +27,7 @@ export default async function RequirementPage({ params, searchParams }: PageProp
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       {/* The record id is only known at request time. */}
       <Requirement locale={lang} dict={dict} params={params} searchParams={searchParams} />
     </Suspense>

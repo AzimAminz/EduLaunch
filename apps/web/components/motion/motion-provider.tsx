@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react';
 import gsap from 'gsap';
 import Lenis from 'lenis';
+import { NavProgress } from './nav-progress';
 
 let lenis: Lenis | null = null;
 
@@ -45,9 +46,10 @@ export function MotionProvider({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      {/* The current path is request data: read it inside Suspense (Cache Components), apart from the page. */}
+      {/* The current address is request data: read it inside Suspense (Cache Components), apart from the page. */}
       <Suspense fallback={null}>
         <PageFade />
+        <NavProgress />
       </Suspense>
     </>
   );

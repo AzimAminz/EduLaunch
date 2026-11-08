@@ -10,6 +10,7 @@ import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 /** "Add a new programme": saved as a draft that another admin approves. */
 export default async function NewProgrammePage({ params, searchParams }: PageProps<'/[lang]/admin/program/baharu'>) {
@@ -17,7 +18,7 @@ export default async function NewProgrammePage({ params, searchParams }: PagePro
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       {/* The institution it was started from (?institusi=…) is request-time data. */}
       <NewProgramme locale={lang} dict={dict} searchParams={searchParams} />
     </Suspense>

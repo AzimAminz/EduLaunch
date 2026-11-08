@@ -10,6 +10,7 @@ import { listParamEntries, readListParams, type ListParams } from '@/lib/admin/l
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 type Search = Promise<Record<string, string | string[] | undefined>>;
 
@@ -23,7 +24,7 @@ export default async function AdminProgrammesPage({ params, searchParams }: Page
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       <Programmes locale={lang} dict={dict} searchParams={searchParams} />
     </Suspense>
   );

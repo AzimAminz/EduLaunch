@@ -13,6 +13,7 @@ import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 type Props = PageProps<'/[lang]/admin/program/[id]/sunting'>;
 
@@ -25,7 +26,7 @@ export default async function EditProgrammePage({ params }: Props) {
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       {/* The programme id is only known at request time. */}
       <Edit locale={lang} dict={dict} params={params} />
     </Suspense>

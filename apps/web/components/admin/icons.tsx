@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Children, Fragment, isValidElement, type ReactElement, type ReactNode } from 'react';
 
 /**
  * Outline icons for the admin console, one family (Lucide-style geometry, ISC licence) so every screen looks alike.
@@ -146,6 +146,15 @@ const PATHS = {
 
 export type AdminIconName = keyof typeof PATHS;
 
+/**
+ * An icon's shapes as a fresh keyed list. The same icon twice on a server-rendered page would otherwise reach the
+ * browser as one shared fragment, whose shapes React then reports as a list without keys.
+ */
+function shapes(icon: ReactNode): ReactNode[] {
+  const inner = isValidElement(icon) && icon.type === Fragment ? (icon as ReactElement<{ children?: ReactNode }>).props.children : icon;
+  return Children.toArray(inner);
+}
+
 export function AdminIcon({ name, size = 18, className = '' }: { name: AdminIconName; size?: number; className?: string }) {
   return (
     <svg
@@ -160,7 +169,7 @@ export function AdminIcon({ name, size = 18, className = '' }: { name: AdminIcon
       strokeLinejoin="round"
       className={`shrink-0 ${name === 'spinner' ? 'animate-spin motion-reduce:animate-none' : ''} ${className}`}
     >
-      {PATHS[name]}
+      {shapes(PATHS[name])}
     </svg>
   );
 }

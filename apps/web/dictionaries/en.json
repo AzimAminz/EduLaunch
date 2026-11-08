@@ -1,5 +1,6 @@
 {
   "meta": {
+    "loading": "Loading the page…",
     "title": "EduLaunch",
     "description": "An education and career planning platform based on official information."
   },

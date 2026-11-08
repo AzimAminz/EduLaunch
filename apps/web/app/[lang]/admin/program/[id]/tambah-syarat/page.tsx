@@ -12,6 +12,7 @@ import { requirementSlots } from '@/lib/admin/requirement-slots';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 type Props = PageProps<'/[lang]/admin/program/[id]/tambah-syarat'>;
 
@@ -24,7 +25,7 @@ export default async function AddRequirementPage({ params, searchParams }: Props
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       {/* The programme id is only known at request time. */}
       <Choose locale={lang} dict={dict} params={params} searchParams={searchParams} />
     </Suspense>

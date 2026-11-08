@@ -35,9 +35,10 @@ export function buttonClass(variant: ButtonVariant = 'secondary', size: 'md' | '
 /** Icon and text inside a button; the icon turns into a spinner while the action runs. */
 export function IconText({ icon, children, busy }: { icon?: AdminIconName; children: ReactNode; busy?: boolean }) {
   return (
+    // Keyed: a server component's fragment passed into a client component travels as a list.
     <>
-      {busy ? <AdminIcon name="spinner" size={16} /> : icon && <AdminIcon name={icon} size={16} />}
-      <span>{children}</span>
+      {busy ? <AdminIcon key="icon" name="spinner" size={16} /> : icon && <AdminIcon key="icon" name={icon} size={16} />}
+      <span key="text">{children}</span>
     </>
   );
 }

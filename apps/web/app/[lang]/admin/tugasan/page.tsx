@@ -9,6 +9,7 @@ import { pageOf, readListParams } from '@/lib/admin/list-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 const TABS = ['toReview', 'returned', 'myDrafts', 'waiting'] as const;
 type Tab = (typeof TABS)[number];
@@ -23,7 +24,7 @@ export default async function TasksPage({ params, searchParams }: PageProps<'/[l
   return (
     <>
       <AdminHeading title={dict.admin.tasks.title} intro={dict.admin.tasks.intro} />
-      <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+      <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
         <Inbox locale={lang} dict={dict} searchParams={searchParams} />
       </Suspense>
     </>

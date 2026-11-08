@@ -18,6 +18,7 @@ import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 type Props = PageProps<'/[lang]/admin/program/[id]'>;
 const TABS = ['maklumat', 'syarat'] as const;
@@ -33,7 +34,7 @@ export default async function AdminProgrammePage({ params, searchParams }: Props
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       {/* The programme id and the tab are only known at request time. */}
       <Programme locale={lang} dict={dict} params={params} searchParams={searchParams} />
     </Suspense>
