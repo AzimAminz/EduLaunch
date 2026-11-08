@@ -9,7 +9,9 @@ import { NotFoundError, fieldName, getProgramme, getPublishedRequirements, getRe
 import { programmeMeta } from '@/lib/catalogue/presentation';
 import { describeRequirement } from '@/lib/catalogue/requirements';
 import { getDictionary } from '@/lib/i18n/dictionaries';
-import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { compareMerit } from '@/lib/merit/compare';
+import { loadMeritInputs, studentMerit } from '@/lib/merit/student';
 import { getEligibility } from '@/lib/recommendation/api';
 import { getAccessToken } from '@/lib/supabase/server';
 
@@ -63,6 +65,9 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
       <Suspense fallback={<p className="rounded-[22px] bg-white p-6 text-sm text-muted">{dict.eligibility.checking}</p>}>
         <Eligibility lang={lang} dict={dict} programId={programme.id} subjectNames={subjectNames} />
       </Suspense>
+      <Suspense fallback={null}>
+        <MeritStanding lang={lang} dict={dict} entryRoutes={programme.entryRoutes} averageMerit={programme.averageMerit} />
+      </Suspense>
 
       <div data-reveal-stagger className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <section className="flex flex-col gap-[18px] rounded-[22px] bg-white p-6" aria-labelledby="requirements-title">
@@ -70,8 +75,9 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
             {t.requirementsTitle}
           </h2>
           {described.length === 0 && <p className="text-sm text-muted">{t.noRequirement}</p>}
-          {described.map((d) => (
-            <div key={d.entryRoute} className="flex flex-col gap-[18px]">
+          {/* A route can have one requirement per candidate category, so the route alone is not a unique key. */}
+          {described.map((d, n) => (
+            <div key={`${d.entryRoute}-${n}`} className="flex flex-col gap-[18px]">
               <Item title={t.entryRoute} detail={d.entryRoute} />
               {d.items.map((item, i) => (
                 <Item key={i} title={item.title} detail={item.detail} />
@@ -87,7 +93,7 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
           </h2>
           <p className="text-sm leading-tight text-muted">{t.evidenceIntro}</p>
           <ul className="flex flex-col gap-2">
-            {described.flatMap((d) => d.quotes).map((quote) => (
+            {[...new Set(described.flatMap((d) => d.quotes))].map((quote) => (
               <li key={quote} className="rounded-xl bg-white/70 px-4 py-3 text-sm italic text-navy">
                 “{quote}”
               </li>
@@ -119,6 +125,55 @@ async function Eligibility({ lang, dict, programId, subjectNames }: { lang: Loca
     );
   }
   return <EligibilityResult locale={lang} answer={answer} subjectNames={subjectNames} t={dict.eligibility} routeNames={dict.requirements.routes} />;
+}
+
+/**
+ * The student's merit beside the programme's average merit, when both belong to the same group of candidates.
+ * Never a chance or a promise: the average is of students who were offered a place, from one past intake.
+ */
+async function MeritStanding({ lang, dict, entryRoutes, averageMerit }: { lang: Locale; dict: Dictionary; entryRoutes: string[]; averageMerit: { intakeYear: number; value: number } | null }) {
+  const t = dict.meritStanding;
+  const token = await getAccessToken();
+  if (!token) return null;
+  const inputs = await loadMeritInputs(token, lang).catch(() => null);
+  if (!inputs) return null;
+  const merit = studentMerit(inputs);
+  const comparison = merit === null ? null : compareMerit({ mode: inputs.mode, merit }, { entryRoutes, averageMerit });
+  const tone = comparison?.status === 'comparable' ? { above: 'bg-mint', near: 'bg-cream', below: 'bg-[#ffedea]' }[comparison.band] : 'bg-white';
+  const sentence =
+    merit === null
+      ? t.noMerit
+      : !comparison || comparison.status === 'no_average'
+        ? format(t.noAverage, { merit: merit.toFixed(2) })
+        : comparison.status === 'other_group'
+          ? format(comparison.group === 'spm' ? t.otherGroupSpm : t.otherGroupPreu, { merit: merit.toFixed(2) })
+          : format(t.bands[comparison.band], { merit: merit.toFixed(2), average: comparison.average.toFixed(2), year: comparison.year, gap: Math.abs(comparison.gap).toFixed(2) });
+  return (
+    <section aria-labelledby="merit-title" className={`flex flex-col gap-4 rounded-[22px] p-6 sm:flex-row sm:items-center sm:justify-between ${tone}`}>
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <h2 id="merit-title" className="text-[19px] font-semibold leading-tight">
+          {t.title}
+        </h2>
+        <p className="text-sm">{sentence}</p>
+        {comparison?.status === 'comparable' && <p className="text-[13px] text-muted">{t.note}</p>}
+      </div>
+      {comparison?.status === 'comparable' && merit !== null && (
+        <dl className="flex shrink-0 gap-6 tabular-nums">
+          <div>
+            <dt className="text-[13px] text-muted">{t.yours}</dt>
+            <dd className="text-[28px] font-bold leading-none">{merit.toFixed(2)}</dd>
+          </div>
+          <div>
+            <dt className="text-[13px] text-muted">{format(t.average, { year: comparison.year })}</dt>
+            <dd className="text-[28px] font-bold leading-none">{comparison.average.toFixed(2)}</dd>
+          </div>
+        </dl>
+      )}
+      <Link href={`/${lang}/merit-lab`} className="shrink-0 self-start text-sm font-semibold text-navy underline underline-offset-2 sm:self-center">
+        {merit === null ? t.openLabEmpty : t.openLab}
+      </Link>
+    </section>
+  );
 }
 
 function Item({ title, detail }: { title: string; detail: string }) {

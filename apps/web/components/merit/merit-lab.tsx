@@ -40,6 +40,8 @@ export function MeritLab({
   subjects,
   catalogue,
   cgpa,
+  cocurricular,
+  cookieName,
   t,
 }: {
   mode: 'spm' | 'cgpa' | 'diploma';
@@ -50,6 +52,10 @@ export function MeritLab({
   /** Every SPM subject, for "add a subject". */
   catalogue: LabSubject[];
   cgpa: number | null;
+  /** The co-curricular mark to start from (the one set here last time, or full marks). */
+  cocurricular: number;
+  /** Where the co-curricular mark is remembered, so programme pages use the same one. */
+  cookieName: string;
   t: T;
 }) {
   const start = (): Row[] => {
@@ -76,7 +82,13 @@ export function MeritLab({
     const suggested = suggestSpmStream(results);
     return STREAMS.reduce((bestSoFar, s) => (spmMerit(results, s, 0).merit > spmMerit(results, bestSoFar, 0).merit ? s : bestSoFar), suggested);
   });
-  const [koko, setKoko] = useState('10.00');
+  const [koko, setKokoState] = useState(cocurricular.toFixed(2));
+  const setKoko = (value: string) => {
+    setKokoState(value);
+    const n = Number.parseFloat(value);
+    // Remembered in this browser for a year; programme pages compare with the same mark.
+    if (Number.isFinite(n)) document.cookie = `${cookieName}=${Math.min(Math.max(n, 0), 10).toFixed(2)}; path=/; max-age=31536000; samesite=lax`;
+  };
   const [pngk, setPngk] = useState(cgpa === null ? '' : cgpa.toFixed(2));
   const [adding, setAdding] = useState('');
 

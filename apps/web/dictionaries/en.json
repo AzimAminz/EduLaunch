@@ -1636,5 +1636,22 @@
     "nextTitle": "From merit to programme choices",
     "nextBody": "Compare your merit with the average merit of the programmes you like.",
     "nextAction": "Explore programmes"
+  },
+  "meritStanding": {
+    "title": "Your merit against the programme average",
+    "yours": "Your merit",
+    "average": "{year} average",
+    "bands": {
+      "above": "Your merit of {merit} is {gap} points above the average merit of students offered a place in {year} ({average}).",
+      "near": "Your merit of {merit} is close to the average merit of students offered a place in {year} ({average}).",
+      "below": "Your merit of {merit} is {gap} points below the average merit of students offered a place in {year} ({average})."
+    },
+    "note": "The average is the mean merit of students who were offered a place, so some were offered one with a lower merit. It is not a guarantee or a forecast of an offer.",
+    "noAverage": "Your merit is {merit}. This programme has no average merit to compare with yet.",
+    "otherGroupSpm": "Your merit is {merit}. This programme's average is for SPM leavers, so it is not compared with yours.",
+    "otherGroupPreu": "Your merit is {merit}. This programme's average is for STPM, matriculation or foundation students, so it is not compared with yours.",
+    "noMerit": "Add your results to see your merit against this programme's average.",
+    "openLab": "Try it in Merit Lab",
+    "openLabEmpty": "Open Merit Lab"
   }
 }
