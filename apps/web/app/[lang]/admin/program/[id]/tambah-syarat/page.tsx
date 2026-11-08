@@ -12,6 +12,7 @@ import { requirementSlots } from '@/lib/admin/requirement-slots';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { readFrom, trail, withFrom } from '@/lib/admin/trail';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
 type Props = PageProps<'/[lang]/admin/program/[id]/tambah-syarat'>;
@@ -109,7 +110,20 @@ async function Choose({ locale, dict, params, searchParams }: { locale: Locale; 
 
   return (
     <>
-      <AdminHeading back={{ href: `/${locale}/admin/program/${id}?tab=syarat`, label: `← ${programme.name}` }} title={c.title} intro={c.intro} />
+      <AdminHeading
+        crumbs={[
+          ...trail({
+            locale,
+            from: readFrom(sp.dari, locale),
+            labels: { home: t.nav.home, tasks: t.nav.tasks, institutions: t.nav.institutions, programmes: t.nav.programmes },
+            institution: programme.institutionId ? { id: programme.institutionId, name: programme.institutionName ?? '' } : null,
+          }),
+          { label: programme.name, href: withFrom(`/${locale}/admin/program/${id}?tab=syarat`, readFrom(sp.dari, locale)) },
+        ]}
+        current={c.title}
+        title={c.title}
+        intro={c.intro}
+      />
       <Card>
         <RequirementSteps labels={t.requirement.steps} step={0} />
         <RouteChooser

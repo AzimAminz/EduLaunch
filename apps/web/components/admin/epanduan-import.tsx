@@ -108,7 +108,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+      <section className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-5 lg:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">
             <h2 className="flex items-center gap-2 text-lg font-semibold">
@@ -129,7 +129,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
         </div>
         <FormAlert>{!starting && startState.error ? t.errors[startState.error] : undefined}</FormAlert>
         {shared && (
-          <p className="flex items-start gap-2 rounded-[12px] bg-cream px-4 py-3 text-sm">
+          <p className="flex items-start gap-2 rounded-[8px] bg-cream px-4 py-3 text-sm">
             <AdminIcon name="info" size={18} />
             {format(m.shared, { code })}
           </p>
@@ -137,7 +137,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
         {!run ? (
           <p className="text-sm text-muted">{m.never}</p>
         ) : run.status === 'running' ? (
-          <p role="status" className="flex items-center gap-2 rounded-[12px] bg-blue px-4 py-3 text-sm">
+          <p role="status" className="flex items-center gap-2 rounded-[8px] bg-blue px-4 py-3 text-sm">
             <AdminIcon name="spinner" size={18} />
             <span>
               {format(m.running, { pages: run.pagesRead })}
@@ -149,7 +149,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
             </span>
           </p>
         ) : run.status === 'failed' ? (
-          <p role="alert" className="flex items-center gap-2 rounded-[12px] bg-red/10 px-4 py-3 text-sm">
+          <p role="alert" className="flex items-center gap-2 rounded-[8px] bg-red/10 px-4 py-3 text-sm">
             <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
             {format(m.failed, { reason: failureReason(run.error, m.reasons) })}
           </p>
@@ -196,7 +196,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
           </nav>
 
           {filter === 'missing' ? (
-            <section className="flex flex-col gap-2 rounded-[14px] border border-line bg-white p-4">
+            <section className="flex flex-col gap-2 rounded-[8px] border border-line bg-white p-4">
               <h3 className="font-semibold">{m.missingTitle}</h3>
               <p className="text-[13px] text-muted">{m.missingHint}</p>
               {missing.length === 0 ? (
@@ -217,7 +217,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
               )}
             </section>
           ) : (
-            <div className="overflow-x-auto rounded-[14px] border border-line bg-white">
+            <div className="overflow-x-auto rounded-[8px] border border-line bg-white">
               <table className="w-full min-w-[900px] text-left text-sm">
                 <thead className="bg-bg text-[13px] text-muted">
                   <tr>
@@ -293,7 +293,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
           )}
 
           {/* One bar for the choice and the action, kept at the bottom while scrolling the list. */}
-          <div className="sticky bottom-0 z-10 flex flex-col gap-2 rounded-[14px] border border-line bg-white/95 p-4 backdrop-blur sm:flex-row sm:items-center">
+          <div className="sticky bottom-0 z-10 flex flex-col gap-2 rounded-[8px] border border-line bg-white/95 p-4 backdrop-blur sm:flex-row sm:items-center">
             <div className="flex flex-1 flex-wrap items-center gap-2">
               <button type="button" onClick={() => setPicked(new Set(pickable.map((r) => r.found.code)))} className={buttonClass('ghost', 'sm')}>
                 <IconText icon="check">{m.selectAll}</IconText>
@@ -310,14 +310,14 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
           </div>
           <FormAlert>{!accepting && acceptState.error ? t.errors[acceptState.error] : undefined}</FormAlert>
           {acceptState.imported && !accepting && (
-            <p role="status" className="flex items-center gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
+            <p role="status" className="flex items-center gap-2 rounded-[8px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
               <AdminIcon name="checkCircle" size={18} />
               {format(m.accepted, { created: acceptState.imported.created, updated: acceptState.imported.updated })}
               {acceptState.imported.failed > 0 && ` ${format(m.acceptedFailed, { failed: acceptState.imported.failed })}`} {m.draftsMade}
             </p>
           )}
           {!accepting && acceptState.imported?.failures?.length ? (
-            <ul className="list-disc rounded-[12px] bg-cream py-3 pl-9 pr-4 text-[13px]">
+            <ul className="list-disc rounded-[8px] bg-cream py-3 pl-9 pr-4 text-[13px]">
               {acceptState.imported.failures.map((f) => (
                 <li key={f.name}>
                   {f.name}: {t.errors[f.error]}
@@ -326,7 +326,7 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
             </ul>
           ) : null}
           {drafted && (
-            <p role="status" className="flex items-center gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
+            <p role="status" className="flex items-center gap-2 rounded-[8px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
               <AdminIcon name="checkCircle" size={18} />
               {format(m.draftsRefreshed, { updated: drafted.updated, created: drafted.created })}
             </p>

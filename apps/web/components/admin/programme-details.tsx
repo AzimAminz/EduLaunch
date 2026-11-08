@@ -112,7 +112,7 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
           <div className="flex flex-col gap-0.5 sm:col-span-2">
             <dt className="text-[13px] text-muted">{dict.admin.programme.flags}</dt>
             <dd className="flex flex-wrap gap-2 text-[15px] font-medium">
-              {flags.length ? flags.map((k) => <span key={k} className="rounded-full bg-blue px-3 py-1 text-sm">{label[k]}</span>) : dict.admin.programme.values.none}
+              {flags.length ? flags.map((k) => <span key={k} className="rounded-full bg-[#f1f2f4] px-2.5 py-0.5 text-[13px]">{label[k]}</span>) : dict.admin.programme.values.none}
             </dd>
           </div>
         </Group>
@@ -124,7 +124,7 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
             <dd className="flex flex-wrap gap-1.5 text-[15px] font-medium">
               {details.careers?.length
                 ? details.careers.map((c) => (
-                    <span key={c} className="rounded-full bg-mint px-2.5 py-0.5 text-[13px] text-[#1f6b47]">
+                    <span key={c} className="rounded-full bg-[#f1f2f4] px-2.5 py-0.5 text-[13px]">
                       {c}
                     </span>
                   ))
@@ -143,7 +143,7 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="border-b border-line pb-2 text-sm font-semibold uppercase tracking-wide text-muted">{title}</h3>
+      <h3 className="border-b border-line pb-2 text-[13px] font-semibold text-navy">{title}</h3>
       <dl className="grid gap-4 sm:grid-cols-2">{children}</dl>
     </section>
   );
@@ -155,7 +155,7 @@ export function ProgrammeChanges({ live, proposed, dict, names, by }: { live: Pe
   const label = labels(dict);
   const rows = changedFields(live, proposed, shows(dict, names));
   return (
-    <section className="flex flex-col gap-3 rounded-[18px] border border-yellow bg-white p-5 lg:p-6">
+    <section className="flex flex-col gap-3 rounded-[8px] border border-yellow bg-white p-5 lg:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-semibold">{c.title}</h2>
         <span className="text-[13px] text-muted">{format(c.by, { who: by })}</span>

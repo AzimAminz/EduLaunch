@@ -8,6 +8,7 @@ import { useFormAction } from '@/components/ui/use-form-action';
 import { FormAlert } from '@/components/auth/fields';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
+import { FromField } from './from-field';
 
 export interface RouteChoice {
   /** Unique per option: the route, plus the ePanduan category it is filled from. */
@@ -60,6 +61,7 @@ export function RouteChooser({ locale, programId, groups, initial, copies, t, er
       className="flex flex-col gap-5"
     >
       <input type="hidden" name="locale" value={locale} />
+      <FromField />
       <input type="hidden" name="programId" value={programId} />
       <input type="hidden" name="entryRoute" value={chosen?.route ?? ''} />
       {chosen?.category && <input type="hidden" name="category" value={chosen.category} />}
@@ -77,7 +79,7 @@ export function RouteChooser({ locale, programId, groups, initial, copies, t, er
                 return (
                   <label
                     key={c.key}
-                    className={`flex cursor-pointer items-start gap-3 rounded-[14px] border p-4 transition-colors duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-navy/40 ${
+                    className={`flex cursor-pointer items-start gap-3 rounded-[8px] border p-4 transition-colors duration-150 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-navy/40 ${
                       on ? 'border-navy bg-navy/[0.04]' : 'border-line bg-white hover:border-navy/30'
                     }`}
                   >
@@ -99,7 +101,7 @@ export function RouteChooser({ locale, programId, groups, initial, copies, t, er
           </fieldset>
         ))}
       {chosen && (chosen.fill || canCopy) && (
-        <fieldset className="flex flex-col gap-2 rounded-[14px] bg-bg/60 p-4">
+        <fieldset className="flex flex-col gap-2 rounded-[8px] bg-bg/60 p-4">
           <legend className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">{t.startTitle}</legend>
           {(
             [
@@ -108,7 +110,7 @@ export function RouteChooser({ locale, programId, groups, initial, copies, t, er
               { value: 'empty', label: t.startEmpty, detail: null },
             ].filter(Boolean) as Array<{ value: 'epanduan' | 'copy' | 'empty'; label: string; detail: string | null }>
           ).map((o) => (
-            <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-[12px] bg-white px-4 py-3">
+            <label key={o.value} className="flex cursor-pointer items-start gap-3 rounded-[8px] bg-white px-4 py-3">
               <input type="radio" name="start" checked={how === o.value} onChange={() => setStart(o.value)} className="mt-1 size-4 accent-[#1b2a4a]" />
               <span className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold">{o.label}</span>

@@ -15,6 +15,7 @@ import { Modal } from '@/components/ui/modal';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
+import { FromField } from './from-field';
 
 /** An NEC field as a dropdown option, with the broad EduLaunch field it suggests. */
 export type NecOption = DropdownOption & { fieldId: string | null };
@@ -329,6 +330,7 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
   return (
     <form ref={formRef} onSubmit={submit} className="flex flex-col gap-6" noValidate>
       <input type="hidden" name="locale" value={locale} />
+      <FromField />
       {values && <input type="hidden" name="id" value={values.id} />}
       {canPlace && <input type="hidden" name="studyLevel" value={level} />}
       {canPlace && <input type="hidden" name="institutionId" value={isStream ? '' : institutionId} />}
@@ -446,13 +448,13 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
               </button>
             </div>
             {fillNote && (
-              <p role="status" className={`flex items-start gap-2 rounded-[12px] px-4 py-3 text-sm ${fillNote.tone === 'ok' ? 'bg-mint text-[#1f6b47]' : 'bg-cream'}`}>
+              <p role="status" className={`flex items-start gap-2 rounded-[8px] px-4 py-3 text-sm ${fillNote.tone === 'ok' ? 'bg-mint text-[#1f6b47]' : 'bg-cream'}`}>
                 <AdminIcon name={fillNote.tone === 'ok' ? 'checkCircle' : 'info'} size={18} className="mt-0.5 shrink-0" />
                 {fillNote.text}
               </p>
             )}
             {!fillNote && differs.size > 0 && (
-              <div role="status" className="flex flex-wrap items-center gap-3 rounded-[12px] border border-[#e0a800]/50 bg-cream px-4 py-3 text-sm">
+              <div role="status" className="flex flex-wrap items-center gap-3 rounded-[8px] border border-[#e0a800]/50 bg-cream px-4 py-3 text-sm">
                 <AdminIcon name="info" size={18} className="shrink-0" />
                 <span className="flex-1">
                   {format(f.fill.summary, { count: differs.size, year: epanduan?.year ?? '' })} <span className="font-semibold">{[...differs].map((k) => fieldName[k]).join(', ')}</span>
@@ -705,7 +707,7 @@ function Fact({ label, value }: { label: string; value: string }) {
 
 function Check({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
   return (
-    <label className={`flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-3.5 py-3 text-sm font-medium transition-colors duration-150 ${checked ? 'border-navy/40 bg-navy/[0.05]' : 'border-transparent bg-bg'}`}>
+    <label className={`flex cursor-pointer items-center gap-2.5 rounded-[8px] border px-3.5 py-3 text-sm font-medium transition-colors duration-150 ${checked ? 'border-navy/40 bg-navy/[0.05]' : 'border-transparent bg-bg'}`}>
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="size-4 accent-navy" />
       {label}
     </label>
@@ -723,7 +725,7 @@ function Area({ name, label, placeholder, value, onChange, max }: { name: string
         rows={3}
         maxLength={max}
         placeholder={placeholder}
-        className="rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] font-normal outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
+        className="rounded-[8px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] font-normal outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
       />
     </label>
   );
@@ -769,7 +771,7 @@ function ListInput({ id, label, placeholder, hint, items, onChange, most, max, a
           placeholder={placeholder}
           maxLength={max}
           disabled={items.length >= most}
-          className="min-w-0 flex-1 rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
+          className="min-w-0 flex-1 rounded-[8px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
         />
         <button type="button" onClick={push} disabled={!draft.trim()} className={buttonClass('secondary')}>
           <IconText icon="plus">{add}</IconText>
@@ -795,7 +797,7 @@ function ListInput({ id, label, placeholder, hint, items, onChange, most, max, a
 /** "ePanduan: <value>  [Use]" under a field whose value differs from ePanduan's. */
 function EpanduanHint({ label, value, use, onUse }: { label: string; value: string; use: string; onUse: () => void }) {
   return (
-    <p className="flex flex-wrap items-start gap-2 rounded-[10px] bg-cream/70 px-3 py-2 text-[13px]">
+    <p className="flex flex-wrap items-start gap-2 rounded-[8px] bg-cream/70 px-3 py-2 text-[13px]">
       <span className="font-semibold">{label}</span>
       <span className="min-w-0 flex-1 break-words">{value.length > 220 ? `${value.slice(0, 220)}…` : value}</span>
       <button type="button" onClick={onUse} className="shrink-0 rounded-md px-2 py-0.5 font-semibold text-navy underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40">

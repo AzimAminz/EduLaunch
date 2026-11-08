@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/modal';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
+import { FromField } from './from-field';
 
 export type RemoveTarget = { programId: string; entryRoute: string; categories: string[]; draftId: string | null; name: string };
 
@@ -49,6 +50,7 @@ export function RemoveDraftModal({ locale, open, target, texts, errors, onClose 
       <FormAlert>{!pending && state.error ? errors[state.error] : undefined}</FormAlert>
       <form id={formId} onSubmit={onSubmit} hidden>
         <input type="hidden" name="locale" value={locale} />
+        <FromField />
         <input type="hidden" name="programId" value={target.programId} />
         <input type="hidden" name="entryRoute" value={target.entryRoute} />
         {target.draftId && <input type="hidden" name="draftId" value={target.draftId} />}

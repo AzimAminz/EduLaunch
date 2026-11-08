@@ -11,9 +11,9 @@ import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
 import { PageSkeleton } from '@/components/ui/skeleton';
 
-const TABS = ['toReview', 'returned', 'myDrafts', 'waiting'] as const;
+const TABS = ['toReview', 'returned', 'myDrafts', 'othersDrafts', 'waiting'] as const;
 type Tab = (typeof TABS)[number];
-const TAB_ICON: Record<Tab, AdminIconName> = { toReview: 'eye', returned: 'undo', myDrafts: 'draft', waiting: 'clock' };
+const TAB_ICON: Record<Tab, AdminIconName> = { toReview: 'eye', returned: 'undo', myDrafts: 'draft', othersDrafts: 'draft', waiting: 'clock' };
 const PAGE_SIZE = 20;
 
 /** Task inbox (Figma A1): tabs For me / Returned / My drafts / Waiting for others. */
@@ -32,7 +32,7 @@ export default async function TasksPage({ params, searchParams }: PageProps<'/[l
 }
 
 async function Inbox({ locale, dict, searchParams }: { locale: Locale; dict: Dictionary; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  await requireRole(locale, 'admin');
+  const account = await requireRole(locale, 'admin');
   const t = dict.admin.tasks;
   const sp = await searchParams;
   const tab: Tab = TABS.find((x) => x === sp.tab) ?? 'toReview';
@@ -44,9 +44,19 @@ async function Inbox({ locale, dict, searchParams }: { locale: Locale; dict: Dic
     return <LoadError text={dict.admin.errors.generic} />;
   }
   const shown = pageOf(tasks[tab], page, PAGE_SIZE);
-  const bulk = tab === 'toReview' ? 'approve' : tab === 'myDrafts' || tab === 'returned' ? 'submit' : null;
+  // Other admins' drafts: a super admin publishes them in one go (sent and approved); anyone else sends them on.
+  const bulk = tab === 'toReview' ? 'approve' : tab === 'othersDrafts' ? (account.superAdmin ? 'approve' : 'submit') : tab === 'myDrafts' || tab === 'returned' ? 'submit' : null;
   const list = (
-    <TaskList tasks={shown.items} locale={locale} dict={dict} now={new Date().getTime()} action={tab === 'toReview' ? t.review : t.open} empty={t.empty[tab]} selectable={!!bulk} />
+    <TaskList
+      tasks={shown.items}
+      locale={locale}
+      dict={dict}
+      now={new Date().getTime()}
+      empty={t.empty[tab]}
+      selectable={!!bulk}
+      from={`/${locale}/admin/tugasan?tab=${tab}${shown.page > 1 ? `&halaman=${shown.page}` : ''}`}
+      offset={(shown.page - 1) * PAGE_SIZE}
+    />
   );
   return (
     <>

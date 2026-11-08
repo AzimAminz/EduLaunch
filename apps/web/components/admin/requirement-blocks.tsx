@@ -30,7 +30,7 @@ export function RequirementBlocks({ blocks, action, empty }: { blocks: TextBlock
           );
         }
         return (
-          <div key={i} className="flex items-start gap-2 rounded-[10px] px-2 py-1.5 transition-colors duration-150 hover:bg-bg/80">
+          <div key={i} className="flex items-start gap-2 rounded-[8px] px-2 py-1.5 transition-colors duration-150 hover:bg-bg/80">
             <span aria-hidden className="mt-[7px] size-1.5 shrink-0 rounded-full bg-navy/50" />
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <p className="text-[13px] leading-relaxed">{block.text}</p>

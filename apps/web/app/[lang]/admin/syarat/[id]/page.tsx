@@ -7,6 +7,7 @@ import { RequirementEditor } from '@/components/admin/requirement-editor';
 import { RequirementLinesView } from '@/components/admin/requirement-lines-view';
 import { ReviewActions } from '@/components/admin/review-actions';
 import { NewVersionButton } from '@/components/admin/new-version-button';
+import { readFrom, trail, withFrom } from '@/lib/admin/trail';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, Card, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, getRequirementDetail, listFoundProgrammes, listSpecialRequirements, type AdminRule, type RequirementDetail } from '@/lib/admin/api';
@@ -63,16 +64,27 @@ async function Requirement({ locale, dict, params, searchParams }: {
   // A super admin may also approve a draft they prepared.
   const reviewing = req.status === 'in_review' && (req.preparedBy !== me || account.superAdmin);
   const meta = format(t.requirement.meta, { institution: req.institutionName ?? '—', route, version: req.versionNo });
-  const back = { href: `/${locale}/admin/program/${req.programmeId}`, label: t.requirement.back };
+  // Back up through the programme (on its requirements tab) to the list the admin started from.
+  const from = readFrom(sp.dari, locale);
+  const fromInstitution = from?.split('?')[0]!.match(/\/admin\/institusi\/([0-9a-f-]{36})$/)?.[1];
+  const crumbs = [
+    ...trail({
+      locale,
+      from,
+      labels: { home: t.nav.home, tasks: t.nav.tasks, institutions: t.nav.institutions, programmes: t.nav.programmes },
+      institution: fromInstitution ? { id: fromInstitution, name: req.institutionName ?? '' } : null,
+    }),
+    { label: req.programmeName, href: withFrom(`/${locale}/admin/program/${req.programmeId}?tab=syarat`, from) },
+  ];
   const subjectNames = new Map(reference.subjects.map((s) => [s.id, localName(s, locale)]));
 
   if (editing) {
     const epanduan = await epanduanFor(req);
     return (
       <>
-        <AdminHeading back={back} title={format(t.requirement.titleEdit, { programme: req.programmeName })} intro={meta} />
-        {req.status === 'returned' && req.returnReason && <p className="rounded-[14px] bg-red/10 px-4 py-3 text-sm">{format(t.requirement.notes.returned, { reason: req.returnReason })}</p>}
-        {req.preparedBy !== me && <p className="rounded-[14px] bg-cream px-4 py-3 text-sm">{t.requirement.notes.otherDraft}</p>}
+        <AdminHeading crumbs={crumbs} current={route} title={format(t.requirement.titleEdit, { programme: req.programmeName })} intro={meta} />
+        {req.status === 'returned' && req.returnReason && <p className="rounded-[8px] bg-red/10 px-4 py-3 text-sm">{format(t.requirement.notes.returned, { reason: req.returnReason })}</p>}
+        {req.preparedBy !== me && <p className="rounded-[8px] bg-cream px-4 py-3 text-sm">{t.requirement.notes.otherDraft}</p>}
         <FreshOnNavigate>
           <RequirementEditor
             // A newer saved version (after a save elsewhere) starts the editor again from what is stored.
@@ -108,7 +120,7 @@ async function Requirement({ locale, dict, params, searchParams }: {
   return (
     <>
       <AdminHeading
-        back={back}
+        crumbs={crumbs} current={route}
         title={reviewing ? format(t.requirement.titleReview, { programme: req.programmeName }) : `${req.programmeName}`}
         intro={
           <span className="flex flex-wrap items-center gap-2">
@@ -118,7 +130,7 @@ async function Requirement({ locale, dict, params, searchParams }: {
         }
       />
       {note && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-cream px-4 py-3 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] bg-cream px-4 py-3 text-sm">
           <p>{note}</p>
           {req.status === 'published' && (
             <NewVersionButton
@@ -184,7 +196,7 @@ function Comparison({ req, dict, subjectNames }: { req: RequirementDetail; dict:
       <h2 className="text-lg font-semibold">{t.changed}</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {showsChange && (
-          <div className="flex flex-col gap-2 rounded-[14px] bg-bg p-4">
+          <div className="flex flex-col gap-2 rounded-[8px] bg-bg p-4">
             <p className="text-[13px] font-semibold text-muted">{t.now}</p>
             {before ? (
               <>
@@ -196,7 +208,7 @@ function Comparison({ req, dict, subjectNames }: { req: RequirementDetail; dict:
             )}
           </div>
         )}
-        <div className={`flex flex-col gap-2 rounded-[14px] p-4 ${showsChange ? 'border border-yellow bg-cream' : 'bg-bg md:col-span-2'}`}>
+        <div className={`flex flex-col gap-2 rounded-[8px] p-4 ${showsChange ? 'border border-yellow bg-cream' : 'bg-bg md:col-span-2'}`}>
           {showsChange && <p className="text-[13px] font-semibold text-muted">{t.next}</p>}
           <p className="text-[13px] text-muted">{format(t.versionOf, { version: req.versionNo })}</p>
           <Items items={next} mark={(i) => (showsChange && before && !beforeKeys.has(key(i)) ? t.added : null)} />
@@ -212,7 +224,7 @@ function Items({ items, mark }: { items: RequirementItem[]; mark: (item: Require
       {items.map((item, i) => {
         const label = mark(item);
         return (
-          <li key={i} className="rounded-[10px] bg-white px-3.5 py-2.5">
+          <li key={i} className="rounded-[8px] bg-white px-3.5 py-2.5">
             <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
               {item.title}
               {label && <span className="rounded-full bg-yellow px-2 py-0.5 text-xs">{label}</span>}
@@ -232,7 +244,7 @@ function Quotes({ rules, title }: { rules: AdminRule[]; title: string }) {
     <div className="flex flex-col gap-2">
       <p className="text-[13px] font-semibold text-muted">{title}</p>
       {quotes.map((q) => (
-        <blockquote key={q} className="rounded-[10px] bg-bg px-4 py-2.5 text-sm italic">
+        <blockquote key={q} className="rounded-[8px] bg-bg px-4 py-2.5 text-sm italic">
           “{q}”
         </blockquote>
       ))}

@@ -21,7 +21,7 @@ export function LinesView({ lines, subjectNames, t }: { lines: EditorLine[]; sub
       {PARTS.map((part) => {
         const own = lines.filter((l) => l.part === part);
         return (
-          <section key={part} className="flex flex-col gap-1.5 rounded-[12px] border border-line bg-white p-3">
+          <section key={part} className="flex flex-col gap-1.5 rounded-[8px] border border-line bg-white p-3">
             <h4 className="text-[12px] font-bold uppercase tracking-wide text-muted">{t.parts[part]}</h4>
             {own.length === 0 && <p className="text-[13px] text-muted">{t.parts.none}</p>}
             {own.map((line, i) => {
@@ -39,7 +39,7 @@ export function LinesView({ lines, subjectNames, t }: { lines: EditorLine[]; sub
                   {line.section && line.section !== previous?.section && (
                     <p className="mt-1 self-start rounded-md bg-navy/90 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">{line.section}</p>
                   )}
-                  <div className="flex items-start gap-2 rounded-[10px] px-2 py-1.5">
+                  <div className="flex items-start gap-2 rounded-[8px] px-2 py-1.5">
                     <span aria-hidden className={`mt-[7px] size-1.5 shrink-0 rounded-full ${isUnchecked(line.type) ? 'bg-muted/50' : 'bg-navy/60'}`} />
                     <div className="flex min-w-0 flex-col items-start gap-1">
                       <p className="text-[13px] leading-relaxed">{line.text.replace('[Contoh]', '').trim()}</p>

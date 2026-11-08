@@ -31,7 +31,7 @@ export function CategoryTabs({
 }) {
   const [active, setActive] = useState(0);
   const group = groups[Math.min(active, groups.length - 1)];
-  if (!group) return <p className="rounded-[12px] bg-bg px-4 py-3 text-[13px] text-muted">{empty ?? m.none}</p>;
+  if (!group) return <p className="rounded-[8px] bg-bg px-4 py-3 text-[13px] text-muted">{empty ?? m.none}</p>;
   const special = group.special;
   return (
     <div className="flex flex-col gap-3">
@@ -57,11 +57,11 @@ export function CategoryTabs({
         <p className="text-[12px] font-semibold text-muted">{group.categories.map((c) => labelOf(c.jenprog, c.category, m)).join(' · ')}</p>
       )}
       <div role="tabpanel" className={`grid gap-3 ${stacked ? '' : 'xl:grid-cols-2'}`}>
-        <section className="flex flex-col gap-2 rounded-[12px] border border-line bg-white p-3">
+        <section className="flex flex-col gap-2 rounded-[8px] border border-line bg-white p-3">
           <h4 className="text-[12px] font-bold uppercase tracking-wide text-muted">{m.general}</h4>
           <RequirementBlocks blocks={parseRequirementText(group.general)} empty={m.none} action={action ? (item, i) => action(item, i, 'general') : undefined} />
         </section>
-        <section className="flex flex-col gap-2 rounded-[12px] border border-line bg-white p-3">
+        <section className="flex flex-col gap-2 rounded-[8px] border border-line bg-white p-3">
           <h4 className="text-[12px] font-bold uppercase tracking-wide text-muted">{m.special}</h4>
           {!special ? (
             <p className="text-[13px] text-muted">{m.specialLater}</p>

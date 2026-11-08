@@ -17,6 +17,7 @@ import { LinesView } from './requirement-lines-view';
 import { RequirementSteps } from './requirement-steps';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
+import { FromField } from './from-field';
 
 export interface EditorSubject {
   id: string;
@@ -209,11 +210,12 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
       <div className={`grid items-start gap-4 ${step === 3 ? '' : 'lg:grid-cols-[minmax(0,1fr)_420px]'}`}>
         <form id="requirement-form" onSubmit={submit} className="flex flex-col gap-4">
           <input type="hidden" name="locale" value={locale} />
+          <FromField />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="state" value={snapshot} />
           <input type="hidden" name="programId" value={programmeId} />
 
-          <section hidden={step !== 1} className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+          <section hidden={step !== 1} className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-5 lg:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-1">
                 <h2 className="text-lg font-semibold">{t.source.title}</h2>
@@ -230,7 +232,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
               )}
             </div>
             {autoFilled && (
-              <p role="status" className="flex items-start gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
+              <p role="status" className="flex items-start gap-2 rounded-[8px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
                 <AdminIcon name="checkCircle" size={18} className="mt-0.5 shrink-0" />
                 <span className="flex-1">{format(start.filled || copied === 'epanduan' ? t.fill.autoFilled : t.fill.copied, { count: lines.length })}</span>
                 <button type="button" onClick={() => setAutoFilled(false)} aria-label={dict.admin.programme.actions.cancel} className="rounded-md px-1 text-[#1f6b47] hover:bg-white/60">
@@ -239,7 +241,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
               </p>
             )}
             {confirmFill !== null && (
-              <div role="alertdialog" aria-label={t.fill.replaceYes} className="flex flex-wrap items-center gap-2 rounded-[12px] border border-[#e0a800]/50 bg-cream px-4 py-3">
+              <div role="alertdialog" aria-label={t.fill.replaceYes} className="flex flex-wrap items-center gap-2 rounded-[8px] border border-[#e0a800]/50 bg-cream px-4 py-3">
                 <AdminIcon name="alert" size={18} />
                 <p className="flex-1 text-sm">{format(t.fill.replaceConfirm, { count: lines.length })}</p>
                 <button type="button" onClick={() => setConfirmFill(null)} className={buttonClass('secondary', 'sm')}>
@@ -267,7 +269,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
                 inputMode="url"
                 placeholder={t.source.placeholder}
                 maxLength={500}
-                className={`min-w-0 flex-1 rounded-[10px] border bg-white px-4 py-3 text-[15px] outline-none focus:ring-2 ${sourceMissing || (attempted && sourceUrl && !isUrl(sourceUrl)) ? 'border-red focus:border-red focus:ring-red/15' : 'border-[#9aa3b2] focus:border-navy focus:ring-navy/15'}`}
+                className={`min-w-0 flex-1 rounded-[8px] border bg-white px-4 py-3 text-[15px] outline-none focus:ring-2 ${sourceMissing || (attempted && sourceUrl && !isUrl(sourceUrl)) ? 'border-red focus:border-red focus:ring-red/15' : 'border-[#9aa3b2] focus:border-navy focus:ring-navy/15'}`}
               />
               {isUrl(sourceUrl) && (
                 <a href={sourceUrl.trim()} target="_blank" rel="noreferrer" className={buttonClass('secondary')}>
@@ -306,20 +308,20 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
           ))}
 
           {step === 3 && (
-            <section className="flex flex-col gap-4 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+            <section className="flex flex-col gap-4 rounded-[8px] border border-line bg-white p-5 lg:p-6">
               <div className="flex flex-col gap-1">
                 <h2 className="text-lg font-semibold">{t.finish.title}</h2>
                 <p className="text-sm text-muted">{t.finish.intro}</p>
               </div>
               <LinesView lines={lines} subjectNames={subjectNames} t={t} />
-              <div className="flex flex-col gap-2 rounded-[12px] bg-bg/60 p-4">
+              <div className="flex flex-col gap-2 rounded-[8px] bg-bg/60 p-4">
                 <h3 className="text-[12px] font-bold uppercase tracking-wide text-muted">{t.preview.title}</h3>
                 {preview.length === 0 ? (
                   <p className="text-sm text-muted">{t.preview.empty}</p>
                 ) : (
                   <ul className="grid gap-2 md:grid-cols-2">
                     {preview.map((item, i) => (
-                      <li key={i} className="rounded-[12px] bg-white px-3.5 py-2.5">
+                      <li key={i} className="rounded-[8px] bg-white px-3.5 py-2.5">
                         <p className="text-sm font-semibold">{item.title}</p>
                         <p className="text-[13px] text-muted">{item.detail}</p>
                       </li>
@@ -343,7 +345,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
 
         <aside hidden={step === 3} className="flex flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
           {epanduan && epanduan.groups.length > 0 && (
-            <div role="tablist" aria-label={t.suggest.title} className="flex gap-1 rounded-[12px] bg-white p-1">
+            <div role="tablist" aria-label={t.suggest.title} className="flex gap-1 rounded-[8px] bg-white p-1">
               {(['source', 'preview'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -360,12 +362,12 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             </div>
           )}
           {epanduan && epanduan.groups.length > 0 && sideTab === 'source' && (
-            <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-4">
+            <section className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-4">
               <p className="text-[13px] text-muted">{t.suggest.intro}</p>
               <CategoryTabs groups={epanduan.groups} m={m} stacked />
             </section>
           )}
-          <section hidden={!!epanduan?.groups.length && sideTab !== 'preview'} className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5">
+          <section hidden={!!epanduan?.groups.length && sideTab !== 'preview'} className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-5">
             <h2 className="font-semibold">{t.preview.title}</h2>
             <p className="text-[13px] text-muted">{t.preview.body}</p>
             {preview.length === 0 ? (
@@ -373,7 +375,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             ) : (
               <ul className="flex flex-col gap-2">
                 {preview.map((item, i) => (
-                  <li key={i} className="rounded-[12px] bg-bg px-3.5 py-2.5">
+                  <li key={i} className="rounded-[8px] bg-bg px-3.5 py-2.5">
                     <p className="text-sm font-semibold">{item.title}</p>
                     <p className="text-[13px] text-muted">{item.detail}</p>
                   </li>
@@ -384,7 +386,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
         </aside>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-4 lg:sticky lg:bottom-4 lg:z-10 lg:shadow-lg">
+      <div className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-4 lg:sticky lg:bottom-4 lg:z-10 lg:shadow-lg">
         <FormAlert>{alert ?? (shownProblems.length && !pending ? format(t.problemsSummary, { count: shownProblems.length }) : undefined)}</FormAlert>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {step > 1 && stepButton('back', t.stepBack, 'arrowLeft', step - 1)}
@@ -409,6 +411,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
         {step === 3 && <p className="text-[13px] text-muted">{t.submitHint}</p>}
         <form id={`discard-${id}`} onSubmit={onDiscard} className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
           <input type="hidden" name="locale" value={locale} />
+          <FromField />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="programId" value={programmeId} />
           <button type="button" onClick={() => setConfirmDiscard(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
@@ -490,7 +493,7 @@ function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, 
   const problemCount = (section: string) => lines.filter((l) => l.section === section && problemsOf(l).length).length;
 
   return (
-    <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
+    <section className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-5 lg:p-6">
       {/* Laid out like the official page, so what is written here reads as students and the system will see it. */}
       <div className="flex flex-col gap-1">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">{t.parts[part]}</h2>
@@ -538,7 +541,7 @@ function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, 
       </div>
 
       <div role="tabpanel" aria-label={label(current)} className="flex flex-col gap-2">
-        {own.length === 0 && <p className="rounded-[12px] bg-bg px-4 py-3 text-sm text-muted">{lines.length ? t.sections.empty : t.parts.empty}</p>}
+        {own.length === 0 && <p className="rounded-[8px] bg-bg px-4 py-3 text-sm text-muted">{lines.length ? t.sections.empty : t.parts.empty}</p>}
         {own.map((line, i) => {
           const previous = own[i - 1];
           const canOr = !!previous && !isUnchecked(line.type) && !isUnchecked(previous.type);
@@ -587,7 +590,7 @@ function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, 
           </button>
           {(own.length > 0 || current) &&
             (confirmRemove ? (
-              <span role="alertdialog" aria-label={t.sections.remove} className="flex flex-wrap items-center gap-2 rounded-[10px] bg-red/5 px-3 py-1.5 text-[13px]">
+              <span role="alertdialog" aria-label={t.sections.remove} className="flex flex-wrap items-center gap-2 rounded-[8px] bg-red/5 px-3 py-1.5 text-[13px]">
                 {format(t.sections.removeConfirm, { section: label(current), count: own.length })}
                 <button type="button" onClick={() => setConfirmRemove(false)} className={buttonClass('secondary', 'sm')}>
                   {t.sections.cancel}
@@ -677,7 +680,7 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
       inputMode="decimal"
       maxLength={6}
       aria-invalid={problems.includes(problem) || undefined}
-      className={`${width} rounded-[10px] border bg-white px-3 py-2 text-center text-sm font-semibold outline-none focus:ring-2 focus:ring-navy/15 ${problems.includes(problem) ? 'border-red' : 'border-[#9aa3b2]'}`}
+      className={`${width} rounded-[8px] border bg-white px-3 py-2 text-center text-sm font-semibold outline-none focus:ring-2 focus:ring-navy/15 ${problems.includes(problem) ? 'border-red' : 'border-[#9aa3b2]'}`}
     />
   );
   const action = (label: string, onClick: () => void, children: React.ReactNode, { disabled = false, danger = false } = {}) => (
@@ -694,7 +697,7 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
   );
 
   return (
-    <div className={`rounded-[12px] border transition-colors duration-150 ${bad ? 'border-red/60 bg-red/5' : open ? 'border-navy/40 bg-bg/60' : 'border-transparent hover:bg-bg/80'}`}>
+    <div className={`rounded-[8px] border transition-colors duration-150 ${bad ? 'border-red/60 bg-red/5' : open ? 'border-navy/40 bg-bg/60' : 'border-transparent hover:bg-bg/80'}`}>
       <div className="flex items-start gap-2 px-3 py-2.5">
         <span aria-hidden className={`mt-[7px] size-1.5 shrink-0 rounded-full ${unchecked ? 'bg-muted/50' : 'bg-navy/60'}`} />
         <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
@@ -737,12 +740,12 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
               maxLength={1500}
               aria-invalid={problems.includes('textRequired') || undefined}
               placeholder={t.line.sentencePlaceholder}
-              className={`field-sizing-content min-h-[64px] w-full rounded-[10px] border bg-white px-3 py-2 text-sm font-normal leading-relaxed text-navy outline-none focus:border-navy focus:ring-2 focus:ring-navy/15 ${problems.includes('textRequired') ? 'border-red' : 'border-[#9aa3b2]'}`}
+              className={`field-sizing-content min-h-[64px] w-full rounded-[8px] border bg-white px-3 py-2 text-sm font-normal leading-relaxed text-navy outline-none focus:border-navy focus:ring-2 focus:ring-navy/15 ${problems.includes('textRequired') ? 'border-red' : 'border-[#9aa3b2]'}`}
             />
             <span className="text-[12px] font-normal text-muted">{t.line.sentenceHint}</span>
           </label>
           {offerRead && (
-            <p className="flex flex-wrap items-center gap-2 rounded-[10px] bg-cream px-3 py-2 text-[13px]">
+            <p className="flex flex-wrap items-center gap-2 rounded-[8px] bg-cream px-3 py-2 text-[13px]">
               <AdminIcon name="info" size={16} className="shrink-0" />
               <span className="flex-1">{t.line.changedSentence}</span>
               <button
@@ -772,7 +775,7 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
           </div>
 
           {unchecked && (
-            <p className="flex items-start gap-2 rounded-[10px] bg-bg px-3 py-2.5 text-[13px] text-muted">
+            <p className="flex items-start gap-2 rounded-[8px] bg-bg px-3 py-2.5 text-[13px] text-muted">
               <AdminIcon name="info" size={16} className="mt-0.5 shrink-0" />
               {line.type === 'declaration' ? p.declarationHint : p.noteHint}
             </p>
@@ -781,7 +784,7 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
             <div className="flex flex-col gap-2">
               <p className="text-sm font-semibold">{p.title}</p>
               {/* Written as the official text phrases it. */}
-              <div className="flex flex-wrap items-center gap-2 rounded-[12px] border border-dashed border-navy/25 bg-white px-3 py-3">
+              <div className="flex flex-wrap items-center gap-2 rounded-[8px] border border-dashed border-navy/25 bg-white px-3 py-3">
                 {line.type === 'min_grade' && (
                   <>
                     {word(p.grade)}
@@ -867,7 +870,7 @@ function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOption
                 </div>
               )}
               {/* What the line asks of a student, in plain words, as students will read it. */}
-              <p className="flex items-start gap-2 rounded-[10px] bg-mint px-3 py-2.5 text-[13px] text-[#1f6b47]">
+              <p className="flex items-start gap-2 rounded-[8px] bg-mint px-3 py-2.5 text-[13px] text-[#1f6b47]">
                 <AdminIcon name="checkCircle" size={16} className="mt-0.5 shrink-0" />
                 <span>
                   <span className="font-semibold">{p.preview}</span> {lineSummary(line, (id) => (id && subjectById.get(id)?.label) || '?', t)}

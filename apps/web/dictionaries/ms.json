@@ -290,56 +290,57 @@
     },
     "home": {
       "greeting": "Selamat datang, {name}",
-      "intro": "Apa yang anda mahu buat hari ini? Pilih satu, dan kami bawa anda langkah demi langkah.",
-      "review": {
-        "title": "Semak draf yang menunggu",
-        "body": "Admin lain sudah sediakan perubahan. Bandingkan yang lama dengan yang baharu, kemudian luluskan atau pulangkan.",
-        "count": "{count} menunggu anda",
-        "none": "Tiada draf menunggu",
-        "action": "Mula semak"
+      "findingReview": "{count} perkara menunggu semakan anda. Yang paling lama menunggu berada di atas.",
+      "findingReturned": "{count} draf anda dipulangkan untuk dibetulkan.",
+      "findingRequirements": "Tiada yang menunggu anda. {count} program diterbitkan masih belum ada syarat.",
+      "findingClear": "Tiada apa-apa yang menunggu anda hari ini.",
+      "counts": {
+        "toReview": "Untuk anda semak",
+        "returned": "Dipulangkan",
+        "drafts": "Draf anda",
+        "waiting": "Menunggu admin lain",
+        "published": "Program diterbitkan",
+        "withoutRequirements": "Tanpa syarat"
       },
-      "requirements": {
-        "title": "Kemas kini syarat program",
-        "body": "Ada prospektus atau pekeliling baharu? Pilih program dan laluan, tunjukkan sumber, kemudian tulis syarat.",
-        "hint": "Program tanpa syarat dahulu",
-        "action": "Pilih program",
-        "hintAll": "Biasanya 5 minit"
-      },
-      "programme": {
-        "title": "Tambah program baharu",
-        "body": "Isi institusi, nama, peringkat dan bidang. Pelajar hanya nampak selepas admin lain meluluskannya.",
-        "action": "Tambah program"
-      },
-      "yourWork": "Kerja anda",
+      "yourWork": "Perlu tindakan anda",
+      "toReview": "Untuk anda semak",
       "returned": "Dipulangkan kepada anda",
       "drafts": "Draf anda",
-      "waiting": "Menunggu admin lain",
-      "empty": "Tiada kerja tertunggak. Mulakan dengan salah satu tugas di atas.",
-      "catalogue": "Katalog",
-      "published": "{count} program diterbitkan",
-      "withoutRequirements": "{count} belum ada syarat diterbitkan",
+      "empty": "Tiada kerja tertunggak. Semuanya sudah beres.",
+      "startTitle": "Mula kerja",
+      "start": {
+        "import": "Import dari ePanduan",
+        "importDetail": "Pilih institusi, kemudian buka tab Import.",
+        "requirements": "Tulis syarat yang belum ada",
+        "requirementsDetail": "Program diterbitkan yang pelajar belum boleh semak.",
+        "programme": "Tambah program sendiri",
+        "programmeDetail": "Untuk program yang tiada dalam ePanduan."
+      },
       "how": {
         "title": "Cara ruang admin berfungsi",
         "steps": [
-          "Anda sediakan draf. Pelajar belum nampak apa-apa.",
-          "Admin lain menyemak. Anda tidak boleh meluluskan kerja sendiri.",
-          "Selepas diluluskan, pelajar terus nampak versi baharu."
+          "Anda sediakan draf. Pelajar belum melihat apa-apa.",
+          "Admin lain menyemak dan meluluskannya. Anda tidak boleh meluluskan kerja sendiri.",
+          "Selepas diluluskan, pelajar terus melihat versi baharu."
         ]
-      }
+      },
+      "othersDrafts": "Draf admin lain",
+      "findingOthers": "{count} draf yang disediakan admin lain belum dihantar. Anda boleh menyambung atau menghantarnya."
     },
     "tasks": {
       "title": "Peti tugasan",
-      "intro": "Semua draf yang belum diterbitkan. Yang paling lama menunggu berada di atas.",
+      "intro": "Draf dan perubahan yang belum diterbitkan. Yang paling lama menunggu berada di atas.",
       "tabs": {
         "toReview": "Untuk saya",
         "returned": "Dipulangkan",
         "myDrafts": "Draf saya",
-        "waiting": "Menunggu admin lain"
+        "waiting": "Menunggu admin lain",
+        "othersDrafts": "Draf admin lain"
       },
       "columns": {
-        "record": "Rekod",
+        "item": "Perkara",
         "status": "Status",
-        "updated": "Dikemas kini"
+        "waiting": "Menunggu"
       },
       "programme": "Program baharu atau disunting",
       "requirement": "Syarat {route} · versi {version}",
@@ -350,7 +351,8 @@
         "toReview": "Tiada draf menunggu semakan anda.",
         "returned": "Tiada draf dipulangkan kepada anda.",
         "myDrafts": "Anda tiada draf yang belum dihantar.",
-        "waiting": "Tiada draf anda yang sedang menunggu."
+        "waiting": "Tiada draf anda yang sedang menunggu.",
+        "othersDrafts": "Tiada draf admin lain yang belum dihantar."
       },
       "institution": "Permintaan padam institusi (bersama semua programnya)",
       "change": "Perubahan pada program diterbitkan",
@@ -372,7 +374,7 @@
     },
     "programmes": {
       "title": "Program",
-      "intro": "{total} program. Perubahan disimpan sebagai draf dan hanya kelihatan kepada pelajar selepas admin lain meluluskannya.",
+      "intro": "{total} program dalam katalog. Pelajar hanya melihat yang sudah diluluskan.",
       "add": "Tambah program",
       "search": "Cari program atau institusi",
       "searchButton": "Cari",
@@ -405,7 +407,8 @@
       "clearFilters": "Kosongkan tapisan",
       "noMatches": "Tiada program yang sepadan dengan carian atau penapis ini.",
       "noInstitution": "Aliran sekolah (tiada institusi)",
-      "searchHere": "Cari program di institusi ini"
+      "searchHere": "Cari program di institusi ini",
+      "routeCount": "{count} laluan"
     },
     "programmeForm": {
       "newTitle": "Tambah program baharu",
@@ -557,7 +560,7 @@
       },
       "requirements": {
         "title": "Syarat kemasukan",
-        "intro": "Maklumat dan syarat program seperti di ePanduan JPT, ikut kategori calon. Tekan \"Tambah syarat\" untuk menulis syarat bagi satu laluan; borang diisi dari teks ini.",
+        "intro": "Syarat ikut laluan masuk, seperti di ePanduan JPT. Setiap laluan disemak dan diterbitkan sendiri.",
         "suggested": "Laluan biasa untuk peringkat ini",
         "other": "Laluan lain",
         "published": "Diterbitkan · versi {version}",
@@ -581,7 +584,7 @@
         "start": "Mula syarat",
         "fromCategory": "Ditulis daripada kategori ePanduan: {category}",
         "noLines": "Draf ini belum ada baris. Buka draf dan isi dari ePanduan.",
-        "notStarted": "Belum ada syarat untuk laluan ini. Tekan \"Mula syarat\", kemudian isi dari ePanduan.",
+        "notStarted": "Laluan ini belum ada syarat. Tekan \"Mula syarat\" dan isi dari ePanduan.",
         "discardDraft": "Buang",
         "discardDraftConfirm": "Buang draf syarat ini? Syarat yang sudah diterbitkan tidak berubah.",
         "removeRoute": "Buang",
@@ -589,7 +592,7 @@
         "removeYes": "Ya, buang",
         "cancel": "Batal",
         "introManual": "Program ini tiada data ePanduan. Pilih laluan di bawah untuk menulis syaratnya sendiri.",
-        "writtenNone": "Belum ada syarat ditulis. Tekan \"Tambah syarat\" untuk bermula.",
+        "writtenNone": "Belum ada syarat. Tekan \"Tambah syarat\" untuk bermula.",
         "chipPublished": "Diterbitkan · v{version}",
         "manage": {
           "edit": "Sunting",
@@ -604,7 +607,7 @@
           "yes": "Ya, padam",
           "cancel": "Batal"
         },
-        "routeHeading": "Syarat {route}",
+        "routeHeading": "Syarat untuk {route}",
         "tabOpen": "{status} · {who}",
         "tabChange": "v{version} · perubahan {status}",
         "ownSlot": "Tulis sendiri",
@@ -614,19 +617,19 @@
         "newVersion": "Buat versi baharu"
       },
       "workflow": {
-        "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
-        "draftOther": "Draf ini disediakan oleh admin lain. Anda boleh menyunting atau menghantarnya. Jika anda menyunting, anda menjadi penyedianya dan admin lain perlu meluluskannya.",
-        "returned": "Dipulangkan oleh admin lain: {reason}",
-        "reviewMine": "Dihantar. Semua admin lain nampak program ini dalam Peti tugasan mereka (Untuk saya), dan sesiapa antara mereka boleh meluluskan atau memulangkannya. Untuk mengubah sesuatu, tarik balik dahulu.",
-        "reviewOther": "Admin lain menghantar program ini. Semak maklumat di bawah, kemudian luluskan atau pulangkan dengan sebab.",
-        "published": "Pelajar nampak program ini. Suntingan disimpan sebagai perubahan dan hanya digunakan selepas admin lain meluluskannya. Untuk memadam, arkibkan dahulu.",
-        "changeDraft": "Ada perubahan yang belum dihantar. Pelajar masih nampak versi semasa.",
-        "changeReturned": "Perubahan dipulangkan: {reason}. Pelajar masih nampak versi semasa.",
-        "changeReviewMine": "Perubahan dihantar. Semua admin lain nampak dalam Peti tugasan mereka, dan sesiapa antara mereka boleh meluluskannya. Pelajar masih nampak versi semasa.",
+        "draftMine": "Pelajar belum melihat draf ini. Bila maklumatnya lengkap, hantar kepada admin lain untuk disemak.",
+        "draftOther": "Draf ini disediakan oleh admin lain. Anda boleh menyambungnya; bila anda menyunting, anda menjadi penyedianya.",
+        "returned": "Admin lain memulangkan program ini: {reason}",
+        "reviewMine": "Sudah dihantar. Admin lain akan menyemak dan meluluskannya. Perlu ubah sesuatu? Tarik balik dahulu.",
+        "reviewOther": "Admin lain menghantar program ini untuk disemak. Periksa maklumatnya, kemudian luluskan atau pulangkan dengan sebab.",
+        "published": "Pelajar boleh melihat program ini. Suntingan anda menjadi cadangan perubahan sehingga admin lain meluluskannya.",
+        "changeDraft": "Anda ada perubahan yang belum dihantar. Pelajar masih melihat versi semasa.",
+        "changeReturned": "Perubahan anda dipulangkan: {reason}. Pelajar masih melihat versi semasa.",
+        "changeReviewMine": "Perubahan sudah dihantar untuk disemak. Pelajar masih melihat versi semasa.",
         "changeReviewOther": "Admin lain mencadangkan perubahan. Bandingkan di bawah, kemudian luluskan atau pulangkan.",
-        "archived": "Program ini disembunyikan daripada pelajar. Buka semula sebagai draf untuk menyunting dan menerbitkannya semula.",
-        "reviewSuper": "Dihantar. Sebagai super admin, anda boleh meluluskannya sendiri (direkodkan sebagai kelulusan anda), atau biar admin lain menyemaknya. Untuk mengubah sesuatu, tarik balik dahulu.",
-        "changeReviewSuper": "Perubahan dihantar. Sebagai super admin, anda boleh meluluskannya sendiri. Pelajar masih nampak versi semasa sehingga diluluskan."
+        "archived": "Program ini disembunyikan daripada pelajar. Buka semula sebagai draf jika mahu menerbitkannya lagi.",
+        "reviewSuper": "Sudah dihantar. Sebagai super admin, anda boleh meluluskannya sendiri atau tunggu admin lain menyemaknya.",
+        "changeReviewSuper": "Perubahan sudah dihantar. Sebagai super admin, anda boleh meluluskannya sendiri."
       },
       "steps": {
         "new": [
@@ -694,7 +697,7 @@
     },
     "institutions": {
       "title": "Institusi",
-      "intro": "Universiti, politeknik dan kolej yang menawarkan program. Perubahan di sini terus digunakan.",
+      "intro": "Universiti, politeknik dan kolej yang menawarkan program. Perubahan di sini terus digunakan, tanpa semakan.",
       "add": "Tambah institusi",
       "edit": "Sunting",
       "cancel": "Batal",
@@ -742,7 +745,7 @@
       "noWebsite": "Belum ada laman web. Tambah melalui Sunting di senarai institusi.",
       "sourcesHint": "Tidak lama lagi, program institusi ini akan dibaca secara automatik daripada sumber di sini dan dipaparkan untuk anda semak sebelum diterbitkan.",
       "programmesHere": "Program di institusi ini",
-      "addHere": "Tambah program di sini",
+      "addHere": "Tambah program",
       "how": {
         "title": "Mula dari institusi",
         "steps": [

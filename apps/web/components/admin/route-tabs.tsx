@@ -11,6 +11,7 @@ import { AdminIcon } from './icons';
 import { RemoveDraftModal } from './remove-draft-modal';
 import { NewVersionButton } from './new-version-button';
 import { IconText, buttonClass } from './ui';
+import { FromField } from './from-field';
 
 type Status = 'published' | 'draft' | 'in_review' | 'returned' | null;
 
@@ -85,7 +86,7 @@ export function RouteTabs({ locale, programId, tabs, addHref, t, m, errors }: {
                   role="tab"
                   aria-selected={on}
                   onClick={() => setActive(i)}
-                  className={`flex min-w-[150px] flex-col items-start gap-0.5 rounded-[12px] border px-3.5 py-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                  className={`flex min-w-[150px] flex-col items-start gap-0.5 rounded-[8px] border px-3.5 py-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
                     on ? 'border-navy bg-navy text-white' : 'border-line bg-white text-navy hover:border-navy/30 hover:bg-bg/60'
                   } ${editing && x.removable ? 'ring-2 ring-red/30' : ''}`}
                 >
@@ -136,17 +137,17 @@ export function RouteTabs({ locale, programId, tabs, addHref, t, m, errors }: {
       </div>
 
       {editing && (
-        <p role="status" className="flex items-center gap-2 rounded-[12px] bg-cream px-4 py-2.5 text-[13px]">
+        <p role="status" className="flex items-center gap-2 rounded-[8px] bg-cream px-4 py-2.5 text-[13px]">
           <AdminIcon name="info" size={16} className="shrink-0" />
           {t.manage.editHint}
         </p>
       )}
 
       {!tab ? (
-        <p className="rounded-[12px] bg-bg px-4 py-3 text-sm text-muted">{t.writtenNone}</p>
+        <p className="rounded-[8px] bg-bg px-4 py-3 text-sm text-muted">{t.writtenNone}</p>
       ) : (
         <div role="tabpanel" className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] bg-bg/60 px-4 py-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] bg-bg/60 px-4 py-2.5">
             <p className="text-sm font-semibold">{format(t.routeHeading, { route: tab.detail ? `${tab.name} (${tab.detail})` : tab.name })}</p>
             {tab.href ? (
               <div className="flex flex-wrap items-start gap-2">
@@ -180,6 +181,7 @@ function DraftFromEpanduan({ locale, programId, slot, label, errors }: { locale:
   return (
     <form onSubmit={onSubmit} className="flex flex-col items-end gap-1">
       <input type="hidden" name="locale" value={locale} />
+      <FromField />
       <input type="hidden" name="programId" value={programId} />
       {slot && <input type="hidden" name="slot" value={slot} />}
       <button type="submit" disabled={pending} className={buttonClass(slot ? 'primary' : 'accent', 'sm')}>

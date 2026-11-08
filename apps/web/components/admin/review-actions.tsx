@@ -65,7 +65,7 @@ export function ReviewActions({ locale, kind, id, allowed, t, effect }: ReviewAc
       {/* Approve, submit and reopen send their own value; the "Return" and "Archive" boxes send this one. */}
       {asking && <input type="hidden" name="action" value={asking} />}
       <FormAlert>{!pending && state.error ? t.errors[state.error] : undefined}</FormAlert>
-      {effect && <p className="rounded-[12px] bg-cream px-4 py-3 text-sm">{effect}</p>}
+      {effect && <p className="rounded-[8px] bg-cream px-4 py-3 text-sm">{effect}</p>}
 
       {asking === 'return' ? (
         <div className="flex flex-col gap-2">
@@ -80,7 +80,7 @@ export function ReviewActions({ locale, kind, id, allowed, t, effect }: ReviewAc
             maxLength={1000}
             rows={3}
             placeholder={kind === 'requirement' ? r.reasonPlaceholder : a.reasonPlaceholder}
-            className="rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
+            className="rounded-[8px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
           />
           <div className="flex gap-2">
             <button type="submit" disabled={pending} className={buttonClass('primary')}>
@@ -94,7 +94,7 @@ export function ReviewActions({ locale, kind, id, allowed, t, effect }: ReviewAc
           </div>
         </div>
       ) : asking === 'archive' ? (
-        <div className="flex flex-col gap-2 rounded-[12px] border border-red/40 bg-red/10 p-4">
+        <div className="flex flex-col gap-2 rounded-[8px] border border-red/40 bg-red/10 p-4">
           <p className="text-sm">{a.archiveHint}</p>
           <div className="flex gap-2">
             <button type="submit" disabled={pending} className={buttonClass('danger')}>

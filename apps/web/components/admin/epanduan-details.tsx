@@ -51,7 +51,7 @@ export function FoundDetailsBody({ programme, special, m, requirements }: {
         {info
           .filter(([, , value]) => value)
           .map(([icon, label, value]) => (
-            <div key={label} className="flex items-start gap-2 rounded-[10px] border border-line bg-white px-3 py-2">
+            <div key={label} className="flex items-start gap-2 rounded-[8px] border border-line bg-white px-3 py-2">
               <AdminIcon name={icon} size={15} className="mt-0.5 text-muted" />
               <div className="min-w-0">
                 <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</dt>
@@ -61,7 +61,7 @@ export function FoundDetailsBody({ programme, special, m, requirements }: {
           ))}
       </dl>
       {programme.note && (
-        <p className="flex items-start gap-2 rounded-[10px] bg-cream px-3 py-2">
+        <p className="flex items-start gap-2 rounded-[8px] bg-cream px-3 py-2">
           <AdminIcon name="info" size={15} className="mt-0.5" />
           <span>
             <span className="font-semibold">{m.info.note}: </span>
@@ -73,7 +73,7 @@ export function FoundDetailsBody({ programme, special, m, requirements }: {
       {(programme.fees || programme.careers) && (
         <div className="grid gap-3 sm:grid-cols-2">
           {programme.careers && (
-            <section className="flex flex-col gap-1.5 rounded-[12px] border border-line bg-white p-3">
+            <section className="flex flex-col gap-1.5 rounded-[8px] border border-line bg-white p-3">
               <h4 className="text-[12px] font-bold uppercase tracking-wide text-muted">{m.careers}</h4>
               {careers ? (
                 <ul className="flex flex-wrap gap-1">
@@ -89,7 +89,7 @@ export function FoundDetailsBody({ programme, special, m, requirements }: {
             </section>
           )}
           {programme.fees && (
-            <section className="flex flex-col gap-1.5 rounded-[12px] border border-line bg-white p-3">
+            <section className="flex flex-col gap-1.5 rounded-[8px] border border-line bg-white p-3">
               <h4 className="text-[12px] font-bold uppercase tracking-wide text-muted">{m.fees}</h4>
               <p className="leading-relaxed text-muted">{programme.fees}</p>
             </section>
@@ -108,7 +108,7 @@ export function FoundDetails({ programme, special, m, open = false }: { programm
         <span className="transition-transform duration-150 group-open:rotate-90 motion-reduce:transition-none">›</span>
         {m.details}
       </summary>
-      <div className="mt-2 rounded-[12px] border border-line bg-bg/60 p-3">
+      <div className="mt-2 rounded-[8px] border border-line bg-bg/60 p-3">
         <FoundDetailsBody programme={programme} special={special} m={m} />
       </div>
     </details>

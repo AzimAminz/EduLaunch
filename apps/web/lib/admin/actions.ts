@@ -4,6 +4,7 @@ import { EntryRoutes, EpanduanInstitutions, InstitutionSourceKinds, InstitutionT
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { readFrom, withFrom } from './trail';
 import { isLocale, type Locale } from '../i18n/locale';
 import { getAccount, getAccessToken } from '../supabase/server';
 import * as api from './api';
@@ -71,6 +72,11 @@ async function adminSession(locale: Locale): Promise<{ token: string; superAdmin
   const token = await getAccessToken();
   if (!account || !token || account.role !== 'admin') redirect(`/${locale}`);
   return { token, superAdmin: account.superAdmin };
+}
+
+/** The list the admin came from, sent with the form (`dari`), when it is a safe admin address. */
+function fromOf(form: FormData): string | null {
+  return readFrom(text(form, 'dari'), localeOf(form));
 }
 
 function errorKey(err: unknown): AdminErrorKey {
@@ -299,7 +305,7 @@ export async function updateProgramme(_prev: AdminFormState, form: FormData): Pr
     return { error: errorKey(err) };
   }
   refresh();
-  redirect(`/${locale}/admin/program/${id}`);
+  redirect(withFrom(`/${locale}/admin/program/${id}`, fromOf(form)));
 }
 
 /** Send for review, approve, return with a reason, withdraw, discard a change, archive, reopen or delete a programme. */
@@ -392,12 +398,12 @@ export async function startRequirement(_prev: AdminFormState, form: FormData): P
   const copyFrom = text(form, 'copyFrom');
   if (z.uuid().safeParse(copyFrom).success && (await copyInto(token, id, copyFrom))) {
     refresh();
-    redirect(`/${locale}/admin/syarat/${id}?disalin=1`);
+    redirect(withFrom(`/${locale}/admin/syarat/${id}?disalin=1`, fromOf(form)));
   }
   refresh();
   // From an ePanduan category: the editor fills an empty draft from its text, for the admin to check and save.
   const fill = text(form, 'fill');
-  redirect(`/${locale}/admin/syarat/${id}${CATEGORY.test(fill) ? `?isi=${encodeURIComponent(fill)}` : ''}`);
+  redirect(withFrom(`/${locale}/admin/syarat/${id}${CATEGORY.test(fill) ? `?isi=${encodeURIComponent(fill)}` : ''}`, fromOf(form)));
 }
 
 /** Copies another requirement's lines into an empty draft; false when nothing was copied (the draft keeps its own). */
@@ -444,7 +450,7 @@ export async function saveRequirement(_prev: AdminFormState, form: FormData): Pr
   }
   refresh();
   // Back to the programme's requirements, which say what was done ("draft saved" or "sent for review").
-  redirect(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat&selesai=${submit ? 'hantar' : 'draf'}`);
+  redirect(withFrom(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat&selesai=${submit ? 'hantar' : 'draf'}`, fromOf(form)));
 }
 
 /** The reviewing admin approves (publishes) or returns a requirement draft. */
@@ -473,7 +479,7 @@ export async function discardRequirement(_prev: AdminFormState, form: FormData):
     return { error: errorKey(err) };
   }
   refresh();
-  redirect(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat`);
+  redirect(withFrom(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat`, fromOf(form)));
 }
 
 /** Removes an entry route that has no requirements yet from a programme. */
@@ -505,7 +511,7 @@ export async function removeEntryRoute(_prev: AdminFormState, form: FormData): P
     return { error: errorKey(err) };
   }
   refresh();
-  redirect(`/${locale}/admin/program/${programId}?tab=syarat`);
+  redirect(withFrom(`/${locale}/admin/program/${programId}?tab=syarat`, fromOf(form)));
 }
 
 /**
@@ -528,8 +534,8 @@ export async function draftFromEpanduan(_prev: AdminFormState, form: FormData): 
     return { error: errorKey(err) };
   }
   refresh();
-  if (only && opened) redirect(`/${locale}/admin/syarat/${opened}?disalin=epanduan`);
-  redirect(`/${locale}/admin/program/${programId}?tab=syarat&selesai=dari-epanduan`);
+  if (only && opened) redirect(withFrom(`/${locale}/admin/syarat/${opened}?disalin=epanduan`, fromOf(form)));
+  redirect(withFrom(`/${locale}/admin/program/${programId}?tab=syarat&selesai=dari-epanduan`, fromOf(form)));
 }
 
 /**
@@ -649,6 +655,12 @@ export async function bulkReview(_prev: AdminFormState, form: FormData): Promise
   items.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'requirement' ? -1 : 1));
   for (const item of items) {
     try {
+      // A super admin "approving" a draft (from another admin's drafts) sends it first, then approves it.
+      const draft = ['draft', 'returned'].includes(text(form, `status-${item.id}`));
+      if (action === 'approve' && draft && superAdmin) {
+        if (item.kind === 'programme') await api.reviewProgramme(token, item.id, { action: 'submit' });
+        else await api.reviewRequirement(token, item.id, { action: 'submit' });
+      }
       if (item.kind === 'programme') {
         await api.reviewProgramme(token, item.id, { action });
         // Its requirements not chosen on their own go along (chosen ones were handled first, below).

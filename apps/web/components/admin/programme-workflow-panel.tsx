@@ -41,19 +41,20 @@ const ICON: Record<WorkflowAction, AdminIconName> = {
 const DANGER = new Set<WorkflowAction>(['discard', 'archive', 'delete', 'unpublish']);
 
 const TONE: Record<Workflow['message'], string> = {
+  // White everywhere; only a state that needs the reader's attention gets a thin coloured edge on the left.
   draftMine: 'bg-white',
   draftOther: 'bg-white',
-  returned: 'bg-red/10',
-  reviewMine: 'bg-cream',
-  reviewOther: 'bg-cream',
-  reviewSuper: 'bg-cream',
-  published: 'bg-mint',
-  changeDraft: 'bg-blue',
-  changeReturned: 'bg-red/10',
-  changeReviewMine: 'bg-cream',
-  changeReviewOther: 'bg-cream',
-  changeReviewSuper: 'bg-cream',
-  archived: 'bg-line',
+  returned: 'bg-white shadow-[inset_3px_0_0_#d24b45]',
+  reviewMine: 'bg-white shadow-[inset_3px_0_0_#3b6fd8]',
+  reviewOther: 'bg-white shadow-[inset_3px_0_0_#3b6fd8]',
+  reviewSuper: 'bg-white shadow-[inset_3px_0_0_#3b6fd8]',
+  published: 'bg-white shadow-[inset_3px_0_0_#2f9e6a]',
+  changeDraft: 'bg-white',
+  changeReturned: 'bg-white shadow-[inset_3px_0_0_#d24b45]',
+  changeReviewMine: 'bg-white shadow-[inset_3px_0_0_#3b6fd8]',
+  changeReviewOther: 'bg-white shadow-[inset_3px_0_0_#3b6fd8]',
+  changeReviewSuper: 'bg-white shadow-[inset_3px_0_0_#3b6fd8]',
+  archived: 'bg-white',
 };
 
 /**
@@ -96,7 +97,7 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
   const [pressed, setPressed] = useState<string | null>(null);
 
   return (
-    <section className={`flex flex-col gap-4 rounded-[18px] border border-line p-5 lg:p-6 ${TONE[workflow.message]}`}>
+    <section className={`flex flex-col gap-3 rounded-[8px] border border-line p-5 ${TONE[workflow.message]}`}>
       {workflow.track !== 'none' && (
         <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-semibold" aria-label={steps.join(' → ')}>
           {steps.map((name, i) => (
@@ -113,14 +114,14 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
       <p className="text-[15px]">{message}</p>
       <FormAlert>{!pending && state.error ? t.errors[state.error] : undefined}</FormAlert>
       {!pending && state.alongside && (state.alongside.done > 0 || state.alongside.failed > 0) && (
-        <div role="status" className="flex flex-col gap-1 rounded-[12px] bg-white/70 px-4 py-3 text-[13px]">
+        <div role="status" className="flex flex-col gap-1 rounded-[8px] bg-[#f5f7fb] px-4 py-3 text-[13px]">
           {state.alongside.done > 0 && <p>{format(t.programme.alongside[state.alongside.action], { n: state.alongside.done })}</p>}
           {state.alongside.failed > 0 && <p className="text-[#8a6100]">{format(t.programme.alongside.failed, { n: state.alongside.failed })}</p>}
         </div>
       )}
 
       {workflow.message === 'published' && draftRequirements && draftRequirements.count > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] bg-cream px-4 py-3 text-[13px]">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-[#fde68a] bg-[#fffbeb] px-4 py-2.5 text-[13px] text-[#92400e]">
           <p>{format(t.programme.alongside.pending, { n: draftRequirements.count })}</p>
           <button
             type="submit"
@@ -215,7 +216,7 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
               maxLength={1000}
               rows={4}
               placeholder={t.programme.actions.reasonPlaceholder}
-              className="rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
+              className="rounded-[8px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
             />
           </div>
         )}

@@ -44,7 +44,7 @@ export function BulkTasks({ locale, action, total, t, errors, children }: {
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="bulkAction" value={action} />
       {total > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-[12px] border border-line bg-white px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-3 rounded-[8px] border border-line bg-white px-4 py-2">
           <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold">
             <input
               type="checkbox"
@@ -87,7 +87,7 @@ export function BulkTasks({ locale, action, total, t, errors, children }: {
         }
       />
       {!pending && state.bulk && (
-        <div role="status" className={`flex flex-col gap-1 rounded-[12px] px-4 py-3 text-sm ${state.bulk.failed.length ? 'bg-cream' : 'bg-mint text-[#1f6b47]'}`}>
+        <div role="status" className={`flex flex-col gap-1 rounded-[8px] border px-4 py-3 text-sm ${state.bulk.failed.length ? 'border-[#fde68a] bg-[#fffbeb] text-[#92400e]' : 'border-[#bfe8cd] bg-[#dcfae5] text-[#0f4a26]'}`}>
           <p className="font-semibold">{format(action === 'approve' ? t.approved : t.sent, { count: state.bulk.done })}</p>
           {state.bulk.failed.length > 0 && (
             <>

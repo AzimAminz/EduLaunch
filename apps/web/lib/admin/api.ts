@@ -71,6 +71,8 @@ const Tasks = z.object({
   returned: z.array(Task),
   myDrafts: z.array(Task),
   waiting: z.array(Task),
+  /** Drafts another admin started, which any admin may carry on. */
+  othersDrafts: z.array(Task).default([]),
   counts: z.object({ published: z.number(), withoutRequirements: z.number() }),
 });
 export type AdminTasks = z.infer<typeof Tasks>;

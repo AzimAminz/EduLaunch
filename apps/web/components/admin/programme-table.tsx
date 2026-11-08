@@ -79,13 +79,16 @@ export function ProgrammeTable({
                 {showInstitution && <p className={`${ts.sub} truncate`}>{p.institutionName ?? t.programmes.noInstitution}</p>}
               </td>
               <td className={`${ts.td} whitespace-nowrap text-[13px]`}>{dict.levels[p.studyLevel]}</td>
-              <td className={`${ts.td} text-[13px]`}>
+              <td className={`${ts.td} max-w-[220px] text-[13px]`}>
+                {/* One line each: what students can check against, then what is still being prepared. */}
                 {p.publishedRoutes.length ? (
-                  <span>{p.publishedRoutes.map((r) => routes[r] ?? r).join(', ')}</span>
+                  <p className="truncate" title={p.publishedRoutes.map((r) => routes[r] ?? r).join(', ')}>
+                    {p.publishedRoutes.length === 1 ? (routes[p.publishedRoutes[0]!] ?? p.publishedRoutes[0]) : format(t.programmes.routeCount, { count: p.publishedRoutes.length })}
+                  </p>
                 ) : (
-                  <span className="text-[#8a5a00]">{t.programmes.noRequirements}</span>
+                  <p className="text-[#8a5a00]">{t.programmes.noRequirements}</p>
                 )}
-                {p.openDrafts > 0 && <span className="text-muted"> · {format(t.programmes.openDrafts, { count: p.openDrafts })}</span>}
+                {p.openDrafts > 0 && <p className="text-muted">{format(t.programmes.openDrafts, { count: p.openDrafts })}</p>}
               </td>
               <td className={ts.td}>
                 <StatusChip status={p.status} t={t} note={p.pendingStatus ? t.programmes.changeBadge : undefined} />

@@ -44,7 +44,14 @@ async function NewProgramme({ locale, dict, searchParams }: { locale: Locale; di
         title={t.programmeForm.newTitle}
         intro={t.programmeForm.newIntro}
         // Back to where the admin came from: the institution's profile, or the programme list.
-        back={from ? { href: `/${locale}/admin/institusi/${from.id}?tab=program`, label: `← ${from.name}` } : { href: `/${locale}/admin/program`, label: t.programme.back }}
+        crumbs={
+          from
+            ? [
+                { label: t.nav.institutions, href: `/${locale}/admin/institusi` },
+                { label: from.name, href: `/${locale}/admin/institusi/${from.id}?tab=program` },
+              ]
+            : [{ label: t.nav.programmes, href: `/${locale}/admin/program` }]
+        }
       />
       <Card className="max-w-[760px]">
         <FreshOnNavigate>

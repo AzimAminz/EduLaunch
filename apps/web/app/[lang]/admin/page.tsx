@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { TaskList } from '@/components/admin/task-list';
-import { AdminIcon, type AdminIconName } from '@/components/admin/icons';
-import { AdminHeading, Card, EmptyState, HowItWorks, LoadError, buttonClass } from '@/components/admin/ui';
+import { taskHref } from '@/components/admin/task-list';
+import { AdminIcon } from '@/components/admin/icons';
+import { AdminHeading, HowItWorks, LoadError, timeAgo } from '@/components/admin/ui';
+import { withFrom } from '@/lib/admin/trail';
 import { getTasks, type AdminTasks } from '@/lib/admin/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
@@ -33,90 +34,113 @@ async function AdminHome({ locale, dict }: { locale: Locale; dict: Dictionary })
   }
   const now = new Date().getTime();
   const base = `/${locale}/admin`;
-  const mine = [...tasks.returned, ...tasks.myDrafts, ...tasks.waiting];
+  const h = t.home;
+  const inbox = (tab: string) => `${base}/tugasan?tab=${tab}`;
+  const counts = [
+    { label: h.counts.toReview, value: tasks.toReview.length, href: inbox('toReview'), lead: true },
+    { label: h.counts.returned, value: tasks.returned.length, href: inbox('returned'), warn: tasks.returned.length > 0 },
+    { label: h.counts.drafts, value: tasks.myDrafts.length, href: inbox('myDrafts') },
+    { label: h.counts.waiting, value: tasks.waiting.length, href: inbox('waiting') },
+    { label: h.counts.published, value: tasks.counts.published, href: `${base}/program?status=published` },
+    { label: h.counts.withoutRequirements, value: tasks.counts.withoutRequirements, href: `${base}/program?syarat=tiada`, warn: tasks.counts.withoutRequirements > 0 },
+  ];
+  const groups = [
+    { title: h.toReview, rows: tasks.toReview, href: inbox('toReview'), tab: 'toReview' },
+    { title: h.returned, rows: tasks.returned, href: inbox('returned'), tab: 'returned' },
+    { title: h.drafts, rows: tasks.myDrafts, href: inbox('myDrafts'), tab: 'myDrafts' },
+    { title: h.othersDrafts, rows: tasks.othersDrafts, href: inbox('othersDrafts'), tab: 'othersDrafts' },
+  ].filter((g) => g.rows.length > 0);
+  // The finding first: what waits for this admin, in one sentence.
+  const finding = tasks.toReview.length
+    ? format(h.findingReview, { count: tasks.toReview.length })
+    : tasks.returned.length
+      ? format(h.findingReturned, { count: tasks.returned.length })
+      : tasks.othersDrafts.length
+        ? format(h.findingOthers, { count: tasks.othersDrafts.length })
+        : tasks.counts.withoutRequirements
+        ? format(h.findingRequirements, { count: tasks.counts.withoutRequirements })
+        : h.findingClear;
+  const routes: Record<string, string> = dict.requirements.routes;
+  const starts = [
+    { label: h.start.import, detail: h.start.importDetail, href: `${base}/institusi` },
+    { label: h.start.requirements, detail: h.start.requirementsDetail, href: `${base}/program?syarat=tiada` },
+    { label: h.start.programme, detail: h.start.programmeDetail, href: `${base}/program/baharu` },
+  ];
 
   return (
     <>
-      <AdminHeading title={format(t.home.greeting, { name: account.name ?? account.email })} intro={t.home.intro} />
+      <AdminHeading title={format(h.greeting, { name: account.name ?? account.email })} intro={finding} />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <TaskCard
-          icon="eye"
-          tone="bg-cream"
-          title={t.home.review.title}
-          body={t.home.review.body}
-          note={tasks.toReview.length ? format(t.home.review.count, { count: tasks.toReview.length }) : t.home.review.none}
-          href={`${base}/tugasan`}
-          action={t.home.review.action}
-          primary={tasks.toReview.length > 0}
-        />
-        <TaskCard icon="listChecks" tone="bg-blue" title={t.home.requirements.title} body={t.home.requirements.body} note={tasks.counts.withoutRequirements > 0 ? t.home.requirements.hint : t.home.requirements.hintAll} href={tasks.counts.withoutRequirements > 0 ? `${base}/program?syarat=tiada` : `${base}/program`} action={t.home.requirements.action} />
-        <TaskCard icon="plus" tone="bg-mint" title={t.home.programme.title} body={t.home.programme.body} href={`${base}/program/baharu`} action={t.home.programme.action} />
+      {/* One strip, split by rules: each count opens its list. */}
+      <div className="grid grid-cols-2 overflow-hidden rounded-[8px] border border-line bg-white sm:grid-cols-3 xl:grid-cols-6">
+        {counts.map((c) => (
+          <Link
+            key={c.label}
+            href={c.href}
+            className="-ml-px -mt-px flex flex-col gap-1 border-l border-t border-line px-4 py-3.5 transition-colors duration-150 hover:bg-[#f5f7fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy/40"
+          >
+            <span className="text-[13px] text-muted">{c.label}</span>
+            <span className={`font-semibold tabular-nums leading-none ${c.lead ? 'text-[26px]' : 'text-[22px]'} ${c.warn ? 'text-[#b33a35]' : c.value === 0 ? 'text-muted' : ''}`}>{c.value}</span>
+          </Link>
+        ))}
       </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <Card>
-          <h2 className="text-lg font-semibold">{t.home.yourWork}</h2>
-          {mine.length === 0 ? (
-            <EmptyState icon="checkCircle" text={t.home.empty} />
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <section className="flex flex-col rounded-[8px] border border-line bg-white">
+          <h2 className="px-5 pb-2 pt-4 text-base font-semibold">{h.yourWork}</h2>
+          {groups.length === 0 ? (
+            <p className="flex items-center gap-2 px-5 pb-5 text-sm text-muted">
+              <AdminIcon name="checkCircle" size={16} className="text-[#247b50]" />
+              {h.empty}
+            </p>
           ) : (
-            <div className="flex flex-col gap-5">
-              {(
-                [
-                  [t.home.returned, tasks.returned, t.tasks.open],
-                  [t.home.drafts, tasks.myDrafts, t.tasks.open],
-                  [t.home.waiting, tasks.waiting, t.tasks.open],
-                ] as const
-              )
-                .filter(([, list]) => list.length > 0)
-                .map(([title, list, action]) => (
-                  <div key={title} className="flex flex-col gap-2">
-                    <h3 className="text-sm font-semibold text-muted">{title}</h3>
-                    <TaskList tasks={list} locale={locale} dict={dict} now={now} action={action} empty="" />
-                  </div>
-                ))}
-            </div>
+            groups.map((g) => (
+              <div key={g.title} className="border-t border-[#f0f1f3] px-5 py-3">
+                <div className="mb-1 flex items-baseline justify-between gap-3">
+                  <h3 className="text-[13px] font-semibold">
+                    {g.title} <span className="font-normal text-muted">{g.rows.length}</span>
+                  </h3>
+                  {g.rows.length > 5 && (
+                    <Link href={g.href} className="text-[13px] text-muted hover:text-navy hover:underline">
+                      {format(t.institutions.summary.viewAll, { count: g.rows.length })}
+                    </Link>
+                  )}
+                </div>
+                <ul>
+                  {g.rows.slice(0, 5).map((task) => (
+                    <li key={`${task.kind}:${task.id}`} className="group flex items-center justify-between gap-3 rounded-[6px] py-1.5 text-sm">
+                      <Link href={withFrom(taskHref(task, locale), base)} className="min-w-0 truncate group-hover:underline">
+                        {task.programmeName}
+                        <span className="text-muted">
+                          {task.kind === 'requirement' && ` · ${routes[task.entryRoute ?? ''] ?? task.entryRoute ?? ''}`}
+                          {task.kind === 'programme' && task.isChange && ` · ${t.tasks.change}`}
+                        </span>
+                      </Link>
+                      <span className="flex-none text-[13px] tabular-nums text-muted">{timeAgo(task.updatedAt, now, t)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
           )}
-        </Card>
+        </section>
+
         <div className="flex flex-col gap-4">
-          <Card>
-            <h2 className="flex items-center gap-2 font-semibold">
-              <AdminIcon name="programme" size={18} />
-              {t.home.catalogue}
-            </h2>
-            <Link href={`${base}/program?status=published`} className="inline-flex items-center gap-2 self-start text-sm hover:underline">
-              <AdminIcon name="checkCircle" size={16} className="text-[#1f6b47]" />
-              {format(t.home.published, { count: tasks.counts.published })}
-            </Link>
-            {tasks.counts.withoutRequirements > 0 && (
-              <Link href={`${base}/program?syarat=tiada`} className="inline-flex items-center gap-2 self-start text-sm text-[#b33a35] hover:underline">
-                <AdminIcon name="alert" size={16} />
-                {format(t.home.withoutRequirements, { count: tasks.counts.withoutRequirements })}
+          <section className="flex flex-col rounded-[8px] border border-line bg-white py-2">
+            <h2 className="px-5 pb-1 pt-2 text-base font-semibold">{h.startTitle}</h2>
+            {starts.map((x) => (
+              <Link key={x.href} href={x.href} className="group flex items-center gap-3 px-5 py-2.5 transition-colors duration-150 hover:bg-[#f5f7fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy/40">
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-sm font-semibold">{x.label}</span>
+                  <span className="text-[13px] text-muted">{x.detail}</span>
+                </span>
+                <AdminIcon name="chevronRight" size={16} className="text-muted transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-navy motion-reduce:transition-none" />
               </Link>
-            )}
-          </Card>
-          <HowItWorks title={t.home.how.title} steps={t.home.how.steps} />
+            ))}
+          </section>
+          <HowItWorks title={h.how.title} steps={h.how.steps} />
         </div>
       </div>
     </>
-  );
-}
-
-function TaskCard({ icon, tone, title, body, note, href, action, primary }: { icon: AdminIconName; tone: string; title: string; body: string; note?: string; href: string; action: string; primary?: boolean }) {
-  return (
-    <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 transition-[border-color,box-shadow] duration-150 hover:border-navy/30 hover:shadow-[0_6px_20px_rgba(16,24,40,0.06)]">
-      <span className={`flex size-11 items-center justify-center rounded-[12px] text-navy ${tone}`}>
-        <AdminIcon name={icon} size={22} />
-      </span>
-      <h2 className="text-lg font-semibold leading-snug">{title}</h2>
-      <p className="flex-1 text-sm text-muted">{body}</p>
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-[13px] font-medium">{note}</span>
-        <Link href={href} className={`${buttonClass(primary ? 'accent' : 'secondary')} group`}>
-          <span>{action}</span>
-          <AdminIcon name="arrowRight" size={16} className="transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
-        </Link>
-      </div>
-    </section>
   );
 }

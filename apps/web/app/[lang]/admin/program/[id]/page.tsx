@@ -10,6 +10,7 @@ import { ProgrammeWorkflowPanel } from '@/components/admin/programme-workflow-pa
 import { RouteTabs, type RouteTab } from '@/components/admin/route-tabs';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, Card, IconText, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
+import { readFrom, trail, withFrom } from '@/lib/admin/trail';
 import { AdminApiError, getProgrammeDetail, listFoundProgrammes, listInstitutions, listNecFields, listSpecialRequirements, type PendingDetails, type ProgrammeDetail } from '@/lib/admin/api';
 import { differencesFromEpanduan, draftFromFound, type EpanduanFormField } from '@/lib/admin/epanduan-import';
 import { requirementSlots } from '@/lib/admin/requirement-slots';
@@ -74,6 +75,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
   if (!z.uuid().safeParse(id).success) notFound();
   const account = await requireRole(locale, 'admin');
   const sp = await searchParams;
+  const from = readFrom(sp.dari, locale);
   const tab: Tab = TABS.find((x) => x === sp.tab) ?? 'maklumat';
   // Set by the requirement editor after saving: what was just done.
   const done = sp.selesai === 'draf' ? 'draft' : sp.selesai === 'hantar' ? 'sent' : sp.selesai === 'dari-epanduan' ? 'drafted' : null;
@@ -106,31 +108,28 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         : w[workflow.message];
   const live = liveDetails(programme);
   const base = `/${locale}/admin/program/${id}`;
+  const crumbs = trail({
+    locale,
+    from,
+    labels: { home: t.nav.home, tasks: t.nav.tasks, institutions: t.nav.institutions, programmes: t.nav.programmes },
+    institution: programme.institutionId ? { id: programme.institutionId, name: names.institutions.get(programme.institutionId) ?? programme.institutionName ?? '' } : null,
+  });
   const routeCount = new Set(programme.requirements.map((r) => r.entryRoute)).size;
 
   return (
     <>
       <AdminHeading
-        // Back to where the programme belongs: its institution (Form 4 streams have none).
-        back={
-          programme.institutionId
-            ? { href: `/${locale}/admin/institusi/${programme.institutionId}?tab=program`, label: `← ${programme.institutionName ?? t.institutions.title}` }
-            : { href: `/${locale}/admin/program`, label: t.programme.back }
-        }
+        // Back to the list the admin came from (page, sort and filter kept), or to the programme's institution.
+        crumbs={crumbs}
+        current={programme.programCode ?? undefined}
         title={programme.name}
         intro={
           <span className="flex flex-wrap items-center gap-2">
             <span>{[programme.institutionName, dict.levels[programme.studyLevel], programme.programCode].filter(Boolean).join(' · ')}</span>
-            <StatusChip status={programme.status} t={t} />
-            {programme.pendingStatus && <span className="rounded-full bg-yellow px-2.5 py-1 text-xs font-semibold">{t.programmes.changeBadge}</span>}
+            <StatusChip status={programme.status} t={t} note={programme.pendingStatus ? t.programmes.changeBadge : undefined} />
             {programme.entryRoutes.length > 0 && (
-              <span className="flex w-full flex-wrap items-center gap-1 text-[13px]">
-                <span className="text-muted">{t.programme.entryRoutes}:</span>
-                {programme.entryRoutes.map((r) => (
-                  <span key={r} className="rounded-full bg-blue px-2 py-0.5 text-xs font-semibold text-navy">
-                    {(dict.requirements.routes as Record<string, string>)[r] ?? r}
-                  </span>
-                ))}
+              <span className="w-full text-[13px]">
+                {t.programme.entryRoutes}: {programme.entryRoutes.map((r) => (dict.requirements.routes as Record<string, string>)[r] ?? r).join(', ')}
               </span>
             )}
           </span>
@@ -146,12 +145,12 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         message={message}
         requirementCount={programme.requirements.length}
         draftRequirements={{ count: programme.requirements.filter((r) => r.status === 'draft' || r.status === 'returned').length, superAdmin: account.superAdmin }}
-        backHref={programme.institutionId ? `/${locale}/admin/institusi/${programme.institutionId}?tab=program` : `/${locale}/admin/program`}
+        backHref={crumbs[crumbs.length - 1]!.href}
         t={t}
       />
 
       {done && tab === 'syarat' && (
-        <p role="status" className="flex items-center gap-2 rounded-[14px] bg-mint px-4 py-3 text-sm font-medium text-[#1f6b47]">
+        <p role="status" className="flex items-center gap-2 rounded-[8px] border border-[#bfe8cd] bg-[#dcfae5] px-4 py-3 text-sm font-medium text-[#0f4a26]">
           <AdminIcon name="checkCircle" size={18} />
           {t.programme.requirements.done[done]}
         </p>
@@ -159,8 +158,8 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
       <AdminTabs
         label={programme.name}
         items={[
-          { href: base, label: t.programme.tabs.details, icon: 'info', current: tab === 'maklumat' },
-          { href: `${base}?tab=syarat`, label: t.programme.tabs.requirements, icon: 'listChecks', current: tab === 'syarat', count: routeCount },
+          { href: withFrom(base, from), label: t.programme.tabs.details, icon: 'info', current: tab === 'maklumat' },
+          { href: withFrom(`${base}?tab=syarat`, from), label: t.programme.tabs.requirements, icon: 'listChecks', current: tab === 'syarat', count: routeCount },
         ]}
       />
 
@@ -176,14 +175,11 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
           )}
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="flex items-center gap-2 text-lg font-semibold">
-                <AdminIcon name="info" size={20} />
-                {t.programme.details}
-              </h2>
+              <h2 className="text-base font-semibold">{t.programme.details}</h2>
               <div className="flex flex-wrap items-center gap-3">
                 {programme.preparedBy && <span className="text-[13px] text-muted">{format(t.programme.preparedBy, { who: who(programme.preparedBy, me, t) })}</span>}
                 {workflow.actions.includes('edit') && (
-                  <Link href={`/${locale}/admin/program/${programme.id}/sunting`} className={buttonClass('secondary', 'sm')}>
+                  <Link href={withFrom(`/${locale}/admin/program/${programme.id}/sunting`, from)} className={buttonClass('secondary', 'sm')}>
                     <IconText icon="pencil">{workflow.track === 'change' ? t.programme.act.editChange : t.programme.act.edit}</IconText>
                   </Link>
                 )}
@@ -193,7 +189,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
           </Card>
         </>
       ) : (
-        <Requirements locale={locale} dict={dict} programme={programme} me={me} />
+        <Requirements locale={locale} dict={dict} programme={programme} me={me} from={from} />
       )}
     </>
   );
@@ -208,7 +204,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
  * The requirements tab in one card: the programme's facts from ePanduan, then a tab per route with where its
  * requirements stand and the ePanduan text it is written from (see RouteTabs).
  */
-async function Requirements({ locale, dict, programme, me }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string }) {
+async function Requirements({ locale, dict, programme, me, from }: { locale: Locale; dict: Dictionary; programme: ProgrammeDetail; me: string; from: string | null }) {
   const t = dict.admin;
   const r = t.programme.requirements;
   const m = t.institutions.import;
@@ -255,8 +251,8 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
               : slot.group
                 ? r.readyFromEpanduan
                 : r.none,
-      href: target ? `/${locale}/admin/syarat/${target.id}` : null,
-      startHref: `/${locale}/admin/program/${programme.id}/tambah-syarat?laluan=${slot.route}${slot.category ? `&kategori=${encodeURIComponent(slot.category)}` : ''}`,
+      href: target ? withFrom(`/${locale}/admin/syarat/${target.id}`, from) : null,
+      startHref: withFrom(`/${locale}/admin/program/${programme.id}/tambah-syarat?laluan=${slot.route}${slot.category ? `&kategori=${encodeURIComponent(slot.category)}` : ''}`, from),
       groups: slot.group ? [slot.group] : [],
       ready: !!slot.group && slot.versions.length === 0,
       removable:
@@ -266,7 +262,7 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
     };
   });
   const byRoute = (
-    <RouteTabs locale={locale} programId={programme.id} tabs={tabs} addHref={`/${locale}/admin/program/${programme.id}/tambah-syarat`} t={r} m={m} errors={t.errors} />
+    <RouteTabs locale={locale} programId={programme.id} tabs={tabs} addHref={withFrom(`/${locale}/admin/program/${programme.id}/tambah-syarat`, from)} t={r} m={m} errors={t.errors} />
   );
 
   return (
@@ -318,7 +314,7 @@ async function EpanduanDifferences({ locale, dict, programme, details }: { local
     note: f.note,
   };
   return (
-    <div role="status" className="flex flex-wrap items-center gap-3 rounded-[14px] border border-[#e0a800]/50 bg-cream px-4 py-3 text-sm">
+    <div role="status" className="flex flex-wrap items-center gap-3 rounded-[8px] border border-[#e0a800]/50 bg-cream px-4 py-3 text-sm">
       <AdminIcon name="info" size={18} className="shrink-0" />
       <span className="flex-1">
         {format(f.fill.summary, { count: fields.length, year: found.year ?? '' })} <span className="font-semibold">{fields.map((k) => label[k]).join(', ')}</span>

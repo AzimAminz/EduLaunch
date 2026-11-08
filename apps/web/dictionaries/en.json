@@ -290,56 +290,57 @@
     },
     "home": {
       "greeting": "Welcome, {name}",
-      "intro": "What would you like to do today? Pick one and we will guide you step by step.",
-      "review": {
-        "title": "Review waiting drafts",
-        "body": "Another admin has prepared changes. Compare old with new, then approve or return them.",
-        "count": "{count} waiting for you",
-        "none": "No drafts waiting",
-        "action": "Start reviewing"
+      "findingReview": "{count} items are waiting for your review. The oldest are at the top.",
+      "findingReturned": "{count} of your drafts were sent back to fix.",
+      "findingRequirements": "Nothing is waiting for you. {count} published programmes still have no requirements.",
+      "findingClear": "Nothing is waiting for you today.",
+      "counts": {
+        "toReview": "For you to review",
+        "returned": "Sent back",
+        "drafts": "Your drafts",
+        "waiting": "With another admin",
+        "published": "Published programmes",
+        "withoutRequirements": "No requirements"
       },
-      "requirements": {
-        "title": "Update programme requirements",
-        "body": "New prospectus or circular? Pick the programme and route, show the source, then write the requirements.",
-        "hint": "Programmes without requirements first",
-        "action": "Choose programme",
-        "hintAll": "Usually 5 minutes"
-      },
-      "programme": {
-        "title": "Add a new programme",
-        "body": "Fill in the institution, name, level and fields. Students see it only after another admin approves it.",
-        "action": "Add programme"
-      },
-      "yourWork": "Your work",
-      "returned": "Returned to you",
+      "yourWork": "Needs your action",
+      "toReview": "For you to review",
+      "returned": "Sent back to you",
       "drafts": "Your drafts",
-      "waiting": "Waiting for another admin",
-      "empty": "Nothing pending. Start with one of the tasks above.",
-      "catalogue": "Catalogue",
-      "published": "{count} programmes published",
-      "withoutRequirements": "{count} without published requirements",
+      "empty": "Nothing outstanding. You are all caught up.",
+      "startTitle": "Start something",
+      "start": {
+        "import": "Import from ePanduan",
+        "importDetail": "Choose an institution, then open its Import tab.",
+        "requirements": "Write missing requirements",
+        "requirementsDetail": "Published programmes students cannot check against yet.",
+        "programme": "Add a programme yourself",
+        "programmeDetail": "For programmes not listed on ePanduan."
+      },
       "how": {
-        "title": "How the admin workspace works",
+        "title": "How the admin space works",
         "steps": [
-          "You prepare a draft. Students do not see anything yet.",
-          "Another admin reviews it. You cannot approve your own work.",
+          "You prepare a draft. Students see nothing yet.",
+          "Another admin reviews and approves it. You cannot approve your own work.",
           "Once approved, students see the new version straight away."
         ]
-      }
+      },
+      "othersDrafts": "Other admins' drafts",
+      "findingOthers": "{count} drafts other admins started have not been sent. You can carry them on or send them."
     },
     "tasks": {
       "title": "Task inbox",
-      "intro": "Every draft not yet published. The longest waiting is at the top.",
+      "intro": "Drafts and changes not yet published. The ones waiting longest are at the top.",
       "tabs": {
         "toReview": "For me",
         "returned": "Returned",
         "myDrafts": "My drafts",
-        "waiting": "Waiting for others"
+        "waiting": "Waiting for others",
+        "othersDrafts": "Other admins' drafts"
       },
       "columns": {
-        "record": "Record",
+        "item": "Item",
         "status": "Status",
-        "updated": "Updated"
+        "waiting": "Waiting"
       },
       "programme": "New or edited programme",
       "requirement": "{route} requirements · version {version}",
@@ -350,7 +351,8 @@
         "toReview": "No drafts are waiting for your review.",
         "returned": "No drafts have been returned to you.",
         "myDrafts": "You have no unsent drafts.",
-        "waiting": "None of your drafts are waiting."
+        "waiting": "None of your drafts are waiting.",
+        "othersDrafts": "No unsent drafts from other admins."
       },
       "institution": "Request to delete an institution (with all its programmes)",
       "change": "Change to a published programme",
@@ -372,7 +374,7 @@
     },
     "programmes": {
       "title": "Programmes",
-      "intro": "{total} programmes. Changes are saved as drafts and students see them only after another admin approves them.",
+      "intro": "{total} programmes in the catalogue. Students only see the approved ones.",
       "add": "Add programme",
       "search": "Search programme or institution",
       "searchButton": "Search",
@@ -405,7 +407,8 @@
       "clearFilters": "Clear filters",
       "noMatches": "No programme matches this search or filter.",
       "noInstitution": "School stream (no institution)",
-      "searchHere": "Search this institution's programmes"
+      "searchHere": "Search this institution's programmes",
+      "routeCount": "{count} routes"
     },
     "programmeForm": {
       "newTitle": "Add a new programme",
@@ -557,7 +560,7 @@
       },
       "requirements": {
         "title": "Entry requirements",
-        "intro": "Programme facts and requirements as on JPT ePanduan, by candidate category. Press \"Add requirements\" to write the requirements for one route; the form is filled from this text.",
+        "intro": "Requirements by entry route, as on ePanduan JPT. Each route is reviewed and published on its own.",
         "suggested": "Usual routes for this level",
         "other": "Other routes",
         "published": "Published · version {version}",
@@ -581,7 +584,7 @@
         "start": "Start requirements",
         "fromCategory": "Written from the ePanduan category: {category}",
         "noLines": "This draft has no lines yet. Open it and fill from ePanduan.",
-        "notStarted": "No requirements for this route yet. Press \"Start requirements\", then fill from ePanduan.",
+        "notStarted": "This route has no requirements yet. Press \"Start requirements\" and fill them from ePanduan.",
         "discardDraft": "Remove",
         "discardDraftConfirm": "Discard this requirement draft? Published requirements stay as they are.",
         "removeRoute": "Remove",
@@ -589,7 +592,7 @@
         "removeYes": "Yes, remove",
         "cancel": "Cancel",
         "introManual": "This programme has no ePanduan data. Choose a route below to write its requirements yourself.",
-        "writtenNone": "No requirements written yet. Press \"Add requirements\" to start.",
+        "writtenNone": "No requirements yet. Press \"Add requirements\" to start.",
         "chipPublished": "Published · v{version}",
         "manage": {
           "edit": "Edit",
@@ -604,7 +607,7 @@
           "yes": "Yes, delete",
           "cancel": "Cancel"
         },
-        "routeHeading": "{route} requirements",
+        "routeHeading": "Requirements for {route}",
         "tabOpen": "{status} · {who}",
         "tabChange": "v{version} · change {status}",
         "ownSlot": "Written by hand",
@@ -614,19 +617,19 @@
         "newVersion": "Make a new version"
       },
       "workflow": {
-        "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
-        "draftOther": "Another admin prepared this draft. You may edit or send it; if you edit it, you become its preparer and another admin must approve it.",
-        "returned": "Returned by another admin: {reason}",
-        "reviewMine": "Sent. Every other admin sees it in their task inbox (For me), and any of them can approve or return it. To change something, withdraw it first.",
-        "reviewOther": "Another admin sent this programme. Check the details below, then approve it or return it with a reason.",
-        "published": "Students can see this programme. Edits are saved as a change and only apply after another admin approves them. To delete it, archive it first.",
-        "changeDraft": "There is a change not yet sent. Students still see the current version.",
-        "changeReturned": "The change was returned: {reason}. Students still see the current version.",
-        "changeReviewMine": "Change sent. Every other admin sees it in their task inbox, and any of them can approve it. Students still see the current version.",
-        "changeReviewOther": "Another admin proposed a change. Compare below, then approve or return it.",
-        "archived": "This programme is hidden from students. Reopen it as a draft to edit and publish it again.",
-        "reviewSuper": "Sent. As a super admin you may approve it yourself (recorded as your approval), or leave it for another admin. To change something, withdraw it first.",
-        "changeReviewSuper": "Changes sent. As a super admin you may approve them yourself. Students see the current version until then."
+        "draftMine": "Students cannot see this draft yet. When the details are complete, send it to another admin to review.",
+        "draftOther": "Another admin prepared this draft. You can carry it on; once you edit it, you become its preparer.",
+        "returned": "Another admin sent this programme back: {reason}",
+        "reviewMine": "Sent. Another admin will review and approve it. Need to change something? Withdraw it first.",
+        "reviewOther": "Another admin sent this programme for review. Check the details, then approve it or send it back with a reason.",
+        "published": "Students can see this programme. Your edits become a proposed change until another admin approves it.",
+        "changeDraft": "You have a change that has not been sent. Students still see the current version.",
+        "changeReturned": "Your change was sent back: {reason}. Students still see the current version.",
+        "changeReviewMine": "Your change has been sent for review. Students still see the current version.",
+        "changeReviewOther": "Another admin proposed a change. Compare it below, then approve it or send it back.",
+        "archived": "This programme is hidden from students. Reopen it as a draft if you want to publish it again.",
+        "reviewSuper": "Sent. As a super admin you may approve it yourself, or wait for another admin to review it.",
+        "changeReviewSuper": "Your change has been sent. As a super admin you may approve it yourself."
       },
       "steps": {
         "new": [
@@ -694,7 +697,7 @@
     },
     "institutions": {
       "title": "Institutions",
-      "intro": "Universities, polytechnics and colleges that offer programmes. Changes here apply straight away.",
+      "intro": "Universities, polytechnics and colleges that offer programmes. Changes here apply at once, without review.",
       "add": "Add institution",
       "edit": "Edit",
       "cancel": "Cancel",
@@ -742,7 +745,7 @@
       "noWebsite": "No website yet. Add it with Edit on the institution list.",
       "sourcesHint": "Soon, this institution's programmes will be read automatically from the sources here and shown for you to check before they are published.",
       "programmesHere": "Programmes at this institution",
-      "addHere": "Add a programme here",
+      "addHere": "Add programme",
       "how": {
         "title": "Start from the institution",
         "steps": [

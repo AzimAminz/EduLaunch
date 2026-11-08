@@ -4,6 +4,7 @@ import { startRequirement, type AdminFormState } from '@/lib/admin/actions';
 import type { Dictionary, Locale } from '@/lib/i18n/locale';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { IconText, buttonClass } from './ui';
+import { FromField } from './from-field';
 
 /**
  * Starts the next version of a published requirement from its lines and opens it in the editor (or opens the draft
@@ -22,6 +23,7 @@ export function NewVersionButton({ locale, programId, entryRoute, sourceCategory
   return (
     <form onSubmit={onSubmit} className="flex flex-col items-start gap-1">
       <input type="hidden" name="locale" value={locale} />
+      <FromField />
       <input type="hidden" name="programId" value={programId} />
       <input type="hidden" name="entryRoute" value={entryRoute} />
       {sourceCategory && <input type="hidden" name="category" value={sourceCategory} />}

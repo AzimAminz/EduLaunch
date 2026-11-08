@@ -28,7 +28,7 @@ export function InstitutionSources({ locale, institution, t, noMatches }: { loca
       {!institution.websiteUrl && institution.sources.length === 0 ? (
         <EmptyState icon="link" text={i.noSources} />
       ) : (
-        <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-[14px] border border-line">
+        <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-[8px] border border-line">
           {institution.websiteUrl && <SourceRow kind={i.website} url={institution.websiteUrl} />}
           {institution.sources.map((s) => (
             <SourceRow key={s.id} kind={i.kinds[s.kind]} url={s.url} label={s.label}>
@@ -39,7 +39,7 @@ export function InstitutionSources({ locale, institution, t, noMatches }: { loca
       )}
 
       {/* The key starts a fresh form after each source is added. */}
-      <form key={added.savedAt ?? 0} onSubmit={onAdd} className="flex flex-col gap-3 rounded-[14px] bg-bg p-4">
+      <form key={added.savedAt ?? 0} onSubmit={onAdd} className="flex flex-col gap-3 rounded-[8px] bg-bg p-4">
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name="id" value={institution.id} />
         <input type="hidden" name="kind" value={kind} />
@@ -74,7 +74,7 @@ export function InstitutionSources({ locale, institution, t, noMatches }: { loca
 function SourceRow({ kind, url, label, children }: { kind: string; url: string; label?: string | null; children?: React.ReactNode }) {
   return (
     <li className="flex flex-col gap-1 bg-white px-4 py-3 transition-colors duration-150 hover:bg-bg/70 sm:flex-row sm:items-center sm:gap-4">
-      <span className="hidden size-10 shrink-0 items-center justify-center rounded-[10px] bg-blue text-navy sm:flex">
+      <span className="hidden size-10 shrink-0 items-center justify-center rounded-[8px] bg-blue text-navy sm:flex">
         <AdminIcon name="link" size={18} />
       </span>
       <div className="min-w-0 flex-1">

@@ -132,6 +132,8 @@ export class AdminQueries {
       returned: all.filter((t) => t.status === 'returned' && mine(t)),
       myDrafts: all.filter((t) => t.status === 'draft' && (mine(t) || t.preparedBy === null)),
       waiting: superAdmin ? [] : all.filter((t) => t.status === 'in_review' && mine(t)),
+      // Drafts another admin started (an import, a colleague away): any admin may carry them on.
+      othersDrafts: all.filter((t) => (t.status === 'draft' || t.status === 'returned') && t.preparedBy !== null && !mine(t) && t.kind !== 'institution'),
       counts: { published: published[0]?.n ?? 0, withoutRequirements: withoutRequirements[0]?.n ?? 0 },
     };
   }
