@@ -145,6 +145,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
         workflow={workflow}
         message={message}
         requirementCount={programme.requirements.length}
+        draftRequirements={{ count: programme.requirements.filter((r) => r.status === 'draft' || r.status === 'returned').length, superAdmin: account.superAdmin }}
         backHref={programme.institutionId ? `/${locale}/admin/institusi/${programme.institutionId}?tab=program` : `/${locale}/admin/program`}
         t={t}
       />
@@ -239,6 +240,8 @@ async function Requirements({ locale, dict, programme, me }: { locale: Locale; d
     return {
       key: slot.key,
       route: slot.route,
+      // A new version continues the published one, so it takes that version's own category.
+      category: published?.sourceCategory ?? slot.category ?? null,
       name,
       detail,
       status: open ? (open.status as RouteTab['status']) : published ? 'published' : null,

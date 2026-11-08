@@ -18,6 +18,8 @@ interface PanelProps {
   message: string;
   /** How many requirement versions a delete would remove with the programme. */
   requirementCount: number;
+  /** Requirement drafts of a published programme (students do not see them yet), and whether the reader publishes them at once. */
+  draftRequirements?: { count: number; superAdmin: boolean };
   /** Where to go after a delete: the programme's institution, or the programme list. */
   backHref: string;
   t: Dictionary['admin'];
@@ -58,7 +60,7 @@ const TONE: Record<Workflow['message'], string> = {
  * programme change → review → applied), one sentence, and the actions with the main one first. "Return" asks for a
  * reason and "Discard" asks to confirm before anything is sent.
  */
-export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message, requirementCount, backHref, t }: PanelProps) {
+export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message, requirementCount, draftRequirements, backHref, t }: PanelProps) {
   const a = t.programme.act;
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(decideProgramme, {});
   // What the dialog asks about stays set while it closes, so its text does not vanish mid-animation.
@@ -109,6 +111,31 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
       )}
       <p className="text-[15px]">{message}</p>
       <FormAlert>{!pending && state.error ? t.errors[state.error] : undefined}</FormAlert>
+      {!pending && state.alongside && (state.alongside.done > 0 || state.alongside.failed > 0) && (
+        <div role="status" className="flex flex-col gap-1 rounded-[12px] bg-white/70 px-4 py-3 text-[13px]">
+          {state.alongside.done > 0 && <p>{format(t.programme.alongside[state.alongside.action], { n: state.alongside.done })}</p>}
+          {state.alongside.failed > 0 && <p className="text-[#8a6100]">{format(t.programme.alongside.failed, { n: state.alongside.failed })}</p>}
+        </div>
+      )}
+
+      {workflow.message === 'published' && draftRequirements && draftRequirements.count > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] bg-cream px-4 py-3 text-[13px]">
+          <p>{format(t.programme.alongside.pending, { n: draftRequirements.count })}</p>
+          <button
+            type="submit"
+            form={formId}
+            name="action"
+            value="requirements"
+            disabled={pending}
+            onClick={() => setPressed('requirements')}
+            className={buttonClass('primary', 'sm')}
+          >
+            <IconText icon={draftRequirements.superAdmin ? 'check' : 'send'} busy={pending && pressed === 'requirements'}>
+              {format(draftRequirements.superAdmin ? t.programme.alongside.publish : t.programme.alongside.send, { n: draftRequirements.count })}
+            </IconText>
+          </button>
+        </div>
+      )}
 
       <form id={formId} onSubmit={onSubmit} className="flex flex-col gap-3">
         <input type="hidden" name="locale" value={locale} />

@@ -47,6 +47,8 @@ export interface AdminFormState {
   /** ePanduan import: how many found programmes became drafts or changes, and how many could not be saved. */
   /** Programmes accepted from ePanduan; any that could not be saved are named with the reason. */
   imported?: { created: number; updated: number; failed: number; failures?: Array<{ name: string; error: AdminErrorKey }> };
+  /** Requirements that went along with a programme sent for review or approved, and how many could not. */
+  alongside?: { action: 'submit' | 'approve'; done: number; failed: number };
   /** Bulk send or approve from the task inbox: how many went through, and which did not and why. */
   bulk?: { done: number; failed: Array<{ name: string; error: AdminErrorKey }> };
 }
@@ -60,10 +62,15 @@ const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim
 
 /** The signed-in admin's token. Anyone else goes to their own home (the proxy checks too). */
 async function adminToken(locale: Locale): Promise<string> {
+  return (await adminSession(locale)).token;
+}
+
+/** The signed-in admin's token and whether they are a super admin (who may approve their own work). */
+async function adminSession(locale: Locale): Promise<{ token: string; superAdmin: boolean }> {
   const account = await getAccount();
   const token = await getAccessToken();
   if (!account || !token || account.role !== 'admin') redirect(`/${locale}`);
-  return token;
+  return { token, superAdmin: account.superAdmin };
 }
 
 function errorKey(err: unknown): AdminErrorKey {
@@ -303,8 +310,15 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
   if (action === 'return' && reason.length < 5) return { error: 'reason_required' };
   const simple = ['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen'] as const;
   const plain = simple.find((a) => a === action);
-  if (action !== 'return' && action !== 'delete' && !plain) return { error: 'generic' };
-  const token = await adminToken(locale);
+  if (action !== 'return' && action !== 'delete' && action !== 'requirements' && !plain) return { error: 'generic' };
+  const { token, superAdmin } = await adminSession(locale);
+  if (action === 'requirements') {
+    // A published programme's requirement drafts: sent for review, and published at once by a super admin.
+    const along = superAdmin ? 'approve' : 'submit';
+    const result = await withRequirements(token, text(form, 'id'), along, superAdmin);
+    refresh();
+    return { savedAt: Date.now(), alongside: { action: along, ...result } };
+  }
   if (action === 'delete') {
     // A draft or archived programme goes with its requirements; the admin returns to where it was listed.
     try {
@@ -316,13 +330,39 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
     const back = text(form, 'back');
     redirect(back.startsWith(`/${locale}/admin/`) ? back : `/${locale}/admin/program`);
   }
+  const id = text(form, 'id');
   try {
-    await api.reviewProgramme(token, text(form, 'id'), action === 'return' ? { action, reason } : { action: plain! });
+    await api.reviewProgramme(token, id, action === 'return' ? { action, reason } : { action: plain! });
   } catch (err) {
     return { error: errorKey(err) };
   }
+  const alongside = plain === 'submit' || plain === 'approve' ? { action: plain, ...(await withRequirements(token, id, plain, superAdmin)) } : undefined;
   refresh();
-  return { savedAt: Date.now() };
+  return { savedAt: Date.now(), alongside };
+}
+
+/**
+ * A programme's requirements follow it: sending the programme for review sends its drafts too, and approving it
+ * approves its requirements waiting for review, so a published programme does not stay "without requirements".
+ * Each still goes through its own rules (lines and a source; another admin approves), so a refused one stays as it was.
+ */
+async function withRequirements(token: string, programmeId: string, action: 'submit' | 'approve', superAdmin: boolean): Promise<{ done: number; failed: number }> {
+  const result = { done: 0, failed: 0 };
+  const programme = await api.getProgrammeDetail(token, programmeId).catch(() => null);
+  for (const r of programme?.requirements ?? []) {
+    const draft = r.status === 'draft' || r.status === 'returned';
+    // Approving takes what waits for review; a super admin, who may approve their own work, publishes drafts too.
+    const steps: Array<'submit' | 'approve'> =
+      action === 'submit' ? (draft ? ['submit'] : []) : r.status === 'in_review' ? ['approve'] : draft && superAdmin ? ['submit', 'approve'] : [];
+    if (!steps.length) continue;
+    try {
+      for (const step of steps) await api.reviewRequirement(token, r.id, { action: step });
+      result.done += 1;
+    } catch {
+      result.failed += 1;
+    }
+  }
+  return result;
 }
 
 /**
@@ -590,7 +630,7 @@ async function syncEpanduanDrafts(
  */
 export async function bulkReview(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
-  const token = await adminToken(locale);
+  const { token, superAdmin } = await adminSession(locale);
   const action = text(form, 'bulkAction');
   if (action !== 'submit' && action !== 'approve') return { error: 'generic' };
   const items = form
@@ -605,10 +645,15 @@ export async function bulkReview(_prev: AdminFormState, form: FormData): Promise
   if (items.length === 0) return { error: 'generic' };
   const failed: Array<{ name: string; error: AdminErrorKey }> = [];
   let done = 0;
+  // Requirements first, so a programme taking its own along never meets one already sent.
+  items.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'requirement' ? -1 : 1));
   for (const item of items) {
     try {
-      if (item.kind === 'programme') await api.reviewProgramme(token, item.id, { action });
-      else await api.reviewRequirement(token, item.id, { action });
+      if (item.kind === 'programme') {
+        await api.reviewProgramme(token, item.id, { action });
+        // Its requirements not chosen on their own go along (chosen ones were handled first, below).
+        await withRequirements(token, item.id, action, superAdmin);
+      } else await api.reviewRequirement(token, item.id, { action });
       done += 1;
     } catch (err) {
       failed.push({ name: item.name, error: errorKey(err) });

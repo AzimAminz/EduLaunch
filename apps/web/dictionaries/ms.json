@@ -607,7 +607,8 @@
         "ownSlot": "Tulis sendiri",
         "draftAll": "Buat draf dari ePanduan ({count})",
         "editFromEpanduan": "Sunting syarat",
-        "readyFromEpanduan": "Teks ePanduan sedia untuk disemak"
+        "readyFromEpanduan": "Teks ePanduan sedia untuk disemak",
+        "newVersion": "Buat versi baharu"
       },
       "workflow": {
         "draftMine": "Draf ini belum dilihat pelajar. Lengkapkan maklumatnya, kemudian hantar kepada admin lain untuk disemak.",
@@ -675,7 +676,15 @@
         "duration": "{n} semester (± {years} tahun)"
       },
       "flags": "Ciri kemasukan",
-      "entryRoutes": "Laluan masuk"
+      "entryRoutes": "Laluan masuk",
+      "alongside": {
+        "submit": "{n} syarat program ini turut dihantar untuk semakan.",
+        "approve": "{n} syarat program ini turut diluluskan dan diterbitkan.",
+        "failed": "{n} syarat belum dapat dihantar (contohnya tiada baris syarat atau sumber). Semak di tab Syarat kemasukan.",
+        "pending": "{n} syarat program ini masih draf, jadi pelajar belum melihatnya.",
+        "publish": "Terbitkan {n} syarat",
+        "send": "Hantar {n} syarat untuk semakan"
+      }
     },
     "institutions": {
       "title": "Institusi",
@@ -1035,7 +1044,7 @@
         "waiting": "Menunggu admin lain menyemak. Anda tidak boleh meluluskan draf sendiri.",
         "returned": "Dipulangkan oleh admin lain: {reason}",
         "otherDraft": "Draf ini disediakan oleh admin lain. Hanya penyedia boleh mengubahnya.",
-        "published": "Versi ini sudah diterbitkan. Untuk menukarnya, buat versi baharu di halaman program.",
+        "published": "Versi ini sudah diterbitkan. Untuk menukarnya, buat versi baharu: pelajar terus melihat versi ini sehingga versi baharu diluluskan.",
         "archived": "Versi lama, digantikan oleh versi yang lebih baharu."
       },
       "review": {

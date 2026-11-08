@@ -6,6 +6,7 @@ import { FreshOnNavigate } from '@/components/admin/fresh';
 import { RequirementEditor } from '@/components/admin/requirement-editor';
 import { RequirementLinesView } from '@/components/admin/requirement-lines-view';
 import { ReviewActions } from '@/components/admin/review-actions';
+import { NewVersionButton } from '@/components/admin/new-version-button';
 import { AdminIcon } from '@/components/admin/icons';
 import { AdminHeading, Card, LoadError, StatusChip, buttonClass, who } from '@/components/admin/ui';
 import { AdminApiError, getProgrammeDetail, getRequirementDetail, listFoundProgrammes, listSpecialRequirements, type AdminRule, type RequirementDetail } from '@/lib/admin/api';
@@ -114,7 +115,22 @@ async function Requirement({ locale, dict, params, searchParams }: {
           </span>
         }
       />
-      {note && <p className="rounded-[14px] bg-cream px-4 py-3 text-sm">{note}</p>}
+      {note && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-cream px-4 py-3 text-sm">
+          <p>{note}</p>
+          {req.status === 'published' && (
+            <NewVersionButton
+              locale={locale}
+              programId={req.programmeId}
+              entryRoute={req.entryRoute}
+              sourceCategory={req.sourceCategory}
+              label={t.programme.requirements.newVersion}
+              errors={t.errors}
+              primary
+            />
+          )}
+        </div>
+      )}
       <Card>
         <h2 className="text-lg font-semibold">{t.requirement.review.lines}</h2>
         <RequirementLinesView rules={req.rules} subjectNames={subjectNames} t={t.requirement} />

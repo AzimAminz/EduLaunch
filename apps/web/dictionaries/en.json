@@ -607,7 +607,8 @@
         "ownSlot": "Written by hand",
         "draftAll": "Make drafts from ePanduan ({count})",
         "editFromEpanduan": "Edit requirements",
-        "readyFromEpanduan": "ePanduan text ready to review"
+        "readyFromEpanduan": "ePanduan text ready to review",
+        "newVersion": "Make a new version"
       },
       "workflow": {
         "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
@@ -675,7 +676,15 @@
         "duration": "{n} semesters (± {years} years)"
       },
       "flags": "Admission features",
-      "entryRoutes": "Entry routes"
+      "entryRoutes": "Entry routes",
+      "alongside": {
+        "submit": "{n} of this programme's requirements were sent for review too.",
+        "approve": "{n} of this programme's requirements were approved and published too.",
+        "failed": "{n} requirements could not be sent yet (for example no lines or no source). Check the Entry requirements tab.",
+        "pending": "{n} of this programme's requirements are still drafts, so students cannot see them yet.",
+        "publish": "Publish {n} requirements",
+        "send": "Send {n} requirements for review"
+      }
     },
     "institutions": {
       "title": "Institutions",
@@ -1035,7 +1044,7 @@
         "waiting": "Waiting for another admin to review. You cannot approve your own draft.",
         "returned": "Returned by another admin: {reason}",
         "otherDraft": "This draft was prepared by another admin. Only they can change it.",
-        "published": "This version is published. To change it, start a new version on the programme page.",
+        "published": "This version is published. To change it, make a new version: students keep seeing this one until the new version is approved.",
         "archived": "An old version, replaced by a newer one."
       },
       "review": {

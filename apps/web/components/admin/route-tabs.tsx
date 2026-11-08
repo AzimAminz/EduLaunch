@@ -9,6 +9,7 @@ import { useFormAction } from '@/components/ui/use-form-action';
 import { CategoryTabs } from './category-tabs';
 import { AdminIcon } from './icons';
 import { RemoveDraftModal } from './remove-draft-modal';
+import { NewVersionButton } from './new-version-button';
 import { IconText, buttonClass } from './ui';
 
 type Status = 'published' | 'draft' | 'in_review' | 'returned' | null;
@@ -17,6 +18,8 @@ type Status = 'published' | 'draft' | 'in_review' | 'returned' | null;
 export interface RouteTab {
   key: string;
   route: string;
+  /** The ePanduan category its requirement is for, when the route has more than one. */
+  category: string | null;
   name: string;
   /** The candidate categories it is for ("STPM Sains"), shown when a route has more than one tab. */
   detail: string | null;
@@ -146,9 +149,14 @@ export function RouteTabs({ locale, programId, tabs, addHref, t, m, errors }: {
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[12px] bg-bg/60 px-4 py-2.5">
             <p className="text-sm font-semibold">{format(t.routeHeading, { route: tab.detail ? `${tab.name} (${tab.detail})` : tab.name })}</p>
             {tab.href ? (
-              <Link href={tab.href} className={buttonClass('primary', 'sm')}>
-                <IconText icon={tab.status === 'published' ? 'eye' : 'pencil'}>{tab.status === 'published' ? t.view : t.openDraft}</IconText>
-              </Link>
+              <div className="flex flex-wrap items-start gap-2">
+                <Link href={tab.href} className={buttonClass(tab.status === 'published' ? 'secondary' : 'primary', 'sm')}>
+                  <IconText icon={tab.status === 'published' ? 'eye' : 'pencil'}>{tab.status === 'published' ? t.view : t.openDraft}</IconText>
+                </Link>
+                {tab.status === 'published' && (
+                  <NewVersionButton locale={locale} programId={programId} entryRoute={tab.route} sourceCategory={tab.category} label={t.newVersion} errors={errors} primary />
+                )}
+              </div>
             ) : tab.ready ? (
               <DraftFromEpanduan locale={locale} programId={programId} slot={tab.key} label={t.editFromEpanduan} errors={errors} />
             ) : (
