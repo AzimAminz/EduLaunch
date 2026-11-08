@@ -1575,5 +1575,66 @@
     "fromList": "Grade {grade} in {required} subjects from: {subjects} (you have {actual})",
     "toConfirm": "To confirm yourself",
     "toConfirmNote": "The system cannot check these from your results. Make sure you meet them before applying."
+  },
+  "meritLab": {
+    "eyebrow": "MERIT LAB",
+    "title": "Work out your merit.",
+    "intro": "Your merit is worked out from your results with the official formula. Change a grade to see what it does; your profile stays as it is.",
+    "gradesTitle": "Your SPM results",
+    "cgpaTitle": "Your CGPA",
+    "fromActual": "Taken from the actual SPM results in your profile.",
+    "fromTarget": "Taken from the SPM target grades in your profile.",
+    "noRecord": "Your profile has no SPM results yet. Fill in grades below to try it.",
+    "stream": "Stream",
+    "streams": {
+      "stem_a": "STEM A",
+      "stem_b": "STEM B",
+      "stem_c": "STEM C",
+      "humanities": "Humanities, professional arts and others"
+    },
+    "streamHint": {
+      "stem_a": "Package subjects: Biology, Physics, Chemistry or Additional Mathematics (best two).",
+      "stem_b": "Package subjects: STEM A subjects or technical subjects such as Computer Science and Engineering Studies (best two).",
+      "stem_c": "Package subject: one vocational or technical subject.",
+      "humanities": "Package subjects: languages, literature, Islamic studies, humanities and arts (best two)."
+    },
+    "part": {
+      "universal": "Universal",
+      "package": "Package",
+      "additional": "Additional",
+      "notCounted": "Not counted"
+    },
+    "wasGrade": "was {grade}",
+    "gradeFor": "Grade for {subject}",
+    "remove": "Remove {subject}",
+    "addSubject": "Add a subject",
+    "add": "Add",
+    "cgpa": "CGPA (0.00 – 4.00)",
+    "cocurricular": "Co-curricular",
+    "cocurricularHint": "A mark from 0 to 10 from your school co-curricular record. If you do not know it yet, leave it as an estimate.",
+    "resultTitle": "Your merit",
+    "outOf": "out of 100",
+    "basis": {
+      "actual": "Based on your actual results",
+      "target": "An estimate from your target grades",
+      "simulation": "Simulation: you changed the results beside it"
+    },
+    "academic": "Academic",
+    "missingUniversal": "One or more universal subjects have no grade, so they count as zero.",
+    "missingPackage": "There are not enough package subjects for this stream, so the package part is not full.",
+    "formula": {
+      "spm": "Formula: universal (40) + package (30) + additional (10), converted to 90, plus co-curricular (10).",
+      "cgpa": "Formula: (CGPA ÷ 4.00) × 90, plus co-curricular (10).",
+      "diploma": "Formula: (CGPA ÷ 4.00) × 100. Co-curricular marks do not count."
+    },
+    "source": "ePanduan merit calculator, Ministry of Higher Education",
+    "checked": "checked 8 Nov 2026",
+    "disclaimer": "This is an estimate for planning. The official mark is set when you apply, and merit does not guarantee an offer.",
+    "aLevel": "There is no official merit formula for A-Level, so the merit below comes from your SPM results.",
+    "addResults": "Want a result that is exactly yours?",
+    "addResultsLink": "Add your results to your profile",
+    "nextTitle": "From merit to programme choices",
+    "nextBody": "Compare your merit with the average merit of the programmes you like.",
+    "nextAction": "Explore programmes"
   }
 }

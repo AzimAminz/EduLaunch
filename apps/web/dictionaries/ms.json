@@ -1575,5 +1575,66 @@
     "fromList": "Gred {grade} dalam {required} subjek daripada: {subjects} (anda ada {actual})",
     "toConfirm": "Perlu disahkan sendiri",
     "toConfirmNote": "Sistem tidak dapat menyemak perkara ini daripada keputusan anda. Pastikan anda memenuhinya sebelum memohon."
+  },
+  "meritLab": {
+    "eyebrow": "MERIT LAB",
+    "title": "Kira merit anda.",
+    "intro": "Markah merit dikira daripada keputusan anda dengan formula rasmi. Tukar gred untuk melihat kesannya; profil anda tidak berubah.",
+    "gradesTitle": "Keputusan SPM anda",
+    "cgpaTitle": "PNGK anda",
+    "fromActual": "Diambil daripada keputusan SPM sebenar dalam profil anda.",
+    "fromTarget": "Diambil daripada gred sasaran SPM dalam profil anda.",
+    "noRecord": "Profil anda belum ada keputusan SPM. Isi gred di bawah untuk mencuba.",
+    "stream": "Aliran",
+    "streams": {
+      "stem_a": "STEM A",
+      "stem_b": "STEM B",
+      "stem_c": "STEM C",
+      "humanities": "Kemanusiaan, sastera ikhtisas dan lain-lain"
+    },
+    "streamHint": {
+      "stem_a": "Subjek pakej: Biologi, Fizik, Kimia atau Matematik Tambahan (dua terbaik).",
+      "stem_b": "Subjek pakej: subjek STEM A atau subjek teknikal seperti Sains Komputer dan Pengajian Kejuruteraan (dua terbaik).",
+      "stem_c": "Subjek pakej: satu subjek vokasional atau teknikal.",
+      "humanities": "Subjek pakej: bahasa, kesusasteraan, pengajian Islam, kemanusiaan dan seni (dua terbaik)."
+    },
+    "part": {
+      "universal": "Universal",
+      "package": "Pakej",
+      "additional": "Tambahan",
+      "notCounted": "Tidak dikira"
+    },
+    "wasGrade": "asalnya {grade}",
+    "gradeFor": "Gred {subject}",
+    "remove": "Buang {subject}",
+    "addSubject": "Tambah subjek",
+    "add": "Tambah",
+    "cgpa": "PNGK (0.00 – 4.00)",
+    "cocurricular": "Kokurikulum",
+    "cocurricularHint": "Markah 0 – 10 daripada rekod kokurikulum sekolah anda. Jika belum tahu, biarkan sebagai anggaran.",
+    "resultTitle": "Markah merit anda",
+    "outOf": "daripada 100",
+    "basis": {
+      "actual": "Berdasarkan keputusan sebenar anda",
+      "target": "Anggaran berdasarkan gred sasaran anda",
+      "simulation": "Simulasi: anda menukar keputusan di sebelah"
+    },
+    "academic": "Akademik",
+    "missingUniversal": "Satu atau lebih subjek universal belum ada gred, jadi ia dikira sifar.",
+    "missingPackage": "Subjek pakej untuk aliran ini belum cukup, jadi bahagian pakej kurang daripada penuh.",
+    "formula": {
+      "spm": "Formula: universal (40) + pakej (30) + tambahan (10), ditukar kepada 90, campur kokurikulum (10).",
+      "cgpa": "Formula: (PNGK ÷ 4.00) × 90, campur kokurikulum (10).",
+      "diploma": "Formula: (PNGK ÷ 4.00) × 100. Kokurikulum tidak dikira."
+    },
+    "source": "Kalkulator merit ePanduan, Kementerian Pendidikan Tinggi",
+    "checked": "disemak 8 Nov 2026",
+    "disclaimer": "Ini anggaran untuk perancangan. Markah rasmi ditentukan semasa permohonan, dan merit tidak menjamin tawaran.",
+    "aLevel": "Tiada formula merit rasmi untuk A-Level, jadi merit di bawah dikira daripada keputusan SPM anda.",
+    "addResults": "Mahu hasil yang tepat untuk anda?",
+    "addResultsLink": "Isi keputusan dalam profil",
+    "nextTitle": "Dari merit kepada pilihan program",
+    "nextBody": "Bandingkan merit anda dengan purata merit program yang anda minati.",
+    "nextAction": "Teroka program"
   }
 }

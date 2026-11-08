@@ -191,7 +191,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | JPT import (requirements) | Requirement text parsed by rules, Claude for the rest, validated, drafts for admin approval | Not Started | Step 11; needs Steps 9–10 and an Anthropic API key |
 | Interest test + activities | RIASEC result, activity ratings | Not Started | Questions, scoring, screens (tables exist) |
 | Recommendation v1 | Score, rank, template reasons, top-match card | **In Progress** | Dashboard card; interest and preference data feeding the score |
-| Merit calculator | Formula per entry route, target vs actual labels | Not Started | |
+| Merit calculator | Formula per entry route, target vs actual labels | **Done** (8 Nov 2026) | Merit Lab: SPM, STPM, matriculation, foundation and diploma formulas copied from the ePanduan merit calculator's own code, with its official SPM subject list; live "what if". Next: show the student's merit beside each programme's average merit (prediction v1) |
 | Slip upload + OCR | Upload, local OCR, review screen with flagged rows | Not Started | |
 | Prediction v1 | Margin bands from `ADMISSION_STAT`, "No data" state | **In Progress** | Merit averages from the JPT import (Step 9); endpoint (estimator logic is done) |
 | Alternative pathways | Certificate/skills programmes, stepping-stone pathways, what-if "improve a result", supportive wording | Not Started | Pathway table exists |
