@@ -14,7 +14,11 @@ export function AuthHeading({ eyebrow, title, intro }: { eyebrow: string; title:
 
 /** White card that holds a form. */
 export function AuthCard({ children }: { children: ReactNode }) {
-  return <section className="rounded-[18px] bg-white p-5 sm:p-6">{children}</section>;
+  return (
+    <section data-reveal="scale" className="rounded-[18px] bg-white p-5 sm:p-6">
+      {children}
+    </section>
+  );
 }
 
 /** Light-blue panel with Rimau. Hidden on phones to keep the screen short. */

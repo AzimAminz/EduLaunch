@@ -1,6 +1,6 @@
 # EduLaunch — Roadmap
 
-Version 3.1 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 accepted, M1 demo ready; next: JPT import)
+Version 3.2 · 27 Oct 2026 · current position: **Sprint 5** (Step 9 built, manual check waiting; next: requirement model v2)
 
 **Assumptions:** final-year project over two semesters (about 28 weeks), one to three developers, two-week sprints. Capacity split: about 70% features, 20% testing and clean-up, 10% buffer for surprises.
 
@@ -20,7 +20,7 @@ Version 3.1 · 27 Oct 2026 · current position: **end of Sprint 4** (Step 8 acce
 - **Done:** 8 of 31 items. Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 accepted on 27 Oct 2026 and refined as needs come up).
 - **In Progress:** 7 items. Back-end services exist with unit and integration tests; their screens and real programme data do not yet.
 - **Not Started:** 16 items.
-- **At risk:** real catalogue data and historical admission data. Both are planned through the JPT import (Steps 9 and 11), which first needs the ePanduan terms of use checked.
+- **At risk:** real requirement data (Step 11). Programme lists and merit averages now come from ePanduan (Step 9); the site's terms forbid commercial reuse without written consent, so a commercial launch needs JPT's permission.
 
 ### Work steps so far
 
@@ -37,11 +37,34 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 6b | Pre-university and Diploma: qualification type, CGPA, MUET, diploma field, STPM/A-Level grades, basic SPM tab; searchable subjects, typed subjects, school results per year, saved records | **Done** (checked by hand) |
 | 7 | Eligibility on screen: "Can I get in?" on the programme page, by entry route (SPM, certificate, STPM, matriculation, diploma), each requirement explained in BM/EN | **Done** (checked by hand) |
 | 8 | Admin console: home with today's tasks, task inbox, institutions, programmes (draft → another admin approves → published), requirement wizard by entry route (including SVM, SKM, DVM and DKM routes) with a second-admin review | **Done** (accepted; refined as needs come up); **M1 demo** ready |
-| 9 | **Programmes found from each institution (institution first):** an admin adds an institution with its official sources (website, programme page, prospectus PDFs, its ePanduan university code) → the system reads that institution's programmes (code, name, level, NEC field, duration, year, merit average) → a "programmes found" list for that institution, which an admin accepts (in bulk) as drafts → another admin publishes. Merit averages go to `ADMISSION_STAT`; the 157 NEC codes become the field list. Weekly re-check: new programmes are offered, missing ones are flagged (never archived automatically). Adding a programme by hand stays as a fallback. Reading ePanduan starts only after its terms of use are checked | Planned (next) |
-| 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | Planned |
+| 9 | **Programmes found from each institution (institution first):** an admin adds an institution with its official sources (website, programme page, prospectus PDFs, its ePanduan university code) → the system reads that institution's programmes (code, name, level, NEC field, duration, year, merit average) → a "programmes found" list for that institution, which an admin accepts (in bulk) as drafts → another admin publishes. Merit averages go to `ADMISSION_STAT`; the 157 NEC codes become the field list. Weekly re-check: new programmes are offered, missing ones are flagged (never archived automatically). Adding a programme by hand stays as a fallback. Reading ePanduan starts only after its terms of use are checked | **Done** (manual check waiting); weekly re-check still manual ("Semak semula") |
+| 10 | **Requirement model v2:** general requirements per university and route (Syarat Am), alternative sets (Pilihan A / B), "N credits from a list of subjects", diploma field by NEC code, A-Level/IB points, conditions students confirm themselves, "use for other programmes" | **In progress:** Syarat Am / Khas parts, sections, N subjects from a list, declarations and notes, fill from ePanduan, entry routes per programme are done (27 Oct 2026); diploma field by NEC code, A-Level/IB points and "use for other programmes" remain |
 | 11 | **JPT import, part 2 (requirements):** read each programme's Syarat Am and Syarat Khas with a headless browser, parse with rules first and Claude for what rules cannot read, validate (exact quotes, known subjects, valid grades), create requirement drafts that an admin approves | Planned |
 | 12 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
 | 13 | **Career data and study roadmap:** careers with MASCO code, qualification level and source; after-Diploma branches (work now, degree, professional qualification, work first); "being prepared" state and data-gap tasks; AI drafts for missing fields from whitelisted Malaysian sources, approved by admins | Planned |
+
+### Changes since v3 (requirement model v2 started, 27 Oct 2026)
+
+| Change | Why |
+|---|---|
+| Requirements are stored and edited like ePanduan: **Syarat Am** and **Syarat Khas**, lines under SPM / STPM / MUET headings, DAN / ATAU, the official sentence on every line | Owner's request: the ePanduan layout is clearer, and the same structure lets results be matched line by line |
+| New line kinds: **N subjects from a list**, **declaration** (student confirms: interview, citizenship, health), **note** (context) | Common in Syarat Khas; without them most real requirements could not be written |
+| **Fill from ePanduan**: a draft is filled from the fetched text in one press (rules recognised by pattern: grades, lists, credits, CGPA, MUET, conditions); the admin corrects and another admin approves | Typing every line by hand is slow; recognising by pattern costs nothing and keeps AI for what patterns cannot read (Step 11) |
+| **Entry routes per programme** (`PROGRAM_ENTRY_ROUTE`) and the newest average merit are in the programme summary | Recommendations can keep programmes the student's route can enter, and estimate offer chances, before rules are written |
+| The eligibility result lists **conditions to confirm** instead of failing the student on them | The system cannot check an interview or health condition from results |
+
+### Changes since v3 (Step 9 built, 27 Oct 2026)
+
+| Change | Why |
+|---|---|
+| **Terms checked:** ePanduan has no robots.txt and no terms page; the ministry portal policy forbids copying for **commercial** purposes without written consent and says nothing about non-commercial use | EduLaunch is a non-commercial final-year project: facts only, source shown on every programme, admins approve; a commercial launch needs JPT's written permission |
+| The importer filters by institution with the site's own search form (tick one institution, press Cari, follow the pages), like a visitor | One institution takes about 15 requests (about a minute at one request every 4 seconds) instead of reading hundreds of 3–9 MB pages |
+| An import reads **13 candidate categories** (SPM A/B, STPM S/A, Asasi and Matrikulasi V/M/N/P, STAM T, Diploma G1/G2, DKM E1, DVM E2); each category is an entry route with its own Syarat Am | Owner's list; the same programme accepts several routes with different general requirements |
+| Syarat Am (per category), fees, campus, careers and details are kept with each found programme; **Syarat Khas is read only for accepted programmes** | About 400 extra requests per university otherwise; the text is shown on the import list and on the programme's requirements tab as a reference to quote. Turning the text into rules stays Step 11 |
+| The parser is in Python (`selectolax`) in the content service, not `cheerio` | The content service is the Python service; same rule: read by label text |
+| An institution gets an **ePanduan code** (UC for UTeM). Politeknik, Kolej Komuniti and MARA share one code each, so their found programmes are picked by college name or campus | ePanduan has no code per polytechnic |
+| Accepted programmes are prepared by the admin who accepts them (not a "Pembantu JPT" account) | Same two-admin rule, with a person named as preparer |
+| Not yet: the weekly automatic re-check (an admin presses "Semak semula") | Needs a scheduler and the list of institutions with codes; planned with the content pipeline schedule |
 
 ### Changes since v3 (institution-first programme import, 27 Oct 2026)
 
@@ -163,8 +186,8 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 ### Next — intelligence (Weeks 9–18)
 | Item | Outcome | Status | What is left |
 |---|---|---|---|
-| Programmes from each institution | Institution → its official sources → its programmes found automatically (ePanduan by university, its own site or prospectus) → admin accepts → published; merit averages into `ADMISSION_STAT` | Not Started | Sources on the institution form; terms check; parser with saved pages as test fixtures; "programmes found" review list; weekly re-check (Step 9) |
-| Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | Not Started | Step 10 |
+| Programmes from each institution | Institution → its official sources → its programmes found automatically (ePanduan by university, its own site or prospectus) → admin accepts → published; merit averages into `ADMISSION_STAT` | **In Progress** | ePanduan import done (Step 9, manual check waiting); weekly automatic re-check; the institution's own site or prospectus later |
+| Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | **In Progress** | Done: Syarat Am / Khas by section, ATAU sets, N from a list, declarations, fill from ePanduan, copy approved requirements, programme facts as ePanduan lists them. Left: diploma field by NEC code, A-Level / IB points |
 | JPT import (requirements) | Requirement text parsed by rules, Claude for the rest, validated, drafts for admin approval | Not Started | Step 11; needs Steps 9–10 and an Anthropic API key |
 | Interest test + activities | RIASEC result, activity ratings | Not Started | Questions, scoring, screens (tables exist) |
 | Recommendation v1 | Score, rank, template reasons, top-match card | **In Progress** | Dashboard card; interest and preference data feeding the score |
@@ -203,7 +226,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 2 | 3–4 | **Seed catalogue**; CI; programme search and detail screens; BM/EN | **Done** except real catalogue data (still at risk) |
 | 3 | 5–6 | Sign-in screens; academic profile screens with subject picker | **Done** (Steps 5–6) |
 | 4 | 7–8 | Eligibility on screen with real data; admin programme editing; requirement review screens; **M1 demo** | **Done** (Steps 7–8); M1 demo ready |
-| 5 | 9–10 | **JPT import part 1** (programme list, NEC fields, merit averages); requirement model v2 | Next |
+| 5 | 9–10 | **JPT import part 1** (programme list, NEC fields, merit averages); requirement model v2 | **In Progress** (Step 9 built) |
 | 6 | 11–12 | **JPT import part 2** (requirements, Claude extraction); recommendation dashboard card | |
 | 7 | 13–14 | Interest test and activities; merit calculator | |
 | 8 | 15–16 | Prediction v1 with JPT merit data; slip upload and OCR; alternative pathways + what-if | |
@@ -261,7 +284,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Teammates' machines differ (Windows/Mac) | Medium | `pnpm doctor` checks tools; setup guide covers both |
 | Free AI tier changes | Medium | Provider-agnostic AI client; local model fallback |
 | Wrong requirement data | Medium | Admin approval, quotes as evidence, golden-set checks |
-| ePanduan terms do not allow automated reading | Medium | Check before Step 9; ask JPT through the supervisor; fall back to prospectus PDFs |
+| ePanduan terms do not allow automated reading | Low (checked 27 Oct 2026: no robots.txt or terms page; commercial reuse needs written consent) | Non-commercial use only, slow polite reading, source shown; ask JPT for written permission before any commercial launch; fall back to prospectus PDFs |
 | AI career drafts that do not fit Malaysia | Medium | Whitelisted Malaysian sources, MASCO and MQF checks, quotes, admin approval |
 | ePanduan changes its page layout | Medium | Parser reads labels, not positions; a run that finds no programmes stops and alerts instead of wiping data; saved pages as test fixtures |
 | A screen ships in one language only | Low | Tests check both dictionaries have the same keys; guideline in CONTRIBUTING |

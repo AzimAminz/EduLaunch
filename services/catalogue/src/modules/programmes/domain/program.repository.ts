@@ -19,6 +19,14 @@ export abstract class ProgramRepository {
   abstract save(program: Program): Promise<void>;
   /** Removes the programme; its requirements, fields, pathways and admission figures go with it (cascading keys). */
   abstract delete(id: string): Promise<void>;
+  /** Replaces the entry routes a programme takes candidates from. */
+  abstract replaceEntryRoutes(programId: string, routes: Array<{ entryRoute: string; sourceCategory: string | null }>): Promise<void>;
+  /** Stops taking candidates from one entry route: only the given candidate categories of it, or all of them. */
+  abstract removeEntryRoute(programId: string, entryRoute: string, categories?: string[]): Promise<void>;
+  /** Entry routes and the newest average merit for these programmes, for summaries and recommendations. */
+  abstract admissionFacts(programIds: string[]): Promise<Map<string, { entryRoutes: string[]; averageMerit: { intakeYear: number; value: number } | null }>>;
+  /** The average merit of one intake year (from ePanduan), replacing an earlier figure for that year. */
+  abstract recordAverageMerit(programId: string, intakeYear: number, averageMerit: number): Promise<void>;
   abstract institutionExists(id: string): Promise<boolean>;
   abstract necCodeExists(code: string): Promise<boolean>;
   /** Whether another programme already uses this JPT / UPU code. */

@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { InstitutionTypes, MalaysianStates } from '@edulaunch/contracts';
+import { EpanduanInstitutions, InstitutionTypes, MalaysianStates } from '@edulaunch/contracts';
 import { saveInstitution, type AdminFormState } from '@/lib/admin/actions';
 import type { Dictionary, Locale } from '@/lib/i18n/locale';
 import { FormAlert, TextField } from '@/components/auth/fields';
@@ -17,16 +18,18 @@ export interface InstitutionValues {
   type: string;
   state: string | null;
   websiteUrl: string | null;
+  epanduanCode: string | null;
 }
 
 /**
  * Add an institution (it then opens on its profile) or correct its details.
  * Institutions are reference data: saved directly, no second-admin review.
  */
-export function InstitutionForm({ locale, t, noMatches, values, onCancel }: { locale: Locale; t: Dictionary['admin']; noMatches: string; values?: InstitutionValues; onCancel?: () => void }) {
+export function InstitutionForm({ locale, t, noMatches, values, onCancel, cancelHref }: { locale: Locale; t: Dictionary['admin']; noMatches: string; values?: InstitutionValues; onCancel?: () => void; cancelHref?: string }) {
   const i = t.institutions;
   const [type, setType] = useState(values?.type ?? '');
   const [state, setState] = useState(values?.state ?? '');
+  const [epanduanCode, setEpanduanCode] = useState(values?.epanduanCode ?? '');
   const [result, onSubmit, pending] = useFormAction<AdminFormState>(saveInstitution, {});
   const fieldError = (name: string) => {
     const key = result.fieldErrors?.[name] as keyof typeof i.errors | undefined;
@@ -38,6 +41,7 @@ export function InstitutionForm({ locale, t, noMatches, values, onCancel }: { lo
       {values && <input type="hidden" name="id" value={values.id} />}
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="state" value={state} />
+      <input type="hidden" name="epanduanCode" value={epanduanCode} />
       <FormAlert>{!pending && result.error ? t.errors[result.error] : undefined}</FormAlert>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <TextField name="name" label={i.name} placeholder={i.namePlaceholder} defaultValue={values?.name} maxLength={160} error={fieldError('name')} />
@@ -60,6 +64,17 @@ export function InstitutionForm({ locale, t, noMatches, values, onCancel }: { lo
         <Dropdown label={i.state} value={state} onChange={setState} options={MalaysianStates.map((x) => ({ value: x, label: x }))} placeholder={i.statePlaceholder} noMatchesLabel={noMatches} />
       </div>
       <TextField name="websiteUrl" label={i.website} placeholder={i.websitePlaceholder} defaultValue={values?.websiteUrl ?? ''} inputMode="url" error={fieldError('websiteUrl')} />
+      <div className="flex flex-col gap-2">
+        <Dropdown
+          label={i.epanduanCode}
+          value={epanduanCode}
+          onChange={setEpanduanCode}
+          options={[{ value: '', label: i.epanduanNone }, ...EpanduanInstitutions.map((x) => ({ value: x.code, label: `${x.code} · ${x.name}`, keywords: [x.name] }))]}
+          placeholder={i.epanduanPlaceholder}
+          noMatchesLabel={noMatches}
+        />
+        <p className="text-[13px] text-muted">{i.epanduanHint}</p>
+      </div>
       <div className="flex flex-wrap items-center gap-3">
         <button type="submit" disabled={pending} className={buttonClass('primary')}>
           <IconText icon="save" busy={pending}>
@@ -70,6 +85,11 @@ export function InstitutionForm({ locale, t, noMatches, values, onCancel }: { lo
           <button type="button" onClick={onCancel} className={buttonClass('secondary')}>
             <IconText icon="x">{i.cancel}</IconText>
           </button>
+        )}
+        {cancelHref && (
+          <Link href={cancelHref} className={buttonClass('secondary')}>
+            {i.cancel}
+          </Link>
         )}
         <Notice showKey={result.savedAt}>{i.saved}</Notice>
       </div>

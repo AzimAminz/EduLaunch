@@ -1,8 +1,7 @@
-import Link from 'next/link';
 import type { ProgrammeRow, ProgrammeSort } from '@/lib/admin/api';
+import { withFrom } from '@/lib/admin/trail';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
-import { AdminIcon } from './icons';
-import { EmptyState, IconText, SortHeader, StatusChip, buttonClass, timeAgo } from './ui';
+import { EmptyState, RowArrow, RowLink, SortHeader, StatusChip, tableStyle as ts, timeAgo } from './ui';
 
 export interface TableSort {
   sort: ProgrammeSort;
@@ -12,111 +11,92 @@ export interface TableSort {
 }
 
 /**
- * The quick action for a row: review what waits for review, edit what can be edited, nothing extra for archived.
- * The programme page then shows every action that applies (send, approve, withdraw, archive, delete…).
+ * Programmes as a table: the name opens the programme (the whole row is the link), then its level, which routes
+ * already have published requirements, its status and when it last changed. Every link carries `from`, the list's
+ * own address, so the programme's breadcrumb returns to this exact page, sort and filter.
  */
-function rowAction(p: ProgrammeRow, a: Dictionary['admin']['programme']['act']) {
-  if (p.status === 'in_review' || p.pendingStatus === 'in_review') return { label: a.review, icon: 'eye' as const, edit: false };
-  if (p.status === 'archived') return null;
-  return { label: a.edit, icon: 'pencil' as const, edit: true };
-}
-
-/** Programmes as a table: sortable columns, status with icons, when it last changed, and clear row actions. */
 export function ProgrammeTable({
   rows,
   locale,
   dict,
   now,
   sort,
+  from,
   showInstitution = true,
+  empty,
+  offset = 0,
 }: {
   rows: ProgrammeRow[];
   locale: Locale;
   dict: Dictionary;
   now: number;
   sort?: TableSort;
+  from: string;
   showInstitution?: boolean;
+  /** What to say when no row is shown. */
+  empty?: string;
+  /** How many rows came before this page, so numbers carry on across pages. */
+  offset?: number;
 }) {
   const t = dict.admin;
   const c = t.programmes.columns;
   const routes: Record<string, string> = dict.requirements.routes;
-  if (rows.length === 0) return <EmptyState icon="programme" text={t.programmes.empty} />;
-  const header = (key: ProgrammeSort, label: string) =>
+  if (rows.length === 0) return <EmptyState text={empty ?? t.programmes.empty} />;
+  const header = (key: ProgrammeSort, label: string, className = '') =>
     sort ? (
       <SortHeader
         label={label}
         active={sort.sort === key}
         direction={sort.direction}
+        className={className}
         // The same column again flips the order; another column starts ascending (newest first for "updated").
         href={sort.href(key, sort.sort === key ? (sort.direction === 'asc' ? 'desc' : 'asc') : key === 'updated' ? 'desc' : 'asc')}
       />
     ) : (
-      <th className="px-4 py-3 font-medium">{label}</th>
+      <th className={`${ts.th} ${className}`}>{label}</th>
     );
 
   return (
-    <div className="overflow-x-auto rounded-[14px] border border-line bg-white">
-      <table className="w-full min-w-[880px] text-left text-sm">
-        <thead className="bg-bg text-[13px] text-muted">
+    <div className={ts.shell}>
+      <table className={`${ts.table} min-w-[720px]`}>
+        <thead className={ts.head}>
           <tr>
-            {header('name', c.programme)}
-            {showInstitution && header('institution', c.institution)}
+            <th className={ts.numTh}>#</th>
+            {header('name', c.programme, 'w-[42%]')}
             {header('level', c.level)}
-            <th className="px-4 py-3 font-medium">{c.requirements}</th>
+            <th className={ts.th}>{c.requirements}</th>
             {header('status', c.status)}
-            {header('updated', c.updated)}
-            <th className="px-4 py-3 text-right font-medium">{c.actions}</th>
+            {header('updated', c.updated, 'text-right [&>a]:flex-row-reverse')}
+            <th aria-hidden className="w-10" />
           </tr>
         </thead>
-        <tbody className="divide-y divide-line">
-          {rows.map((p) => {
-            const view = `/${locale}/admin/program/${p.id}`;
-            const action = rowAction(p, t.programme.act);
-            return (
-              <tr key={p.id} className="transition-colors duration-150 hover:bg-bg/70">
-                <td className="px-4 py-3">
-                  <Link href={view} className="inline-flex items-center gap-2.5 font-semibold hover:underline">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-[8px] bg-blue text-navy">
-                      <AdminIcon name="programme" size={15} />
-                    </span>
-                    {p.name}
-                  </Link>
-                </td>
-                {showInstitution && <td className="px-4 py-3">{p.institutionName ?? '—'}</td>}
-                <td className="px-4 py-3">{dict.levels[p.studyLevel]}</td>
-                <td className="px-4 py-3">
-                  {p.publishedRoutes.length ? (
-                    p.publishedRoutes.map((r) => routes[r] ?? r).join(', ')
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 text-[#b33a35]">
-                      <AdminIcon name="alert" size={14} />
-                      {t.programmes.noRequirements}
-                    </span>
-                  )}
-                  {p.openDrafts > 0 && <span className="ml-2 rounded-full bg-cream px-2 py-0.5 text-xs font-semibold">{format(t.programmes.openDrafts, { count: p.openDrafts })}</span>}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="flex flex-wrap items-center gap-1.5">
-                    <StatusChip status={p.status} t={t} />
-                    {p.pendingStatus && <span className="whitespace-nowrap rounded-full bg-yellow px-2 py-0.5 text-xs font-semibold">{t.programmes.changeBadge}</span>}
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-4 py-3 text-[13px] text-muted">{timeAgo(p.updatedAt, now, t)}</td>
-                <td className="px-4 py-3">
-                  <span className="flex justify-end gap-2">
-                    <Link href={view} className={buttonClass('secondary', 'sm')}>
-                      <IconText icon="eye">{t.institutions.open}</IconText>
-                    </Link>
-                    {action && (
-                      <Link href={action.edit ? `${view}/sunting` : view} className={buttonClass('primary', 'sm')}>
-                        <IconText icon={action.icon}>{action.label}</IconText>
-                      </Link>
-                    )}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
+        <tbody>
+          {rows.map((p, n) => (
+            <tr key={p.id} className={ts.row}>
+              <td className={ts.numTd}>{offset + n + 1}</td>
+              <td className={ts.td}>
+                <RowLink href={withFrom(`/${locale}/admin/program/${p.id}`, from)}>{p.name}</RowLink>
+                {showInstitution && <p className={`${ts.sub} truncate`}>{p.institutionName ?? t.programmes.noInstitution}</p>}
+              </td>
+              <td className={`${ts.td} whitespace-nowrap text-[13px]`}>{dict.levels[p.studyLevel]}</td>
+              <td className={`${ts.td} max-w-[220px] text-[13px]`}>
+                {/* One line each: what students can check against, then what is still being prepared. */}
+                {p.publishedRoutes.length ? (
+                  <p className="truncate" title={p.publishedRoutes.map((r) => routes[r] ?? r).join(', ')}>
+                    {p.publishedRoutes.length === 1 ? (routes[p.publishedRoutes[0]!] ?? p.publishedRoutes[0]) : format(t.programmes.routeCount, { count: p.publishedRoutes.length })}
+                  </p>
+                ) : (
+                  <p className="text-[#8a5a00]">{t.programmes.noRequirements}</p>
+                )}
+                {p.openDrafts > 0 && <p className="text-muted">{format(t.programmes.openDrafts, { count: p.openDrafts })}</p>}
+              </td>
+              <td className={ts.td}>
+                <StatusChip status={p.status} t={t} note={p.pendingStatus ? t.programmes.changeBadge : undefined} />
+              </td>
+              <td className={`${ts.td} whitespace-nowrap text-right text-[13px] tabular-nums text-muted`}>{timeAgo(p.updatedAt, now, t)}</td>
+              <RowArrow />
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

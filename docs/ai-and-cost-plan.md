@@ -144,7 +144,7 @@ Official source list ──► Fetch (weekly) ──► Extract text ──► C
 ### 5.1 Sources
 - Only whitelisted official domains (university and agency sites, prospectus PDFs).
 - Respect `robots.txt`; one request every few seconds per site; identify the crawler.
-- Store the URL, last check time and a checksum in `DATA_SOURCE`.
+- Store the URL and label of each official source in `INSTITUTION_SOURCE`.
 
 ### 5.2 Fetch and extract
 - HTML: fetch and strip menus and footers (for example with `trafilatura`).
@@ -171,11 +171,35 @@ Side-by-side view: the old published version, the new draft, and the source quot
 ### 5.7 Measuring accuracy
 Keep a golden set of about 30 programme pages checked by hand. After each change to the extractor, run it on the golden set and record field accuracy. Target: at least 90% of fields right in the draft.
 
-### 5.8 First source: the JPT ePanduan site (planned, Steps 9 and 11)
+### 5.8 First source: the JPT ePanduan site (Step 9 built; Step 11 planned)
 
 ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-university programmes. It is the first source we automate because it covers many programmes in one consistent layout. **Gate:** the importer runs only after its terms of use are checked (and, ideally, JPT agrees through the supervisor). We never bypass logins, CAPTCHAs, rate limits or terms; if automated reading is not allowed, we fall back to prospectus PDFs and manual entry.
 
-**What the site looks like (checked 27 Oct 2026 on one saved page):**
+**Terms check (27 Oct 2026):** `online.mohe.gov.my` has no `robots.txt` (the address redirects to the UPU home page) and the ePanduan pages have no terms, privacy or reuse statement; the UPU portal shows "© 2023 Jabatan Pendidikan Tinggi". The ministry portal policy (mohe.gov.my, "Portal Policy") says its content may not be "altered, copied, distributed, reposted… for any commercial purpose without the express prior written consent of the Ministry of Higher Education"; it says nothing about non-commercial use. **Decision:** EduLaunch, a non-commercial final-year project, reads programme facts slowly, shows the source on every programme and has admins approve every record; a commercial launch first needs JPT's written permission (contact: upu@mohe.gov.my).
+
+**How Step 9 reads it (built 27 Oct 2026):**
+- Programme lists are per **candidate category**, and each category is an EduLaunch entry route. An import reads **13 categories** (owner's list, 27 Oct 2026; totals across all institutions that day):
+
+  | Category | Meaning | Programmes | Route | Merit shown |
+  |---|---|---|---|---|
+  | SPM `A` / `B` | SPM current year / earlier years | 369 / 335 | spm | yes |
+  | STPM `S` / `A` | STPM science / arts | 1,002 / 678 | stpm | yes |
+  | `V` `M` `N` `P` | Asasi TVET, Asasi Sains Sosial, Matrikulasi / Asasi Sains, Matrikulasi Perakaunan | 53, 413, 1,001, 542 | matrikulasi | yes |
+  | `T` | STAM | 439 | (no route yet) | no |
+  | `G1` / `G2` | Diploma UA / Diploma Politeknik and Kolej Komuniti | 1,106 / 1,016 | diploma | no |
+  | `E1` / `E2` | DKM / DLKM, DVM | 320 / 347 | dkm / dvm | no |
+
+- The same programme appears under every category it accepts candidates from (UPM's Bacelor Ekonomi is in S, A, M, N, P, T, G1 and G2). The average merit is one figure per programme (the same in every category that shows it).
+- **Syarat Am** is in the list page and differs by category (STPM: PNGK and Pengajian Am; diploma holders: an IPTA / ILKA / IPTS diploma). It is kept per category as plain lines (headings, "• " items, DAN / ATAU).
+- **Syarat Khas** is loaded when Syarat is pressed, from `…/ProgramPengajian/modalSyarat/{category}/{code}` (about 6 KB), with the visitor's session from the list page. It is read **only for programmes an admin accepts** (owner's choice, 27 Oct 2026), one request every 2 seconds, and kept per category with subject lists as indented items.
+- Yuran (fees), Kampus, Laluan Kerjaya and the details panel (Info) come from the list page.
+- A page cut short in transfer (seen once on category N) is detected (fewer programmes than the count says, or a programme without its details) and read again once; a second failure stops the run.
+- **Per institution**, with the site's own search form: open the category page, tick the institution (`carianIPTA[]=UC`), press Cari, then follow `?page=N` (the site keeps the filter in its session). UTeM: 39 programmes, 7 pages, 37 seconds.
+- Institution codes are two letters and start every programme code (`UC6522001` is UTeM). Politeknik (`FB`), Kolej Komuniti (`FC`) and MARA (`OP`) share one code each, so the admin picks that college's programmes by name or campus.
+- Each programme block has a card (name, institution, badges STEM / TVET / Bumiputera / Perintis, `KOD PROGRAM`, `TAHUN`, `PURATA MARKAH MERIT`) and panels titled "Maklumat Program" (level, mode, duration, NEC, interview, joint degree, notes), "Kampus", "Laluan Kerjaya" and "Bidang NEC". Labels inside the name ("BARU", "#") are kept apart from it.
+- Pages are 3–9 MB each (mostly whitespace), so reading a whole category for every institution would be heavy; the institution filter keeps a run to about 15 requests.
+
+**What the site looks like (first look, 27 Oct 2026, one saved page):**
 - Programme lists by candidate category (for example `…/ProgramPengajian/kategoriCalon/S` for STPM), 10 programmes per page, plain server HTML with `?page=N` (the STPM category had 1,002 programmes).
 - Each programme card has labelled values: programme name, institution, `KOD PROGRAM` (for example `UP6481003`), `TAHUN`, `PURATA MARKAH MERIT`, study level, duration, NEC field, interview yes/no.
 - The field filter lists **157 NEC field codes** (for example `0311 Ekonomi`, `0714 Mechanics and metal trades`); university requirement documents use the same codes for "diploma in a related field".
@@ -193,16 +217,18 @@ ePanduan (`online.mohe.gov.my/epanduan`) is the public guide to public-universit
 | Stage | What happens | Kept |
 |---|---|---|
 | 1. Fetch | Weekly, at night, one request every 3–5 seconds, user agent `EduLaunchBot` with a contact address; list pages with plain HTTP, requirement panels with Playwright pressing **Syarat** like a visitor | Raw page in storage with URL, time and checksum |
-| 2. Parse | `cheerio` reads each card **by its label text**, not by position or CSS classes | Staging rows, never the catalogue directly |
+| 2. Parse | `selectolax` (Python, in the content service) reads each card **by its label text**, not by position or CSS classes | Staging rows (`content.import_run`, `content.import_program`), never the catalogue directly |
 | 3. Clean | Strip scripts, styles and tags; decode entities; Unicode NFC; one kind of space and dash; title case for names ("BACELOR … DENGAN KEPUJIAN" → "Bacelor … dengan Kepujian"); `99.43%` → `99.43`, `-`/`Tiada` → null; `07 Semester` → 7; `0311 Ekonomi` → code + name; programme codes must match `^[A-Z]{2}\d{7}$`; de-duplicate by (code, route, year) | Plain text only: scraped HTML is never shown again (no XSS) |
 | 4. Match and check | Institutions and subjects through alias lists ("BAHASA MELAYU / BAHASA MELAYU (KERTAS JULAI)" → Bahasa Melayu; "Kepujian" → C, "Lulus" → E for SPM); requirement text parsed by rules first, **Claude** only for lines rules cannot read; every value must carry an exact quote found in the cleaned text; grades must be valid for the subject; numbers in range | Lines that fail are quarantined and marked "needs review", never dropped silently |
-| 5. Hand over | Only **changes** become drafts, prepared by a "Pembantu JPT" account in the admin task inbox; an admin approves them on the Step 8 review screen; merit averages go to `ADMISSION_STAT` with year and source link | A report per run: found, matched, changed, needs review |
+| 5. Hand over | Step 9: the admin sees found programmes as new / changed / same / missing on the institution's **Import ePanduan** tab and accepts the chosen ones; new ones become drafts and changed ones get only their changed details, prepared by that admin; another admin approves each. (Planned for requirements: drafts prepared by a "Pembantu JPT" account in the admin task inbox; an admin approves them on the Step 8 review screen; merit averages go to `ADMISSION_STAT` with year and source link | A report per run: found, matched, changed, needs review |
 
 **Safety rules:**
 - The checksum is taken on the **cleaned** text, so cosmetic changes (CSRF tokens, `?v=` on stylesheets) do not count as changes.
 - A run that finds no programmes, or misses the expected labels, **stops and alerts** instead of overwriting data.
 - Scraped text is data, never instructions, also when it is sent to the model (prompt-injection safe); the model's answer must match the JSON schema or it is rejected.
 - Tests use saved pages as fixtures, so development does not load the JPT site.
+
+**Rules by pattern first (built 27 Oct 2026):** the requirement editor's "Isi dari ePanduan" turns Syarat Am and Syarat Khas into lines without AI: headings become sections, DAN / ATAU become how lines join, and patterns are recognised for PNGK / CGPA, MUET band, "Gred X bagi matapelajaran Y" (subject names matched through the subject list and aliases), "N (N) C dalam mana-mana matapelajaran" (credits), "Gred X dalam N (N) mata pelajaran" with a list (N subjects from a list), and conditions (interview, citizenship, health) as declarations. What patterns cannot read stays as a note for the admin; Claude is planned only for those (Step 11).
 
 **Model for requirement text and PDFs:** Claude through the Anthropic API (allowed by the project owner for **public** text, 27 Oct 2026): Claude Sonnet 5.5 (`claude-sonnet-5-5`) for the bulk, Claude Opus 5.5 (`claude-opus-5-5`) for hard tables or a second check, with the Batch API and prompt caching (the catalogue subject list is the cached part). The key lives only in the content service's `.env`. Cost is measured on about 20 programmes and the sample prospectus PDFs before a full run.
 
@@ -226,7 +252,7 @@ The student roadmap ("work now or continue?", "which branches are open?") is **b
 4. Automatic checks: the MASCO code exists, the qualification level fits (MQF), the link is on an allowed domain, the quote is found in the source. Failures are marked for the admin.
 5. An admin approves; from then on every student in that field sees it. Each field is reviewed once, then rechecked yearly or when its source changes.
 
-**Allowed sources (whitelist, kept in `DATA_SOURCE`):**
+**Allowed sources (whitelist, kept in `INSTITUTION_SOURCE`):**
 - MASCO 2020 (Malaysian Standard Classification of Occupations): occupation names and skill levels.
 - TalentCorp MyCOL: critical occupations.
 - MQA and the Malaysian Qualifications Framework: qualification levels (for example diploma = MQF level 4).
@@ -240,7 +266,7 @@ Every career and pathway shows its source and year, and the label "guidance, not
 
 ## 6. "Ask AI" with sources (RAG)
 
-1. Published pages are split into chunks of 300–500 words and embedded **once**, when published (`CONTENT_CHUNK`).
+1. Published pages are split into chunks of 300–500 words and embedded **once**, when published (a `content_chunk` table added when Ask AI is built).
 2. A question is embedded and the 4–6 closest chunks are retrieved with pgvector.
 3. The LLM answers only from those chunks and cites them. If nothing relevant is found, it says it does not know and suggests contacting the institution.
 4. Common questions are answered from the FAQ first, without an LLM.

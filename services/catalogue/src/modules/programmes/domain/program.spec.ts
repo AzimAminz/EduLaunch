@@ -22,11 +22,11 @@ describe('Program', () => {
   });
 
   it('keeps the standard details in a clean form', () => {
-    const p = Program.create('p', { ...details, upuCode: ' uc6522001 ', internalCode: ' BELG ', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true });
-    expect(p.toSnapshot()).toMatchObject({ upuCode: 'UC6522001', internalCode: 'BELG', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true, hasInterview: false });
+    const p = Program.create('p', { ...details, programCode: ' uc6522001 ', internalCode: ' BELG ', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true });
+    expect(p.toSnapshot()).toMatchObject({ programCode: 'UC6522001', internalCode: 'BELG', necCode: '0712', studyMode: 'work_based', bumiputeraOnly: true, hasInterview: false });
     // No fixed format yet: any code up to 30 characters is kept as written (upper case).
-    expect(Program.create('p', { ...details, upuCode: ' belg-01 ' }).toSnapshot().upuCode).toBe('BELG-01');
-    expect(() => Program.create('p', { ...details, upuCode: 'X'.repeat(31) })).toThrow('at most 30');
+    expect(Program.create('p', { ...details, programCode: ' belg-01 ' }).toSnapshot().programCode).toBe('BELG-01');
+    expect(() => Program.create('p', { ...details, programCode: 'X'.repeat(31) })).toThrow('at most 30');
     expect(() => Program.create('p', { ...details, necCode: '712' })).toThrow('four digits');
     expect(() => Program.create('p', { ...details, sourceUrl: 'prospektus.pdf' })).toThrow('web link');
   });
@@ -49,10 +49,33 @@ describe('Program', () => {
       p.approve('super', 'allowed');
       expect(p.toSnapshot()).toMatchObject({ publishStatus: 'published', preparedBy: 'super', approvedBy: 'super' });
 
-      p.edit('super', { campus: 'Kampus Induk' });
+      p.edit('super', { campuses: ['Kampus Induk'] });
       p.submitForReview('super');
       p.approve('super', 'allowed');
-      expect(p.toSnapshot().campus).toBe('Kampus Induk');
+      expect(p.toSnapshot().campuses).toEqual(['Kampus Induk']);
+    });
+
+    it('keeps campuses and careers as clean lists', () => {
+      const p = draft();
+      p.edit('admin-a', { campuses: [' Kampus Induk ', '', 'kampus induk', 'Kampus Bandar'], careers: ['Jurutera', 'Jurutera'] });
+      expect(p.toSnapshot()).toMatchObject({ campuses: ['Kampus Induk', 'Kampus Bandar'], careers: ['Jurutera'] });
+    });
+
+    it('lets only a super admin unpublish, back to a draft that keeps a change being prepared', () => {
+      const p = published();
+      expect(() => p.unpublish('admin-a', false)).toThrow(/super admin/);
+      p.edit('admin-a', { name: 'Diploma Sains Komputer (Baharu)' });
+      p.unpublish('super', true);
+      expect(p.toSnapshot()).toMatchObject({ publishStatus: 'draft', preparedBy: 'super', approvedBy: null, pending: null, name: 'Diploma Sains Komputer (Baharu)' });
+      expect(() => p.unpublish('super', true)).toThrow(/Only a published/);
+    });
+
+    it('keeps an ePanduan career list of more than forty whole', () => {
+      const p = draft();
+      const careers = Array.from({ length: 58 }, (_, i) => `Kerjaya ${i + 1}`);
+      p.edit('admin-a', { careers });
+      expect(p.toSnapshot().careers).toHaveLength(58);
+      expect(() => p.edit('admin-a', { careers: Array.from({ length: 101 }, (_, i) => `K${i}`) })).toThrow(/At most 100/);
     });
 
     it('can be edited by any admin, who then becomes its preparer and cannot approve it', () => {
@@ -96,22 +119,22 @@ describe('Program', () => {
   describe('a published programme', () => {
     it('keeps what students see until another admin approves the change', () => {
       const p = published();
-      p.edit('admin-c', { name: 'Diploma Sains Komputer (Rangkaian)', campus: 'Kampus Induk', institutionId: otherInstitution });
+      p.edit('admin-c', { name: 'Diploma Sains Komputer (Rangkaian)', campuses: ['Kampus Induk'], institutionId: otherInstitution });
       expect(p.name).toBe('Diploma Sains Komputer');
       expect(p.pending).toMatchObject({ status: 'draft', preparedBy: 'admin-c' });
       // Institution and level stay as published.
-      expect(p.pending!.details).toMatchObject({ name: 'Diploma Sains Komputer (Rangkaian)', campus: 'Kampus Induk', institutionId });
+      expect(p.pending!.details).toMatchObject({ name: 'Diploma Sains Komputer (Rangkaian)', campuses: ['Kampus Induk'], institutionId });
       p.submitForReview('admin-c');
       expect(() => p.approve('admin-c')).toThrow('Another admin');
       p.approve('admin-d');
-      expect(p.toSnapshot()).toMatchObject({ name: 'Diploma Sains Komputer (Rangkaian)', campus: 'Kampus Induk', publishStatus: 'published', pending: null, approvedBy: 'admin-d' });
+      expect(p.toSnapshot()).toMatchObject({ name: 'Diploma Sains Komputer (Rangkaian)', campuses: ['Kampus Induk'], publishStatus: 'published', pending: null, approvedBy: 'admin-d' });
     });
 
     it('builds one change from several edits, and can drop it', () => {
       const p = published();
-      p.edit('admin-c', { campus: 'Kampus Induk' });
+      p.edit('admin-c', { campuses: ['Kampus Induk'] });
       p.edit('admin-d', { durationSemesters: 5 });
-      expect(p.pending!.details).toMatchObject({ campus: 'Kampus Induk', durationSemesters: 5 });
+      expect(p.pending!.details).toMatchObject({ campuses: ['Kampus Induk'], durationSemesters: 5 });
       expect(p.pending!.preparedBy).toBe('admin-d');
       p.discardChanges();
       expect(p.pending).toBeNull();
@@ -120,13 +143,13 @@ describe('Program', () => {
 
     it('returns a change with a reason, or withdraws it to edit', () => {
       const p = published();
-      p.edit('admin-c', { campus: 'Kampus Induk' });
+      p.edit('admin-c', { campuses: ['Kampus Induk'] });
       p.submitForReview('admin-c');
-      expect(() => p.edit('admin-c', { campus: 'X' })).toThrow('withdraw them first');
+      expect(() => p.edit('admin-c', { campuses: ['X'] })).toThrow('withdraw them first');
       expect(() => p.discardChanges()).toThrow('Withdraw');
       p.returnToPreparer('admin-d', 'Kampus salah dieja');
       expect(p.pending).toMatchObject({ status: 'returned', returnReason: 'Kampus salah dieja' });
-      p.edit('admin-c', { campus: 'Kampus Induk Durian Tunggal' });
+      p.edit('admin-c', { campuses: ['Kampus Induk Durian Tunggal'] });
       p.submitForReview('admin-c');
       p.withdraw();
       expect(p.pending!.status).toBe('draft');
@@ -134,7 +157,7 @@ describe('Program', () => {
 
     it('is archived and reopened as a draft; archiving drops an unsent change', () => {
       const p = published();
-      p.edit('admin-c', { campus: 'Kampus Induk' });
+      p.edit('admin-c', { campuses: ['Kampus Induk'] });
       p.archive();
       expect(p.toSnapshot()).toMatchObject({ publishStatus: 'archived', pending: null });
       expect(() => p.edit('admin-c', { name: 'X programme' })).toThrow('Reopen');

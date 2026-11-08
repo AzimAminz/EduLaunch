@@ -1,0 +1,1333 @@
+{
+  "id": "166fd4e8-81b3-4f06-832a-be677b370d6a",
+  "prevId": "7fce9622-c15e-4543-b292-1f5dfeb55d73",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "catalogue.activity": {
+      "name": "activity",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "activity_title": {
+          "name": "activity_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "activity_type": {
+          "name": "activity_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "activity_field_id_field_id_fk": {
+          "name": "activity_field_id_field_id_fk",
+          "tableFrom": "activity",
+          "tableTo": "field",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.admission_stat": {
+      "name": "admission_stat",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "program_id": {
+          "name": "program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "intake_year": {
+          "name": "intake_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lowest_merit": {
+          "name": "lowest_merit",
+          "type": "numeric(6, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "average_merit": {
+          "name": "average_merit",
+          "type": "numeric(6, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "applicants": {
+          "name": "applicants",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "places": {
+          "name": "places",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "admission_stat_program_id_program_id_fk": {
+          "name": "admission_stat_program_id_program_id_fk",
+          "tableFrom": "admission_stat",
+          "tableTo": "program",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.career": {
+      "name": "career",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "career_title": {
+          "name": "career_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "min_study_level": {
+          "name": "min_study_level",
+          "type": "study_level",
+          "typeSchema": "catalogue",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "outlook_note": {
+          "name": "outlook_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "career_field_id_field_id_fk": {
+          "name": "career_field_id_field_id_fk",
+          "tableFrom": "career",
+          "tableTo": "field",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.condition_subject": {
+      "name": "condition_subject",
+      "schema": "catalogue",
+      "columns": {
+        "condition_id": {
+          "name": "condition_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_id": {
+          "name": "subject_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "condition_subject_subject_idx": {
+          "name": "condition_subject_subject_idx",
+          "columns": [
+            {
+              "expression": "subject_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "condition_subject_condition_id_requirement_condition_id_fk": {
+          "name": "condition_subject_condition_id_requirement_condition_id_fk",
+          "tableFrom": "condition_subject",
+          "tableTo": "requirement_condition",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "condition_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "condition_subject_subject_id_subject_id_fk": {
+          "name": "condition_subject_subject_id_subject_id_fk",
+          "tableFrom": "condition_subject",
+          "tableTo": "subject",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "subject_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "condition_subject_condition_id_subject_id_pk": {
+          "name": "condition_subject_condition_id_subject_id_pk",
+          "columns": [
+            "condition_id",
+            "subject_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.field": {
+      "name": "field",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "parent_field_id": {
+          "name": "parent_field_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "field_name": {
+          "name": "field_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_name_en": {
+          "name": "field_name_en",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "riasec_weights": {
+          "name": "riasec_weights",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.institution_source": {
+      "name": "institution_source",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "institution_id": {
+          "name": "institution_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "institution_source_institution_id_institution_id_fk": {
+          "name": "institution_source_institution_id_institution_id_fk",
+          "tableFrom": "institution_source",
+          "tableTo": "institution",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "institution_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.institution": {
+      "name": "institution",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "institution_name": {
+          "name": "institution_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "short_name": {
+          "name": "short_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "institution_type": {
+          "name": "institution_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "website_url": {
+          "name": "website_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "epanduan_code": {
+          "name": "epanduan_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deletion_requested_by": {
+          "name": "deletion_requested_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deletion_requested_at": {
+          "name": "deletion_requested_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.nec_field": {
+      "name": "nec_field",
+      "schema": "catalogue",
+      "columns": {
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "nec_field_field_id_field_id_fk": {
+          "name": "nec_field_field_id_field_id_fk",
+          "tableFrom": "nec_field",
+          "tableTo": "field",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.program_entry_route": {
+      "name": "program_entry_route",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "program_id": {
+          "name": "program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entry_route": {
+          "name": "entry_route",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_category": {
+          "name": "source_category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "program_entry_route_route_idx": {
+          "name": "program_entry_route_route_idx",
+          "columns": [
+            {
+              "expression": "entry_route",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "program_entry_route_program_id_program_id_fk": {
+          "name": "program_entry_route_program_id_program_id_fk",
+          "tableFrom": "program_entry_route",
+          "tableTo": "program",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "program_entry_route_unique": {
+          "name": "program_entry_route_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "program_id",
+            "entry_route",
+            "source_category"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.program_field": {
+      "name": "program_field",
+      "schema": "catalogue",
+      "columns": {
+        "program_id": {
+          "name": "program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "program_field_program_id_program_id_fk": {
+          "name": "program_field_program_id_program_id_fk",
+          "tableFrom": "program_field",
+          "tableTo": "program",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "program_field_field_id_field_id_fk": {
+          "name": "program_field_field_id_field_id_fk",
+          "tableFrom": "program_field",
+          "tableTo": "field",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "program_field_program_id_field_id_pk": {
+          "name": "program_field_program_id_field_id_pk",
+          "columns": [
+            "program_id",
+            "field_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.program_pathway": {
+      "name": "program_pathway",
+      "schema": "catalogue",
+      "columns": {
+        "from_program_id": {
+          "name": "from_program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to_program_id": {
+          "name": "to_program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "condition_text": {
+          "name": "condition_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "min_cgpa": {
+          "name": "min_cgpa",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "program_pathway_from_program_id_program_id_fk": {
+          "name": "program_pathway_from_program_id_program_id_fk",
+          "tableFrom": "program_pathway",
+          "tableTo": "program",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "from_program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "program_pathway_to_program_id_program_id_fk": {
+          "name": "program_pathway_to_program_id_program_id_fk",
+          "tableFrom": "program_pathway",
+          "tableTo": "program",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "to_program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "program_pathway_from_program_id_to_program_id_pk": {
+          "name": "program_pathway_from_program_id_to_program_id_pk",
+          "columns": [
+            "from_program_id",
+            "to_program_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.program": {
+      "name": "program",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "institution_id": {
+          "name": "institution_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "program_name": {
+          "name": "program_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "study_level": {
+          "name": "study_level",
+          "type": "study_level",
+          "typeSchema": "catalogue",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "duration_semesters": {
+          "name": "duration_semesters",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "program_code": {
+          "name": "program_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "internal_code": {
+          "name": "internal_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "faculty": {
+          "name": "faculty",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nec_code": {
+          "name": "nec_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "study_mode": {
+          "name": "study_mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "campuses": {
+          "name": "campuses",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
+        },
+        "has_interview": {
+          "name": "has_interview",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_stem": {
+          "name": "is_stem",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_tvet": {
+          "name": "is_tvet",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "bumiputera_only": {
+          "name": "bumiputera_only",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "joint_degree": {
+          "name": "joint_degree",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "feeder": {
+          "name": "feeder",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "careers": {
+          "name": "careers",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
+        },
+        "fees": {
+          "name": "fees",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pending_changes": {
+          "name": "pending_changes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pending_status": {
+          "name": "pending_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pending_prepared_by": {
+          "name": "pending_prepared_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pending_return_reason": {
+          "name": "pending_return_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "publish_status": {
+          "name": "publish_status",
+          "type": "review_status",
+          "typeSchema": "catalogue",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        },
+        "prepared_by": {
+          "name": "prepared_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved_by": {
+          "name": "approved_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "return_reason": {
+          "name": "return_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "program_institution_id_institution_id_fk": {
+          "name": "program_institution_id_institution_id_fk",
+          "tableFrom": "program",
+          "tableTo": "institution",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "institution_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "program_nec_code_nec_field_code_fk": {
+          "name": "program_nec_code_nec_field_code_fk",
+          "tableFrom": "program",
+          "tableTo": "nec_field",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "nec_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "program_program_code_unique": {
+          "name": "program_program_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "program_code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.requirement_condition": {
+      "name": "requirement_condition",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "requirement_id": {
+          "name": "requirement_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "or_group": {
+          "name": "or_group",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "condition_type": {
+          "name": "condition_type",
+          "type": "condition_type",
+          "typeSchema": "catalogue",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "field_id": {
+          "name": "field_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "min_grade": {
+          "name": "min_grade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "min_value": {
+          "name": "min_value",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "official_text": {
+          "name": "official_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "part": {
+          "name": "part",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'special'"
+        },
+        "section": {
+          "name": "section",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "min_count": {
+          "name": "min_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "requirement_condition_requirement_id_entry_requirement_id_fk": {
+          "name": "requirement_condition_requirement_id_entry_requirement_id_fk",
+          "tableFrom": "requirement_condition",
+          "tableTo": "entry_requirement",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "requirement_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "requirement_condition_field_id_field_id_fk": {
+          "name": "requirement_condition_field_id_field_id_fk",
+          "tableFrom": "requirement_condition",
+          "tableTo": "field",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "field_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.entry_requirement": {
+      "name": "entry_requirement",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "program_id": {
+          "name": "program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prepared_by": {
+          "name": "prepared_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "approved_by": {
+          "name": "approved_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entry_route": {
+          "name": "entry_route",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_category": {
+          "name": "source_category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_no": {
+          "name": "version_no",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "review_status": {
+          "name": "review_status",
+          "type": "review_status",
+          "typeSchema": "catalogue",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'draft'"
+        },
+        "return_reason": {
+          "name": "return_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "effective_from": {
+          "name": "effective_from",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "entry_requirement_program_id_program_id_fk": {
+          "name": "entry_requirement_program_id_program_id_fk",
+          "tableFrom": "entry_requirement",
+          "tableTo": "program",
+          "schemaTo": "catalogue",
+          "columnsFrom": [
+            "program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "catalogue.subject": {
+      "name": "subject",
+      "schema": "catalogue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "subject_name": {
+          "name": "subject_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_name_en": {
+          "name": "subject_name_en",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aliases": {
+          "name": "aliases",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "qualification": {
+          "name": "qualification",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_mandatory": {
+          "name": "is_mandatory",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "catalogue.condition_type": {
+      "name": "condition_type",
+      "schema": "catalogue",
+      "values": [
+        "min_grade",
+        "min_credits",
+        "min_cgpa",
+        "min_muet",
+        "key_subject",
+        "subjects_from_list",
+        "declaration",
+        "note"
+      ]
+    },
+    "catalogue.review_status": {
+      "name": "review_status",
+      "schema": "catalogue",
+      "values": [
+        "draft",
+        "in_review",
+        "returned",
+        "published",
+        "archived"
+      ]
+    },
+    "catalogue.study_level": {
+      "name": "study_level",
+      "schema": "catalogue",
+      "values": [
+        "form4_stream",
+        "certificate",
+        "skills",
+        "foundation",
+        "matriculation",
+        "stpm",
+        "diploma",
+        "degree"
+      ]
+    }
+  },
+  "schemas": {
+    "catalogue": "catalogue"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

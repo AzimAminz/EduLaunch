@@ -1,24 +1,26 @@
 import { DomainError } from '@edulaunch/ddd';
 import { Events } from '@edulaunch/contracts';
-import { Requirement, type RequirementRule } from './requirement.js';
+import { LINE_DEFAULTS, Requirement, type RequirementRule } from './requirement.js';
 
 const rule = (over: Partial<RequirementRule> = {}): RequirementRule => ({
   id: 'r1',
-  groupNo: 1,
-  ruleType: 'min_grade',
+  orGroup: 1,
+  conditionType: 'min_grade',
   subjectId: 'math',
   minGrade: 'B',
   minValue: null,
-  evidenceQuote: 'sekurang-kurangnya gred B dalam Matematik',
+  officialText: 'sekurang-kurangnya gred B dalam Matematik',
+  ...LINE_DEFAULTS,
+  subjectIds: [],
   ...over,
 });
 
 const draft = () =>
-  Requirement.draft('req1', { programId: 'p1', entryRoute: 'spm', versionNo: 2, sourceId: null, sourceUrl: 'https://contoh.edu.my/prospektus', preparedBy: 'aina', rules: [rule()] });
+  Requirement.draft('req1', { programId: 'p1', entryRoute: 'spm', versionNo: 2, sourceUrl: 'https://contoh.edu.my/prospektus', preparedBy: 'aina', rules: [rule()] });
 
 describe('Requirement', () => {
   it('rejects a rule without evidence from the source', () => {
-    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [rule({ evidenceQuote: ' ' })] })).toThrow(DomainError);
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, preparedBy: 'aina', rules: [rule({ officialText: ' ' })] })).toThrow(DomainError);
   });
 
   it('does not let the preparer approve their own draft', () => {
@@ -60,12 +62,12 @@ describe('Requirement', () => {
   });
 
   it('accepts known entry routes only', () => {
-    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'upu', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [] })).toThrow(/entry route/);
-    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'svm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [] })).not.toThrow();
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'upu', versionNo: 1, preparedBy: 'aina', rules: [] })).toThrow(/entry route/);
+    expect(() => Requirement.draft('x', { programId: 'p1', entryRoute: 'svm', versionNo: 1, preparedBy: 'aina', rules: [] })).not.toThrow();
   });
 
   it('needs a link to the official source before review', () => {
-    const req = Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, sourceId: null, preparedBy: 'aina', rules: [rule()] });
+    const req = Requirement.draft('x', { programId: 'p1', entryRoute: 'spm', versionNo: 1, preparedBy: 'aina', rules: [rule()] });
     expect(() => req.submitForReview('aina')).toThrow(/link to the official source/);
     expect(() => req.edit('aina', { rules: [rule()], sourceUrl: 'prospektus.pdf' })).toThrow(/web link/);
     req.edit('aina', { rules: [rule()], sourceUrl: ' https://contoh.edu.my/a.pdf ' });
@@ -74,12 +76,25 @@ describe('Requirement', () => {
     expect(req.status).toBe('in_review');
   });
 
-  it('lets only the preparer edit a draft', () => {
-    expect(() => draft().edit('faiz', { rules: [rule()], sourceUrl: null })).toThrow(/Only the admin/);
+  it('lets another admin carry on a draft, who then becomes its preparer and cannot approve it', () => {
+    const req = draft();
+    req.edit('faiz', { rules: [rule()], sourceUrl: 'https://contoh.edu.my/prospektus' });
+    expect(req.preparedBy).toBe('faiz');
+    req.submitForReview('faiz');
+    expect(() => req.approve('faiz')).toThrow(/Another admin/);
+    req.approve('aina');
+    expect(req.status).toBe('published');
+  });
+
+  it('makes whoever sends a draft its preparer', () => {
+    const req = draft();
+    req.submitForReview('faiz');
+    expect(req.preparedBy).toBe('faiz');
+    expect(() => req.approve('faiz')).toThrow(/Another admin/);
   });
 
   it('checks the value of CGPA, MUET and credit rules', () => {
-    const value = (ruleType: RequirementRule['ruleType'], minValue: number | null) => () => draft().replaceRules([rule({ ruleType, subjectId: null, minGrade: null, minValue })]);
+    const value = (conditionType: RequirementRule['conditionType'], minValue: number | null) => () => draft().replaceRules([rule({ conditionType, subjectId: null, minGrade: null, minValue })]);
     expect(value('min_cgpa', 4.5)).toThrow(/between 0 and 4/);
     expect(value('min_muet', 0)).toThrow(/between 1 and 6/);
     expect(value('min_credits', 2.5)).toThrow(/between 1 and 20/);
@@ -98,5 +113,37 @@ describe('Requirement', () => {
     expect(next.toSnapshot().versionNo).toBe(3);
     expect(next.toSnapshot().sourceUrl).toBe('https://contoh.edu.my/prospektus');
     expect(next.rules.map((r) => [r.id, r.minGrade])).toEqual([['new-1', 'B']]);
+  });
+
+  it('keeps lines as ePanduan writes them: Syarat Am / Khas, sections, a subject list with how many', () => {
+    const req = draft();
+    req.edit('aina', {
+      sourceUrl: 'https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/S?jenprog=stpm',
+      sourceCategory: 'stpm:S',
+      rules: [
+        rule({ id: 'n', orGroup: 1, conditionType: 'note', subjectId: null, minGrade: null, part: 'general', section: 'SPM', officialText: 'Memiliki SPM dengan mendapat sekurang-kurangnya:-' }),
+        rule({ id: 'l', orGroup: 2, conditionType: 'subjects_from_list', subjectId: null, minGrade: 'C', subjectIds: ['phy', 'chem', 'bio', 'phy'], minCount: 2, section: 'STPM', officialText: 'Gred C dalam DUA (2) mata pelajaran' }),
+        rule({ id: 'd', orGroup: 3, conditionType: 'declaration', subjectId: null, minGrade: null, officialText: 'Lulus ujian dan / atau temu duga' }),
+      ],
+    });
+    const dto = req.toPublishedDto();
+    expect(dto.sourceCategory).toBe('stpm:S');
+    expect(dto.rules.map((r) => [r.part, r.section, r.conditionType])).toEqual([
+      ['general', 'SPM', 'note'],
+      ['special', 'STPM', 'subjects_from_list'],
+      ['special', null, 'declaration'],
+    ]);
+    expect(dto.rules[1]!.subjectIds).toEqual(['phy', 'chem', 'bio']);
+  });
+
+  it('checks subject lists, and keeps notes and declarations out of alternatives', () => {
+    const list = (over: Partial<RequirementRule>) => () =>
+      draft().replaceRules([rule({ conditionType: 'subjects_from_list', subjectId: null, minGrade: 'C', subjectIds: ['a', 'b'], minCount: 1, ...over })]);
+    expect(list({ minCount: 3 })).toThrow('between 1 and the number of subjects');
+    expect(list({ subjectIds: [] })).toThrow('1 to 40 subjects');
+    expect(list({ minGrade: null })).toThrow('needs a grade');
+    expect(() =>
+      draft().replaceRules([rule({ id: 'a' }), rule({ id: 'b', conditionType: 'declaration', subjectId: null, minGrade: null, officialText: 'Temu duga' })]),
+    ).toThrow('stands alone');
   });
 });

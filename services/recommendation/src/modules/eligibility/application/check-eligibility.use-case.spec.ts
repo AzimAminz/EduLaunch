@@ -11,7 +11,23 @@ const spmRequirement: PublishedRequirement = {
   programId,
   entryRoute: 'spm',
   versionNo: 1,
-  rules: [{ id: '00000000-0000-4000-9000-000000000001', groupNo: 1, ruleType: 'min_grade', subjectId: bm, minGrade: 'C', minValue: null, evidenceQuote: null }],
+  sourceCategory: null,
+  rules: [
+    {
+      id: '00000000-0000-4000-9000-000000000001',
+      orGroup: 1,
+      conditionType: 'min_grade',
+      subjectId: bm,
+      minGrade: 'C',
+      minValue: null,
+      officialText: null,
+      part: 'special',
+      section: null,
+      subjectIds: [],
+      minCount: null,
+      position: 0,
+    },
+  ],
 };
 
 const snapshot = (over: Partial<StudentSnapshot> = {}): StudentSnapshot => ({

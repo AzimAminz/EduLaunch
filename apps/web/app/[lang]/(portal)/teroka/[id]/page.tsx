@@ -64,7 +64,7 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
         <Eligibility lang={lang} dict={dict} programId={programme.id} subjectNames={subjectNames} />
       </Suspense>
 
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+      <div data-reveal-stagger className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <section className="flex flex-col gap-[18px] rounded-[22px] bg-white p-6" aria-labelledby="requirements-title">
           <h2 id="requirements-title" className="text-[26px] font-semibold leading-tight">
             {t.requirementsTitle}

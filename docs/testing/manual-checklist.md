@@ -357,3 +357,81 @@ Tested by: AzimAminz Date: 26 Oct 2026
 Accepted by the owner for now; this section is updated as the admin console changes.
 
 Tested by: AzimAminz Date: 27 Oct 2026
+
+---
+
+## Step 9 · Programmes from ePanduan (institution first)
+
+**Before you start:** pull, then `pnpm install`, `pnpm --filter @edulaunch/contracts build`, `pnpm db:migrate` (catalogue 0006, content 0002) and restart `pnpm dev`. Log in as an admin (or the demo super admin). The import reads the public JPT ePanduan site, so you need internet access; one run takes about a minute.
+
+### A. ePanduan code on the institution
+
+- [ ] **Institusi → Tambah institusi**: the form has **Kod di ePanduan JPT** with the universities, Politeknik, Kolej Komuniti and MARA. Add "Universiti Teknikal Malaysia Melaka" with code **UC · Universiti Teknikal Malaysia Melaka** (or open the existing one and set the code on **Tetapan**).
+- [ ] The profile has the tabs Ringkasan, Program, **Import ePanduan**, Sumber rasmi, Tetapan.
+- [ ] An institution without a code: the Import ePanduan tab says to set the code, with a button to Tetapan.
+
+### B. Finding programmes
+
+- [ ] **Import ePanduan → Cari program sekarang**: "Sedang membaca ePanduan… N halaman dibaca" with "Kategori: STPM Sains (3 daripada 13)" appears and the page updates by itself; after a few minutes it shows "Dibaca baru tadi · N halaman · N program" (numbers change as JPT updates the site).
+- [ ] Each row shows the categories it was found under (for example "STPM Sains", "Matrikulasi / Asasi Sains", "Diploma UA"). **Butiran, syarat, yuran dan kerjaya** opens the details, Syarat Am for each category, fees and careers; Syarat Khas says "Dibaca selepas program ini diterima".
+- [ ] The list shows each programme's code (UC…), name in normal letters (not all capitals), campus, STEM / TVET / Bumiputera / Perintis labels, level, duration in semesters, NEC code (hover for its name), average merit and status **Baharu**.
+- [ ] The filters **Semua / Baharu / Berubah / Sama / Tiada di ePanduan** show their counts and filter the list.
+- [ ] **Semak semula** while a read is running is not possible (the button waits); a second admin pressing it sees the same run.
+
+### C. Accepting
+
+- [ ] **Kosongkan pilihan**, tick two programmes, **Terima 2 sebagai draf**: "2 draf baharu dan 0 perubahan disimpan". The Program tab shows both as **Draf**, with their programme code; the two rows now say **Sama**.
+- [ ] After accepting, open the row's details again: Syarat Khas shows "Sedang dibaca dari ePanduan…" and then the text for each category (the page updates by itself).
+- [ ] Open one draft → **Syarat kemasukan**: a card **Rujukan dari ePanduan** shows each category's Syarat Am and Syarat Khas to copy as evidence.
+- [ ] Open one draft: its details (code, level, duration, NEC, mode, campus, interview, flags, source link) are filled in. It goes through **Hantar untuk semakan** and another admin approves it, as in Step 8.
+- [ ] Change one draft's name by hand, then **Semak semula**: the row says **Berubah** with "Berubah: nama"; accepting it puts the ePanduan name back and keeps the other details.
+- [ ] A programme with a change in review, or in review itself, cannot be ticked and says why.
+- [ ] **Tiada di ePanduan** lists catalogue programmes of this institution whose code ePanduan no longer shows; nothing is archived automatically.
+
+### D. Politeknik and language
+
+- [ ] An institution with code **FB · Politeknik (semua)**: the tab explains that the code is shared and nothing is ticked at first.
+- [ ] Switch to **EN**: the tab is in English.
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________
+
+---
+
+## Step 10 (part) · Requirements shaped like ePanduan
+
+**Before you start:** pull, `pnpm install`, `pnpm --filter @edulaunch/contracts build`, `pnpm db:migrate` (catalogue 0007 to 0010; content 0003), restart `pnpm dev`. Use a programme that came from the ePanduan import (for example a UTM programme), logged in as the admin who will prepare the requirements.
+
+### A. Programme page
+
+- [ ] **Syarat kemasukan** shows the programme's facts from ePanduan, then a tab per entry route (Lepasan STPM, Lepasan Matrikulasi…) in route order. Each tab says where its requirements stand ("Belum ada syarat", "Draf · anda", "Diterbitkan · v1").
+- [ ] A tab shows **Syarat Lepasan X** with one action (**Mula syarat**, **Buka draf** or **Lihat**), then the ePanduan text it is written from (Syarat Am, Syarat Khas).
+- [ ] **Sunting** at the end of the tab row shows a delete badge on routes that can go (not published, your own unsent draft). Delete asks in a dialog; after **Ya, padam** the tab and its draft are gone.
+
+### B. Adding requirements (steps)
+
+- [ ] **Tambah syarat** opens step 1 **Laluan**: routes on ePanduan first (with their categories), then those usual for the level, then the rest. A route with a draft says so.
+- [ ] Under the chosen route, **Mula dengan** offers **Teks ePanduan**, **Salin syarat yang sudah diluluskan** (only when another programme of the institution has approved requirements for that route) and **Kosong**. Copy without choosing a programme is refused with a message.
+- [ ] **Seterusnya** opens step 2 **Syarat Am** filled from ePanduan (green note with the number of lines), or with the copied lines (copied note), or empty.
+- [ ] Steps 2 and 3 show a tab per section (SPM, STPM, MUET… or Umum) with its line count; a count turns red when a line in it has a problem. **+ Tambah bahagian** adds a section; **Tambah baris X** adds a line to the open section; **Buang bahagian X** asks first.
+- [ ] Opening a line shows its kind as chips and **Apa yang sistem semak** written like ePanduan ("Gred [C] bagi matapelajaran [subjek]", "[2] Gred [C] dalam mana-mana matapelajaran", "Sekurang-kurangnya BAND [1.0] dalam MUET"), with the official sentence below.
+- [ ] DAN / ATAU only joins lines of one section; sections are always joined by DAN.
+- [ ] Step 4 **Semak & hantar** shows the lines as the system reads them and what students see. **Hantar untuk semakan** with a line problem or no source link goes back to the step to fix.
+
+### D. Programme form (Tambah program / Sunting)
+
+- [ ] Four steps in ePanduan's order: **Program** (level, institution, code, name, university code, faculty), **Pengajian** (NEC, duration, mode, campuses, fields), **Kemasukan** (interview, Bumiputera, STEM, TVET, joint degree, feeder), **Maklumat lanjut** (careers, fees, note, source).
+- [ ] Type a code ePanduan has (for example UT6341003) and press **Isi dari ePanduan**: every step fills, the institution is chosen from the code, and a green note says the year. A code not read yet says how to read it; nothing is changed.
+- [ ] Campuses and careers are added with Enter or **Tambah** and removed with ×; a repeat is ignored.
+- [ ] A programme saved with an ePanduan code gets its route tabs and average merit at once, like an imported one.
+- [ ] A programme without ePanduan (private college) can be saved with every field typed by hand.
+- [ ] The **Maklumat** tab shows campuses, careers (chips), fees and note; a change to a published programme lists them in the before / after table.
+
+### C. Student
+
+- [ ] After approval, a student on that route sees **Boleh ke saya masuk?** checked line by line, including "Gred B- dalam 2 subjek daripada: …", and a yellow box **Perlu disahkan sendiri** for declarations (for example the interview).
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________

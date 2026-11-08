@@ -1,5 +1,6 @@
 {
   "meta": {
+    "loading": "Loading the page…",
     "title": "EduLaunch",
     "description": "An education and career planning platform based on official information."
   },
@@ -112,7 +113,10 @@
       "skm": "After SKM",
       "dvm": "After DVM",
       "dkm": "After DKM / DLKM"
-    }
+    },
+    "fromList": "Any {count} subjects",
+    "fromListDetail": "At least grade {grade} in {count} of: {subjects}",
+    "toConfirm": "To confirm"
   },
   "soon": {
     "title": "Coming soon",
@@ -286,56 +290,57 @@
     },
     "home": {
       "greeting": "Welcome, {name}",
-      "intro": "What would you like to do today? Pick one and we will guide you step by step.",
-      "review": {
-        "title": "Review waiting drafts",
-        "body": "Another admin has prepared changes. Compare old with new, then approve or return them.",
-        "count": "{count} waiting for you",
-        "none": "No drafts waiting",
-        "action": "Start reviewing"
+      "findingReview": "{count} items are waiting for your review. The oldest are at the top.",
+      "findingReturned": "{count} of your drafts were sent back to fix.",
+      "findingRequirements": "Nothing is waiting for you. {count} published programmes still have no requirements.",
+      "findingClear": "Nothing is waiting for you today.",
+      "counts": {
+        "toReview": "For you to review",
+        "returned": "Sent back",
+        "drafts": "Your drafts",
+        "waiting": "With another admin",
+        "published": "Published programmes",
+        "withoutRequirements": "No requirements"
       },
-      "requirements": {
-        "title": "Update programme requirements",
-        "body": "New prospectus or circular? Pick the programme and route, show the source, then write the requirements.",
-        "hint": "Programmes without requirements first",
-        "action": "Choose programme",
-        "hintAll": "Usually 5 minutes"
-      },
-      "programme": {
-        "title": "Add a new programme",
-        "body": "Fill in the institution, name, level and fields. Students see it only after another admin approves it.",
-        "action": "Add programme"
-      },
-      "yourWork": "Your work",
-      "returned": "Returned to you",
+      "yourWork": "Needs your action",
+      "toReview": "For you to review",
+      "returned": "Sent back to you",
       "drafts": "Your drafts",
-      "waiting": "Waiting for another admin",
-      "empty": "Nothing pending. Start with one of the tasks above.",
-      "catalogue": "Catalogue",
-      "published": "{count} programmes published",
-      "withoutRequirements": "{count} without published requirements",
+      "empty": "Nothing outstanding. You are all caught up.",
+      "startTitle": "Start something",
+      "start": {
+        "import": "Import from ePanduan",
+        "importDetail": "Choose an institution, then open its Import tab.",
+        "requirements": "Write missing requirements",
+        "requirementsDetail": "Published programmes students cannot check against yet.",
+        "programme": "Add a programme yourself",
+        "programmeDetail": "For programmes not listed on ePanduan."
+      },
       "how": {
-        "title": "How the admin workspace works",
+        "title": "How the admin space works",
         "steps": [
-          "You prepare a draft. Students do not see anything yet.",
-          "Another admin reviews it. You cannot approve your own work.",
+          "You prepare a draft. Students see nothing yet.",
+          "Another admin reviews and approves it. You cannot approve your own work.",
           "Once approved, students see the new version straight away."
         ]
-      }
+      },
+      "othersDrafts": "Other admins' drafts",
+      "findingOthers": "{count} drafts other admins started have not been sent. You can carry them on or send them."
     },
     "tasks": {
       "title": "Task inbox",
-      "intro": "Every draft not yet published. The longest waiting is at the top.",
+      "intro": "Drafts and changes not yet published. The ones waiting longest are at the top.",
       "tabs": {
         "toReview": "For me",
         "returned": "Returned",
         "myDrafts": "My drafts",
-        "waiting": "Waiting for others"
+        "waiting": "Waiting for others",
+        "othersDrafts": "Other admins' drafts"
       },
       "columns": {
-        "record": "Record",
+        "item": "Item",
         "status": "Status",
-        "updated": "Updated"
+        "waiting": "Waiting"
       },
       "programme": "New or edited programme",
       "requirement": "{route} requirements · version {version}",
@@ -346,14 +351,30 @@
         "toReview": "No drafts are waiting for your review.",
         "returned": "No drafts have been returned to you.",
         "myDrafts": "You have no unsent drafts.",
-        "waiting": "None of your drafts are waiting."
+        "waiting": "None of your drafts are waiting.",
+        "othersDrafts": "No unsent drafts from other admins."
       },
       "institution": "Request to delete an institution (with all its programmes)",
-      "change": "Change to a published programme"
+      "change": "Change to a published programme",
+      "bulk": {
+        "selectAll": "Select all on this page",
+        "selected": "{count} of {total} selected",
+        "approve": "Approve selected ({count})",
+        "submit": "Send selected for review ({count})",
+        "approveTitle": "Approve {count} items?",
+        "approveBody": "Students will see these programmes and requirements (or their changes). Approve only what you have checked.",
+        "submitTitle": "Send {count} drafts for review?",
+        "submitBody": "Other admins will see these drafts in their task inbox to review.",
+        "yes": "Yes, continue",
+        "cancel": "Cancel",
+        "approved": "{count} items approved.",
+        "sent": "{count} drafts sent for review.",
+        "failed": "{count} could not go through:"
+      }
     },
     "programmes": {
       "title": "Programmes",
-      "intro": "{total} programmes. Changes are saved as drafts and students see them only after another admin approves them.",
+      "intro": "{total} programmes in the catalogue. Students only see the approved ones.",
       "add": "Add programme",
       "search": "Search programme or institution",
       "searchButton": "Search",
@@ -383,7 +404,11 @@
       "clearFilter": "Clear",
       "allInstitutions": "All institutions",
       "changeBadge": "Has a change",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "noMatches": "No programme matches this search or filter.",
+      "noInstitution": "School stream (no institution)",
+      "searchHere": "Search this institution's programmes",
+      "routeCount": "{count} routes"
     },
     "programmeForm": {
       "newTitle": "Add a new programme",
@@ -413,12 +438,13 @@
         "upuTooLong": "The programme code is too long (30 characters at most)."
       },
       "sections": {
-        "identity": "Identity",
-        "academic": "Academic",
+        "identity": "Programme",
+        "academic": "Study",
         "admission": "Admission",
-        "source": "Source"
+        "source": "Source",
+        "more": "More details"
       },
-      "upuCode": "Programme code (JPT / UPU)",
+      "programCode": "Programme code (JPT / UPU)",
       "upuPlaceholder": "e.g. UC6522001",
       "upuHint": "Copy the code as written in ePanduan or the prospectus, for example UC6522001.",
       "internalCode": "University code",
@@ -435,8 +461,6 @@
         "work_based": "2U2I / 3U1I (work-based)",
         "distance": "Distance learning"
       },
-      "campus": "Campus",
-      "campusPlaceholder": "e.g. Main campus, Durian Tunggal",
       "interview": "Has an interview or test",
       "stem": "STEM programme",
       "tvet": "TVET programme",
@@ -464,7 +488,6 @@
         "form4_stream": "4"
       },
       "steps": {
-        "admission": "Admission & source",
         "next": "Next",
         "back": "Back",
         "of": "Step {n} of {total}"
@@ -472,8 +495,42 @@
       "leave": {
         "message": "What you have entered is not saved and will be lost.",
         "stay": "Keep editing",
-        "discard": "Discard and leave"
-      }
+        "discard": "Discard and leave",
+        "title": "Leave without saving?"
+      },
+      "campuses": "Campuses",
+      "campusesPlaceholder": "e.g. UTM Johor Bahru, Johor",
+      "campusesHint": "List every campus that offers this programme, as on ePanduan. Press Enter to add.",
+      "jointDegree": "Joint degree with another university",
+      "feeder": "Feeder programme (leads to a set degree)",
+      "careers": "Careers",
+      "careersPlaceholder": "e.g. Civil engineer",
+      "careersHint": "One career per item. Used to match programmes to students' career interests.",
+      "fees": "Fees",
+      "feesPlaceholder": "e.g. Fees are set by the university and stated in the offer letter.",
+      "note": "Note",
+      "notePlaceholder": "Anything else about the programme, as in the ePanduan note.",
+      "addItem": "Add",
+      "removeItem": "Remove {item}",
+      "fill": {
+        "button": "Fill from ePanduan",
+        "needCode": "Type the programme code first.",
+        "done": "Filled from ePanduan ({year}). Check each step, then save.",
+        "doneNoYear": "Filled from ePanduan. Check each step, then save.",
+        "notFound": "This code is not in the ePanduan data read so far. Open its institution's Import tab and press \"Check again\", or fill it in yourself.",
+        "unavailable": "ePanduan data cannot be opened right now. Try again shortly, or fill it in yourself.",
+        "institution": "Institution chosen from the programme code.",
+        "differs": "ePanduan:",
+        "use": "Use",
+        "useAll": "Use all",
+        "summary": "{count} fields differ from ePanduan ({year}):",
+        "review": "Review and update"
+      },
+      "entryRoutes": "Entry routes",
+      "entryRoutesHint": "The candidate routes this programme takes, as ePanduan's category lists show. Saved at once (no second admin needed).",
+      "merit": "Average merit score",
+      "meritYear": "Merit data year",
+      "meritHint": "As on ePanduan, for example 83.29."
     },
     "programme": {
       "back": "← All programmes",
@@ -502,8 +559,8 @@
         "confirmArchive": "Yes, archive"
       },
       "requirements": {
-        "title": "Entry requirements by route",
-        "intro": "Each route has its own requirements. Students are checked against the route that matches their qualification (for example after SPM, after STPM).",
+        "title": "Entry requirements",
+        "intro": "Requirements by entry route, as on ePanduan JPT. Each route is reviewed and published on its own.",
         "suggested": "Usual routes for this level",
         "other": "Other routes",
         "published": "Published · version {version}",
@@ -521,23 +578,58 @@
         "empty": "No requirements yet. Choose a route below to start.",
         "done": {
           "draft": "Requirement draft saved. Continue any time with \"Open draft\".",
-          "sent": "Requirements sent for review. Other admins will see them in their task inbox."
-        }
+          "sent": "Requirements sent for review. Other admins will see them in their task inbox.",
+          "drafted": "Drafts made from the ePanduan text. Open each tab to check, edit and send for review."
+        },
+        "start": "Start requirements",
+        "fromCategory": "Written from the ePanduan category: {category}",
+        "noLines": "This draft has no lines yet. Open it and fill from ePanduan.",
+        "notStarted": "This route has no requirements yet. Press \"Start requirements\" and fill them from ePanduan.",
+        "discardDraft": "Remove",
+        "discardDraftConfirm": "Discard this requirement draft? Published requirements stay as they are.",
+        "removeRoute": "Remove",
+        "removeRouteConfirm": "Remove this route from the programme? Students from this route will no longer be checked for it.",
+        "removeYes": "Yes, remove",
+        "cancel": "Cancel",
+        "introManual": "This programme has no ePanduan data. Choose a route below to write its requirements yourself.",
+        "writtenNone": "No requirements yet. Press \"Add requirements\" to start.",
+        "chipPublished": "Published · v{version}",
+        "manage": {
+          "edit": "Edit",
+          "done": "Done",
+          "add": "Add requirements",
+          "remove": "Delete",
+          "editHint": "Press the delete icon on a tab to remove that route with its draft. Only routes not yet published, with your own unsent draft, can be deleted."
+        },
+        "removeModal": {
+          "title": "Delete {name}?",
+          "body": "This route is removed from the programme with its requirement draft, and its tab is no longer shown. This cannot be undone.",
+          "yes": "Yes, delete",
+          "cancel": "Cancel"
+        },
+        "routeHeading": "Requirements for {route}",
+        "tabOpen": "{status} · {who}",
+        "tabChange": "v{version} · change {status}",
+        "ownSlot": "Written by hand",
+        "draftAll": "Make drafts from ePanduan ({count})",
+        "editFromEpanduan": "Edit requirements",
+        "readyFromEpanduan": "ePanduan text ready to review",
+        "newVersion": "Make a new version"
       },
       "workflow": {
-        "draftMine": "Students cannot see this draft yet. Complete its details, then send it to another admin for review.",
-        "draftOther": "Another admin prepared this draft. You may edit or send it; if you edit it, you become its preparer and another admin must approve it.",
-        "returned": "Returned by another admin: {reason}",
-        "reviewMine": "Sent. Every other admin sees it in their task inbox (For me), and any of them can approve or return it. To change something, withdraw it first.",
-        "reviewOther": "Another admin sent this programme. Check the details below, then approve it or return it with a reason.",
-        "published": "Students can see this programme. Edits are saved as a change and only apply after another admin approves them. To delete it, archive it first.",
-        "changeDraft": "There is a change not yet sent. Students still see the current version.",
-        "changeReturned": "The change was returned: {reason}. Students still see the current version.",
-        "changeReviewMine": "Change sent. Every other admin sees it in their task inbox, and any of them can approve it. Students still see the current version.",
-        "changeReviewOther": "Another admin proposed a change. Compare below, then approve or return it.",
-        "archived": "This programme is hidden from students. Reopen it as a draft to edit and publish it again.",
-        "reviewSuper": "Sent. As a super admin you may approve it yourself (recorded as your approval), or leave it for another admin. To change something, withdraw it first.",
-        "changeReviewSuper": "Changes sent. As a super admin you may approve them yourself. Students see the current version until then."
+        "draftMine": "Students cannot see this draft yet. When the details are complete, send it to another admin to review.",
+        "draftOther": "Another admin prepared this draft. You can carry it on; once you edit it, you become its preparer.",
+        "returned": "Another admin sent this programme back: {reason}",
+        "reviewMine": "Sent. Another admin will review and approve it. Need to change something? Withdraw it first.",
+        "reviewOther": "Another admin sent this programme for review. Check the details, then approve it or send it back with a reason.",
+        "published": "Students can see this programme. Your edits become a proposed change until another admin approves it.",
+        "changeDraft": "You have a change that has not been sent. Students still see the current version.",
+        "changeReturned": "Your change was sent back: {reason}. Students still see the current version.",
+        "changeReviewMine": "Your change has been sent for review. Students still see the current version.",
+        "changeReviewOther": "Another admin proposed a change. Compare it below, then approve it or send it back.",
+        "archived": "This programme is hidden from students. Reopen it as a draft if you want to publish it again.",
+        "reviewSuper": "Sent. As a super admin you may approve it yourself, or wait for another admin to review it.",
+        "changeReviewSuper": "Your change has been sent. As a super admin you may approve it yourself."
       },
       "steps": {
         "new": [
@@ -569,7 +661,10 @@
         "review": "Review",
         "delete": "Delete programme",
         "deleteConfirm": "Delete this programme with its {count} requirement version(s)? This cannot be undone.",
-        "deleteYes": "Yes, delete"
+        "deleteYes": "Yes, delete",
+        "unpublish": "Unpublish to edit",
+        "unpublishConfirm": "This programme goes back to a draft and students stop seeing it until it is approved again. Its published requirements stay.",
+        "unpublishYes": "Yes, unpublish"
       },
       "tabs": {
         "details": "Details",
@@ -589,11 +684,20 @@
         "none": "—",
         "duration": "{n} semesters (± {years} years)"
       },
-      "flags": "Admission features"
+      "flags": "Admission features",
+      "entryRoutes": "Entry routes",
+      "alongside": {
+        "submit": "{n} of this programme's requirements were sent for review too.",
+        "approve": "{n} of this programme's requirements were approved and published too.",
+        "failed": "{n} requirements could not be sent yet (for example no lines or no source). Check the Entry requirements tab.",
+        "pending": "{n} of this programme's requirements are still drafts, so students cannot see them yet.",
+        "publish": "Publish {n} requirements",
+        "send": "Send {n} requirements for review"
+      }
     },
     "institutions": {
       "title": "Institutions",
-      "intro": "Universities, polytechnics and colleges that offer programmes. Changes here apply straight away.",
+      "intro": "Universities, polytechnics and colleges that offer programmes. Changes here apply at once, without review.",
       "add": "Add institution",
       "edit": "Edit",
       "cancel": "Cancel",
@@ -608,9 +712,11 @@
       "website": "Official website",
       "websitePlaceholder": "https://",
       "columns": {
-        "name": "Name",
-        "type": "Type",
-        "website": "Website"
+        "name": "Institution",
+        "state": "State",
+        "programmes": "Programmes",
+        "published": "Published",
+        "open": "In progress"
       },
       "types": {
         "public_university": "Public university",
@@ -639,7 +745,7 @@
       "noWebsite": "No website yet. Add it with Edit on the institution list.",
       "sourcesHint": "Soon, this institution's programmes will be read automatically from the sources here and shown for you to check before they are published.",
       "programmesHere": "Programmes at this institution",
-      "addHere": "Add a programme here",
+      "addHere": "Add programme",
       "how": {
         "title": "Start from the institution",
         "steps": [
@@ -656,19 +762,35 @@
       "tabs": {
         "summary": "Summary",
         "programmes": "Programmes",
-        "sources": "Sources & import",
-        "settings": "Settings"
+        "sources": "Official sources",
+        "settings": "Settings",
+        "import": "Import ePanduan"
       },
       "summary": {
+        "programmes": "Programmes",
         "published": "Published",
-        "open": "Not yet published",
-        "withoutRequirements": "Without published requirements",
+        "open": "In progress",
+        "withoutRequirements": "No published requirements",
         "archived": "Archived",
-        "next": "Next step",
-        "nextNoProgrammes": "Add this institution's first programme.",
-        "nextNoSources": "Add official sources (programme page or prospectus) so programmes can be checked against them.",
-        "nextRequirements": "Write requirements for the programmes that have none.",
-        "nextDone": "Every published programme has requirements."
+        "todo": "Needs doing",
+        "waiting": "Waiting for review",
+        "returned": "Sent back to fix",
+        "missing": "Published, but requirements are not yet",
+        "viewAll": "View all {count}",
+        "allDone": "Nothing is waiting. Every programme here is complete.",
+        "nothingYet": "No programmes here yet. Import from ePanduan or add one.",
+        "about": "About the institution",
+        "edit": "Edit",
+        "lastImport": "ePanduan import",
+        "openImport": "Open",
+        "noCode": "No ePanduan code is set, so programmes cannot be imported.",
+        "neverImported": "Not imported yet.",
+        "importRunning": "Reading ePanduan now.",
+        "importFailed": "The last read failed {when}.",
+        "importDone": "{found} programmes found, {when}.",
+        "manage": "Manage",
+        "add": "Add",
+        "noSources": "No official sources yet. Add the programme page or prospectus so the data can be checked."
       },
       "sourcesTitle": "Official sources",
       "sourcesIntro": "Where this institution publishes its programmes and requirements. Admins check the data against these sources.",
@@ -723,7 +845,143 @@
         "name": "Name",
         "programmes": "Programmes",
         "state": "State"
-      }
+      },
+      "epanduanCode": "Code on JPT ePanduan",
+      "epanduanNone": "None (not listed on ePanduan)",
+      "epanduanPlaceholder": "Choose a code, for example UC · UTeM",
+      "epanduanHint": "Used to find this institution's programmes on ePanduan automatically (Import ePanduan tab).",
+      "import": {
+        "title": "Programmes from JPT ePanduan",
+        "intro": "The system reads this institution's programme list from the public ePanduan site, for 13 candidate categories (SPM, STPM, Matriculation / Asasi, STAM, Diploma, DKM and DVM). Chosen programmes become drafts, and another admin still approves them before students see them. Programme requirements (Syarat Khas) are read after a programme is accepted.",
+        "noCode": "This institution has no ePanduan code yet. Set it on the Settings tab to find its programmes automatically.",
+        "setCode": "Set the ePanduan code",
+        "shared": "Code {code} is shared by every college in this group. Choose only the programmes this institution offers (see the name and campus).",
+        "start": "Find programmes now",
+        "again": "Check again",
+        "running": "Reading ePanduan… {pages} pages read. For a large university this takes a few minutes; this page updates by itself.",
+        "failed": "Reading stopped: {reason}. No data was changed. Try again shortly.",
+        "never": "Not searched yet. Press the button above to start.",
+        "lastRun": "Read {when} · {pages} pages · {found} programmes",
+        "empty": "No programmes were found for this code. Check the code on the Settings tab.",
+        "filters": {
+          "all": "All",
+          "new": "New",
+          "changed": "Changed",
+          "same": "Same",
+          "missing": "Not on ePanduan"
+        },
+        "status": {
+          "new": "New",
+          "changed": "Changed",
+          "same": "Same"
+        },
+        "columns": {
+          "pick": "Pick",
+          "code": "Code",
+          "name": "Programme",
+          "level": "Level",
+          "duration": "Duration",
+          "nec": "NEC",
+          "merit": "Average merit",
+          "status": "Status"
+        },
+        "semesters": "{n} sem",
+        "changes": "Changed: {fields}",
+        "fields": {
+          "name": "name",
+          "studyLevel": "level",
+          "durationSemesters": "duration",
+          "necCode": "NEC field",
+          "studyMode": "mode",
+          "hasInterview": "interview",
+          "isStem": "STEM",
+          "isTvet": "TVET",
+          "bumiputeraOnly": "Bumiputera",
+          "entryRoutes": "entry routes",
+          "campuses": "campuses",
+          "jointDegree": "joint degree",
+          "feeder": "feeder programme",
+          "careers": "careers",
+          "fees": "fees",
+          "note": "note"
+        },
+        "problems": {
+          "no_level": "Unknown level; add it by hand",
+          "in_review": "In review; wait for the decision first",
+          "change_in_review": "A change is in review",
+          "archived": "Archived; reopen it first"
+        },
+        "selectAll": "Pick all that can be accepted",
+        "clear": "Clear the selection",
+        "accept": "Accept {n} as drafts",
+        "accepted": "{created} new drafts and {updated} changes saved. Send each one for another admin's review.",
+        "acceptedFailed": "{failed} could not be saved; the reasons are listed below.",
+        "missingTitle": "Catalogue programmes no longer on ePanduan",
+        "missingHint": "Only flagged for review. Nothing is archived automatically, because the page may have failed to load.",
+        "flags": {
+          "stem": "STEM",
+          "tvet": "TVET",
+          "bumiputera": "Bumiputera",
+          "feeder": "Feeder",
+          "newProgramme": "New programme"
+        },
+        "source": "Source: ePanduan, Department of Higher Education. Used for a non-commercial education project and checked by admins.",
+        "reasons": {
+          "layout": "the ePanduan page layout has changed, so the reader needs an update",
+          "unavailable": "the ePanduan site did not answer or is busy",
+          "stopped": "the service restarted while reading",
+          "other": "an unexpected error"
+        },
+        "runningCategory": "Category: {category} ({n} of {total})",
+        "details": "Details, requirements, fees and careers",
+        "requirementsFor": "Entry requirements: {category}",
+        "general": "General requirements (Syarat Am)",
+        "special": "Programme requirements (Syarat Khas)",
+        "specialLater": "Read after this programme is accepted.",
+        "specialReading": "Reading from ePanduan…",
+        "specialFailed": "Could not be read. Accept this programme again to retry.",
+        "none": "None.",
+        "fees": "Fees",
+        "careers": "Careers",
+        "info": {
+          "level": "Level",
+          "mode": "Mode",
+          "duration": "Duration",
+          "nec": "NEC field",
+          "interview": "Interview / test",
+          "year": "Year",
+          "note": "Notes",
+          "yes": "Yes",
+          "no": "No",
+          "modes": {
+            "conventional": "Conventional",
+            "work_based": "Work-based",
+            "distance": "Distance"
+          }
+        },
+        "categories": {
+          "spm:A": "SPM current year",
+          "spm:B": "SPM earlier years",
+          "stpm:S": "STPM Science",
+          "stpm:A": "STPM Arts",
+          "stpm:V": "Asasi TVET",
+          "stpm:M": "Asasi Social Science",
+          "stpm:N": "Matriculation / Asasi Science",
+          "stpm:P": "Matriculation Accounting",
+          "stpm:T": "STAM",
+          "stpm:G1": "Diploma (public university)",
+          "stpm:G2": "Diploma (polytechnic / CC)",
+          "stpm:E1": "DKM / DLKM",
+          "stpm:E2": "DVM"
+        },
+        "referenceTitle": "Reference from ePanduan",
+        "referenceIntro": "The requirement text as JPT ePanduan writes it for each candidate category. Copy the relevant sentence as evidence while writing the requirements.",
+        "noRequirementText": "No ePanduan requirement text for this programme yet. Open the institution's Import tab and press \"Check again\" to read it.",
+        "draftsMade": "Each programme's requirements are now drafts; Syarat Khas is added on its own once read.",
+        "draftsRefreshed": "Syarat Khas has been read: {updated} drafts updated, {created} new drafts. Review them in the task inbox (My drafts)."
+      },
+      "deletionPending": "Waiting to be deleted",
+      "noProgrammesYet": "No programmes at this institution yet. Import from ePanduan or add one."
     },
     "requirement": {
       "titleEdit": "Update requirements: {programme}",
@@ -732,10 +990,10 @@
       "meta": "{institution} · {route} · version {version}",
       "back": "← Back to programme",
       "steps": [
-        "Choose programme",
-        "Show the source",
-        "Write requirements",
-        "Review & send"
+        "Route",
+        "General requirements",
+        "Special requirements",
+        "Check & send"
       ],
       "source": {
         "title": "Show the source",
@@ -769,7 +1027,7 @@
         "min_cgpa": "CGPA",
         "min_muet": "MUET"
       },
-      "typeLabel": "Requirement type",
+      "typeLabel": "What is this requirement?",
       "chooseSubject": "Choose subject",
       "searchSubject": "Search subject",
       "grade": "Grade",
@@ -786,7 +1044,10 @@
         "cgpaRange": "CGPA is a number from 0.00 to 4.00.",
         "muetRange": "MUET band is from 1 to 6.",
         "creditsRange": "Number of credits is a whole number from 1 to 20.",
-        "quoteRequired": "Paste the source sentence (at least 5 characters)."
+        "quoteRequired": "Paste the source sentence (at least 5 characters).",
+        "subjectsRequired": "Choose at least one subject for the list.",
+        "countRange": "The number of subjects must be between 1 and the number listed.",
+        "textRequired": "Enter the official sentence."
       },
       "problemsSummary": "Fix {count} thing(s) marked in red.",
       "preview": {
@@ -810,8 +1071,8 @@
       "notes": {
         "waiting": "Waiting for another admin to review. You cannot approve your own draft.",
         "returned": "Returned by another admin: {reason}",
-        "otherDraft": "This draft was prepared by another admin. Only they can change it.",
-        "published": "This version is published. To change it, start a new version on the programme page.",
+        "otherDraft": "Another admin prepared this draft. You can carry it on; once you save or send it, you become its preparer.",
+        "published": "This version is published. To change it, make a new version: students keep seeing this one until the new version is approved.",
         "archived": "An old version, replaced by a newer one."
       },
       "review": {
@@ -832,7 +1093,150 @@
         "reasonLabel": "What needs fixing or answering?",
         "reasonPlaceholder": "e.g. The 2027 prospectus says grade B, not C, for Mathematics.",
         "send": "Return",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "lines": "Requirements in this version"
+      },
+      "and": "AND",
+      "lineTitle": "Requirement {n}",
+      "chip": {
+        "grade": "{subject} ≥ {grade}",
+        "credits": "{n} credits at grade {grade}",
+        "cgpa": "CGPA ≥ {value}",
+        "muet": "MUET ≥ Band {value}"
+      },
+      "suggest": {
+        "title": "ePanduan source",
+        "intro": "The requirements as ePanduan writes them for this route. Press Add to turn a line into a requirement, with its evidence sentence and source link. Check each one before saving.",
+        "add": "Add",
+        "added": "Added",
+        "manual": "Write it yourself",
+        "n_of_list": "\"N subjects from a list\" cannot be written as one requirement yet; the new requirement model (Step 10) will support it. Write the most important subject as a requirement for now.",
+        "subject": "A subject in this sentence is not in the EduLaunch subject list. Add this requirement by hand."
+      },
+      "parts": {
+        "general": "General requirements (Syarat Am)",
+        "special": "Programme requirements (Syarat Khas)",
+        "generalHint": "The university's general requirements for this route (for example SPM, STPM, MUET).",
+        "specialHint": "This programme's own requirements (subjects, grades, CGPA, interview).",
+        "empty": "No lines yet. Fill from ePanduan or add a line.",
+        "none": "None."
+      },
+      "fill": {
+        "button": "Fill from ePanduan",
+        "fromCategory": "Fill from ePanduan: {category}",
+        "replaceConfirm": "Replace the {count} lines here with the requirements from ePanduan?",
+        "replaceYes": "Yes, replace",
+        "autoFilled": "{count} lines filled from ePanduan. Check each line, correct it if needed, then save.",
+        "copied": "{count} lines copied from approved requirements. Check each line for this programme, then send for review."
+      },
+      "join": {
+        "and": "AND",
+        "or": "OR",
+        "toggle": "Press to switch AND / OR",
+        "alone": "Notes and declarations always stand alone (AND)"
+      },
+      "line": {
+        "add": "Add a line",
+        "edit": "Edit line",
+        "done": "Done",
+        "up": "Move up",
+        "down": "Move down",
+        "remove": "Delete line",
+        "noText": "(no official sentence)",
+        "count": "How many subjects",
+        "credits": "Number of credits",
+        "band": "MUET band",
+        "subjects": "Subjects in the list",
+        "addSubject": "Add a subject to the list",
+        "section": "Section heading",
+        "sectionPlaceholder": "For example SPM, STPM, MUET",
+        "text": "Official sentence (evidence)",
+        "textOnly": "Official sentence",
+        "sentence": "Requirement sentence",
+        "sentencePlaceholder": "Type or paste the sentence as on ePanduan, for example: Gred C bagi matapelajaran Bahasa Melayu.",
+        "readAgain": "Read this sentence again",
+        "sentenceHint": "Type or paste the sentence as on ePanduan. When you leave this box, the system fills the kind and details below.",
+        "changedSentence": "This sentence has changed. Read it again and update the details below?"
+      },
+      "kinds": {
+        "min_grade": "One subject with a minimum grade",
+        "subjects_from_list": "Some subjects from a list",
+        "min_credits": "Number of credits (any subjects)",
+        "min_cgpa": "Minimum CGPA",
+        "min_muet": "Minimum MUET band",
+        "declaration": "Something the student confirms",
+        "note": "Information only (not checked)"
+      },
+      "summaryOf": {
+        "grade": "Grade {grade} or better in {subject}",
+        "list": "Grade {grade} or better in {count} of: {subjects}",
+        "credits": "{n} credits (Grade {grade} or better) in any subjects",
+        "cgpa": "CGPA {value} or higher",
+        "muet": "MUET Band {value} or higher"
+      },
+      "stepBack": "Back",
+      "stepNext": {
+        "special": "Next: special requirements",
+        "finish": "Next: check"
+      },
+      "finish": {
+        "title": "Check & send",
+        "intro": "This is how these requirements are laid out and read by the system. Check them, then send them to another admin for approval."
+      },
+      "chooser": {
+        "title": "Add entry requirements",
+        "intro": "Choose the route to write requirements for. Routes from ePanduan are filled from the official text for you to check.",
+        "hasDraft": "Has a draft, it will be continued",
+        "hasPublished": "Already published, a new version is made",
+        "next": "Next",
+        "required": "Choose a route first.",
+        "groupEpanduan": "On ePanduan",
+        "groupUsual": "Usual for this level",
+        "groupOther": "Other routes",
+        "startTitle": "Start with",
+        "startEpanduan": "ePanduan text",
+        "startCopy": "Copy approved requirements",
+        "startCopyDetail": "From another programme of this institution for the same route. You can edit them afterwards.",
+        "startEmpty": "Empty, write them yourself",
+        "copyLabel": "Copy from",
+        "copyPlaceholder": "Choose a programme",
+        "copyRequired": "Choose the programme to copy requirements from."
+      },
+      "sections": {
+        "label": "Sections",
+        "general": "General",
+        "add": "Add section",
+        "addLine": "Add {section} line",
+        "remove": "Remove section",
+        "removeButton": "Remove {section} section",
+        "removeConfirm": "Remove the {section} section with its {count} lines?",
+        "yes": "Yes, remove",
+        "cancel": "Cancel",
+        "empty": "This section has no lines yet."
+      },
+      "phrase": {
+        "title": "Fill in the details",
+        "grade": "Grade",
+        "forSubject": "for the subject",
+        "in": "in",
+        "subjectsFollowing": "of these subjects:",
+        "anySubject": "in any subjects",
+        "cgpa": "Cumulative Grade Point Average (CGPA) of at least",
+        "muetBefore": "At least BAND",
+        "muetAfter": "in MUET",
+        "official": "Official sentence (as on ePanduan)",
+        "preview": "Students need:",
+        "declarationHint": "The system does not check this. Students are asked to confirm it themselves.",
+        "noteHint": "Shown as information only. Nothing is checked."
+      },
+      "kindExamples": {
+        "min_grade": "Example: Grade C in Bahasa Melayu",
+        "subjects_from_list": "Example: Grade B in 2 of Mathematics, Physics, Chemistry",
+        "min_credits": "Example: 5 credits (Grade C) in any subjects",
+        "min_cgpa": "Example: CGPA 2.50",
+        "min_muet": "Example: Band 2.0",
+        "declaration": "Example: passes an interview, not colour blind",
+        "note": "Example: an opening sentence, a note about fees"
       }
     },
     "errors": {
@@ -849,7 +1253,9 @@
       "not_found": "This record was not found. It may have been removed.",
       "noRules": "Add at least one requirement.",
       "confirmation_mismatch": "The confirmation text does not match. Type it exactly as shown.",
-      "upu_code_taken": "Another programme already uses this programme code."
+      "upu_code_taken": "Another programme already uses this programme code.",
+      "run_in_progress": "ePanduan is already being read for this institution. Wait until it finishes.",
+      "service_unavailable": "An EduLaunch service cannot be reached right now. Check that Docker and pnpm dev are running, then try again. No data was changed."
     },
     "pagination": {
       "label": "List pages",
@@ -1165,6 +1571,9 @@
     "updateResults": "Update results",
     "disclaimer": "This check is a guide only. Admission decisions are made by the institution.",
     "loadError": "Eligibility cannot be checked right now. Please try again shortly.",
-    "checking": "Checking your eligibility…"
+    "checking": "Checking your eligibility…",
+    "fromList": "Grade {grade} in {required} subjects from: {subjects} (you have {actual})",
+    "toConfirm": "To confirm yourself",
+    "toConfirmNote": "The system cannot check these from your results. Make sure you meet them before applying."
   }
 }

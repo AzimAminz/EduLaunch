@@ -3,6 +3,7 @@ import { Outfit } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { LOCALES, isLocale } from '@/lib/i18n/locale';
+import { MotionProvider, MotionScript } from '@/components/motion/motion-provider';
 import '../globals.css';
 
 const outfit = Outfit({ variable: '--font-outfit', subsets: ['latin'] });
@@ -22,8 +23,14 @@ export default async function RootLayout({ children, params }: LayoutProps<'/[la
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   return (
-    <html lang={lang} className={`${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full font-sans">{children}</body>
+    // The head script adds a class before paint (motion on or off), so React must not warn about it.
+    <html lang={lang} className={`${outfit.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <MotionScript />
+      </head>
+      <body className="min-h-full font-sans">
+        <MotionProvider>{children}</MotionProvider>
+      </body>
     </html>
   );
 }

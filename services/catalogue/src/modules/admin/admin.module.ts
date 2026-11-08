@@ -1,11 +1,11 @@
 import { Controller, Get, Inject, Injectable, Module, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { NotFoundError } from '@edulaunch/ddd';
 import { CurrentCaller, DRIZZLE, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
-import { and, asc, count, desc, eq, ilike, inArray, isNotNull, ne, notExists, or, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNotNull, isNull, ne, notExists, or, type SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import * as schema from '../../infrastructure/db/schema.js';
 
-const { programs, institutions, institutionSources, programFields, programPathways, admissionStats, requirements, requirementRules, necFields } = schema;
+const { programs, institutions, institutionSources, programFields, programPathways, admissionStats, requirements, requirementConditions, conditionSubjects, necFields } = schema;
 
 type Status = (typeof schema.reviewStatus.enumValues)[number];
 const OPEN: Status[] = ['draft', 'returned', 'in_review'];
@@ -132,6 +132,8 @@ export class AdminQueries {
       returned: all.filter((t) => t.status === 'returned' && mine(t)),
       myDrafts: all.filter((t) => t.status === 'draft' && (mine(t) || t.preparedBy === null)),
       waiting: superAdmin ? [] : all.filter((t) => t.status === 'in_review' && mine(t)),
+      // Drafts another admin started (an import, a colleague away): any admin may carry them on.
+      othersDrafts: all.filter((t) => (t.status === 'draft' || t.status === 'returned') && t.preparedBy !== null && !mine(t) && t.kind !== 'institution'),
       counts: { published: published[0]?.n ?? 0, withoutRequirements: withoutRequirements[0]?.n ?? 0 },
     };
   }
@@ -204,6 +206,7 @@ export class AdminQueries {
         type: institutions.type,
         websiteUrl: institutions.websiteUrl,
         state: institutions.state,
+        epanduanCode: institutions.epanduanCode,
         deletionRequestedBy: institutions.deletionRequestedBy,
         status: programs.publishStatus,
         n: count(programs.id),
@@ -219,6 +222,7 @@ export class AdminQueries {
       type: string;
       websiteUrl: string | null;
       state: string | null;
+      epanduanCode: string | null;
       deletionRequestedBy: string | null;
       programmes: number;
       published: number;
@@ -281,6 +285,47 @@ export class AdminQueries {
     };
   }
 
+  /**
+   * An institution's programmes with the values an import compares (live values, and whether a change is pending),
+   * keyed by programme code, so "programmes found on ePanduan" can be marked new, changed, the same or missing.
+   */
+  async institutionProgrammes(id: string) {
+    const rows = await this.db
+      .select({
+        id: programs.id,
+        programCode: programs.programCode,
+        name: programs.name,
+        studyLevel: programs.studyLevel,
+        durationSemesters: programs.durationSemesters,
+        necCode: programs.necCode,
+        studyMode: programs.studyMode,
+        campuses: programs.campuses,
+        hasInterview: programs.hasInterview,
+        isStem: programs.isStem,
+        isTvet: programs.isTvet,
+        bumiputeraOnly: programs.bumiputeraOnly,
+        jointDegree: programs.jointDegree,
+        feeder: programs.feeder,
+        careers: programs.careers,
+        fees: programs.fees,
+        note: programs.note,
+        sourceUrl: programs.sourceUrl,
+        status: programs.publishStatus,
+        pendingStatus: programs.pendingStatus,
+      })
+      .from(programs)
+      .where(eq(programs.institutionId, id))
+      .orderBy(programs.name);
+    const routes = rows.length
+      ? await this.db
+          .selectDistinct({ programId: schema.programEntryRoutes.programId, entryRoute: schema.programEntryRoutes.entryRoute })
+          .from(schema.programEntryRoutes)
+          .where(inArray(schema.programEntryRoutes.programId, rows.map((r) => r.id)))
+          .orderBy(schema.programEntryRoutes.entryRoute)
+      : [];
+    return rows.map((r) => ({ ...r, entryRoutes: routes.filter((x) => x.programId === r.id).map((x) => x.entryRoute) }));
+  }
+
   /** NEC fields for the programme form, each with the broad EduLaunch field it suggests. */
   necFields() {
     return this.db.select().from(necFields).orderBy(necFields.code);
@@ -295,16 +340,21 @@ export class AdminQueries {
         durationSemesters: programs.durationSemesters,
         institutionId: programs.institutionId,
         institutionName: institutions.name,
-        upuCode: programs.upuCode,
+        programCode: programs.programCode,
         internalCode: programs.internalCode,
         faculty: programs.faculty,
         necCode: programs.necCode,
         studyMode: programs.studyMode,
-        campus: programs.campus,
+        campuses: programs.campuses,
         hasInterview: programs.hasInterview,
         isStem: programs.isStem,
         isTvet: programs.isTvet,
         bumiputeraOnly: programs.bumiputeraOnly,
+        jointDegree: programs.jointDegree,
+        feeder: programs.feeder,
+        careers: programs.careers,
+        fees: programs.fees,
+        note: programs.note,
         sourceUrl: programs.sourceUrl,
         pendingChanges: programs.pendingChanges,
         pendingStatus: programs.pendingStatus,
@@ -327,6 +377,7 @@ export class AdminQueries {
         .select({
           id: requirements.id,
           entryRoute: requirements.entryRoute,
+          sourceCategory: requirements.sourceCategory,
           versionNo: requirements.versionNo,
           status: requirements.reviewStatus,
           preparedBy: requirements.preparedBy,
@@ -336,7 +387,28 @@ export class AdminQueries {
         .where(eq(requirements.programId, id))
         .orderBy(requirements.entryRoute, desc(requirements.versionNo)),
     ]);
-    return { ...row, fieldIds: fieldRows.map((f) => f.fieldId), requirements: versions };
+    const [routes, [merit]] = await Promise.all([
+      this.db
+        .select({ entryRoute: schema.programEntryRoutes.entryRoute, sourceCategory: schema.programEntryRoutes.sourceCategory })
+        .from(schema.programEntryRoutes)
+        .where(eq(schema.programEntryRoutes.programId, id))
+        .orderBy(schema.programEntryRoutes.entryRoute, schema.programEntryRoutes.sourceCategory),
+      this.db
+        .select({ intakeYear: admissionStats.intakeYear, value: admissionStats.averageMerit })
+        .from(admissionStats)
+        .where(and(eq(admissionStats.programId, id), isNotNull(admissionStats.averageMerit)))
+        .orderBy(desc(admissionStats.intakeYear))
+        .limit(1),
+    ]);
+    return {
+      ...row,
+      fieldIds: fieldRows.map((f) => f.fieldId),
+      requirements: versions,
+      entryRoutes: [...new Set(routes.map((r) => r.entryRoute))],
+      // Each route with the ePanduan category it came from, so the form can keep them when routes are edited.
+      entryRouteRows: routes,
+      averageMerit: merit ? { intakeYear: merit.intakeYear, value: Number(merit.value) } : null,
+    };
   }
 
   /** One requirement version with its rules, and the published version it would replace (to compare). */
@@ -355,6 +427,7 @@ export class AdminQueries {
         approvedBy: requirements.approvedBy,
         returnReason: requirements.returnReason,
         sourceUrl: requirements.sourceUrl,
+        sourceCategory: requirements.sourceCategory,
         updatedAt: requirements.updatedAt,
       })
       .from(requirements)
@@ -366,15 +439,42 @@ export class AdminQueries {
     const [previous] = await this.db
       .select({ id: requirements.id, versionNo: requirements.versionNo, sourceUrl: requirements.sourceUrl })
       .from(requirements)
-      .where(and(eq(requirements.programId, row.programmeId), eq(requirements.entryRoute, row.entryRoute), eq(requirements.reviewStatus, 'published'), ne(requirements.id, id)))
+      .where(
+        and(
+          eq(requirements.programId, row.programmeId),
+          eq(requirements.entryRoute, row.entryRoute),
+          // The version it replaces is the published one of the same candidate category.
+          row.sourceCategory === null ? isNull(requirements.sourceCategory) : eq(requirements.sourceCategory, row.sourceCategory),
+          eq(requirements.reviewStatus, 'published'),
+          ne(requirements.id, id),
+        ),
+      )
       .orderBy(desc(requirements.versionNo))
       .limit(1);
     const ids = previous ? [id, previous.id] : [id];
-    const rules = await this.db.select().from(requirementRules).where(inArray(requirementRules.requirementId, ids)).orderBy(requirementRules.groupNo, requirementRules.id);
+    const rules = await this.db.select().from(requirementConditions).where(inArray(requirementConditions.requirementId, ids)).orderBy(requirementConditions.orGroup, requirementConditions.position, requirementConditions.id);
+    const links = rules.length
+      ? await this.db.select().from(conditionSubjects).where(inArray(conditionSubjects.conditionId, rules.map((r) => r.id))).orderBy(conditionSubjects.position)
+      : [];
+    // One subject for a grade line, a list for "N subjects from this list".
+    const subjectsOf = (conditionId: string) => links.filter((l) => l.conditionId === conditionId).map((l) => l.subjectId);
+    const single = (type: string) => type === 'min_grade' || type === 'key_subject';
     const plain = (requirementId: string) =>
       rules
         .filter((r) => r.requirementId === requirementId)
-        .map((r) => ({ groupNo: r.groupNo, ruleType: r.ruleType, subjectId: r.subjectId, minGrade: r.minGrade, minValue: r.minValue === null ? null : Number(r.minValue), evidenceQuote: r.evidenceQuote }));
+        .map((r) => ({
+          orGroup: r.orGroup,
+          conditionType: r.conditionType,
+          subjectId: single(r.conditionType) ? (subjectsOf(r.id)[0] ?? null) : null,
+          minGrade: r.minGrade,
+          minValue: r.minValue === null ? null : Number(r.minValue),
+          officialText: r.officialText,
+          part: r.part,
+          section: r.section,
+          subjectIds: single(r.conditionType) ? [] : subjectsOf(r.id),
+          minCount: r.minCount,
+          position: r.position,
+        }));
     return {
       ...row,
       rules: plain(id),
@@ -435,6 +535,11 @@ export class AdminController {
   @Get('institutions/:id')
   institution(@Param('id', ParseUUIDPipe) id: string) {
     return this.queries.institution(id);
+  }
+
+  @Get('institutions/:id/programmes')
+  institutionProgrammes(@Param('id', ParseUUIDPipe) id: string) {
+    return this.queries.institutionProgrammes(id);
   }
 
   @Get('nec-fields')

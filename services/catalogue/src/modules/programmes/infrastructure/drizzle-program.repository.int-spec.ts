@@ -74,20 +74,52 @@ describe('DrizzleProgramRepository (integration)', () => {
     const p = programme('Diploma Perakaunan');
     await repo.save(p);
     const editing = (await repo.findById(p.id))!;
-    editing.edit(maker, { campus: 'Kampus Induk', fieldIds: [fieldB] });
+    editing.edit(maker, { campuses: ['Kampus Induk'], fieldIds: [fieldB] });
     editing.submitForReview(maker);
     await repo.save(editing);
 
     const waiting = (await repo.findById(p.id))!.toSnapshot();
-    expect(waiting.campus).toBeNull();
+    expect(waiting.campuses).toEqual([]);
     expect(waiting.fieldIds).toEqual([fieldA]);
-    expect(waiting.pending).toMatchObject({ status: 'in_review', preparedBy: maker, details: { campus: 'Kampus Induk', fieldIds: [fieldB] } });
+    expect(waiting.pending).toMatchObject({ status: 'in_review', preparedBy: maker, details: { campuses: ['Kampus Induk'], fieldIds: [fieldB] } });
 
     const reviewing = (await repo.findById(p.id))!;
     reviewing.approve(checker);
     await repo.save(reviewing);
     const approved = (await repo.findById(p.id))!.toSnapshot();
-    expect(approved).toMatchObject({ campus: 'Kampus Induk', fieldIds: [fieldB], pending: null });
+    expect(approved).toMatchObject({ campuses: ['Kampus Induk'], fieldIds: [fieldB], pending: null });
+  });
+
+  it('keeps one average merit per intake year, replacing an older figure for the same year', async () => {
+    const p = programme('Diploma Merit');
+    await repo.save(p);
+    await repo.recordAverageMerit(p.id, 2026, 80.5);
+    await repo.recordAverageMerit(p.id, 2026, 81.25);
+    await repo.recordAverageMerit(p.id, 2025, 79);
+    const rows = await db
+      .select({ year: schema.admissionStats.intakeYear, merit: schema.admissionStats.averageMerit })
+      .from(schema.admissionStats)
+      .where(inArray(schema.admissionStats.programId, [p.id]));
+    expect(rows.sort((a, b) => a.year - b.year)).toEqual([
+      { year: 2025, merit: '79.00' },
+      { year: 2026, merit: '81.25' },
+    ]);
+  });
+
+  it('keeps the entry routes a programme takes, and gives them with the newest merit for summaries', async () => {
+    const p = programme('Ijazah Laluan');
+    await repo.save(p);
+    await repo.replaceEntryRoutes(p.id, [
+      { entryRoute: 'stpm', sourceCategory: 'stpm:S' },
+      { entryRoute: 'stpm', sourceCategory: 'stpm:A' },
+      { entryRoute: 'diploma', sourceCategory: 'stpm:G1' },
+    ]);
+    await repo.recordAverageMerit(p.id, 2025, 88.1);
+    await repo.recordAverageMerit(p.id, 2026, 89.5);
+    expect((await repo.admissionFacts([p.id])).get(p.id)).toEqual({ entryRoutes: ['diploma', 'stpm'], averageMerit: { intakeYear: 2026, value: 89.5 } });
+    // A new list replaces the old one.
+    await repo.replaceEntryRoutes(p.id, [{ entryRoute: 'matrikulasi', sourceCategory: 'stpm:N' }]);
+    expect((await repo.admissionFacts([p.id])).get(p.id)?.entryRoutes).toEqual(['matrikulasi']);
   });
 
   it('returns null for an unknown id', async () => {

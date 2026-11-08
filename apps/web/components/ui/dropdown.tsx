@@ -8,6 +8,8 @@ export interface DropdownOption {
   label: string;
   /** Other words that find this option when typing (English name, short forms such as "Add Maths"). */
   keywords?: string[];
+  /** A short line under the label in the list (an example of what the option means). */
+  detail?: string;
 }
 
 interface DropdownProps {
@@ -207,11 +209,12 @@ export function Dropdown({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => choose(option)}
                 onMouseEnter={() => setActive(i)}
-                className={`cursor-pointer whitespace-nowrap text-navy ${small ? 'px-3 py-2 text-sm' : 'px-4 py-2.5 text-[15px]'} ${i === active ? 'bg-blue' : ''} ${
+                className={`cursor-pointer text-navy ${option.detail ? 'whitespace-normal' : 'whitespace-nowrap'} ${small ? 'px-3 py-2 text-sm' : 'px-4 py-2.5 text-[15px]'} ${i === active ? 'bg-blue' : ''} ${
                   option.value === value ? 'font-semibold' : ''
                 } ${option.value === CREATE ? 'border-t border-line font-semibold text-[#2f5bd3]' : ''}`}
               >
                 {option.label}
+                {option.detail && <span className="block text-[12px] font-normal text-muted">{option.detail}</span>}
               </li>
             ))
           )}

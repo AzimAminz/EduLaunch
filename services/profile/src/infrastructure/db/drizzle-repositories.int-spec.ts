@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { connectTestDatabase } from '@edulaunch/nest-kit/testing';
-import { inArray } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import * as schema from './schema.js';
 import { DrizzleAcademicRecordRepository, DrizzleStudentRepository } from './drizzle-repositories.js';
 import { Student } from '../../modules/students/domain/student.js';
@@ -50,16 +50,12 @@ describe('DrizzleStudentRepository (integration)', () => {
     expect([found.educationLevel, found.formYear]).toEqual(['form4_5', 5]);
   });
 
-  it('returns the latest completed interest result only', async () => {
+  it('returns the interest result kept on the student', async () => {
     const s = await newStudent();
     expect(await students.latestRiasec(s.id)).toBeNull();
 
     const scores = { R: 3, I: 5, A: 1, S: 2, E: 1, C: 2 };
-    await db.insert(schema.assessments).values([
-      { studentId: s.id, instrumentVersion: 'v1', answers: {}, riasecScores: { R: 1, I: 1, A: 1, S: 1, E: 1, C: 1 }, completedAt: new Date('2026-01-01') },
-      { studentId: s.id, instrumentVersion: 'v1', answers: {}, riasecScores: scores, completedAt: new Date('2026-06-01') },
-      { studentId: s.id, instrumentVersion: 'v1', answers: {}, riasecScores: null, completedAt: null }, // unfinished
-    ]);
+    await db.update(schema.students).set({ riasecScores: scores, interestTestAt: new Date('2026-06-01') }).where(eq(schema.students.id, s.id));
     expect(await students.latestRiasec(s.id)).toEqual(scores);
   });
 });
@@ -79,8 +75,8 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     const found = (await records.findById(r.id))!.toSnapshot();
     const bySubject = [...found.subjects].sort((a, b) => a.subjectId.localeCompare(b.subjectId));
     const expected = [
-      { subjectId: subject.math, grade: 'A', customName: null, readConfidence: null },
-      { subjectId: subject.bm, grade: 'A+', customName: null, readConfidence: 0.92 },
+      { subjectId: subject.math, grade: 'A', customName: null, ocrConfidence: null },
+      { subjectId: subject.bm, grade: 'A+', customName: null, ocrConfidence: 0.92 },
     ].sort((a, b) => a.subjectId.localeCompare(b.subjectId));
     expect(bySubject).toEqual(expected);
   });
@@ -117,7 +113,7 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     await records.save(school);
 
     expect((await records.findCurrent(s.id, 'spm', 'target', 2026))?.id).toBe(target.id);
-    expect((await records.findCurrent(s.id, 'school', 'school', 2025))?.subjects).toEqual([{ subjectId: subject.math, grade: 'B', customName: null, readConfidence: null }]);
+    expect((await records.findCurrent(s.id, 'school', 'school', 2025))?.subjects).toEqual([{ subjectId: subject.math, grade: 'B', customName: null, ocrConfidence: null }]);
     expect(await records.findCurrent(s.id, 'spm', 'actual')).toBeNull();
   });
 
@@ -167,6 +163,6 @@ describe('DrizzleAcademicRecordRepository (integration)', () => {
     const r = AcademicRecord.start(randomUUID(), { studentId: s.id, qualification: 'spm', kind: 'actual', examYear: 2026 });
     r.replaceSubjects([{ subjectId: custom, grade: 'A', customName: 'Tasawwuf' }]);
     await records.save(r);
-    expect((await records.findById(r.id))?.subjects).toEqual([{ subjectId: custom, grade: 'A', customName: 'Tasawwuf', readConfidence: null }]);
+    expect((await records.findById(r.id))?.subjects).toEqual([{ subjectId: custom, grade: 'A', customName: 'Tasawwuf', ocrConfidence: null }]);
   });
 });

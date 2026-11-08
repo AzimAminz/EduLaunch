@@ -6,14 +6,19 @@ const ids = { bm: '00000000-0000-4000-8000-000000000001', math: '00000000-0000-4
 const names = new Map([[ids.bm, 'Bahasa Melayu'], [ids.math, 'Mathematics'], [ids.phy, 'Physics'], [ids.sci, 'Science']]);
 
 let n = 0;
-const rule = (groupNo: number, subjectId: string, minGrade: string): RequirementRuleDto => ({
+const rule = (orGroup: number, subjectId: string, minGrade: string): RequirementRuleDto => ({
   id: `00000000-0000-4000-9000-${String(++n).padStart(12, '0')}`,
-  groupNo,
-  ruleType: 'min_grade',
+  orGroup,
+  conditionType: 'min_grade',
   subjectId,
   minGrade,
   minValue: null,
-  evidenceQuote: 'quote',
+  officialText: 'quote',
+  part: 'special',
+  section: null,
+  subjectIds: [],
+  minCount: null,
+  position: 0,
 });
 
 // Diploma in Computer Science: BM credit AND Maths B AND (Physics C OR Science C)
@@ -22,6 +27,7 @@ const requirement: PublishedRequirement = {
   programId: '00000000-0000-4000-8000-0000000000bb',
   entryRoute: 'spm',
   versionNo: 2,
+  sourceCategory: null,
   rules: [rule(1, ids.bm, 'C'), rule(2, ids.math, 'B'), rule(3, ids.phy, 'C'), rule(3, ids.sci, 'C')],
 };
 
@@ -91,8 +97,8 @@ describe('EligibilityEngine', () => {
       ...requirement,
       entryRoute: 'stpm',
       rules: [
-        { ...rule(1, stpmMath, 'C'), ruleType: 'min_grade' },
-        { ...rule(2, ids.bm, 'C'), ruleType: 'min_credits', subjectId: null, minValue: 2 },
+        { ...rule(1, stpmMath, 'C'), conditionType: 'min_grade' },
+        { ...rule(2, ids.bm, 'C'), conditionType: 'min_credits', subjectId: null, minValue: 2 },
       ],
     };
     const snapshot: StudentSnapshot = {
@@ -109,3 +115,30 @@ describe('EligibilityEngine', () => {
     expect(r.groups[1]!.rules[0]).toMatchObject({ type: 'min_credits', required: 2, actual: 1, passed: false });
   });
 });
+
+describe('requirement lines from ePanduan', () => {
+  const line = (over: Partial<RequirementRuleDto>): RequirementRuleDto => ({ ...rule(1, ids.bm, 'C'), subjectId: null, minGrade: null, ...over });
+  const withLines = (rules: RequirementRuleDto[]): PublishedRequirement => ({ ...requirement, rules });
+
+  it('counts grades in N subjects from a list', () => {
+    const twoOf = withLines([line({ orGroup: 1, conditionType: 'subjects_from_list', minGrade: 'C', subjectIds: [ids.math, ids.phy, ids.sci], minCount: 2 })]);
+    const result = (g: Record<string, string>) => engine.check(twoOf, { snapshot: student(g), subjectNames: names });
+    expect(result({ [ids.math]: 'B', [ids.phy]: 'C', [ids.sci]: 'D' }).status).toBe('eligible');
+    const short = result({ [ids.math]: 'B', [ids.phy]: 'D', [ids.bm]: 'A' });
+    expect(short.status).toBe('almost');
+    expect(short.groups[0]!.rules[0]).toMatchObject({ type: 'subjects_from_list', required: 2, actual: 1, minGrade: 'C' });
+  });
+
+  it('lists declarations to confirm and ignores notes, so neither decides eligibility', () => {
+    const req = withLines([
+      line({ orGroup: 1, conditionType: 'note', officialText: 'Memiliki SPM dengan mendapat sekurang-kurangnya:-' }),
+      rule(2, ids.bm, 'C'),
+      line({ orGroup: 3, conditionType: 'declaration', officialText: 'Lulus ujian dan / atau temu duga' }),
+    ]);
+    const result = engine.check(req, { snapshot: student({ [ids.bm]: 'B' }), subjectNames: names });
+    expect(result.status).toBe('eligible');
+    expect(result.groups).toHaveLength(1);
+    expect(result.toConfirm).toEqual(['Lulus ujian dan / atau temu duga']);
+  });
+});
+

@@ -33,7 +33,15 @@ afterAll(async () => {
 describe('AdminQueries (integration)', () => {
   it('counts each institution programmes by status', async () => {
     const found = (await queries.institutions()).find((i) => i.id === institutionId);
-    expect(found).toMatchObject({ programmes: 3, published: 2, open: 1 });
+    expect(found).toMatchObject({ programmes: 3, published: 2, open: 1, epanduanCode: null });
+  });
+
+  it("lists an institution's programmes with the values an import compares", async () => {
+    await db.update(schema.programs).set({ programCode: `ZZ${tag.slice(2, 9).replace(/\D/g, '0').padEnd(7, '0')}` }).where(eq(schema.programs.id, withRules));
+    const rows = await queries.institutionProgrammes(institutionId);
+    expect(rows.map((r) => r.id).sort()).toEqual([withRules, withoutRules, draft].sort());
+    expect(rows.find((r) => r.id === withRules)).toMatchObject({ studyLevel: 'diploma', status: 'published', pendingStatus: null });
+    expect(rows.find((r) => r.id === withRules)?.programCode).toMatch(/^ZZ\d{7}$/);
   });
 
   it('lists published programmes that have no published requirement', async () => {

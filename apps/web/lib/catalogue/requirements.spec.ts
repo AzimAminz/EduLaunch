@@ -12,12 +12,17 @@ const names = new Map([[ID.bm, 'Bahasa Melayu'], [ID.math, 'Matematik'], [ID.phy
 let n = 0;
 const rule = (over: Partial<RequirementRuleDto>): RequirementRuleDto => ({
   id: `00000000-0000-4000-9000-${String(++n).padStart(12, '0')}`,
-  groupNo: 1,
-  ruleType: 'min_grade',
+  orGroup: 1,
+  conditionType: 'min_grade',
   subjectId: null,
   minGrade: null,
   minValue: null,
-  evidenceQuote: '[Contoh] petikan',
+  officialText: '[Contoh] petikan',
+  part: 'special',
+  section: null,
+  subjectIds: [],
+  minCount: null,
+  position: 0,
   ...over,
 });
 const req = (rules: RequirementRuleDto[], entryRoute = 'spm'): PublishedRequirement => ({
@@ -25,6 +30,7 @@ const req = (rules: RequirementRuleDto[], entryRoute = 'spm'): PublishedRequirem
   programId: '00000000-0000-4000-8000-0000000000bb',
   entryRoute,
   versionNo: 1,
+  sourceCategory: null,
   rules,
 });
 
@@ -36,23 +42,23 @@ describe('describeRequirement', () => {
 
   it('explains an either/or group in one item, sharing the grade when it is the same', () => {
     const d = describeRequirement(
-      req([rule({ groupNo: 3, subjectId: ID.phy, minGrade: 'C' }), rule({ groupNo: 3, subjectId: ID.sci, minGrade: 'C' }), rule({ groupNo: 3, subjectId: ID.add, minGrade: 'C' })]),
+      req([rule({ orGroup: 3, subjectId: ID.phy, minGrade: 'C' }), rule({ orGroup: 3, subjectId: ID.sci, minGrade: 'C' }), rule({ orGroup: 3, subjectId: ID.add, minGrade: 'C' })]),
       names,
     );
     expect(d.items).toEqual([{ title: 'Salah satu daripada', detail: 'Fizik, Sains atau Matematik Tambahan — sekurang-kurangnya gred C' }]);
   });
 
   it('lists each grade when the options need different grades', () => {
-    const d = describeRequirement(req([rule({ groupNo: 2, subjectId: ID.phy, minGrade: 'B' }), rule({ groupNo: 2, subjectId: ID.sci, minGrade: 'C' })]), names);
+    const d = describeRequirement(req([rule({ orGroup: 2, subjectId: ID.phy, minGrade: 'B' }), rule({ orGroup: 2, subjectId: ID.sci, minGrade: 'C' })]), names);
     expect(d.items[0]).toEqual({ title: 'Salah satu daripada', detail: 'Fizik gred B atau Sains gred C' });
   });
 
   it('describes credits, CGPA and MUET in plain words', () => {
     const d = describeRequirement(
       req([
-        rule({ groupNo: 1, ruleType: 'min_credits', minGrade: 'C', minValue: 5 }),
-        rule({ groupNo: 2, ruleType: 'min_cgpa', minValue: 2.75 }),
-        rule({ groupNo: 3, ruleType: 'min_muet', minValue: 3 }),
+        rule({ orGroup: 1, conditionType: 'min_credits', minGrade: 'C', minValue: 5 }),
+        rule({ orGroup: 2, conditionType: 'min_cgpa', minValue: 2.75 }),
+        rule({ orGroup: 3, conditionType: 'min_muet', minValue: 3 }),
       ]),
       names,
     );
@@ -64,15 +70,15 @@ describe('describeRequirement', () => {
   });
 
   it('keeps groups in order and falls back to a neutral name for unknown subjects', () => {
-    const d = describeRequirement(req([rule({ groupNo: 2, subjectId: ID.math, minGrade: 'C' }), rule({ groupNo: 1, subjectId: '00000000-0000-4000-8000-0000000000ff', minGrade: 'E' })]), names);
+    const d = describeRequirement(req([rule({ orGroup: 2, subjectId: ID.math, minGrade: 'C' }), rule({ orGroup: 1, subjectId: '00000000-0000-4000-8000-0000000000ff', minGrade: 'E' })]), names);
     expect(d.items.map((i) => i.title)).toEqual(['Subjek lain', 'Matematik']);
   });
 
   it('flags sample data and strips the [Contoh] marker from the quotes it returns', () => {
-    const d = describeRequirement(req([rule({ subjectId: ID.bm, minGrade: 'C', evidenceQuote: '[Contoh] Kepujian dalam Bahasa Melayu.' })]), names);
+    const d = describeRequirement(req([rule({ subjectId: ID.bm, minGrade: 'C', officialText: '[Contoh] Kepujian dalam Bahasa Melayu.' })]), names);
     expect(d.isSample).toBe(true);
     expect(d.quotes).toEqual(['Kepujian dalam Bahasa Melayu.']);
-    expect(describeRequirement(req([rule({ subjectId: ID.bm, minGrade: 'C', evidenceQuote: 'Kepujian dalam Bahasa Melayu.' })]), names).isSample).toBe(false);
+    expect(describeRequirement(req([rule({ subjectId: ID.bm, minGrade: 'C', officialText: 'Kepujian dalam Bahasa Melayu.' })]), names).isSample).toBe(false);
   });
 
   it('names the entry route for students', () => {
@@ -84,7 +90,7 @@ describe('describeRequirement', () => {
 
   it('speaks English with the English dictionary', () => {
     const d = describe_(
-      req([rule({ groupNo: 1, subjectId: ID.math, minGrade: 'B' }), rule({ groupNo: 2, subjectId: ID.phy, minGrade: 'C' }), rule({ groupNo: 2, subjectId: ID.sci, minGrade: 'C' }), rule({ groupNo: 3, ruleType: 'min_credits', minGrade: 'C', minValue: 5 })], 'diploma'),
+      req([rule({ orGroup: 1, subjectId: ID.math, minGrade: 'B' }), rule({ orGroup: 2, subjectId: ID.phy, minGrade: 'C' }), rule({ orGroup: 2, subjectId: ID.sci, minGrade: 'C' }), rule({ orGroup: 3, conditionType: 'min_credits', minGrade: 'C', minValue: 5 })], 'diploma'),
       names,
       en.requirements,
     );

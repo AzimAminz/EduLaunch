@@ -22,7 +22,7 @@ const tiny = (programmeName = `Diploma Ujian ${t}`): SeedDataset => ({
     { key: `${t}-dip`, name: programmeName, institutionKey: `${t}-inst`, studyLevel: 'diploma', durationSemesters: 6, fieldKeys: [`${t}-field`] },
   ],
   requirements: [
-    { programmeKey: `${t}-dip`, entryRoute: 'spm', rules: [{ groupNo: 1, ruleType: 'min_grade', subjectKey: `${t}-math`, minGrade: 'C', evidenceQuote: '[Contoh] Kepujian Matematik' }] },
+    { programmeKey: `${t}-dip`, entryRoute: 'spm', rules: [{ orGroup: 1, conditionType: 'min_grade', subjectKey: `${t}-math`, minGrade: 'C', officialText: '[Contoh] Kepujian Matematik' }] },
   ],
   pathways: [{ fromKey: `${t}-cert`, toKey: `${t}-dip`, conditionText: 'PNGK 2.50', minCgpa: 2.5 }],
   careers: [{ key: `${t}-career`, fieldKey: `${t}-field`, title: `Kerjaya ${t}`, description: 'Ujian', minStudyLevel: 'diploma' }],

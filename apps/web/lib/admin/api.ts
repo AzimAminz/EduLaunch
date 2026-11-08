@@ -1,5 +1,5 @@
 import 'server-only';
-import { EntryRoutes, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, RuleType, StudyLevel, StudyModes } from '@edulaunch/contracts';
+import { EntryRoutes, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, ConditionType, StudyLevel, StudyModes } from '@edulaunch/contracts';
 import { z } from 'zod';
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://127.0.0.1:4000';
@@ -16,19 +16,31 @@ export class AdminApiError extends Error {
 }
 
 /** Calls the catalogue service through the gateway as the signed-in admin. Never cached. */
-async function call<T extends z.ZodType>(token: string, path: string, schema: T, init: RequestInit = {}): Promise<z.infer<T>> {
-  const res = await fetch(`${GATEWAY_URL}/api/catalogue${path}`, {
-    ...init,
-    headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  });
+const call = <T extends z.ZodType>(token: string, path: string, schema: T, init: RequestInit = {}) => callService('catalogue', token, path, schema, init);
+
+/** Calls a service ('catalogue' or 'content') through the gateway as the signed-in admin. Never cached. */
+async function callService<T extends z.ZodType>(service: 'catalogue' | 'content', token: string, path: string, schema: T, init: RequestInit = {}): Promise<z.infer<T>> {
+  let res: Response;
+  try {
+    res = await fetchService(service, token, path, init);
+  } catch {
+    // The gateway (or the service behind it) did not answer at all.
+    throw new AdminApiError('service_unavailable', 503, `The ${service} service did not answer for ${path}`);
+  }
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { code?: string; message?: string } | null;
-    throw new AdminApiError(body?.code ?? 'generic', res.status, body?.message ?? `Catalogue request failed (${res.status}) for ${path}`);
+    throw new AdminApiError(body?.code ?? (res.status >= 502 ? 'service_unavailable' : 'generic'), res.status, body?.message ?? `Request failed (${res.status}) for ${path}`);
   }
   if (res.status === 204) return undefined as z.infer<T>;
   return schema.parse(await res.json());
 }
+
+const fetchService = (service: 'catalogue' | 'content', token: string, path: string, init: RequestInit) =>
+  fetch(`${GATEWAY_URL}/api/${service}${path}`, {
+    ...init,
+    headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
 
 const send = (body: unknown, method = 'POST'): RequestInit => ({ method, body: JSON.stringify(body) });
 
@@ -59,6 +71,8 @@ const Tasks = z.object({
   returned: z.array(Task),
   myDrafts: z.array(Task),
   waiting: z.array(Task),
+  /** Drafts another admin started, which any admin may carry on. */
+  othersDrafts: z.array(Task).default([]),
   counts: z.object({ published: z.number(), withoutRequirements: z.number() }),
 });
 export type AdminTasks = z.infer<typeof Tasks>;
@@ -109,6 +123,8 @@ export function listProgrammes(token: string, q: ProgrammeQuery) {
 const RequirementVersion = z.object({
   id: z.uuid(),
   entryRoute: z.string(),
+  /** The ePanduan candidate category it is for (stpm:S), null when written without one. */
+  sourceCategory: z.string().nullable().default(null),
   versionNo: z.number(),
   status: ReviewStatus,
   preparedBy: z.uuid(),
@@ -118,16 +134,21 @@ export type RequirementVersion = z.infer<typeof RequirementVersion>;
 
 /** The standard details every programme has (as JPT and university prospectuses publish them). */
 const ProgrammeFacts = z.object({
-  upuCode: z.string().nullable(),
+  programCode: z.string().nullable(),
   internalCode: z.string().nullable(),
   faculty: z.string().nullable(),
   necCode: z.string().nullable(),
   studyMode: z.enum(StudyModes).nullable(),
-  campus: z.string().nullable(),
+  campuses: z.array(z.string()).default([]),
   hasInterview: z.boolean(),
   isStem: z.boolean(),
   isTvet: z.boolean(),
   bumiputeraOnly: z.boolean(),
+  jointDegree: z.boolean().default(false),
+  feeder: z.boolean().default(false),
+  careers: z.array(z.string()).default([]),
+  fees: z.string().nullable().default(null),
+  note: z.string().nullable().default(null),
   sourceUrl: z.string().nullable(),
 });
 export type ProgrammeFacts = z.infer<typeof ProgrammeFacts>;
@@ -160,18 +181,28 @@ const ProgrammeDetail = ProgrammeFacts.extend({
   updatedAt: z.coerce.date(),
   fieldIds: z.array(z.uuid()),
   requirements: z.array(RequirementVersion),
+  entryRoutes: z.array(z.string()).default([]),
+  /** Each entry route with the ePanduan category it came from. */
+  entryRouteRows: z.array(z.object({ entryRoute: z.string(), sourceCategory: z.string().nullable() })).default([]),
+  /** The newest average merit an official source published. */
+  averageMerit: z.object({ intakeYear: z.number(), value: z.number() }).nullable().default(null),
 });
 export type ProgrammeDetail = z.infer<typeof ProgrammeDetail>;
 
 export const getProgrammeDetail = (token: string, id: string) => call(token, `/admin/programmes/${encodeURIComponent(id)}`, ProgrammeDetail);
 
 export const AdminRule = z.object({
-  groupNo: z.number(),
-  ruleType: RuleType,
+  orGroup: z.number(),
+  conditionType: ConditionType,
   subjectId: z.uuid().nullable(),
   minGrade: z.string().nullable(),
-  minValue: z.number().nullable(),
-  evidenceQuote: z.string().nullable(),
+  minValue: z.coerce.number().nullable(),
+  officialText: z.string().nullable(),
+  part: z.enum(['general', 'special']).default('special'),
+  section: z.string().nullable().default(null),
+  subjectIds: z.array(z.uuid()).default([]),
+  minCount: z.number().nullable().default(null),
+  position: z.number().default(0),
 });
 export type AdminRule = z.infer<typeof AdminRule>;
 
@@ -188,6 +219,7 @@ const RequirementDetail = z.object({
   approvedBy: z.uuid().nullable(),
   returnReason: z.string().nullable(),
   sourceUrl: z.string().nullable(),
+  sourceCategory: z.string().nullable().default(null),
   updatedAt: z.coerce.date(),
   rules: z.array(AdminRule),
   previous: z.object({ versionNo: z.number(), sourceUrl: z.string().nullable(), rules: z.array(AdminRule) }).nullable(),
@@ -205,6 +237,7 @@ export interface InstitutionBody {
   type: (typeof InstitutionTypes)[number];
   websiteUrl: string | null;
   state: (typeof MalaysianStates)[number] | null;
+  epanduanCode: string | null;
 }
 
 export const createInstitution = (token: string, body: InstitutionBody) => call(token, '/institutions', Saved, send(body));
@@ -229,14 +262,18 @@ export const createProgramme = (token: string, body: ProgrammeBody & { instituti
 export const updateProgramme = (token: string, id: string, body: ProgrammeBody & { institutionId?: string | null; studyLevel?: z.infer<typeof StudyLevel> }) =>
   call(token, `/programmes/${encodeURIComponent(id)}`, Status, send(body, 'PATCH'));
 
-export type ReviewAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
+export type ReviewAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' | 'unpublish' } | { action: 'return'; reason: string };
 
 export const deleteProgramme = (token: string, id: string) => call(token, `/programmes/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
 export const reviewProgramme = (token: string, id: string, body: ReviewAction) => call(token, `/programmes/${encodeURIComponent(id)}/review`, Status, send(body));
 
-export const createRequirementDraft = (token: string, body: { programId: string; entryRoute: string }) =>
+export const createRequirementDraft = (token: string, body: { programId: string; entryRoute: string; sourceCategory: string | null }) =>
   call(token, '/requirements', z.object({ id: z.uuid(), versionNo: z.number() }), send(body));
-export const saveRequirementDraft = (token: string, id: string, body: { sourceUrl: string | null; rules: Array<Omit<AdminRule, 'evidenceQuote'> & { evidenceQuote: string }> }) =>
+export const saveRequirementDraft = (
+  token: string,
+  id: string,
+  body: { sourceUrl: string | null; sourceCategory: string | null; rules: Array<Omit<AdminRule, 'officialText'> & { officialText: string }> },
+) =>
   call(token, `/requirements/${encodeURIComponent(id)}`, Status, send(body, 'PUT'));
 export const reviewRequirement = (token: string, id: string, body: Exclude<ReviewAction, { action: 'archive' | 'reopen' | 'withdraw' | 'discard' }>) =>
   call(token, `/requirements/${encodeURIComponent(id)}/review`, Status, send(body));
@@ -249,6 +286,7 @@ const AdminInstitution = z.object({
   type: z.string(),
   websiteUrl: z.string().nullable(),
   state: z.string().nullable(),
+  epanduanCode: z.string().nullable(),
   deletionRequestedBy: z.uuid().nullable(),
   programmes: z.number(),
   published: z.number(),
@@ -277,3 +315,129 @@ export const listAdminInstitutions = (token: string) => call(token, '/admin/inst
 /** Institutions with their website, read fresh (the student pages cache the same list for a few minutes). */
 export const listInstitutions = (token: string) =>
   call(token, '/institutions', z.array(z.object({ id: z.uuid(), name: z.string(), shortName: z.string().nullable(), type: z.string(), websiteUrl: z.string().nullable().default(null) })));
+
+/** Stops taking candidates from one entry route. */
+/** Stops taking candidates from one entry route, or only from the given candidate categories of it. */
+export const removeEntryRoute = (token: string, id: string, entryRoute: string, categories: string[] = []) =>
+  call(
+    token,
+    `/programmes/${encodeURIComponent(id)}/entry-routes/${encodeURIComponent(entryRoute)}${categories.length ? `?categories=${encodeURIComponent(categories.join(','))}` : ''}`,
+    z.undefined(),
+    { method: 'DELETE' },
+  );
+
+/** The average merit an official source published for one intake year. */
+export const recordAverageMerit = (token: string, id: string, body: { intakeYear: number; averageMerit: number }) =>
+  call(token, `/programmes/${encodeURIComponent(id)}/admission-stats`, z.undefined(), send(body, 'PUT'));
+
+/** An institution's programmes with the values an import compares. */
+const InstitutionProgramme = z.object({
+  id: z.uuid(),
+  programCode: z.string().nullable(),
+  name: z.string(),
+  studyLevel: StudyLevel,
+  durationSemesters: z.number().nullable(),
+  necCode: z.string().nullable(),
+  studyMode: z.enum(StudyModes).nullable(),
+  campuses: z.array(z.string()).default([]),
+  hasInterview: z.boolean(),
+  isStem: z.boolean(),
+  isTvet: z.boolean(),
+  bumiputeraOnly: z.boolean(),
+  jointDegree: z.boolean().default(false),
+  feeder: z.boolean().default(false),
+  careers: z.array(z.string()).default([]),
+  fees: z.string().nullable().default(null),
+  note: z.string().nullable().default(null),
+  sourceUrl: z.string().nullable(),
+  status: ReviewStatus,
+  pendingStatus: z.enum(['draft', 'in_review', 'returned']).nullable(),
+  entryRoutes: z.array(z.string()).default([]),
+});
+export type InstitutionProgramme = z.infer<typeof InstitutionProgramme>;
+export const listInstitutionProgrammes = (token: string, id: string) =>
+  call(token, `/admin/institutions/${encodeURIComponent(id)}/programmes`, z.array(InstitutionProgramme));
+
+/** A candidate category a programme is listed under on ePanduan, with that category's general requirements. */
+const FoundCategory = z.object({
+  jenprog: z.string(),
+  category: z.string(),
+  route: z.string().nullable(),
+  generalRequirements: z.string().nullable(),
+});
+export type FoundCategory = z.infer<typeof FoundCategory>;
+
+/** One programme as ePanduan lists it (plain cleaned values from the content service). */
+const FoundProgramme = z.object({
+  code: z.string(),
+  name: z.string(),
+  institutionName: z.string().nullable(),
+  year: z.number().nullable(),
+  merit: z.number().nullable(),
+  level: StudyLevel.nullable(),
+  levelText: z.string().nullable(),
+  studyMode: z.enum(StudyModes).nullable(),
+  durationSemesters: z.number().nullable(),
+  necCode: z.string().nullable(),
+  necName: z.string().nullable(),
+  hasInterview: z.boolean().nullable(),
+  isStem: z.boolean(),
+  isTvet: z.boolean(),
+  bumiputeraOnly: z.boolean(),
+  feeder: z.boolean(),
+  jointDegree: z.boolean().nullable().default(null),
+  isNew: z.boolean().default(false),
+  note: z.string().nullable(),
+  campuses: z.array(z.string()),
+  careers: z.string().nullable().default(null),
+  fees: z.string().nullable().default(null),
+  routes: z.array(z.string()),
+  categories: z.array(FoundCategory).default([]),
+  sourceUrl: z.string().nullable(),
+});
+export type FoundProgramme = z.infer<typeof FoundProgramme>;
+
+const EpanduanRun = z.object({
+  id: z.uuid(),
+  institutionCode: z.string(),
+  status: z.enum(['running', 'done', 'failed']),
+  pagesRead: z.number(),
+  currentCategory: z.string().nullable().default(null),
+  found: z.number(),
+  error: z.string().nullable(),
+  startedAt: z.coerce.date(),
+  finishedAt: z.coerce.date().nullable(),
+  programmes: z.array(FoundProgramme),
+});
+export type EpanduanRun = z.infer<typeof EpanduanRun>;
+
+/** Starts reading one institution's programmes from ePanduan (it takes a minute or two). */
+export const startEpanduanRun = (token: string, institutionCode: string) =>
+  callService('content', token, '/epanduan/runs', z.object({ id: z.uuid(), status: z.string() }), send({ institutionCode }));
+export const latestEpanduanRun = (token: string, institutionCode: string) =>
+  callService('content', token, `/epanduan/runs/latest?institutionCode=${encodeURIComponent(institutionCode)}`, z.object({ run: EpanduanRun.nullable() }));
+
+/** Syarat Khas read from ePanduan for a programme in one category (pending while being read). */
+const SpecialRequirement = z.object({
+  code: z.string(),
+  jenprog: z.string(),
+  category: z.string(),
+  status: z.enum(['pending', 'done', 'failed']),
+  text: z.string().nullable(),
+  error: z.string().nullable(),
+  readAt: z.coerce.date().nullable(),
+});
+export type SpecialRequirement = z.infer<typeof SpecialRequirement>;
+
+/** Starts reading Syarat Khas for accepted programmes (every category each one is listed under). */
+export const readSpecialRequirements = (token: string, institutionCode: string, codes: string[]) =>
+  callService('content', token, '/epanduan/requirements', z.object({ pending: z.number() }), send({ institutionCode, codes }));
+export const listSpecialRequirements = (token: string, codes: string[]) =>
+  codes.length ? callService('content', token, `/epanduan/requirements?codes=${encodeURIComponent(codes.join(','))}`, z.array(SpecialRequirement)) : Promise.resolve([]);
+/** Programmes as the latest ePanduan read of their institution found them, by programme code. */
+export const listFoundProgrammes = (token: string, codes: string[]) =>
+  codes.length ? callService('content', token, `/epanduan/found?codes=${encodeURIComponent(codes.join(','))}`, z.array(FoundProgramme)) : Promise.resolve([]);
+
+/** The entry routes a programme takes candidates from, with the ePanduan category each came from. */
+export const setEntryRoutes = (token: string, id: string, routes: Array<{ entryRoute: string; sourceCategory: string | null }>) =>
+  call(token, `/programmes/${encodeURIComponent(id)}/entry-routes`, z.undefined(), send({ routes }, 'PUT'));

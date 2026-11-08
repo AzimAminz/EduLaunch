@@ -8,7 +8,7 @@ export interface SubjectGrade {
   grade: string;
   /** Name typed by the student for a subject that is not in the catalogue; null for catalogue subjects. */
   customName: string | null;
-  readConfidence: number | null;
+  ocrConfidence: number | null;
 }
 
 export const MAX_CUSTOM_NAME = 80;
@@ -72,14 +72,14 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
     return this.props.status === 'confirmed';
   }
 
-  setGrade(subjectId: string, grade: string, readConfidence: number | null = null): void {
+  setGrade(subjectId: string, grade: string, ocrConfidence: number | null = null): void {
     const normalised = this.validGrade(grade);
     const existing = this.props.subjects.find((s) => s.subjectId === subjectId);
     if (existing) {
       existing.grade = normalised;
-      existing.readConfidence = readConfidence;
+      existing.ocrConfidence = ocrConfidence;
     } else {
-      this.props.subjects.push({ subjectId, grade: normalised, customName: null, readConfidence });
+      this.props.subjects.push({ subjectId, grade: normalised, customName: null, ocrConfidence });
     }
     this.reopen();
   }
@@ -98,7 +98,7 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
         if (names.has(name.toLocaleLowerCase())) throw new DomainError('duplicate_subject', 'Each subject can only be listed once');
         names.add(name.toLocaleLowerCase());
       }
-      next.push({ subjectId, grade: this.validGrade(grade), customName: name, readConfidence: null });
+      next.push({ subjectId, grade: this.validGrade(grade), customName: name, ocrConfidence: null });
     }
     this.props.subjects = next;
     this.reopen();

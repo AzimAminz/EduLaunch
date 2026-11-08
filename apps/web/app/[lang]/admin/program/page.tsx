@@ -4,12 +4,14 @@ import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { AdminIcon } from '@/components/admin/icons';
 import { ProgrammeTable } from '@/components/admin/programme-table';
-import { AdminHeading, ButtonLink, HowItWorks, IconText, LoadError, Pagination, buttonClass } from '@/components/admin/ui';
+import { FilterSelect } from '@/components/admin/filter-select';
+import { AdminHeading, ButtonLink, ListToolbar, LoadError, Pagination } from '@/components/admin/ui';
 import { ProgrammeSorts, ReviewStatus, listAdminInstitutions, listProgrammes } from '@/lib/admin/api';
 import { listParamEntries, readListParams, type ListParams } from '@/lib/admin/list-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 type Search = Promise<Record<string, string | string[] | undefined>>;
 
@@ -23,7 +25,7 @@ export default async function AdminProgrammesPage({ params, searchParams }: Page
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       <Programmes locale={lang} dict={dict} searchParams={searchParams} />
     </Suspense>
   );
@@ -54,7 +56,6 @@ async function Programmes({ locale, dict, searchParams }: { locale: Locale; dict
   } catch {
     return <LoadError text={t.errors.generic} />;
   }
-  const institution = institutions.find((i) => i.id === institutionId);
   const filters: Filters = { q: query || undefined, status, institusi: institutionId, syarat: missing ? 'tiada' : undefined };
 
   /** The current address with some filters or the sort changed; a new filter or sort goes back to page 1. */
@@ -66,11 +67,9 @@ async function Programmes({ locale, dict, searchParams }: { locale: Locale; dict
   // A page past the end (for example after a filter shrank the list) goes to the last page.
   const last = Math.max(1, Math.ceil(page.total / page.pageSize));
   if (list.page > last) redirect(href({}, { ...list, page: last }));
-  const chip = (active: boolean) =>
-    `inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
-      active ? 'border-navy bg-navy text-white' : 'border-line bg-white hover:border-navy/30 hover:bg-bg'
-    }`;
+  const here = href({}, list);
   const filtered = !!(query || status || institutionId || missing);
+  const statusValue = missing ? 'tiada' : (status ?? '');
 
   return (
     <>
@@ -84,80 +83,51 @@ async function Programmes({ locale, dict, searchParams }: { locale: Locale; dict
         }
       />
 
-      <div className="flex flex-col gap-3">
-        <form action={base} className="flex gap-2">
-          {status && <input type="hidden" name="status" value={status} />}
-          {institutionId && <input type="hidden" name="institusi" value={institutionId} />}
-          {missing && <input type="hidden" name="syarat" value="tiada" />}
-          {list.sort !== 'name' && <input type="hidden" name="susun" value={list.sort} />}
-          {list.direction === 'desc' && <input type="hidden" name="arah" value="desc" />}
-          {list.pageSize !== 20 && <input type="hidden" name="saiz" value={list.pageSize} />}
-          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] border border-line bg-white px-3 text-muted transition-colors focus-within:border-navy/50 focus-within:ring-2 focus-within:ring-navy/15">
-            <AdminIcon name="search" size={18} />
-            <span className="sr-only">{t.programmes.search}</span>
-            <input name="q" defaultValue={query} placeholder={t.programmes.search} className="min-w-0 flex-1 bg-transparent py-2.5 text-[15px] text-navy outline-none" />
-          </label>
-          <button type="submit" className={buttonClass('primary')}>
-            <IconText icon="search">{t.programmes.searchButton}</IconText>
-          </button>
-        </form>
-
-        {/* Institution: the catalogue's first level. */}
-        <nav aria-label={t.programmes.columns.institution} className="flex flex-wrap gap-2">
-          <Link href={href({ institusi: undefined })} aria-current={!institutionId ? 'page' : undefined} className={chip(!institutionId)}>
-            {t.programmes.allInstitutions}
+      <ListToolbar
+        action={base}
+        query={query}
+        placeholder={t.programmes.search}
+        keep={[...Object.entries({ status, institusi: institutionId, syarat: missing ? 'tiada' : undefined }).filter((e): e is [string, string] => !!e[1]), ...listParamEntries({ ...list, page: 1 }, 'name')]}
+      >
+        <FilterSelect
+          label={t.programmes.columns.institution}
+          value={institutionId ?? ''}
+          options={[
+            { value: '', label: t.programmes.allInstitutions, href: href({ institusi: undefined }) },
+            ...institutions.map((i) => ({ value: i.id, label: i.shortName ? `${i.shortName} · ${i.name}` : i.name, href: href({ institusi: i.id }) })),
+          ]}
+        />
+        <FilterSelect
+          label={t.programmes.columns.status}
+          value={statusValue}
+          options={[
+            { value: '', label: t.programmes.allStatus, href: href({ status: undefined, syarat: undefined }) },
+            { value: 'tiada', label: t.programmes.missingRequirements, href: href({ status: undefined, syarat: 'tiada' }) },
+            ...ReviewStatus.options.map((s) => ({ value: s, label: t.status[s], href: href({ status: s, syarat: undefined }) })),
+          ]}
+        />
+        {filtered && (
+          <Link href={base} className="inline-flex h-9 items-center gap-1 rounded-[6px] px-2 text-[13px] text-muted hover:text-navy hover:underline">
+            <AdminIcon name="x" size={14} />
+            {t.programmes.clearFilters}
           </Link>
-          {institutions.map((i) => (
-            <Link key={i.id} href={href({ institusi: i.id })} aria-current={i.id === institutionId ? 'page' : undefined} className={chip(i.id === institutionId)} title={i.name}>
-              <AdminIcon name="building" size={14} />
-              {i.shortName ?? i.name}
-            </Link>
-          ))}
-        </nav>
-
-        <nav aria-label={t.programmes.columns.status} className="flex flex-wrap gap-2">
-          <Link href={href({ status: undefined, syarat: undefined })} aria-current={!status && !missing ? 'page' : undefined} className={chip(!status && !missing)}>
-            {t.programmes.allStatus}
-          </Link>
-          <Link href={href({ status: undefined, syarat: missing ? undefined : 'tiada' })} aria-current={missing ? 'page' : undefined} className={chip(missing)}>
-            <AdminIcon name="alert" size={14} />
-            {t.programmes.missingRequirements}
-          </Link>
-          {ReviewStatus.options.map((s) => (
-            <Link key={s} href={href({ status: s, syarat: undefined })} aria-current={s === status ? 'page' : undefined} className={chip(s === status)}>
-              {t.status[s]}
-            </Link>
-          ))}
-        </nav>
-        {(institution || filtered) && (
-          <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-            {institution && (
-              <Link href={`/${locale}/admin/institusi/${institution.id}`} className="inline-flex items-center gap-1 font-semibold hover:underline">
-                {institution.name}
-                <AdminIcon name="arrowRight" size={14} />
-              </Link>
-            )}
-            {filtered && (
-              <Link href={href({ q: undefined, status: undefined, institusi: undefined, syarat: undefined })} className="inline-flex items-center gap-1 text-muted hover:text-navy hover:underline">
-                <AdminIcon name="x" size={14} />
-                {t.programmes.clearFilters}
-              </Link>
-            )}
-          </p>
         )}
+      </ListToolbar>
+
+      <div className="flex flex-col gap-3">
+        <ProgrammeTable
+          rows={page.items}
+          locale={locale}
+          dict={dict}
+          now={new Date().getTime()}
+          from={here}
+          showInstitution={!institutionId}
+          offset={(page.page - 1) * page.pageSize}
+          empty={filtered ? t.programmes.noMatches : t.programmes.empty}
+          sort={{ sort: list.sort, direction: list.direction, href: (sort, direction) => href({}, { ...list, sort, direction, page: 1 }) }}
+        />
+        <Pagination page={page.page} pageSize={page.pageSize} total={page.total} href={(p) => href({}, { ...list, page: p })} sizeHref={(pageSize) => href({}, { ...list, pageSize, page: 1 })} t={t.pagination} />
       </div>
-
-      <ProgrammeTable
-        rows={page.items}
-        locale={locale}
-        dict={dict}
-        now={new Date().getTime()}
-        showInstitution={!institutionId}
-        sort={{ sort: list.sort, direction: list.direction, href: (sort, direction) => href({}, { ...list, sort, direction, page: 1 }) }}
-      />
-      <Pagination page={page.page} pageSize={page.pageSize} total={page.total} href={(p) => href({}, { ...list, page: p })} sizeHref={(pageSize) => href({}, { ...list, pageSize, page: 1 })} t={t.pagination} />
-
-      <HowItWorks title={t.programmes.how.title} steps={t.programmes.how.steps} />
     </>
   );
 }

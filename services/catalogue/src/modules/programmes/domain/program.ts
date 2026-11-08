@@ -6,18 +6,29 @@ export type PublishStatus = 'draft' | 'in_review' | 'returned' | 'published' | '
 /** The details JPT and university prospectuses publish for every programme, so all programmes share one standard. */
 export interface ProgramFacts {
   /** JPT / UPU code as the official source writes it (for example UC6522001); no fixed format is enforced yet. */
-  upuCode: string | null;
+  programCode: string | null;
   /** The university's own code, for example BELG. */
   internalCode: string | null;
   faculty: string | null;
   /** National Education Code field, for example 0712. */
   necCode: string | null;
   studyMode: StudyMode | null;
-  campus: string | null;
+  /** Every campus it is offered at, as the official source names them. */
+  campuses: string[];
   hasInterview: boolean;
   isStem: boolean;
   isTvet: boolean;
   bumiputeraOnly: boolean;
+  /** Awarded jointly with another university. */
+  jointDegree: boolean;
+  /** Leads to a set degree (for example a foundation programme for one university). */
+  feeder: boolean;
+  /** Careers it leads to, one per item. */
+  careers: string[];
+  /** Fees as the official source states them. */
+  fees: string | null;
+  /** Anything else the official source notes (catatan). */
+  note: string | null;
   /** The official page or document these details come from. */
   sourceUrl: string | null;
 }
@@ -38,16 +49,21 @@ const given = <T extends object>(details: T): T => Object.fromEntries(Object.ent
 
 /** Facts of a programme nobody has filled in yet. */
 export const NO_FACTS: ProgramFacts = {
-  upuCode: null,
+  programCode: null,
   internalCode: null,
   faculty: null,
   necCode: null,
   studyMode: null,
-  campus: null,
+  campuses: [],
   hasInterview: false,
   isStem: false,
   isTvet: false,
   bumiputeraOnly: false,
+  jointDegree: false,
+  feeder: false,
+  careers: [],
+  fees: null,
+  note: null,
   sourceUrl: null,
 };
 
@@ -209,6 +225,18 @@ export class Program extends AggregateRoot<string, ProgramProps> {
   }
 
   /** Brings an archived programme back as a draft, to be reviewed again before students see it. */
+  /**
+   * A super admin takes a published programme back to a draft to rework it (students stop seeing it until it is
+   * approved again). A change being prepared becomes the draft, so no edit is lost.
+   */
+  unpublish(by: string, superAdmin: boolean): void {
+    if (!superAdmin) throw new DomainError('forbidden', 'Only a super admin can unpublish a programme');
+    if (this.props.publishStatus !== 'published') throw new DomainError('conflict', 'Only a published programme can be unpublished');
+    if (this.props.pending?.status === 'in_review') throw new DomainError('conflict', 'Its changes are waiting for review; withdraw them first');
+    const details = this.props.pending?.details;
+    this.props = { ...this.props, ...(details ?? {}), publishStatus: 'draft', preparedBy: by, approvedBy: null, returnReason: null, pending: null };
+  }
+
   reopen(by: string): void {
     if (this.props.publishStatus !== 'archived') throw new DomainError('conflict', 'Only an archived programme can be reopened');
     this.props = { ...this.props, publishStatus: 'draft', preparedBy: by, approvedBy: null, returnReason: null };
@@ -253,7 +281,16 @@ export class Program extends AggregateRoot<string, ProgramProps> {
       if (t && t.length > max) throw new DomainError('invalid_program', `${what} must be at most ${max} characters`);
       return t;
     };
-    const upuCode = text(d.upuCode, 30, 'Programme code')?.toUpperCase() ?? null;
+    // Items trimmed, empty ones and repeats dropped (case-insensitive), in the order given.
+    const list = (items: string[] | undefined, most: number, max: number, what: string) => {
+      const seen = new Set<string>();
+      const out = (items ?? []).map((x) => x.trim()).filter((x) => x && !seen.has(x.toLowerCase()) && seen.add(x.toLowerCase()));
+      if (out.length > most) throw new DomainError('invalid_program', `At most ${most} ${what.toLowerCase()} items`);
+      const long = out.find((x) => x.length > max);
+      if (long) throw new DomainError('invalid_program', `${what} must be at most ${max} characters`);
+      return out;
+    };
+    const programCode = text(d.programCode, 30, 'Programme code')?.toUpperCase() ?? null;
     if (d.necCode && !/^\d{4}$/.test(d.necCode)) throw new DomainError('invalid_program', 'NEC code has four digits');
     if (d.studyMode && !(StudyModes as readonly string[]).includes(d.studyMode)) throw new DomainError('invalid_program', `Unknown study mode ${d.studyMode}`);
     const sourceUrl = text(d.sourceUrl, 500, 'Source link');
@@ -262,10 +299,14 @@ export class Program extends AggregateRoot<string, ProgramProps> {
       ...d,
       name,
       fieldIds: [...new Set(d.fieldIds)],
-      upuCode,
+      programCode,
       internalCode: text(d.internalCode, 20, 'University code'),
       faculty: text(d.faculty, 160, 'Faculty'),
-      campus: text(d.campus, 120, 'Campus'),
+      campuses: list(d.campuses, 20, 120, 'Campus'),
+      // ePanduan lists up to a few dozen careers (one programme has over forty); the official list is kept whole.
+      careers: list(d.careers, 100, 120, 'Career'),
+      fees: text(d.fees, 1000, 'Fees'),
+      note: text(d.note, 2000, 'Note'),
       sourceUrl,
     };
   }

@@ -74,13 +74,13 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="flex flex-col gap-1 rounded-[18px] bg-white p-5 sm:p-6">
+      <section data-reveal className="flex flex-col gap-1 rounded-[18px] bg-white p-5 sm:p-6">
         <p className="text-xs font-semibold text-muted">{t.account}</p>
         <p className="text-lg font-semibold">{account.name ?? account.email}</p>
         <p className="text-sm text-muted">{account.email}</p>
       </section>
 
-      <section className="flex flex-col gap-3 rounded-[18px] bg-white p-5 sm:p-6">
+      <section data-reveal className="flex flex-col gap-3 rounded-[18px] bg-white p-5 sm:p-6">
         <p className="text-xs font-semibold text-muted">{t.academicTitle}</p>
         <p className="text-lg font-semibold">
           {levelTitle}
@@ -94,7 +94,7 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
         </Link>
       </section>
 
-      <details className="group rounded-[18px] bg-white p-5 sm:p-6">
+      <details data-reveal className="group rounded-[18px] bg-white p-5 sm:p-6">
         <summary className="cursor-pointer list-none text-lg font-semibold marker:hidden">
           {t.changeLevel} <span className="text-muted group-open:hidden">+</span>
         </summary>

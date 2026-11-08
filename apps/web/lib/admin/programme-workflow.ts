@@ -6,7 +6,7 @@
 export type ProgrammeStatus = 'draft' | 'in_review' | 'returned' | 'published' | 'archived';
 export type ChangeStatus = 'draft' | 'in_review' | 'returned';
 
-export type WorkflowAction = 'edit' | 'submit' | 'withdraw' | 'approve' | 'return' | 'discard' | 'archive' | 'reopen' | 'delete';
+export type WorkflowAction = 'edit' | 'submit' | 'withdraw' | 'approve' | 'return' | 'discard' | 'archive' | 'reopen' | 'delete' | 'unpublish';
 
 export type WorkflowMessage =
   | 'draftMine'
@@ -67,7 +67,8 @@ export function programmeWorkflow(p: ProgrammeState, me: string, superAdmin = fa
             ? { track: 'change', step: 1, message: 'changeReviewMine', actions: ['withdraw'], canEdit: false }
             : { track: 'change', step: 1, message: 'changeReviewOther', actions: ['approve', 'return'], canEdit: false };
         default:
-          return { track: 'none', step: 2, message: 'published', actions: ['edit', 'archive'], canEdit: true };
+          // A super admin may also take it back to a draft to rework it.
+          return { track: 'none', step: 2, message: 'published', actions: superAdmin ? ['edit', 'unpublish', 'archive'] : ['edit', 'archive'], canEdit: true };
       }
   }
 }

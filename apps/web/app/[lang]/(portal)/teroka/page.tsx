@@ -84,7 +84,7 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
   const statusFor = (programId: string): RequirementStatus => {
     const req = requirements.find((r) => r.programId === programId);
     if (!req) return 'missing';
-    return req.rules.some((r) => r.evidenceQuote?.startsWith('[Contoh]')) ? 'sample' : 'published';
+    return req.rules.some((r) => r.officialText?.startsWith('[Contoh]')) ? 'sample' : 'published';
   };
   const hasSample = page.items.some((p) => statusFor(p.id) === 'sample');
   const pages = Math.max(1, Math.ceil(page.total / page.pageSize));
@@ -96,7 +96,8 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
         {format(t.resultCount, { count: page.total })}
         {hasSample && ` • ${t.sampleNote}`}
       </p>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {/* Cards come in one after another as the list scrolls into view. */}
+      <div data-reveal-stagger className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {page.items.map((p) => {
           const fields = p.fieldIds.map((id) => fieldsById.get(id)).filter((f) => f !== undefined);
           return (

@@ -1,0 +1,1 @@
+ALTER TABLE "catalogue"."institution" ADD COLUMN "epanduan_code" text;

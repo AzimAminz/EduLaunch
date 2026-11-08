@@ -102,22 +102,24 @@ Each module owns its tables. Other modules read through its API, never by writin
 ### 3.3 Programme Catalogue
 - **Purpose:** the trusted list of institutions and programmes.
 - **Functions:** search by university and field (combobox), filter by study level, view programme details, compare programmes, save programmes.
-- **Owns:** `INSTITUTION`, `PROGRAM`, `FIELD`, `PROGRAM_FIELD`, `SAVED_PROGRAM`, `PROGRAM_PATHWAY`.
+- **Owns:** `INSTITUTION`, `INSTITUTION_SOURCE`, `PROGRAM`, `PROGRAM_ENTRY_ROUTE`, `NEC_FIELD`, `FIELD`, `PROGRAM_FIELD`, `SAVED_PROGRAM`, `PROGRAM_PATHWAY`.
+- **Data for recommendations:** every programme keeps the facts a recommendation is built on, as official sources publish them: study level, duration, NEC field (mapped to an EduLaunch field), mode, **campuses** (a list, as ePanduan names them), **careers** (a list, for matching career interests), fees and note (as stated), STEM / TVET / Bumiputera / interview / joint-degree / feeder flags, the **entry routes it takes candidates from** (`PROGRAM_ENTRY_ROUTE`, one row per route and ePanduan category, indexed by route) and the newest **average merit** (`ADMISSION_STAT`). Admins enter these the same way whichever route the data takes: imported from ePanduan in bulk, typed with a programme code and filled from ePanduan (which also keeps the entry routes, merit and Syarat Khas), or typed in full for a programme ePanduan does not list. The public programme summary (`ProgramSummary`) carries `entryRoutes` and `averageMerit`, so the recommendation service can first keep programmes the student's route can enter, then rank them, before any requirement rule is written.
 - **Coverage:** the catalogue includes certificate (Sijil) and skills (SKM) programmes, for example at community colleges and skills institutes, not only diplomas and degrees. Without them the system has nothing to offer students with weaker results.
 - **Pathways:** `PROGRAM_PATHWAY` records stepping stones, for example "Certificate X leads to Diploma Y if CGPA ≥ 2.50", entered by admins from official sources.
 
 ### 3.4 Eligibility & Prediction
 - **Purpose:** answer "Do I qualify?" and "How likely is an offer?".
 - **Functions:** check entry requirements; calculate merit; list what is missing; estimate offer chance; label results as target or actual.
-- **Owns:** `REQUIREMENT`, `REQUIREMENT_RULE`, `MERIT_FORMULA`, `ADMISSION_STAT`.
-- **Eligibility engine:** each rule is checked in code (minimum grade in a subject, number of credits, CGPA, MUET band, stream, related diploma field). The output is *Eligible*, *Almost eligible* (at most one rule missed), or *Not yet eligible*, with the rule that failed.
+- **Owns:** `ENTRY_REQUIREMENT`, `REQUIREMENT_CONDITION`, `CONDITION_SUBJECT`, `ADMISSION_STAT`. Merit formulas are fixed by UPU and kept in code.
+- **Requirement model v2 (shaped like JPT ePanduan, 27 Oct 2026):** a requirement version holds one route's lines in two parts, **Syarat Am** (`part = general`, the university's general requirements for that route) and **Syarat Khas** (`part = special`, the programme's own). Each line (`REQUIREMENT_CONDITION`) keeps the official sentence (`official_text`), its heading (`section`: SPM, STPM, MUET, Matrikulasi / Asasi, Diploma) and its order (`position`). Lines in the same `or_group` are alternatives (ATAU); groups must all pass (DAN). Line kinds (`condition_type`): `min_grade` (one subject), `subjects_from_list` (grade in N subjects from a list, `min_count`); the subjects a line names are rows of `CONDITION_SUBJECT`, `min_credits` (credits in any subjects), `min_cgpa`, `min_muet`, `declaration` (something the student confirms or the university checks: interview, citizenship, health) and `note` (context, never checked). A requirement belongs to one route **and one ePanduan candidate category** (`source_category`), because ePanduan lists requirements per category (STPM Sains and STPM Sastera can differ); categories with the same text share one requirement. The eligibility check takes every requirement of the student's route and keeps the category the student does best in. Admins fill a draft from the fetched ePanduan text in one press, then add, edit, move and delete lines; another admin approves.
+- **Eligibility engine:** each checkable line is checked in code (minimum grade in a subject, N subjects from a list, number of credits, CGPA, MUET band). Declarations do not decide eligibility; they are returned as **"to confirm yourself"** and shown to the student. Notes are skipped. The output is *Eligible*, *Almost eligible* (at most one rule missed), or *Not yet eligible*, with the rule that failed.
 - **What-if simulation:** re-runs the same rules with one grade raised by one step, to show which subject opens the most programmes ("If Mathematics goes from D to C, 14 more programmes open"). No AI, no cost.
 - **Alternative pathways:** when a student has fewer than five eligible programmes at the level they aim for, the system switches to alternative-pathway mode (see `ai-and-cost-plan.md` §3). The student never sees an empty result.
 
 ### 3.5 Self Discovery
 - **Purpose:** help students who do not know their interests yet.
 - **Functions:** take the interest test (RIASEC); try short field activities; rate and reflect on each activity. The results feed the Form 4 stream suggestion (section 3.7) and programme recommendations (section 3.6).
-- **Owns:** `ASSESSMENT` (answers kept as one JSON field), `ACTIVITY`, `ACTIVITY_ATTEMPT`. Questions live in a versioned instrument file, not a table.
+- **Owns:** `QUESTION` (each statement of the interest test, its RIASEC type and test version), `ASSESSMENT` (one row per student and question: the answer, 1 to 5), `ACTIVITY`, `ACTIVITY_ATTEMPT`. The worked-out RIASEC result is kept on `STUDENT` (`riasec_scores`, `interest_test_at`), so recommendations read it without adding up answers again.
 
 ### 3.6 Recommendation & AI Assistant
 - **Purpose:** turn the profile into a short, explained list of programmes, and answer questions with sources.
@@ -128,7 +130,7 @@ Each module owns its tables. Other modules read through its API, never by writin
 ### 3.7 Study & Career Planning
 - **Purpose:** show the path from today to a career, starting from the student's own level.
 - **Functions:** build a roadmap for each education level; compare pathway branches; show the careers each field leads to; track next actions; keep versions.
-- **Owns:** `ROADMAP`, `ROADMAP_STEP`, `CAREER`. Form 4 streams are stored as `PROGRAM` rows with `study_level = form4_stream`, so they reuse `PROGRAM_FIELD`, `PROGRAM_PATHWAY` and `REQUIREMENT_RULE` instead of having their own tables.
+- **Owns:** `ROADMAP_STEP` (one row per step of a student's plan, in order), `CAREER`. Form 4 streams are stored as `PROGRAM` rows with `study_level = form4_stream`, so they reuse `PROGRAM_FIELD`, `PROGRAM_PATHWAY` and `REQUIREMENT_CONDITION` instead of having their own tables.
 - **Roadmap by level:**
 
 | Level | The roadmap starts with | Steps |
@@ -140,7 +142,7 @@ Each module owns its tables. Other modules read through its API, never by writin
 
 - **Form 4 stream suggestion** (no AI):
   - `stream_score = 50 × interest_fit + 40 × subject_strength + 10 × activity_signal`.
-  - `interest_fit` compares RIASEC scores with the weights of the stream's fields (`PROGRAM_FIELD` → `FIELD.riasec_weights`). `subject_strength` uses school grades in the stream's key subjects (`REQUIREMENT_RULE` with `rule_type = key_subject`), for example Science and Mathematics for Pure Science. `activity_signal` comes from ratings of field activities.
+  - `interest_fit` compares RIASEC scores with the weights of the stream's fields (`PROGRAM_FIELD` → `FIELD.riasec_weights`). `subject_strength` uses school grades in the stream's key subjects (`REQUIREMENT_CONDITION` with `condition_type = key_subject`), for example Science and Mathematics for Pure Science. `activity_signal` comes from ratings of field activities.
   - Each stream shows two template reasons and the fields it opens (`PROGRAM_FIELD`). A "what if I choose another stream?" view shows which fields become harder to reach.
   - Labelled as guidance only. The school makes the final decision, and school grades are never converted into SPM grades.
 - **Careers for diploma graduates:**
@@ -157,7 +159,7 @@ Each module owns its tables. Other modules read through its API, never by writin
 ### 3.8 Content Pipeline
 - **Purpose:** keep programme data fresh and correct.
 - **Functions:** register official sources; crawl on a schedule (first source: the JPT ePanduan site); detect changes; extract requirements with AI into a draft; fill career and pathway data gaps from whitelisted Malaysian sources (MASCO, MyCOL, MQA, professional bodies, JPT); prepare text chunks for search and Q&A.
-- **Owns:** `DATA_SOURCE`. Search chunks and embeddings (`CONTENT_CHUNK`) are a technical table, left out of the documentation ERD.
+- **Owns:** `IMPORT_RUN` (one read of an institution's programmes), `IMPORT_PROGRAM` (what a run found, cleaned plain values, per programme code) and `IMPORT_REQUIREMENT` (Syarat Khas per programme code and category, read for accepted programmes). They are staging and evidence: the catalogue changes only when an admin accepts. Links to `PROGRAM` are by programme code, without a foreign key across services. Search chunks and embeddings (`CONTENT_CHUNK`) are a technical table, left out of the documentation ERD.
 - **Rule:** the pipeline only creates **drafts**. An admin approves before anything reaches students.
 
 ### 3.9 Notifications & Support

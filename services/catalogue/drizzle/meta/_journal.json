@@ -43,6 +43,55 @@
       "when": 1793037811145,
       "tag": "0005_programme_pending_changes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793073703494,
+      "tag": "0006_institution_epanduan_code",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793089183999,
+      "tag": "0007_program_entry_route",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793090285020,
+      "tag": "0008_requirement_model_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793107112668,
+      "tag": "0009_programme_facts_v2",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793107122527,
+      "tag": "0010_drop_single_campus",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794063262891,
+      "tag": "0011_clear_names_and_condition_subject",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794063704652,
+      "tag": "0012_drop_unused_source_id",
+      "breakpoints": true
     }
   ]
 }

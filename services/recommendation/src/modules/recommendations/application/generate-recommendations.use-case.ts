@@ -4,7 +4,7 @@ import { EventBus } from '@edulaunch/nest-kit';
 import type { StudentSnapshot, StudyLevel } from '@edulaunch/contracts';
 import { EligibilityEngine } from '../../eligibility/domain/eligibility-engine.js';
 import { Grade } from '../../eligibility/domain/grade.js';
-import { pickRequirement } from '../../eligibility/domain/entry-route.js';
+import { bestOf, requirementsFor } from '../../eligibility/domain/entry-route.js';
 import { MatchScorer, OfferChanceEstimator, interestFit } from '../domain/scoring.js';
 import { RecommendationList } from '../domain/recommendation-list.js';
 import { CatalogueGateway, ProfileGateway, RecommendationStore } from './ports.js';
@@ -44,9 +44,9 @@ export class GenerateRecommendations implements UseCase<{ studentId: string }, R
 
     const candidates = programmes.flatMap((programme) => {
       // The requirement for the student's entry route (after SPM, after STPM, after diploma…).
-      const requirement = pickRequirement(requirements.filter((r) => r.programId === programme.id), snapshot);
-      if (!requirement) return []; // no verified requirement yet: never guess eligibility
-      const result = this.engine.check(requirement, ctx);
+      const best = bestOf(requirementsFor(requirements.filter((r) => r.programId === programme.id), snapshot), (r) => this.engine.check(r, ctx));
+      if (!best) return []; // no verified requirement yet: never guess eligibility
+      const { requirement, result } = best;
       const fits = programme.fieldIds.map((f) => interestFit(snapshot.riasec, fieldWeights.get(f) ?? null));
       const fit = fits.length ? Math.max(...fits) : interestFit(snapshot.riasec, null);
       const ruleSubjects = new Set(requirement.rules.map((r) => r.subjectId).filter(Boolean));

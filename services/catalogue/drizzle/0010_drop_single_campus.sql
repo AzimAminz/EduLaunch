@@ -1,0 +1,1 @@
+ALTER TABLE "catalogue"."program" DROP COLUMN "campus";

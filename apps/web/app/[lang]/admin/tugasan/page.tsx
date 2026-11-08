@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
+import { BulkTasks } from '@/components/admin/bulk-tasks';
 import { TaskList } from '@/components/admin/task-list';
 import type { AdminIconName } from '@/components/admin/icons';
 import { AdminHeading, AdminTabs, LoadError, Pagination } from '@/components/admin/ui';
@@ -8,10 +9,11 @@ import { pageOf, readListParams } from '@/lib/admin/list-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
-const TABS = ['toReview', 'returned', 'myDrafts', 'waiting'] as const;
+const TABS = ['toReview', 'returned', 'myDrafts', 'othersDrafts', 'waiting'] as const;
 type Tab = (typeof TABS)[number];
-const TAB_ICON: Record<Tab, AdminIconName> = { toReview: 'eye', returned: 'undo', myDrafts: 'draft', waiting: 'clock' };
+const TAB_ICON: Record<Tab, AdminIconName> = { toReview: 'eye', returned: 'undo', myDrafts: 'draft', othersDrafts: 'draft', waiting: 'clock' };
 const PAGE_SIZE = 20;
 
 /** Task inbox (Figma A1): tabs For me / Returned / My drafts / Waiting for others. */
@@ -22,7 +24,7 @@ export default async function TasksPage({ params, searchParams }: PageProps<'/[l
   return (
     <>
       <AdminHeading title={dict.admin.tasks.title} intro={dict.admin.tasks.intro} />
-      <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+      <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
         <Inbox locale={lang} dict={dict} searchParams={searchParams} />
       </Suspense>
     </>
@@ -30,7 +32,7 @@ export default async function TasksPage({ params, searchParams }: PageProps<'/[l
 }
 
 async function Inbox({ locale, dict, searchParams }: { locale: Locale; dict: Dictionary; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  await requireRole(locale, 'admin');
+  const account = await requireRole(locale, 'admin');
   const t = dict.admin.tasks;
   const sp = await searchParams;
   const tab: Tab = TABS.find((x) => x === sp.tab) ?? 'toReview';
@@ -42,13 +44,34 @@ async function Inbox({ locale, dict, searchParams }: { locale: Locale; dict: Dic
     return <LoadError text={dict.admin.errors.generic} />;
   }
   const shown = pageOf(tasks[tab], page, PAGE_SIZE);
+  // Other admins' drafts: a super admin publishes them in one go (sent and approved); anyone else sends them on.
+  const bulk = tab === 'toReview' ? 'approve' : tab === 'othersDrafts' ? (account.superAdmin ? 'approve' : 'submit') : tab === 'myDrafts' || tab === 'returned' ? 'submit' : null;
+  const list = (
+    <TaskList
+      tasks={shown.items}
+      locale={locale}
+      dict={dict}
+      now={new Date().getTime()}
+      empty={t.empty[tab]}
+      selectable={!!bulk}
+      from={`/${locale}/admin/tugasan?tab=${tab}${shown.page > 1 ? `&halaman=${shown.page}` : ''}`}
+      offset={(shown.page - 1) * PAGE_SIZE}
+    />
+  );
   return (
     <>
       <AdminTabs
         label={t.title}
         items={TABS.map((key) => ({ href: `/${locale}/admin/tugasan?tab=${key}`, label: t.tabs[key], icon: TAB_ICON[key], current: key === tab, count: tasks[key].length }))}
       />
-      <TaskList tasks={shown.items} locale={locale} dict={dict} now={new Date().getTime()} action={tab === 'toReview' ? t.review : t.open} empty={t.empty[tab]} />
+      {bulk ? (
+        // Send many drafts, or approve many items, at once; each still follows the one-at-a-time rules.
+        <BulkTasks locale={locale} action={bulk} total={shown.items.filter((x) => x.kind !== 'institution').length} t={t.bulk} errors={dict.admin.errors}>
+          {list}
+        </BulkTasks>
+      ) : (
+        list
+      )}
       <Pagination
         page={shown.page}
         pageSize={PAGE_SIZE}

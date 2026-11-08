@@ -1,6 +1,6 @@
 import { isValidGrade } from '@edulaunch/contracts';
 import { Program } from '../modules/programmes/domain/program.js';
-import { Requirement } from '../modules/requirements/domain/requirement.js';
+import { LINE_DEFAULTS, Requirement } from '../modules/requirements/domain/requirement.js';
 import { sampleCatalogue as data } from './sample-catalogue.js';
 import { seedId } from './seed-id.js';
 
@@ -82,16 +82,18 @@ describe('sample catalogue', () => {
           programId: seedId(`programme:${r.programmeKey}`),
           entryRoute: r.entryRoute,
           versionNo: 1,
-          sourceId: null,
+         
           preparedBy: seedId('admin:a'),
           rules: r.rules.map((rule, i) => ({
             id: seedId(`rule:${r.programmeKey}:${r.entryRoute}:${i}`),
-            groupNo: rule.groupNo,
-            ruleType: rule.ruleType,
+            orGroup: rule.orGroup,
+            conditionType: rule.conditionType,
             subjectId: rule.subjectKey ? seedId(`subject:${rule.subjectKey}`) : null,
             minGrade: rule.minGrade ?? null,
             minValue: rule.minValue ?? null,
-            evidenceQuote: rule.evidenceQuote,
+            officialText: rule.officialText,
+            ...LINE_DEFAULTS,
+            subjectIds: [],
           })),
         }),
       ).not.toThrow();
@@ -115,15 +117,15 @@ describe('sample catalogue', () => {
   it('only uses CGPA and MUET rules for degrees, with realistic values', () => {
     for (const r of data.requirements) {
       for (const rule of r.rules) {
-        if (rule.ruleType === 'min_cgpa') {
+        if (rule.conditionType === 'min_cgpa') {
           expect(rule.minValue).toBeGreaterThanOrEqual(2);
           expect(rule.minValue).toBeLessThanOrEqual(4);
         }
-        if (rule.ruleType === 'min_muet') {
+        if (rule.conditionType === 'min_muet') {
           expect(rule.minValue).toBeGreaterThanOrEqual(1);
           expect(rule.minValue).toBeLessThanOrEqual(5.5);
         }
-        if (rule.ruleType === 'min_cgpa' || rule.ruleType === 'min_muet') expect(programmeByKey.get(r.programmeKey)!.studyLevel).toBe('degree');
+        if (rule.conditionType === 'min_cgpa' || rule.conditionType === 'min_muet') expect(programmeByKey.get(r.programmeKey)!.studyLevel).toBe('degree');
       }
     }
   });

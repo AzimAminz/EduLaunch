@@ -1,6 +1,10 @@
 import type { RequirementRuleDto, StudentSnapshot } from '@edulaunch/contracts';
 import { Grade } from './grade.js';
 
+/** Declarations (the student or the university confirms) and notes are read, not checked against results. */
+export type CheckedRuleType = Exclude<RequirementRuleDto['conditionType'], 'declaration' | 'note'>;
+export const isChecked = (type: RequirementRuleDto['conditionType']): type is CheckedRuleType => type !== 'declaration' && type !== 'note';
+
 export interface RuleContext {
   snapshot: StudentSnapshot;
   subjectNames: ReadonlyMap<string, string>;
@@ -11,11 +15,14 @@ export interface RuleContext {
  * ("Mathematics: B needed, you have C+"). `actual` is null when the student has not entered it.
  */
 export interface RuleDetail {
-  type: RequirementRuleDto['ruleType'];
+  type: RequirementRuleDto['conditionType'];
   subjectId: string | null;
   required: string | number | null;
   actual: string | number | null;
   passed: boolean;
+  /** subjects_from_list: the grade each listed subject must reach, and the subjects to choose from. */
+  minGrade?: string | null;
+  subjectIds?: string[];
 }
 
 export interface RuleOutcome {
@@ -38,7 +45,7 @@ export abstract class EligibilityRule {
   }
 
   protected detail(required: string | number | null, actual: string | number | null, passed: boolean): RuleDetail {
-    return { type: this.dto.ruleType, subjectId: this.dto.subjectId, required, actual, passed };
+    return { type: this.dto.conditionType, subjectId: this.dto.subjectId, required, actual, passed };
   }
 }
 
@@ -100,17 +107,37 @@ export class MinMuetRule extends MinNumberRule {
   }
 }
 
+/** For example "Gred C dalam TIGA (3) mata pelajaran: Physics, Chemistry, Biology, Mathematics". */
+export class SubjectsFromListRule extends EligibilityRule {
+  evaluate(ctx: RuleContext): RuleOutcome {
+    const needed = this.dto.minCount ?? 1;
+    const listed = new Set(this.dto.subjectIds);
+    const count = ctx.snapshot.grades.filter((g) => {
+      if (!listed.has(g.subjectId)) return false;
+      // Each subject keeps its own exam's scale (SPM, STPM…).
+      const scale = g.scale ?? ctx.snapshot.gradeScale;
+      return Grade.of(scale, g.grade).meets(Grade.of(scale, this.dto.minGrade ?? 'C'));
+    }).length;
+    const detail = { ...this.detail(needed, count, count >= needed), minGrade: this.dto.minGrade, subjectIds: [...this.dto.subjectIds] };
+    return count >= needed
+      ? { passed: true, gap: 0, reason: `${count} of the listed subjects at ${this.dto.minGrade} — minimum ${needed}`, detail }
+      : { passed: false, gap: needed - count, reason: `Needs ${this.dto.minGrade} in ${needed} of the listed subjects (you have ${count})`, detail };
+  }
+}
+
 /** Factory: maps the stored rule type to its class (open for new rule types). */
 export class RuleFactory {
-  private static readonly registry: Record<RequirementRuleDto['ruleType'], new (dto: RequirementRuleDto) => EligibilityRule> = {
+  private static readonly registry: Record<CheckedRuleType, new (dto: RequirementRuleDto) => EligibilityRule> = {
     min_grade: MinGradeRule,
     key_subject: MinGradeRule,
     min_credits: MinCreditsRule,
     min_cgpa: MinCgpaRule,
     min_muet: MinMuetRule,
+    subjects_from_list: SubjectsFromListRule,
   };
 
   static create(dto: RequirementRuleDto): EligibilityRule {
-    return new RuleFactory.registry[dto.ruleType](dto);
+    if (!isChecked(dto.conditionType)) throw new Error(`${dto.conditionType} lines are not checked`);
+    return new RuleFactory.registry[dto.conditionType](dto);
   }
 }

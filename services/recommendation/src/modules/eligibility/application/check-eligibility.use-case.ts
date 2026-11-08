@@ -3,7 +3,7 @@ import type { UseCase } from '@edulaunch/ddd';
 import type { Caller } from '@edulaunch/nest-kit';
 import { CatalogueGateway, ProfileGateway } from '../../recommendations/application/ports.js';
 import { EligibilityEngine, type Eligibility, type GroupResult } from '../domain/eligibility-engine.js';
-import { pickRequirement } from '../domain/entry-route.js';
+import { bestOf, requirementsFor } from '../domain/entry-route.js';
 
 /**
  * "Can I enter this programme?" for the signed-in student.
@@ -16,7 +16,7 @@ export type EligibilityAnswer =
   | { state: 'no_requirement' }
   | { state: 'no_route'; routes: string[] }
   | { state: 'no_results'; entryRoute: string }
-  | { state: 'checked'; entryRoute: string; status: Eligibility; isTargetBased: boolean; groups: GroupResult[] };
+  | { state: 'checked'; entryRoute: string; status: Eligibility; isTargetBased: boolean; groups: GroupResult[]; toConfirm: string[] };
 
 @Injectable()
 export class CheckEligibility implements UseCase<{ caller: Caller; programId: string }, EligibilityAnswer> {
@@ -32,18 +32,20 @@ export class CheckEligibility implements UseCase<{ caller: Caller; programId: st
     const [snapshot, requirements, subjectNames] = await Promise.all([this.profile.snapshot(studentId), this.catalogue.publishedRequirements([programId]), this.catalogue.subjectNames()]);
     if (requirements.length === 0) return { state: 'no_requirement' };
 
-    const requirement = pickRequirement(requirements, snapshot);
-    if (!requirement) return { state: 'no_route', routes: requirements.map((r) => r.entryRoute) };
+    const forRoute = requirementsFor(requirements, snapshot);
+    if (forRoute.length === 0) return { state: 'no_route', routes: [...new Set(requirements.map((r) => r.entryRoute))] };
 
     // Grade rules need grades; CGPA and MUET rules need those numbers.
-    const needsGrades = requirement.rules.some((r) => r.ruleType === 'min_grade' || r.ruleType === 'key_subject' || r.ruleType === 'min_credits');
-    const needsNumbers = requirement.rules.some((r) => r.ruleType === 'min_cgpa');
+    const rules = forRoute.flatMap((r) => r.rules);
+    const needsGrades = rules.some((r) => r.conditionType === 'min_grade' || r.conditionType === 'key_subject' || r.conditionType === 'min_credits' || r.conditionType === 'subjects_from_list');
+    const needsNumbers = rules.some((r) => r.conditionType === 'min_cgpa');
     if ((needsGrades && snapshot.grades.length === 0) || (needsNumbers && snapshot.cgpa === null)) {
-      return { state: 'no_results', entryRoute: requirement.entryRoute };
+      return { state: 'no_results', entryRoute: forRoute[0]!.entryRoute };
     }
 
-    const result = this.engine.check(requirement, { snapshot, subjectNames });
-    return { state: 'checked', entryRoute: requirement.entryRoute, status: result.status, isTargetBased: snapshot.isTargetBased, groups: result.groups };
+    // One requirement per candidate category of the route: the student is shown the one they come closest to.
+    const { requirement, result } = bestOf(forRoute, (r) => this.engine.check(r, { snapshot, subjectNames }))!;
+    return { state: 'checked', entryRoute: requirement.entryRoute, status: result.status, isTargetBased: snapshot.isTargetBased, groups: result.groups, toConfirm: result.toConfirm };
   }
 }
 

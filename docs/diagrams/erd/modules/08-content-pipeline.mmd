@@ -1,15 +1,36 @@
 erDiagram
-    DATA_SOURCE {
-        ​PK source_id
-        ​FK institution_id
-        ​ source_url
-        ​ source_type
-        ​ content_checksum
-        ​ last_checked_at
-        ​ crawl_status
+    IMPORT_RUN {
+        ​PK run_id
+        ​FK requested_by
+        ​ institution_code
+        ​ status
+        ​ current_category
+        ​ pages_read
+        ​ found
+        ​ error
+        ​ started_at
     }
-    INSTITUTION {
-        ​PK institution_id
+    IMPORT_PROGRAM {
+        ​PK,FK run_id
+        ​PK code
+        ​ data
+    }
+    IMPORT_REQUIREMENT {
+        ​PK code
+        ​PK category
+        ​ jenprog
+        ​ status
+        ​ special_text
+        ​ read_at
+    }
+    ACCOUNT {
+        ​PK account_id
+    }
+    PROGRAM {
+        ​PK program_id
     }
 
-    INSTITUTION ||--o{ DATA_SOURCE : "publishes"
+    ACCOUNT |o..o{ IMPORT_RUN : "starts"
+    IMPORT_RUN ||--o{ IMPORT_PROGRAM : "finds"
+    PROGRAM |o..o{ IMPORT_PROGRAM : "matched by code"
+    PROGRAM |o..o{ IMPORT_REQUIREMENT : "matched by code"

@@ -1,45 +1,45 @@
 erDiagram
-    REQUIREMENT {
+    ENTRY_REQUIREMENT {
         ​PK requirement_id
         ​FK program_id
-        ​FK source_id
+        ​FK prepared_by
         ​FK approved_by
         ​ entry_route
+        ​ source_category
+        ​ source_url
         ​ version_no
         ​ review_status
-        ​ effective_from
     }
-    REQUIREMENT_RULE {
-        ​PK rule_id
+    REQUIREMENT_CONDITION {
+        ​PK condition_id
         ​FK requirement_id
-        ​FK subject_id
-        ​FK related_field_id
-        ​ rule_type
+        ​FK field_id
+        ​ part
+        ​ section
+        ​ position
+        ​ or_group
+        ​ condition_type
         ​ min_grade
         ​ min_value
-        ​ evidence_quote
+        ​ min_count
+        ​ official_text
     }
-    MERIT_FORMULA {
-        ​PK formula_id
-        ​FK approved_by
-        ​ entry_route
-        ​ academic_weight
-        ​ cocurricular_weight
-        ​ version_no
-        ​ review_status
+    CONDITION_SUBJECT {
+        ​PK,FK condition_id
+        ​PK,FK subject_id
+        ​ position
     }
     ADMISSION_STAT {
         ​PK stat_id
         ​FK program_id
-        ​FK source_id
         ​ intake_year
         ​ lowest_merit
         ​ average_merit
         ​ applicants
         ​ places
     }
-    DATA_SOURCE {
-        ​PK source_id
+    ACCOUNT {
+        ​PK account_id
     }
     FIELD {
         ​PK field_id
@@ -50,16 +50,11 @@ erDiagram
     SUBJECT {
         ​PK subject_id
     }
-    USER {
-        ​PK user_id
-    }
 
-    PROGRAM ||--o{ REQUIREMENT : "has"
-    REQUIREMENT ||--|{ REQUIREMENT_RULE : "consists of"
-    SUBJECT |o..o{ REQUIREMENT_RULE : "required subject"
-    FIELD |o..o{ REQUIREMENT_RULE : "related field"
-    DATA_SOURCE |o..o{ REQUIREMENT : "evidence for"
-    USER |o..o{ REQUIREMENT : "approves"
-    USER |o..o{ MERIT_FORMULA : "approves"
     PROGRAM ||--o{ ADMISSION_STAT : "has history"
-    DATA_SOURCE |o..o{ ADMISSION_STAT : "source of"
+    PROGRAM ||--o{ ENTRY_REQUIREMENT : "has"
+    ENTRY_REQUIREMENT ||--|{ REQUIREMENT_CONDITION : "consists of"
+    REQUIREMENT_CONDITION ||--o{ CONDITION_SUBJECT : "names"
+    SUBJECT ||--o{ CONDITION_SUBJECT : "required in"
+    FIELD |o..o{ REQUIREMENT_CONDITION : "related field"
+    ACCOUNT |o..o{ ENTRY_REQUIREMENT : "approves"

@@ -66,7 +66,7 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
   );
 
   return (
-    <section className="flex flex-col gap-3 rounded-[18px] border border-red/40 bg-white p-5 lg:p-6">
+    <section className="flex flex-col gap-3 rounded-[8px] border border-red/40 bg-white p-5 lg:p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-lg font-semibold text-[#b33a35]">
           <AdminIcon name="alert" size={20} />
@@ -77,7 +77,7 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
 
       {requester ? (
         // A delete is waiting: the requester may cancel; another admin may approve or cancel.
-        <div className="flex flex-col gap-3 rounded-[12px] bg-red/10 p-4">
+        <div className="flex flex-col gap-3 rounded-[8px] bg-red/10 p-4">
           <p className="text-sm">{requester === me ? d.requestedByYou : d.requestedByOther}</p>
           {mayApprove && impactList}
           <FormAlert>{error}</FormAlert>
@@ -123,7 +123,7 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
           e.preventDefault();
           setOpen(false);
         }}
-        className="m-auto w-[min(520px,calc(100%-32px))] rounded-[18px] bg-white p-0 text-navy shadow-xl backdrop:bg-navy/40 open:animate-alert-in"
+        className="m-auto w-[min(520px,calc(100%-32px))] rounded-[8px] bg-white p-0 text-navy shadow-xl backdrop:bg-navy/40 open:animate-alert-in"
       >
         {open && (
           <form onSubmit={onSubmit} className="flex flex-col gap-4 p-6">
@@ -136,7 +136,7 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
                 {format(d.modalTitle, { name: institution.name })}
               </h2>
             </div>
-            <div className="flex flex-col gap-2 rounded-[12px] border border-red/40 bg-red/10 p-4">
+            <div className="flex flex-col gap-2 rounded-[8px] border border-red/40 bg-red/10 p-4">
               <p className="text-sm font-semibold">{d.willRemove}</p>
               {impactList}
               <p className="text-[13px]">{needsApproval ? format(d.needsApproval, { count: impact.published }) : d.irreversible}</p>
@@ -149,7 +149,7 @@ export function InstitutionDangerZone({ locale, institution, confirmationText, m
                 onChange={(e) => setTyped(e.target.value)}
                 autoComplete="off"
                 autoFocus
-                className="rounded-[10px] border border-[#9aa3b2] px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
+                className="rounded-[8px] border border-[#9aa3b2] px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
               />
             </label>
             <FormAlert>{error}</FormAlert>

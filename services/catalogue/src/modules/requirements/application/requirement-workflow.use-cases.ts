@@ -9,7 +9,8 @@ import { RequirementRepository } from '../domain/requirement.repository.js';
 export interface DraftInput {
   programId: string;
   entryRoute: string;
-  sourceId: string | null;
+  /** The official candidate category the requirement is for (ePanduan, e.g. "stpm:S"); null when there is none. */
+  sourceCategory?: string | null;
   sourceUrl?: string | null;
   rules: Omit<RequirementRule, 'id'>[];
   adminId: string;
@@ -17,21 +18,24 @@ export interface DraftInput {
 
 /** Grade rules must name a known subject and a grade from that subject's scale (SPM A+–G, STPM A–F…). */
 async function checkGrades(requirements: RequirementRepository, rules: Omit<RequirementRule, 'id'>[]) {
-  const ids = [...new Set(rules.map((r) => r.subjectId).filter((id): id is string => !!id))];
+  const ids = [...new Set(rules.flatMap((r) => [r.subjectId, ...(r.subjectIds ?? [])]).filter((id): id is string => !!id))];
   const known = await requirements.subjectQualifications(ids);
   for (const rule of rules) {
-    if (!rule.subjectId) continue;
-    const qualification = known.get(rule.subjectId) as RecordQualification | undefined;
-    if (!qualification) throw new DomainError('invalid_rule', 'Choose subjects from the list');
-    if (rule.minGrade && hasSubjectGrades(qualification) && !isValidGrade(qualification, rule.minGrade)) {
-      throw new DomainError('invalid_rule', `${rule.minGrade} is not a grade for this subject`);
+    for (const subjectId of [rule.subjectId, ...(rule.subjectIds ?? [])]) {
+      if (!subjectId) continue;
+      const qualification = known.get(subjectId) as RecordQualification | undefined;
+      if (!qualification) throw new DomainError('invalid_rule', 'Choose subjects from the list');
+      if (rule.minGrade && hasSubjectGrades(qualification) && !isValidGrade(qualification, rule.minGrade)) {
+        throw new DomainError('invalid_rule', `${rule.minGrade} is not a grade for this subject`);
+      }
     }
   }
 }
 
 /**
- * Starts a draft for a programme and route. When a version is already published, the draft starts from
- * its rules (the admin changes what changed). Only one open draft per programme and route at a time.
+ * Starts a draft for a programme, route and candidate category (STPM Sains and STPM Sastera can differ). When a
+ * version is already published, the draft starts from its rules (the admin changes what changed). Only one open
+ * draft per programme, route and category at a time.
  */
 @Injectable()
 export class CreateRequirementDraft implements UseCase<DraftInput, { id: string; versionNo: number }> {
@@ -39,20 +43,21 @@ export class CreateRequirementDraft implements UseCase<DraftInput, { id: string;
 
   async execute(input: DraftInput) {
     if (!(await this.requirements.programExists(input.programId))) throw new NotFoundError('Programme', input.programId);
-    const open = await this.requirements.findOpen(input.programId, input.entryRoute);
+    const category = input.sourceCategory ?? null;
+    const open = await this.requirements.findOpen(input.programId, input.entryRoute, category);
     if (open) throw new DomainError('draft_exists', `A draft for this route already exists (${open.id})`);
     await checkGrades(this.requirements, input.rules);
 
-    const versionNo = await this.requirements.nextVersionNo(input.programId, input.entryRoute);
-    const published = input.rules.length === 0 ? await this.requirements.findLatestPublished(input.programId, input.entryRoute) : null;
+    const versionNo = await this.requirements.nextVersionNo(input.programId, input.entryRoute, category);
+    const published = input.rules.length === 0 ? await this.requirements.findLatestPublished(input.programId, input.entryRoute, category) : null;
     const req = published
       ? Requirement.nextVersion(randomUUID(), published, versionNo, input.adminId, randomUUID)
       : Requirement.draft(randomUUID(), {
           programId: input.programId,
           entryRoute: input.entryRoute,
           versionNo,
-          sourceId: input.sourceId,
           sourceUrl: input.sourceUrl ?? null,
+          sourceCategory: category,
           preparedBy: input.adminId,
           rules: input.rules.map((r) => ({ ...r, id: randomUUID() })),
         });
@@ -65,6 +70,7 @@ export interface EditDraftInput {
   id: string;
   adminId: string;
   sourceUrl: string | null;
+  sourceCategory?: string | null;
   rules: Omit<RequirementRule, 'id'>[];
 }
 
@@ -76,7 +82,8 @@ export class EditRequirementDraft implements UseCase<EditDraftInput, { status: s
     const req = await this.requirements.findById(input.id);
     if (!req) throw new NotFoundError('Requirement', input.id);
     await checkGrades(this.requirements, input.rules);
-    req.edit(input.adminId, { sourceUrl: input.sourceUrl, rules: input.rules.map((r) => ({ ...r, id: randomUUID() })) });
+    // The category is what the requirement is for, set when it starts; editing never moves it to another one.
+    req.edit(input.adminId, { sourceUrl: input.sourceUrl, sourceCategory: req.sourceCategory ?? input.sourceCategory, rules: input.rules.map((r) => ({ ...r, id: randomUUID() })) });
     await this.requirements.save(req);
     return { status: req.status };
   }

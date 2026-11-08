@@ -13,6 +13,8 @@ import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
+import { readFrom, trail, withFrom } from '@/lib/admin/trail';
+import { PageSkeleton } from '@/components/ui/skeleton';
 
 type Props = PageProps<'/[lang]/admin/program/[id]/sunting'>;
 
@@ -20,20 +22,20 @@ type Props = PageProps<'/[lang]/admin/program/[id]/sunting'>;
  * Edit a programme. A draft is changed directly; a published programme is changed through a proposed change that
  * another admin approves (students keep the current version meanwhile). Saving returns to the programme page.
  */
-export default async function EditProgrammePage({ params }: Props) {
+export default async function EditProgrammePage({ params, searchParams }: Props) {
   const lang = await rootLang();
   if (!isLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   return (
-    <Suspense fallback={<p className="text-sm text-muted">…</p>}>
+    <Suspense fallback={<PageSkeleton label={dict.meta.loading} />}>
       {/* The programme id is only known at request time. */}
-      <Edit locale={lang} dict={dict} params={params} />
+      <Edit locale={lang} dict={dict} params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Edit({ locale, dict, params }: { locale: Locale; dict: Dictionary; params: Props['params'] }) {
-  const { id } = await params;
+async function Edit({ locale, dict, params, searchParams }: { locale: Locale; dict: Dictionary; params: Props['params']; searchParams: Props['searchParams'] }) {
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
   if (!z.uuid().safeParse(id).success) notFound();
   const account = await requireRole(locale, 'admin');
   const t = dict.admin;
@@ -49,15 +51,25 @@ async function Edit({ locale, dict, params }: { locale: Locale; dict: Dictionary
     return <LoadError text={t.errors.generic} />;
   }
   const [institutions, reference, nec] = rest;
-  const back = `/${locale}/admin/program/${id}`;
-  const heading = <AdminHeading back={{ href: back, label: `← ${programme.name}` }} title={t.programmeForm.editTitle} />;
+  const from = readFrom(sp.dari, locale);
+  const back = withFrom(`/${locale}/admin/program/${id}`, from);
+  const crumbs = [
+    ...trail({
+      locale,
+      from,
+      labels: { home: t.nav.home, tasks: t.nav.tasks, institutions: t.nav.institutions, programmes: t.nav.programmes },
+      institution: programme.institutionId ? { id: programme.institutionId, name: programme.institutionName ?? '' } : null,
+    }),
+    { label: programme.name, href: back },
+  ];
+  const heading = <AdminHeading crumbs={crumbs} current={t.programmeForm.editTitle} title={t.programmeForm.editTitle} />;
 
   // Nothing to fill in while it is with a reviewer or archived; the programme page says what to do instead.
   if (!programmeWorkflow(programme, account.id, account.superAdmin).canEdit) {
     return (
       <>
         {heading}
-        <p className="rounded-[14px] bg-cream px-4 py-3 text-sm">
+        <p className="rounded-[8px] bg-cream px-4 py-3 text-sm">
           {t.programmeForm.locked}{' '}
           <Link href={back} className="font-semibold underline">
             {programme.name}
@@ -72,7 +84,7 @@ async function Edit({ locale, dict, params }: { locale: Locale; dict: Dictionary
   return (
     <>
       {heading}
-      <p className={`rounded-[14px] px-4 py-3 text-sm ${published ? 'bg-blue' : 'bg-white'}`}>{published ? t.programmeForm.editIntroPublished : t.programmeForm.editIntroDraft}</p>
+      <p className={`rounded-[8px] px-4 py-3 text-sm ${published ? 'bg-blue' : 'bg-white'}`}>{published ? t.programmeForm.editIntroPublished : t.programmeForm.editIntroDraft}</p>
       <Card className="max-w-[760px]">
         {/* Every new visit (and every saved change) starts from the stored values; back/forward keeps the draft. */}
         <FreshOnNavigate>
@@ -88,6 +100,8 @@ async function Edit({ locale, dict, params }: { locale: Locale; dict: Dictionary
             necFields={necOptions(nec)}
             mode={published ? 'change' : 'draft'}
             values={values}
+            routeNames={dict.requirements.routes}
+            admission={{ entryRouteRows: programme.entryRouteRows, averageMerit: programme.averageMerit }}
             cancelHref={back}
           />
         </FreshOnNavigate>

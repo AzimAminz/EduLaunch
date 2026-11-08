@@ -36,6 +36,9 @@ export const students = profile.table('student', {
   schoolName: text('school_name'),
   dateOfBirth: date('date_of_birth'),
   parentConsentAt: timestamp('parent_consent_at', { withTimezone: true }),
+  /** Result of the interest test (RIASEC), worked out from the student's answers in `assessment`. */
+  riasecScores: jsonb('riasec_scores').$type<Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>>(),
+  interestTestAt: timestamp('interest_test_at', { withTimezone: true }),
 });
 
 export const academicRecords = profile.table('academic_record', {
@@ -73,20 +76,41 @@ export const recordSubjects = profile.table(
     grade: text('grade').notNull(),
     /** Set for a subject that is not in the catalogue (typed by the student, e.g. "Tasawwuf"); subject_id is then a random id. */
     customName: text('custom_name'),
-    readConfidence: numeric('read_confidence', { precision: 3, scale: 2 }),
+    /** How sure the slip reader was of this grade (0 to 1); low values are flagged for the student to check. */
+    ocrConfidence: numeric('ocr_confidence', { precision: 3, scale: 2 }),
     reviewNote: text('review_note'),
   },
   (t) => [primaryKey({ columns: [t.recordId, t.subjectId] })],
 );
 
-export const assessments = profile.table('assessment', {
+/** One statement of the interest test (RIASEC), for example "I like fixing machines". */
+export const questions = profile.table('question', {
   id: id(),
-  studentId: uuid('student_id').notNull().references(() => students.id, { onDelete: 'cascade' }),
-  instrumentVersion: text('instrument_version').notNull(),
-  answers: jsonb('answers').$type<Record<string, number>>().notNull(),
-  riasecScores: jsonb('riasec_scores').$type<Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>>(),
-  completedAt: timestamp('completed_at', { withTimezone: true }),
+  questionText: text('question_text').notNull(),
+  questionTextEn: text('question_text_en'),
+  /** The interest type the statement measures: R, I, A, S, E or C. */
+  riasecType: text('riasec_type').notNull(),
+  /** The test version the statement belongs to, so old answers keep their meaning when the test changes. */
+  testVersion: text('test_version').notNull().default('v1'),
+  displayOrder: integer('display_order').notNull().default(0),
+  isActive: boolean('is_active').notNull().default(true),
 });
+
+/** A student's answer to one question of the interest test (1 = not like me … 5 = very like me). */
+export const assessments = profile.table(
+  'assessment',
+  {
+    studentId: uuid('student_id')
+      .notNull()
+      .references(() => students.id, { onDelete: 'cascade' }),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => questions.id, { onDelete: 'cascade' }),
+    answer: smallint('answer').notNull(),
+    answeredAt: timestamp('answered_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.studentId, t.questionId] })],
+);
 
 export const activityAttempts = profile.table(
   'activity_attempt',
@@ -112,21 +136,16 @@ export const savedPrograms = profile.table(
   (t) => [primaryKey({ columns: [t.studentId, t.programId] })],
 );
 
-export const roadmaps = profile.table('roadmap', {
-  id: id(),
-  studentId: uuid('student_id').notNull().references(() => students.id, { onDelete: 'cascade' }),
-  title: text('roadmap_title').notNull(),
-  versionNo: integer('version_no').notNull().default(1),
-  isActive: boolean('is_active').notNull().default(true),
-});
-
+/** One step of a student's study and career plan (a programme, a career or a note), in order. */
 export const roadmapSteps = profile.table('roadmap_step', {
   id: id(),
-  roadmapId: uuid('roadmap_id').notNull().references(() => roadmaps.id, { onDelete: 'cascade' }),
-  parentStepId: uuid('parent_step_id'),
+  studentId: uuid('student_id')
+    .notNull()
+    .references(() => students.id, { onDelete: 'cascade' }),
+  stepOrder: integer('step_order').notNull(),
+  /** programme, career or note. */
+  stepType: text('step_type').notNull(),
   programId: uuid('program_id'),
   careerId: uuid('career_id'),
-  stepType: text('step_type').notNull(),
   label: text('step_label').notNull(),
-  stepOrder: integer('step_order').notNull(),
 });

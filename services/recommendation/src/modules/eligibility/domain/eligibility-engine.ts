@@ -1,5 +1,5 @@
 import type { PublishedRequirement } from '@edulaunch/contracts';
-import { RuleFactory, type EligibilityRule, type RuleContext, type RuleDetail, type RuleOutcome } from './rules.js';
+import { RuleFactory, isChecked, type EligibilityRule, type RuleContext, type RuleDetail, type RuleOutcome } from './rules.js';
 
 export type Eligibility = 'eligible' | 'almost' | 'not_yet';
 
@@ -14,6 +14,8 @@ export interface EligibilityResult {
   passedReasons: string[];
   missing: string[];
   groups: GroupResult[];
+  /** Conditions the student confirms or the university checks (interview, citizenship, health), as written. */
+  toConfirm: string[];
 }
 
 /** Rules in one group are alternatives: the group passes if any rule passes. */
@@ -40,8 +42,14 @@ export class EligibilityEngine {
 
   check(requirement: PublishedRequirement, ctx: RuleContext): EligibilityResult {
     const groups = new Map<number, EligibilityRule[]>();
+    const toConfirm: string[] = [];
     for (const dto of requirement.rules) {
-      groups.set(dto.groupNo, [...(groups.get(dto.groupNo) ?? []), RuleFactory.create(dto)]);
+      if (dto.conditionType === 'declaration') {
+        if (dto.officialText) toConfirm.push(dto.officialText);
+        continue;
+      }
+      if (!isChecked(dto.conditionType)) continue; // notes are context for people, not conditions
+      groups.set(dto.orGroup, [...(groups.get(dto.orGroup) ?? []), RuleFactory.create(dto)]);
     }
     // Groups in the order of their number, as the requirement lists them.
     const outcomes = [...groups.entries()].sort(([a], [b]) => a - b).map(([, rules]) => new RuleGroup(rules).evaluate(ctx));
@@ -54,6 +62,7 @@ export class EligibilityEngine {
       passedReasons: outcomes.filter((o) => o.passed).map((o) => o.reason),
       missing: failed.map((o) => o.reason),
       groups: outcomes.map((o) => ({ passed: o.passed, rules: o.details })),
+      toConfirm,
     };
   }
 }

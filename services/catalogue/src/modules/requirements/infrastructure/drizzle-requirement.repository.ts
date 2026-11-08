@@ -1,13 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
-import { and, desc, eq, inArray, max } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, max, type SQL } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
 import { Requirement, type ReviewStatus } from '../domain/requirement.js';
 import { RequirementRepository } from '../domain/requirement.repository.js';
 
-const { requirements, requirementRules, programs, subjects } = schema;
+const { requirements, requirementConditions, conditionSubjects, programs, subjects } = schema;
 type RequirementRow = typeof requirements.$inferSelect;
-type RuleRow = typeof requirementRules.$inferSelect;
+type RuleRow = typeof requirementConditions.$inferSelect & { subjectIds: string[] };
+
+/** One programme's requirements for one route and candidate category. */
+const keyOf = (programId: string, entryRoute: string, sourceCategory: string | null): SQL =>
+  and(eq(requirements.programId, programId), eq(requirements.entryRoute, entryRoute), sourceCategory === null ? isNull(requirements.sourceCategory) : eq(requirements.sourceCategory, sourceCategory))!;
+
+/** Lines that name one subject (the rest name a list, or none). */
+const ONE_SUBJECT = new Set(['min_grade', 'key_subject']);
 
 @Injectable()
 export class DrizzleRequirementRepository extends RequirementRepository {
@@ -18,31 +25,39 @@ export class DrizzleRequirementRepository extends RequirementRepository {
   async findById(id: string): Promise<Requirement | null> {
     const [row] = await this.db.select().from(requirements).where(eq(requirements.id, id)).limit(1);
     if (!row) return null;
-    const rules = await this.db.select().from(requirementRules).where(eq(requirementRules.requirementId, id)).orderBy(requirementRules.groupNo, requirementRules.id);
-    return this.toDomain(row, rules);
+    return this.toDomain(row, await this.conditionsOf([id]));
   }
 
   async findPublished(programIds: string[]): Promise<Requirement[]> {
     if (programIds.length === 0) return [];
     const rows = await this.db
-      .selectDistinctOn([requirements.programId, requirements.entryRoute])
+      .selectDistinctOn([requirements.programId, requirements.entryRoute, requirements.sourceCategory])
       .from(requirements)
       .where(and(inArray(requirements.programId, programIds), eq(requirements.reviewStatus, 'published')))
-      .orderBy(requirements.programId, requirements.entryRoute, desc(requirements.versionNo));
+      .orderBy(requirements.programId, requirements.entryRoute, requirements.sourceCategory, desc(requirements.versionNo));
     if (rows.length === 0) return [];
-    const rules = await this.db
-      .select()
-      .from(requirementRules)
-      .where(inArray(requirementRules.requirementId, rows.map((r) => r.id)))
-      .orderBy(requirementRules.groupNo, requirementRules.id);
+    const rules = await this.conditionsOf(rows.map((r) => r.id));
     return rows.map((r) => this.toDomain(r, rules.filter((x) => x.requirementId === r.id)));
   }
 
-  async nextVersionNo(programId: string, entryRoute: string): Promise<number> {
-    const [row] = await this.db
-      .select({ v: max(requirements.versionNo) })
-      .from(requirements)
-      .where(and(eq(requirements.programId, programId), eq(requirements.entryRoute, entryRoute)));
+  /** The lines of these requirements in order, each with the subjects it names (condition_subject). */
+  private async conditionsOf(requirementIds: string[]): Promise<RuleRow[]> {
+    const rows = await this.db
+      .select()
+      .from(requirementConditions)
+      .where(inArray(requirementConditions.requirementId, requirementIds))
+      .orderBy(requirementConditions.orGroup, requirementConditions.position, requirementConditions.id);
+    if (rows.length === 0) return [];
+    const links = await this.db
+      .select()
+      .from(conditionSubjects)
+      .where(inArray(conditionSubjects.conditionId, rows.map((r) => r.id)))
+      .orderBy(conditionSubjects.position);
+    return rows.map((r) => ({ ...r, subjectIds: links.filter((l) => l.conditionId === r.id).map((l) => l.subjectId) }));
+  }
+
+  async nextVersionNo(programId: string, entryRoute: string, sourceCategory: string | null): Promise<number> {
+    const [row] = await this.db.select({ v: max(requirements.versionNo) }).from(requirements).where(keyOf(programId, entryRoute, sourceCategory));
     return (row?.v ?? 0) + 1;
   }
 
@@ -56,8 +71,8 @@ export class DrizzleRequirementRepository extends RequirementRepository {
           programId: s.programId,
           entryRoute: s.entryRoute,
           versionNo: s.versionNo,
-          sourceId: s.sourceId,
           sourceUrl: s.sourceUrl,
+          sourceCategory: s.sourceCategory,
           preparedBy: s.preparedBy,
           approvedBy: s.approvedBy,
           reviewStatus: s.status,
@@ -65,22 +80,27 @@ export class DrizzleRequirementRepository extends RequirementRepository {
         })
         .onConflictDoUpdate({
           target: requirements.id,
-          set: { sourceUrl: s.sourceUrl, approvedBy: s.approvedBy, reviewStatus: s.status, returnReason: s.returnReason, updatedAt: new Date() },
+          set: { sourceUrl: s.sourceUrl, sourceCategory: s.sourceCategory, approvedBy: s.approvedBy, reviewStatus: s.status, returnReason: s.returnReason, updatedAt: new Date() },
         });
-      await tx.delete(requirementRules).where(eq(requirementRules.requirementId, s.id));
+      await tx.delete(requirementConditions).where(eq(requirementConditions.requirementId, s.id));
       if (s.rules.length) {
-        await tx.insert(requirementRules).values(
+        await tx.insert(requirementConditions).values(
           s.rules.map((r) => ({
             id: r.id,
             requirementId: s.id,
-            groupNo: r.groupNo,
-            ruleType: r.ruleType,
-            subjectId: r.subjectId,
+            orGroup: r.orGroup,
+            conditionType: r.conditionType,
             minGrade: r.minGrade,
             minValue: r.minValue === null ? null : String(r.minValue),
-            evidenceQuote: r.evidenceQuote,
+            officialText: r.officialText,
+            part: r.part,
+            section: r.section,
+            minCount: r.minCount,
+            position: r.position,
           })),
         );
+        const links = s.rules.flatMap((r) => (r.subjectId ? [r.subjectId] : r.subjectIds).map((subjectId, position) => ({ conditionId: r.id, subjectId, position })));
+        if (links.length) await tx.insert(conditionSubjects).values(links).onConflictDoNothing();
       }
     });
   }
@@ -89,20 +109,20 @@ export class DrizzleRequirementRepository extends RequirementRepository {
     await this.db.delete(requirements).where(eq(requirements.id, id));
   }
 
-  async findOpen(programId: string, entryRoute: string): Promise<Requirement | null> {
+  async findOpen(programId: string, entryRoute: string, sourceCategory: string | null): Promise<Requirement | null> {
     const [row] = await this.db
       .select({ id: requirements.id })
       .from(requirements)
-      .where(and(eq(requirements.programId, programId), eq(requirements.entryRoute, entryRoute), inArray(requirements.reviewStatus, ['draft', 'returned', 'in_review'])))
+      .where(and(keyOf(programId, entryRoute, sourceCategory), inArray(requirements.reviewStatus, ['draft', 'returned', 'in_review'])))
       .limit(1);
     return row ? this.findById(row.id) : null;
   }
 
-  async findLatestPublished(programId: string, entryRoute: string): Promise<Requirement | null> {
+  async findLatestPublished(programId: string, entryRoute: string, sourceCategory: string | null): Promise<Requirement | null> {
     const [row] = await this.db
       .select({ id: requirements.id })
       .from(requirements)
-      .where(and(eq(requirements.programId, programId), eq(requirements.entryRoute, entryRoute), eq(requirements.reviewStatus, 'published')))
+      .where(and(keyOf(programId, entryRoute, sourceCategory), eq(requirements.reviewStatus, 'published')))
       .orderBy(desc(requirements.versionNo))
       .limit(1);
     return row ? this.findById(row.id) : null;
@@ -124,20 +144,25 @@ export class DrizzleRequirementRepository extends RequirementRepository {
       programId: row.programId,
       entryRoute: row.entryRoute,
       versionNo: row.versionNo,
-      sourceId: row.sourceId,
       sourceUrl: row.sourceUrl,
+      sourceCategory: row.sourceCategory,
       preparedBy: row.preparedBy,
       approvedBy: row.approvedBy,
       status: row.reviewStatus as ReviewStatus,
       returnReason: row.returnReason,
       rules: rules.map((r) => ({
         id: r.id,
-        groupNo: r.groupNo,
-        ruleType: r.ruleType,
-        subjectId: r.subjectId,
+        orGroup: r.orGroup,
+        conditionType: r.conditionType,
+        subjectId: ONE_SUBJECT.has(r.conditionType) ? (r.subjectIds[0] ?? null) : null,
         minGrade: r.minGrade,
         minValue: r.minValue === null ? null : Number(r.minValue),
-        evidenceQuote: r.evidenceQuote,
+        officialText: r.officialText,
+        part: r.part === 'general' ? 'general' : 'special',
+        section: r.section,
+        subjectIds: ONE_SUBJECT.has(r.conditionType) ? [] : r.subjectIds,
+        minCount: r.minCount,
+        position: r.position,
       })),
     });
   }

@@ -1,17 +1,23 @@
 'use client';
 
-import { useMemo, useRef, useState, type FormEvent } from 'react';
-import type { EntryRoute } from '@edulaunch/contracts';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import type { EntryRoute, RequirementPart } from '@edulaunch/contracts';
 import { discardRequirement, saveRequirement, type AdminFormState } from '@/lib/admin/actions';
-import { checkGroups, EditorRuleTypes, gradesFor, newRule, subjectQualificationsFor, type EditorGroup, type EditorRule, type RuleProblem } from '@/lib/admin/requirement-form';
+import { linesFromGroup, readSentence, type CategoryGroup } from '@/lib/admin/epanduan-text';
+import { checkLines, EditorRuleTypes, gradesFor, isUnchecked, lineSummary, newLine, SectionSuggestions, subjectQualificationsFor, type EditorLine, type LineProblem } from '@/lib/admin/requirement-form';
 import { describeRequirement } from '@/lib/catalogue/requirements';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
 import { Dropdown, type DropdownOption } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
+import { Modal } from '@/components/ui/modal';
 import { useFormAction } from '@/components/ui/use-form-action';
+import { CategoryTabs } from './category-tabs';
+import { LinesView } from './requirement-lines-view';
+import { RequirementSteps } from './requirement-steps';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
+import { FromField } from './from-field';
 
 export interface EditorSubject {
   id: string;
@@ -20,128 +26,232 @@ export interface EditorSubject {
   keywords: string[];
 }
 
+/** What ePanduan lists for this programme and route, grouped by categories with the same text. */
+export interface EditorSource {
+  groups: CategoryGroup[];
+  /** The list page of each group's first category, used as the source link. */
+  sourceUrls: string[];
+}
+
 interface RequirementEditorProps {
   locale: Locale;
   id: string;
   programmeId: string;
   entryRoute: EntryRoute;
-  initial: { sourceUrl: string; groups: EditorGroup[] };
+  initial: { sourceUrl: string; sourceCategory: string | null; lines: EditorLine[] };
   subjects: EditorSubject[];
+  epanduan?: EditorSource | null;
+  /** ePanduan category (`jenprog:category`) to fill an empty draft from when it opens. */
+  autoFill?: string | null;
+  /** The draft was just made from approved requirements of another programme (copy) or from ePanduan's text. */
+  copied?: 'copy' | 'epanduan' | null;
   dict: Pick<Dictionary, 'admin' | 'requirements' | 'directory'>;
 }
 
 const isUrl = (v: string) => /^https?:\/\/\S+$/.test(v.trim());
+const PARTS: RequirementPart[] = ['general', 'special'];
 
 /**
- * The requirement wizard (Figma B2): show the source, write each requirement as a sentence chosen from lists,
- * see what students will see, then save or send for review. Lines with several options mean "at least one of".
+ * The requirement editor, shaped like the official source: Syarat Am and Syarat Khas, lines under SPM / STPM / MUET
+ * headings, joined by DAN or ATAU. Each line keeps the official sentence and, when it can be checked, the rule a
+ * student's results are matched with. Lines can be filled from ePanduan, then edited, moved, added and removed.
  */
-export function RequirementEditor({ locale, id, programmeId, entryRoute, initial, subjects, dict }: RequirementEditorProps) {
+export function RequirementEditor({ locale, id, programmeId, entryRoute, initial, subjects, epanduan, autoFill, copied = null, dict }: RequirementEditorProps) {
   const t = dict.admin.requirement;
+  const m = dict.admin.institutions.import;
   const errors = dict.admin.errors;
-  const [sourceUrl, setSourceUrl] = useState(initial.sourceUrl);
-  const [groups, setGroups] = useState<EditorGroup[]>(initial.groups.length ? initial.groups : [{ quote: '', rules: [newRule()] }]);
+  const subjectById = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects]);
+  const validGrade = (subjectId: string, grade: string) => gradesFor(subjectById.get(subjectId)?.qualification).includes(grade);
+  /** Both parts of one ePanduan group as lines, with its page as the source. */
+  const fromGroup = (index: number) => {
+    const group = epanduan!.groups[index]!;
+    const first = group.categories[0];
+    return {
+      lines: linesFromGroup(group, subjects, validGrade),
+      sourceUrl: epanduan!.sourceUrls[index] ?? initial.sourceUrl,
+      sourceCategory: first ? `${first.jenprog}:${first.category}` : null,
+    };
+  };
+  // Started from an ePanduan category: an empty draft opens filled from it (nothing is saved until the admin saves).
+  const [start] = useState(() => {
+    const index = !initial.lines.length && autoFill && epanduan ? epanduan.groups.findIndex((g) => g.categories.some((c) => `${c.jenprog}:${c.category}` === autoFill)) : -1;
+    return index >= 0 ? { ...fromGroup(index), filled: true } : { ...initial, filled: false };
+  });
+  const [sourceUrl, setSourceUrl] = useState(start.sourceUrl);
+  const [sourceCategory, setSourceCategory] = useState(start.sourceCategory);
+  const [lines, setLines] = useState<EditorLine[]>(start.lines);
+  const [autoFilled, setAutoFilled] = useState(start.filled || !!copied);
+  const [open, setOpen] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
-  /** Set when "send for review" was pressed without a valid source link. */
+  const [confirmFill, setConfirmFill] = useState<number | null>(null);
   const [sourceMissing, setSourceMissing] = useState(false);
+  const [sideTab, setSideTab] = useState<'source' | 'preview'>(epanduan?.groups.length ? 'source' : 'preview');
+  // 1 Syarat Am, 2 Syarat Khas, 3 check and send (step 0, the route, was chosen before the draft existed).
+  const [step, setStep] = useState(1);
   const sourceRef = useRef<HTMLInputElement>(null);
 
-  const snapshot = JSON.stringify({ sourceUrl, groups });
-  const [savedSnapshot, setSavedSnapshot] = useState(JSON.stringify({ sourceUrl: initial.sourceUrl, groups: initial.groups }));
+  // The editing key is left out (undefined is dropped by JSON), so only real changes count.
+  const snapshot = JSON.stringify({ sourceUrl, sourceCategory, lines: lines.map((l) => ({ ...l, key: undefined })) });
+  // Lines filled on opening are not saved yet.
+  const [savedSnapshot, setSavedSnapshot] = useState(start.filled ? '' : snapshot);
   const [sentSnapshot, setSentSnapshot] = useState(snapshot);
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(saveRequirement, {}, () => {
     setAttempted(true);
     setSentSnapshot(snapshot);
   });
-  // After a successful save, what was sent is what is stored.
   const [seenSave, setSeenSave] = useState(state.savedAt);
   if (state.savedAt !== seenSave) {
     setSeenSave(state.savedAt);
     if (state.savedAt) setSavedSnapshot(sentSnapshot);
   }
-  /**
-   * Sending for review needs the official source; without it the editor points at the source field instead of
-   * sending, so the admin sees exactly what to add (the server checks the same).
-   */
+  const [discardState, onDiscard, discarding] = useFormAction<AdminFormState>(discardRequirement, {});
+
+  const allowed = subjectQualificationsFor(entryRoute);
+  const subjectOptions: DropdownOption[] = useMemo(
+    () => subjects.filter((s) => allowed.includes(s.qualification as never)).map((s) => ({ value: s.id, label: s.label, keywords: s.keywords })),
+    [subjects, allowed],
+  );
+
+  const checked = checkLines(lines);
+  const shownProblems = attempted ? checked.problems : [];
+  const problemsOf = (line: EditorLine) => shownProblems.filter((p) => p.line === lines.indexOf(line)).map((p) => p.problem);
+
+  // What students will see, from the complete lines only.
+  const previewRules = checked.rules
+    .filter((r) => (r.conditionType === 'min_grade' ? r.subjectId && r.minGrade : r.conditionType === 'subjects_from_list' ? r.subjectIds.length > 0 && r.minGrade : true))
+    .map((r, i) => ({ ...r, id: `${i}` }));
+  const preview = describeRequirement(
+    { requirementId: id, programId: programmeId, entryRoute, versionNo: 1, sourceCategory, rules: previewRules },
+    new Map(subjects.map((s) => [s.id, s.label])),
+    dict.requirements,
+  ).items;
+
+  const dirty = snapshot !== savedSnapshot;
+  const alert = !pending && state.error ? errors[state.error] : undefined;
+
+  const update = (key: string, change: Partial<EditorLine>) => setLines((list) => list.map((l) => (l.key === key ? { ...l, ...change } : l)));
+  const remove = (key: string) => setLines((list) => list.filter((l) => l.key !== key));
+  const move = (key: string, by: -1 | 1) =>
+    setLines((list) => {
+      const line = list.find((l) => l.key === key)!;
+      const same = list.filter((l) => l.part === line.part && l.section === line.section);
+      const target = same[same.indexOf(line) + by];
+      if (!target) return list;
+      const a = list.indexOf(line);
+      const b = list.indexOf(target);
+      const next = [...list];
+      [next[a], next[b]] = [next[b]!, next[a]!];
+      return next;
+    });
+  /** A new line at the end of one section (the tab it was added from). */
+  const add = (part: RequirementPart, section: string) => {
+    const line = newLine(part, { section });
+    setLines((list) => {
+      const last = list.findLastIndex((l) => l.part === part && l.section === section);
+      return last < 0 ? [...list, line] : [...list.slice(0, last + 1), line, ...list.slice(last + 1)];
+    });
+    // A new line opens with its sentence field ready to type (it fills the kind and values).
+    setOpen(line.key);
+  };
+  const removeSection = (part: RequirementPart, section: string) => setLines((list) => list.filter((l) => l.part !== part || l.section !== section));
+  /** Fills both parts from one ePanduan group (replacing what is there), with its page as the source. */
+  const fill = (index: number) => {
+    const next = fromGroup(index);
+    setLines(next.lines);
+    setSourceUrl(next.sourceUrl);
+    setSourceCategory(next.sourceCategory);
+    setConfirmFill(null);
+    setOpen(null);
+  };
+
+  const goTo = (next: number) => {
+    setStep(next);
+    setOpen(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const submit = (event: FormEvent<HTMLFormElement>) => {
     const intent = ((event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null)?.value;
-    if (intent === 'submit' && !isUrl(sourceUrl)) {
-      event.preventDefault();
-      setAttempted(true);
-      setSourceMissing(true);
-      sourceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      sourceRef.current?.focus({ preventScroll: true });
-      return;
+    if (intent === 'submit') {
+      // Back to the step that needs fixing: a line with a problem, else the source link (on the Syarat Am step).
+      const bad = checked.problems[0];
+      if (bad || !isUrl(sourceUrl)) {
+        event.preventDefault();
+        setAttempted(true);
+        if (bad) {
+          goTo(lines[bad.line]?.part === 'special' ? 2 : 1);
+          return;
+        }
+        setSourceMissing(true);
+        setStep(1);
+        requestAnimationFrame(() => {
+          sourceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          sourceRef.current?.focus({ preventScroll: true });
+        });
+        return;
+      }
     }
     onSubmit(event);
   };
-  const [discardState, onDiscard, discarding] = useFormAction<AdminFormState>(discardRequirement, {});
 
-  const subjectById = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects]);
-  const allowedQualifications = subjectQualificationsFor(entryRoute);
-  const subjectOptions: DropdownOption[] = useMemo(
-    () => subjects.filter((s) => allowedQualifications.includes(s.qualification as never)).map((s) => ({ value: s.id, label: s.label, keywords: s.keywords })),
-    [subjects, allowedQualifications],
+  const categoryText = (group: CategoryGroup) => group.categories.map((c) => (m.categories as Record<string, string>)[`${c.jenprog}:${c.category}`] ?? c.category).join(' · ');
+
+  const subjectNames = new Map(subjects.map((s) => [s.id, s.label]));
+  const stepButton = (key: string, label: string, icon: 'arrowLeft' | 'arrowRight', to: number, primary = false) => (
+    // Its own key, so React never reuses it for a submit button (that once sent the form on "next").
+    <button key={key} type="button" onClick={() => goTo(to)} className={buttonClass(primary ? 'primary' : 'secondary')}>
+      <IconText icon={icon}>{label}</IconText>
+    </button>
   );
-
-  const { problems } = checkGroups(groups);
-  const shownProblems = attempted ? problems : [];
-  const problemAt = (group: number, rule: number): RuleProblem[] => shownProblems.filter((p) => p.group === group && p.rule === rule).map((p) => p.problem);
-
-  const update = (gi: number, change: (g: EditorGroup) => EditorGroup) => setGroups((list) => list.map((g, i) => (i === gi ? change(g) : g)));
-  const updateRule = (gi: number, ri: number, change: Partial<EditorRule>) =>
-    update(gi, (g) => ({ ...g, rules: g.rules.map((r, i) => (i === ri ? { ...r, ...change } : r)) }));
-
-  // What students will see, built from the lines as they are now (incomplete rules left out).
-  const preview = useMemo(() => {
-    const names = new Map(subjects.map((s) => [s.id, s.label]));
-    const rules = groups.flatMap((g, gi) =>
-      g.rules
-        .filter((r) => (r.type === 'min_grade' ? r.subjectId && r.grade : r.value.trim()))
-        .map((r, ri) => ({
-          id: `${gi}-${ri}`,
-          groupNo: gi + 1,
-          ruleType: r.type,
-          subjectId: r.type === 'min_grade' ? r.subjectId : null,
-          minGrade: r.grade,
-          minValue: r.type === 'min_grade' ? null : Number(r.value.replace(',', '.')),
-          evidenceQuote: g.quote,
-        })),
-    );
-    return describeRequirement({ requirementId: id, programId: programmeId, entryRoute, versionNo: 1, rules }, names, dict.requirements).items;
-  }, [groups, subjects, id, programmeId, entryRoute, dict.requirements]);
-
-  const dirty = snapshot !== savedSnapshot;
-  const sourceDone = isUrl(sourceUrl);
-  const rulesDone = groups.length > 0 && problems.length === 0;
-  const steps = [true, sourceDone, rulesDone, false];
-  const alert = !pending && state.error ? errors[state.error] : undefined;
 
   return (
     <div className="flex flex-col gap-5">
-      <ol className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[18px] border border-line bg-white px-5 py-4">
-        {t.steps.map((label, i) => (
-          <li key={label} className="flex items-center gap-2 text-sm font-semibold">
-            <span className={`flex size-7 items-center justify-center rounded-full text-xs ${steps[i] ? 'bg-[#1f6b47] text-white' : i === 2 || (i === 1 && !sourceDone) ? 'bg-yellow' : 'bg-bg'}`}>
-              {steps[i] ? '✓' : i + 1}
-            </span>
-            <span className={steps[i] ? '' : 'text-muted'}>{label}</span>
-            {i < t.steps.length - 1 && <span aria-hidden className="mx-1 hidden h-px w-8 bg-line sm:block" />}
-          </li>
-        ))}
-      </ol>
-
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <RequirementSteps labels={t.steps} step={step} onStep={goTo} />
+      <div className={`grid items-start gap-4 ${step === 3 ? '' : 'lg:grid-cols-[minmax(0,1fr)_420px]'}`}>
         <form id="requirement-form" onSubmit={submit} className="flex flex-col gap-4">
           <input type="hidden" name="locale" value={locale} />
+          <FromField />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="state" value={snapshot} />
           <input type="hidden" name="programId" value={programmeId} />
 
-          <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
-            <h2 className="text-lg font-semibold">{t.source.title}</h2>
-            <p className="text-sm text-muted">{t.source.body}</p>
+          <section hidden={step !== 1} className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-5 lg:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex min-w-0 flex-col gap-1">
+                <h2 className="text-lg font-semibold">{t.source.title}</h2>
+                <p className="text-sm text-muted">{t.source.body}</p>
+              </div>
+              {epanduan && epanduan.groups.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {epanduan.groups.map((group, i) => (
+                    <button key={group.key} type="button" onClick={() => (lines.length ? setConfirmFill(i) : fill(i))} className={buttonClass(lines.length ? 'secondary' : 'accent', 'sm')}>
+                      <IconText icon="external">{epanduan.groups.length > 1 ? format(t.fill.fromCategory, { category: categoryText(group) }) : t.fill.button}</IconText>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {autoFilled && (
+              <p role="status" className="flex items-start gap-2 rounded-[8px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
+                <AdminIcon name="checkCircle" size={18} className="mt-0.5 shrink-0" />
+                <span className="flex-1">{format(start.filled || copied === 'epanduan' ? t.fill.autoFilled : t.fill.copied, { count: lines.length })}</span>
+                <button type="button" onClick={() => setAutoFilled(false)} aria-label={dict.admin.programme.actions.cancel} className="rounded-md px-1 text-[#1f6b47] hover:bg-white/60">
+                  <AdminIcon name="x" size={16} />
+                </button>
+              </p>
+            )}
+            {confirmFill !== null && (
+              <div role="alertdialog" aria-label={t.fill.replaceYes} className="flex flex-wrap items-center gap-2 rounded-[8px] border border-[#e0a800]/50 bg-cream px-4 py-3">
+                <AdminIcon name="alert" size={18} />
+                <p className="flex-1 text-sm">{format(t.fill.replaceConfirm, { count: lines.length })}</p>
+                <button type="button" onClick={() => setConfirmFill(null)} className={buttonClass('secondary', 'sm')}>
+                  {dict.admin.programme.actions.cancel}
+                </button>
+                <button type="button" onClick={() => fill(confirmFill)} className={buttonClass('primary', 'sm')}>
+                  {t.fill.replaceYes}
+                </button>
+              </div>
+            )}
             <label htmlFor="source-url" className="text-sm font-semibold">
               {t.source.label}
             </label>
@@ -154,14 +264,14 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
                   setSourceUrl(e.target.value);
                   setSourceMissing(false);
                 }}
-                aria-invalid={sourceMissing || (attempted && !!sourceUrl && !sourceDone)}
+                aria-invalid={sourceMissing || (attempted && !!sourceUrl && !isUrl(sourceUrl))}
                 aria-describedby={sourceMissing ? 'source-url-error' : undefined}
                 inputMode="url"
                 placeholder={t.source.placeholder}
                 maxLength={500}
-                className={`min-w-0 flex-1 rounded-[10px] border bg-white px-4 py-3 text-[15px] outline-none focus:ring-2 ${sourceMissing || (attempted && sourceUrl && !sourceDone) ? 'border-red focus:border-red focus:ring-red/15' : 'border-[#9aa3b2] focus:border-navy focus:ring-navy/15'}`}
+                className={`min-w-0 flex-1 rounded-[8px] border bg-white px-4 py-3 text-[15px] outline-none focus:ring-2 ${sourceMissing || (attempted && sourceUrl && !isUrl(sourceUrl)) ? 'border-red focus:border-red focus:ring-red/15' : 'border-[#9aa3b2] focus:border-navy focus:ring-navy/15'}`}
               />
-              {sourceDone && (
+              {isUrl(sourceUrl) && (
                 <a href={sourceUrl.trim()} target="_blank" rel="noreferrer" className={buttonClass('secondary')}>
                   <IconText icon="external">{t.source.open}</IconText>
                 </a>
@@ -175,67 +285,89 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             )}
           </section>
 
-          <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5 lg:p-6">
-            <h2 className="text-lg font-semibold">{t.write.title}</h2>
-            <p className="text-sm text-muted">{t.write.body}</p>
+          {PARTS.map((part, i) => (
+            <div key={part} hidden={step !== i + 1}>
+              <PartEditor
+                part={part}
+                lines={lines.filter((l) => l.part === part)}
+                open={open}
+                setOpen={setOpen}
+                t={t}
+                noMatches={dict.directory.noMatches}
+                subjectOptions={subjectOptions}
+                subjectById={subjectById}
+                problemsOf={problemsOf}
+                onChange={update}
+                onRemove={remove}
+                onMove={move}
+                onAdd={(section) => add(part, section)}
+                onRemoveSection={(section) => removeSection(part, section)}
+                readLine={(text, section) => readSentence(text, section || null, subjects, validGrade)}
+              />
+            </div>
+          ))}
 
-            {groups.map((group, gi) => {
-              const quoteProblem = problemAt(gi, -1).length > 0;
-              return (
-                <fieldset key={gi} className={`flex flex-col gap-3 rounded-[14px] border p-4 ${shownProblems.some((p) => p.group === gi) ? 'border-red/60 bg-red/5' : 'border-line bg-bg/60'}`}>
-                  <legend className="sr-only">{`${t.write.title} ${gi + 1}`}</legend>
-                  {group.rules.length > 1 && <p className="text-sm font-semibold">{t.sentence.oneOf}</p>}
-                  {group.rules.map((rule, ri) => (
-                    <div key={ri} className="flex flex-col gap-2">
-                      {ri > 0 && <p className="text-[13px] font-semibold uppercase text-muted">{t.sentence.or}</p>}
-                      <RuleRow
-                        rule={rule}
-                        t={t}
-                        noMatches={dict.directory.noMatches}
-                        subjectOptions={subjectOptions}
-                        grades={gradesFor(rule.subjectId ? subjectById.get(rule.subjectId)?.qualification : undefined)}
-                        problems={problemAt(gi, ri)}
-                        onChange={(change) => updateRule(gi, ri, change)}
-                        onRemove={group.rules.length > 1 ? () => update(gi, (g) => ({ ...g, rules: g.rules.filter((_, i) => i !== ri) })) : undefined}
-                        subjectQualification={(sid) => subjectById.get(sid)?.qualification}
-                      />
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => update(gi, (g) => ({ ...g, rules: [...g.rules, { ...newRule(g.rules.at(-1)?.type), grade: g.rules.at(-1)?.grade ?? null }] }))}
-                    className="self-start text-sm font-semibold text-[#2f5bd3] hover:underline"
-                  >
-                    {t.addAlternative}
-                  </button>
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-[13px] font-semibold">{t.quote}</span>
-                    <textarea
-                      value={group.quote}
-                      onChange={(e) => update(gi, (g) => ({ ...g, quote: e.target.value }))}
-                      rows={2}
-                      maxLength={1000}
-                      placeholder={t.quotePlaceholder}
-                      aria-invalid={quoteProblem || undefined}
-                      className={`rounded-[10px] border bg-white px-3 py-2 text-sm italic outline-none focus:border-navy ${quoteProblem ? 'border-red' : 'border-line'}`}
-                    />
-                    {quoteProblem && <span className="text-[13px] text-red">{t.problems.quoteRequired}</span>}
-                  </label>
-                  <button type="button" onClick={() => setGroups((list) => list.filter((_, i) => i !== gi))} className="self-end text-[13px] font-semibold text-[#b33a35] hover:underline">
-                    {t.removeLine}
-                  </button>
-                </fieldset>
-              );
-            })}
-
-            <button type="button" onClick={() => setGroups((list) => [...list, { quote: '', rules: [newRule()] }])} className={`${buttonClass('secondary')} self-start`}>
-              <IconText icon="plus">{t.addRule}</IconText>
-            </button>
-          </section>
+          {step === 3 && (
+            <section className="flex flex-col gap-4 rounded-[8px] border border-line bg-white p-5 lg:p-6">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-lg font-semibold">{t.finish.title}</h2>
+                <p className="text-sm text-muted">{t.finish.intro}</p>
+              </div>
+              <LinesView lines={lines} subjectNames={subjectNames} t={t} />
+              <div className="flex flex-col gap-2 rounded-[8px] bg-bg/60 p-4">
+                <h3 className="text-[12px] font-bold uppercase tracking-wide text-muted">{t.preview.title}</h3>
+                {preview.length === 0 ? (
+                  <p className="text-sm text-muted">{t.preview.empty}</p>
+                ) : (
+                  <ul className="grid gap-2 md:grid-cols-2">
+                    {preview.map((item, i) => (
+                      <li key={i} className="rounded-[8px] bg-white px-3.5 py-2.5">
+                        <p className="text-sm font-semibold">{item.title}</p>
+                        <p className="text-[13px] text-muted">{item.detail}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <p className="flex items-center gap-2 text-[13px] text-muted">
+                <AdminIcon name="external" size={14} />
+                {isUrl(sourceUrl) ? (
+                  <a href={sourceUrl.trim()} target="_blank" rel="noreferrer" className="truncate underline hover:text-navy">
+                    {sourceUrl.trim()}
+                  </a>
+                ) : (
+                  <span className="text-red">{t.source.required}</span>
+                )}
+              </p>
+            </section>
+          )}
         </form>
 
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
-          <section className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-5">
+        <aside hidden={step === 3} className="flex flex-col gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+          {epanduan && epanduan.groups.length > 0 && (
+            <div role="tablist" aria-label={t.suggest.title} className="flex gap-1 rounded-[8px] bg-white p-1">
+              {(['source', 'preview'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={sideTab === tab}
+                  onClick={() => setSideTab(tab)}
+                  className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-[9px] px-3 py-2 text-sm font-semibold transition-colors duration-150 ${sideTab === tab ? 'bg-navy text-white' : 'text-navy hover:bg-bg'}`}
+                >
+                  <AdminIcon name={tab === 'source' ? 'external' : 'eye'} size={15} />
+                  {tab === 'source' ? t.suggest.title : t.preview.title}
+                </button>
+              ))}
+            </div>
+          )}
+          {epanduan && epanduan.groups.length > 0 && sideTab === 'source' && (
+            <section className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-4">
+              <p className="text-[13px] text-muted">{t.suggest.intro}</p>
+              <CategoryTabs groups={epanduan.groups} m={m} stacked />
+            </section>
+          )}
+          <section hidden={!!epanduan?.groups.length && sideTab !== 'preview'} className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-5">
             <h2 className="font-semibold">{t.preview.title}</h2>
             <p className="text-[13px] text-muted">{t.preview.body}</p>
             {preview.length === 0 ? (
@@ -243,7 +375,7 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
             ) : (
               <ul className="flex flex-col gap-2">
                 {preview.map((item, i) => (
-                  <li key={i} className="rounded-[12px] bg-bg px-3.5 py-2.5">
+                  <li key={i} className="rounded-[8px] bg-bg px-3.5 py-2.5">
                     <p className="text-sm font-semibold">{item.title}</p>
                     <p className="text-[13px] text-muted">{item.detail}</p>
                   </li>
@@ -251,170 +383,504 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
               </ul>
             )}
           </section>
-          <section className="flex flex-col gap-2 rounded-[18px] bg-cream p-5">
-            <h2 className="font-semibold">{t.why.title}</h2>
-            <p className="text-sm">{t.why.body}</p>
-          </section>
         </aside>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-[18px] border border-line bg-white p-4 lg:sticky lg:bottom-4 lg:z-10 lg:shadow-lg">
+      <div className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-4 lg:sticky lg:bottom-4 lg:z-10 lg:shadow-lg">
         <FormAlert>{alert ?? (shownProblems.length && !pending ? format(t.problemsSummary, { count: shownProblems.length }) : undefined)}</FormAlert>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {step > 1 && stepButton('back', t.stepBack, 'arrowLeft', step - 1)}
           <p className="flex-1 text-sm text-muted">
-            {format(t.summary, { count: groups.length })}
+            {format(t.summary, { count: lines.length })}
             {dirty && <span className="ml-2 font-semibold text-navy">· {t.unsaved}</span>}
           </p>
           <Notice showKey={state.savedAt}>{t.saved}</Notice>
-          <button type="submit" form="requirement-form" name="intent" value="save" disabled={pending} className={buttonClass('secondary')}>
+          <button key="save" type="submit" form="requirement-form" name="intent" value="save" disabled={pending} className={buttonClass('secondary')}>
             <IconText icon="save">{t.save}</IconText>
           </button>
-          <button type="submit" form="requirement-form" name="intent" value="submit" disabled={pending} className={buttonClass('accent')}>
-            <IconText icon="send" busy={pending}>
-              {t.submit}
-            </IconText>
-          </button>
+          {step < 3 ? (
+            stepButton('next', step === 1 ? t.stepNext.special : t.stepNext.finish, 'arrowRight', step + 1, true)
+          ) : (
+            <button key="submit" type="submit" form="requirement-form" name="intent" value="submit" disabled={pending} className={buttonClass('accent')}>
+              <IconText icon="send" busy={pending}>
+                {t.submit}
+              </IconText>
+            </button>
+          )}
         </div>
-        <p className="text-[13px] text-muted">{t.submitHint}</p>
-        <form onSubmit={onDiscard} className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
+        {step === 3 && <p className="text-[13px] text-muted">{t.submitHint}</p>}
+        <form id={`discard-${id}`} onSubmit={onDiscard} className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
           <input type="hidden" name="locale" value={locale} />
+          <FromField />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="programId" value={programmeId} />
-          {!discarding && discardState.error && <p className="text-[13px] text-red">{errors[discardState.error]}</p>}
-          {confirmDiscard ? (
+          <button type="button" onClick={() => setConfirmDiscard(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
+            <IconText icon="trash">{t.discard}</IconText>
+          </button>
+        </form>
+        <Modal
+          open={confirmDiscard}
+          onClose={() => setConfirmDiscard(false)}
+          alert
+          busy={discarding}
+          tone="danger"
+          icon={<AdminIcon name="trash" size={20} />}
+          title={t.discard}
+          description={t.discardConfirm}
+          footer={
             <>
-              <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
-              <span className="text-sm">{t.discardConfirm}</span>
-              <button type="submit" disabled={discarding} className={buttonClass('dangerSolid', 'sm')}>
+              <button type="button" onClick={() => setConfirmDiscard(false)} disabled={discarding} className={buttonClass('secondary')} data-autofocus>
+                {dict.admin.programme.actions.cancel}
+              </button>
+              <button type="submit" form={`discard-${id}`} disabled={discarding} className={buttonClass('dangerSolid')}>
                 <IconText icon="trash" busy={discarding}>
                   {t.discardYes}
                 </IconText>
               </button>
-              <button type="button" onClick={() => setConfirmDiscard(false)} className={buttonClass('secondary', 'sm')}>
-                {dict.admin.programme.actions.cancel}
-              </button>
             </>
-          ) : (
-            <button type="button" onClick={() => setConfirmDiscard(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
-              <IconText icon="trash">{t.discard}</IconText>
-            </button>
-          )}
-        </form>
+          }
+        >
+          {!discarding && discardState.error && <p className="text-[13px] text-red">{errors[discardState.error]}</p>}
+        </Modal>
       </div>
     </div>
   );
 }
 
-interface RuleRowProps {
-  rule: EditorRule;
-  t: Dictionary['admin']['requirement'];
+type Texts = Dictionary['admin']['requirement'];
+
+interface PartProps {
+  part: RequirementPart;
+  lines: EditorLine[];
+  open: string | null;
+  setOpen: (key: string | null) => void;
+  t: Texts;
   noMatches: string;
   subjectOptions: DropdownOption[];
-  grades: readonly string[];
-  problems: RuleProblem[];
-  onChange: (change: Partial<EditorRule>) => void;
-  onRemove?: () => void;
-  subjectQualification: (subjectId: string) => string | undefined;
+  subjectById: ReadonlyMap<string, EditorSubject>;
+  problemsOf: (line: EditorLine) => LineProblem[];
+  onChange: (key: string, change: Partial<EditorLine>) => void;
+  onRemove: (key: string) => void;
+  onMove: (key: string, by: -1 | 1) => void;
+  onAdd: (section: string) => void;
+  onRemoveSection: (section: string) => void;
+  readLine: (text: string, section: string) => Partial<EditorLine>;
 }
 
-/** One requirement written as a sentence: "Students need at least [B] in [Mathematics]". */
-function RuleRow({ rule, t, noMatches, subjectOptions, grades, problems, onChange, onRemove, subjectQualification }: RuleRowProps) {
-  const s = t.sentence;
-  const has = (p: RuleProblem) => problems.includes(p);
-  const number = (label: string, problem: RuleProblem, width = 'w-20') => (
-    <input
-      aria-label={label}
-      value={rule.value}
-      onChange={(e) => onChange({ value: e.target.value })}
-      inputMode="decimal"
-      maxLength={6}
-      aria-invalid={has(problem) || undefined}
-      className={`${width} rounded-xl border-[1.5px] bg-white px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-yellow ${has(problem) ? 'border-red' : 'border-line'}`}
-    />
+/**
+ * One part (Syarat Am or Syarat Khas), laid out as the official page groups it: a tab per section (SPM, STPM, MUET…,
+ * or "general" for lines under no heading), each with its lines joined by DAN or ATAU. Sections follow one another
+ * with DAN. A line is added to the open section; sections can be added and removed.
+ */
+function PartEditor({ part, lines, open, setOpen, t, noMatches, subjectOptions, subjectById, problemsOf, onChange, onRemove, onMove, onAdd, onRemoveSection, readLine }: PartProps) {
+  const present = [...new Set(lines.map((l) => l.section))];
+  // Sections added but not given a line yet.
+  const [added, setAdded] = useState<string[]>([]);
+  const sections = [...present, ...added.filter((x) => !present.includes(x))];
+  if (sections.length === 0) sections.push('');
+  const [chosen, setChosen] = useState<string>(sections[0]!);
+  const current = sections.includes(chosen) ? chosen : sections[0]!;
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const own = lines.filter((l) => l.section === current);
+  const label = (section: string) => section || t.sections.general;
+  const addSection = (section: string) => {
+    const name = section.trim().toUpperCase();
+    if (!name) return;
+    if (!sections.includes(name)) setAdded((list) => [...list, name]);
+    setChosen(name);
+    setConfirmRemove(false);
+  };
+  const problemCount = (section: string) => lines.filter((l) => l.section === section && problemsOf(l).length).length;
+
+  return (
+    <section className="flex flex-col gap-3 rounded-[8px] border border-line bg-white p-5 lg:p-6">
+      {/* Laid out like the official page, so what is written here reads as students and the system will see it. */}
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[13px] font-bold uppercase tracking-wide text-muted">{t.parts[part]}</h2>
+        <p className="text-sm text-muted">{part === 'general' ? t.parts.generalHint : t.parts.specialHint}</p>
+      </div>
+
+      <div className="flex flex-col gap-2 border-b border-line pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div role="tablist" aria-label={t.sections.label} className="flex flex-wrap gap-1.5">
+          {sections.map((section) => {
+            const on = section === current;
+            const count = lines.filter((l) => l.section === section).length;
+            const bad = problemCount(section);
+            return (
+              <button
+                key={section || '-'}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => {
+                  setChosen(section);
+                  setConfirmRemove(false);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-[9px] border px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+                  on ? 'border-navy bg-navy text-white' : 'border-line bg-white text-navy hover:bg-bg'
+                }`}
+              >
+                {label(section)}
+                <span className={`rounded-full px-1.5 text-[11px] font-semibold normal-case ${bad ? 'bg-red text-white' : on ? 'bg-white/20' : 'bg-bg text-muted'}`}>{bad || count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <Dropdown
+          label={t.sections.add}
+          size="sm"
+          value=""
+          onChange={addSection}
+          options={SectionSuggestions.filter((x) => !sections.includes(x)).map((x) => ({ value: x, label: x }))}
+          placeholder={`+ ${t.sections.add}`}
+          noMatchesLabel={noMatches}
+          resetAfterChoice
+          hideLabel
+          className="w-full sm:w-[220px]"
+        />
+      </div>
+
+      <div role="tabpanel" aria-label={label(current)} className="flex flex-col gap-2">
+        {own.length === 0 && <p className="rounded-[8px] bg-bg px-4 py-3 text-sm text-muted">{lines.length ? t.sections.empty : t.parts.empty}</p>}
+        {own.map((line, i) => {
+          const previous = own[i - 1];
+          const canOr = !!previous && !isUnchecked(line.type) && !isUnchecked(previous.type);
+          const or = canOr && line.join === 'or';
+          return (
+            <div key={line.key} className="flex flex-col gap-2">
+              {previous && (
+                <div className="flex items-center gap-2 py-0.5">
+                  <span className={`h-px flex-1 ${or ? 'bg-[#e0a800]/50' : 'bg-line'}`} />
+                  <button
+                    type="button"
+                    disabled={!canOr}
+                    onClick={() => onChange(line.key, { join: or ? 'and' : 'or' })}
+                    title={canOr ? t.join.toggle : t.join.alone}
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 disabled:cursor-default ${
+                      or ? 'bg-yellow text-navy hover:bg-yellow/80' : 'bg-bg text-muted enabled:hover:bg-line'
+                    }`}
+                  >
+                    {or ? t.join.or : t.join.and}
+                  </button>
+                  <span className={`h-px flex-1 ${or ? 'bg-[#e0a800]/50' : 'bg-line'}`} />
+                </div>
+              )}
+              <LineCard
+                line={line}
+                first={i === 0}
+                last={i === own.length - 1}
+                open={open === line.key}
+                onOpen={() => setOpen(open === line.key ? null : line.key)}
+                t={t}
+                noMatches={noMatches}
+                subjectOptions={subjectOptions}
+                subjectById={subjectById}
+                problems={problemsOf(line)}
+                onChange={(change) => onChange(line.key, change)}
+                onRemove={() => onRemove(line.key)}
+                onMove={(by) => onMove(line.key, by)}
+                readLine={readLine}
+              />
+            </div>
+          );
+        })}
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+          <button type="button" onClick={() => onAdd(current)} className={buttonClass('secondary', 'sm')}>
+            <IconText icon="plus">{format(t.sections.addLine, { section: label(current) })}</IconText>
+          </button>
+          {(own.length > 0 || current) &&
+            (confirmRemove ? (
+              <span role="alertdialog" aria-label={t.sections.remove} className="flex flex-wrap items-center gap-2 rounded-[8px] bg-red/5 px-3 py-1.5 text-[13px]">
+                {format(t.sections.removeConfirm, { section: label(current), count: own.length })}
+                <button type="button" onClick={() => setConfirmRemove(false)} className={buttonClass('secondary', 'sm')}>
+                  {t.sections.cancel}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onRemoveSection(current);
+                    setAdded((list) => list.filter((x) => x !== current));
+                    setConfirmRemove(false);
+                  }}
+                  className={buttonClass('dangerSolid', 'sm')}
+                >
+                  {t.sections.yes}
+                </button>
+              </span>
+            ) : (
+              <button type="button" onClick={() => setConfirmRemove(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
+                <IconText icon="trash">{format(t.sections.removeButton, { section: label(current) })}</IconText>
+              </button>
+            ))}
+        </div>
+      </div>
+    </section>
   );
-  const gradeDropdown = (label: string) => (
+}
+
+interface LineProps {
+  line: EditorLine;
+  first: boolean;
+  last: boolean;
+  open: boolean;
+  onOpen: () => void;
+  t: Texts;
+  noMatches: string;
+  subjectOptions: DropdownOption[];
+  subjectById: ReadonlyMap<string, EditorSubject>;
+  problems: LineProblem[];
+  onChange: (change: Partial<EditorLine>) => void;
+  onRemove: () => void;
+  onMove: (by: -1 | 1) => void;
+  /** What a sentence checks (kind and values), read the same way as filling from ePanduan. */
+  readLine: (text: string, section: string) => Partial<EditorLine>;
+}
+
+/**
+ * One line, shown as on the official page (the sentence, and what the system checks). Opened, it is written the way
+ * the official text phrases it: "Gred [C] bagi matapelajaran [Bahasa Melayu]", "[2] Gred [C] dalam mana-mana
+ * matapelajaran", "BAND [1.0] dalam MUET", with the official sentence kept underneath.
+ */
+function LineCard({ line, first, last, open, onOpen, t, noMatches, subjectOptions, subjectById, problems, onChange, onRemove, onMove, readLine }: LineProps) {
+  const bad = problems.length > 0;
+  const [textBefore, setTextBefore] = useState(line.text);
+  const [offerRead, setOfferRead] = useState(false);
+  const sentenceRef = useRef<HTMLTextAreaElement>(null);
+  // A line just added (or opened while still empty) starts with its sentence ready to type.
+  useEffect(() => {
+    if (open && !line.text) sentenceRef.current?.focus();
+    // When the line opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+  const unchecked = isUnchecked(line.type);
+  const p = t.phrase;
+  const gradeSubject = line.type === 'min_grade' ? line.subjectId : line.subjectIds[0];
+  const grades = gradesFor(gradeSubject ? subjectById.get(gradeSubject)?.qualification : undefined);
+  const word = (text: string) => <span className="text-sm text-navy">{text}</span>;
+  const gradeDropdown = (
     <Dropdown
-      label={label}
-      hideLabel
+      label={t.grade}
       size="sm"
-      value={rule.grade ?? ''}
+      value={line.grade ?? ''}
       onChange={(grade) => onChange({ grade })}
       options={grades.map((g) => ({ value: g, label: g }))}
       placeholder={t.grade}
       noMatchesLabel={noMatches}
       searchable={false}
-      invalid={has('gradeRequired')}
-      className="w-[92px]"
+      invalid={problems.includes('gradeRequired')}
+      hideLabel
+      className="w-[96px]"
     />
+  );
+  const numberInput = (label: string, value: string, change: (v: string) => void, problem: LineProblem, width = 'w-20') => (
+    <input
+      aria-label={label}
+      value={value}
+      onChange={(e) => change(e.target.value)}
+      inputMode="decimal"
+      maxLength={6}
+      aria-invalid={problems.includes(problem) || undefined}
+      className={`${width} rounded-[8px] border bg-white px-3 py-2 text-center text-sm font-semibold outline-none focus:ring-2 focus:ring-navy/15 ${problems.includes(problem) ? 'border-red' : 'border-[#9aa3b2]'}`}
+    />
+  );
+  const action = (label: string, onClick: () => void, children: React.ReactNode, { disabled = false, danger = false } = {}) => (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      className={`rounded-md p-1.5 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 disabled:opacity-30 ${danger ? 'text-[#b33a35] hover:bg-red/10' : 'text-navy hover:bg-bg'}`}
+    >
+      {children}
+    </button>
   );
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex flex-wrap items-center gap-2 text-[15px]">
-        <span>{s.needs}</span>
-        <Dropdown
-          label={t.typeLabel}
-          hideLabel
-          size="sm"
-          value={rule.type}
-          onChange={(type) => onChange({ ...newRule(type as EditorRule['type']) })}
-          options={EditorRuleTypes.map((x) => ({ value: x, label: t.types[x] }))}
-          placeholder={t.typeLabel}
-          noMatchesLabel={noMatches}
-          searchable={false}
-          className="w-[170px]"
-        />
-        {rule.type === 'min_grade' && (
-          <>
-            <span>{s.minimum}</span>
-            {gradeDropdown(t.grade)}
-            <span>{s.in}</span>
-            <Dropdown
-              label={t.chooseSubject}
-              hideLabel
-              size="sm"
-              value={rule.subjectId ?? ''}
-              onChange={(subjectId) => {
-                // A grade from another exam's scale (e.g. SPM A+ on an STPM subject) is cleared.
-                const keep = rule.grade && gradesFor(subjectQualification(subjectId)).includes(rule.grade);
-                onChange({ subjectId, grade: keep ? rule.grade : null });
-              }}
-              options={subjectOptions}
-              placeholder={t.searchSubject}
-              noMatchesLabel={noMatches}
-              invalid={has('subjectRequired')}
-              className="min-w-[200px] flex-1"
-            />
-          </>
-        )}
-        {rule.type === 'min_credits' && (
-          <>
-            <span>{s.creditsGrade}</span>
-            {gradeDropdown(t.grade)}
-            <span>{s.creditsOrBetter}</span>
-            {number(t.value, 'creditsRange', 'w-16')}
-            <span>{s.subjects}</span>
-          </>
-        )}
-        {rule.type === 'min_cgpa' && (
-          <>
-            <span>{s.cgpa}</span>
-            {number(t.value, 'cgpaRange')}
-          </>
-        )}
-        {rule.type === 'min_muet' && (
-          <>
-            <span>{s.muet}</span>
-            {number(t.value, 'muetRange', 'w-16')}
-          </>
-        )}
-        {onRemove && (
-          <button type="button" onClick={onRemove} aria-label={t.removeAlternative} title={t.removeAlternative} className="ml-auto rounded-full px-2 py-1 text-lg leading-none hover:bg-white">
-            ×
+    <div className={`rounded-[8px] border transition-colors duration-150 ${bad ? 'border-red/60 bg-red/5' : open ? 'border-navy/40 bg-bg/60' : 'border-transparent hover:bg-bg/80'}`}>
+      <div className="flex items-start gap-2 px-3 py-2.5">
+        <span aria-hidden className={`mt-[7px] size-1.5 shrink-0 rounded-full ${unchecked ? 'bg-muted/50' : 'bg-navy/60'}`} />
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+          <button type="button" onClick={onOpen} className="px-1 py-0.5 text-left text-[13px] leading-relaxed">
+            {line.text || <span className="text-muted">{t.line.noText}</span>}
           </button>
-        )}
+          <span className="flex flex-wrap items-center gap-2 px-1">
+            <button type="button" onClick={onOpen} className={`rounded-full px-2 py-0.5 text-left text-[11px] font-semibold ${unchecked ? 'bg-bg text-muted' : 'bg-blue text-navy'} hover:ring-1 hover:ring-navy/30`}>
+              {lineSummary(line, (id) => (id && subjectById.get(id)?.label) || '?', t)}
+            </button>
+          </span>
+          {bad && <span className="px-1 text-[12px] text-red">{problems.map((x) => t.problems[x]).join(' ')}</span>}
+        </div>
+        <span className="flex shrink-0 items-center">
+          {action(open ? t.line.done : t.line.edit, onOpen, <AdminIcon name={open ? 'check' : 'pencil'} size={15} />)}
+          {action(t.line.up, () => onMove(-1), <AdminIcon name="arrowLeft" size={15} className="rotate-90" />, { disabled: first })}
+          {action(t.line.down, () => onMove(1), <AdminIcon name="arrowRight" size={15} className="rotate-90" />, { disabled: last })}
+          {action(t.line.remove, onRemove, <AdminIcon name="trash" size={15} />, { danger: true })}
+        </span>
       </div>
-      {problems.length > 0 && <p className="text-[13px] text-red">{problems.map((p) => t.problems[p]).join(' ')}</p>}
+      {open && (
+        <div className="flex flex-col gap-4 border-t border-line px-3 py-3">
+          {/* The sentence first: typed or pasted as on ePanduan, it fills the kind and values below when left. */}
+          <label className="flex flex-col gap-1.5 text-sm font-semibold">
+            {t.line.sentence}
+            <textarea
+              ref={sentenceRef}
+              value={line.text}
+              onChange={(e) => onChange({ text: e.target.value })}
+              onFocus={() => setTextBefore(line.text)}
+              onBlur={(e) => {
+                // The textarea's own value: the line's props may not have caught up with the last keystroke yet.
+                const text = e.currentTarget.value;
+                if (text.trim() === textBefore.trim() || text.trim().length < 2) return;
+                // A new or unfinished line takes what the sentence says; a finished one offers it instead.
+                if (!textBefore.trim() || bad || line.type === 'note') onChange({ text, ...readLine(text, line.section) });
+                else setOfferRead(true);
+              }}
+              rows={2}
+              maxLength={1500}
+              aria-invalid={problems.includes('textRequired') || undefined}
+              placeholder={t.line.sentencePlaceholder}
+              className={`field-sizing-content min-h-[64px] w-full rounded-[8px] border bg-white px-3 py-2 text-sm font-normal leading-relaxed text-navy outline-none focus:border-navy focus:ring-2 focus:ring-navy/15 ${problems.includes('textRequired') ? 'border-red' : 'border-[#9aa3b2]'}`}
+            />
+            <span className="text-[12px] font-normal text-muted">{t.line.sentenceHint}</span>
+          </label>
+          {offerRead && (
+            <p className="flex flex-wrap items-center gap-2 rounded-[8px] bg-cream px-3 py-2 text-[13px]">
+              <AdminIcon name="info" size={16} className="shrink-0" />
+              <span className="flex-1">{t.line.changedSentence}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange({ text: line.text, ...readLine(line.text, line.section) });
+                  setOfferRead(false);
+                }}
+                className={buttonClass('secondary', 'sm')}
+              >
+                {t.line.readAgain}
+              </button>
+            </p>
+          )}
+          <div className="flex flex-col gap-1.5">
+            {/* Plain names with an example each, so the kind is chosen by what the sentence says. */}
+            <Dropdown
+              label={t.typeLabel}
+              value={line.type}
+              onChange={(x) => onChange({ type: x as EditorLine['type'], join: isUnchecked(x as EditorLine['type']) ? 'and' : line.join })}
+              options={EditorRuleTypes.map((x) => ({ value: x, label: t.kinds[x], detail: t.kindExamples[x] }))}
+              placeholder={t.typeLabel}
+              noMatchesLabel={noMatches}
+              searchable={false}
+            />
+            <p className="text-[12px] text-muted">{t.kindExamples[line.type]}</p>
+          </div>
+
+          {unchecked && (
+            <p className="flex items-start gap-2 rounded-[8px] bg-bg px-3 py-2.5 text-[13px] text-muted">
+              <AdminIcon name="info" size={16} className="mt-0.5 shrink-0" />
+              {line.type === 'declaration' ? p.declarationHint : p.noteHint}
+            </p>
+          )}
+          {!unchecked && (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-semibold">{p.title}</p>
+              {/* Written as the official text phrases it. */}
+              <div className="flex flex-wrap items-center gap-2 rounded-[8px] border border-dashed border-navy/25 bg-white px-3 py-3">
+                {line.type === 'min_grade' && (
+                  <>
+                    {word(p.grade)}
+                    {gradeDropdown}
+                    {word(p.forSubject)}
+                    <Dropdown
+                      label={t.chooseSubject}
+                      size="sm"
+                      value={line.subjectId ?? ''}
+                      onChange={(subjectId) => onChange({ subjectId })}
+                      options={subjectOptions}
+                      placeholder={t.searchSubject}
+                      noMatchesLabel={noMatches}
+                      invalid={problems.includes('subjectRequired')}
+                      hideLabel
+                      className="min-w-[220px] flex-1"
+                    />
+                  </>
+                )}
+                {line.type === 'subjects_from_list' && (
+                  <>
+                    {word(p.grade)}
+                    {gradeDropdown}
+                    {word(p.in)}
+                    {numberInput(t.line.count, line.count, (count) => onChange({ count }), 'countRange', 'w-16')}
+                    {word(p.subjectsFollowing)}
+                  </>
+                )}
+                {line.type === 'min_credits' && (
+                  <>
+                    {numberInput(t.line.credits, line.value, (value) => onChange({ value }), 'creditsRange', 'w-16')}
+                    {word(p.grade)}
+                    {gradeDropdown}
+                    {word(p.anySubject)}
+                  </>
+                )}
+                {line.type === 'min_cgpa' && (
+                  <>
+                    {word(p.cgpa)}
+                    {numberInput(t.types.min_cgpa, line.value, (value) => onChange({ value }), 'cgpaRange')}
+                  </>
+                )}
+                {line.type === 'min_muet' && (
+                  <>
+                    {word(p.muetBefore)}
+                    {numberInput(t.line.band, line.value, (value) => onChange({ value }), 'muetRange', 'w-16')}
+                    {word(p.muetAfter)}
+                  </>
+                )}
+              </div>
+              {line.type === 'subjects_from_list' && (
+                <div className="flex flex-col gap-2 pl-1">
+                  {line.subjectIds.length > 0 && (
+                    <ul className="flex flex-col gap-1">
+                      {line.subjectIds.map((sid) => (
+                        <li key={sid} className="flex items-center gap-2 text-[13px]">
+                          <span aria-hidden className="text-muted">–</span>
+                          <span className="flex-1">{subjectById.get(sid)?.label ?? sid}</span>
+                          <button
+                            type="button"
+                            onClick={() => onChange({ subjectIds: line.subjectIds.filter((x) => x !== sid) })}
+                            aria-label={`${t.line.remove}: ${subjectById.get(sid)?.label ?? ''}`}
+                            className="rounded-md p-1 text-muted hover:bg-red/10 hover:text-[#b33a35]"
+                          >
+                            <AdminIcon name="x" size={14} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <Dropdown
+                    label={t.line.subjects}
+                    size="sm"
+                    value=""
+                    onChange={(subjectId) => subjectId && !line.subjectIds.includes(subjectId) && onChange({ subjectIds: [...line.subjectIds, subjectId] })}
+                    options={subjectOptions.filter((o) => !line.subjectIds.includes(o.value))}
+                    placeholder={t.line.addSubject}
+                    noMatchesLabel={noMatches}
+                    invalid={problems.includes('subjectsRequired')}
+                    resetAfterChoice
+                    hideLabel
+                  />
+                </div>
+              )}
+              {/* What the line asks of a student, in plain words, as students will read it. */}
+              <p className="flex items-start gap-2 rounded-[8px] bg-mint px-3 py-2.5 text-[13px] text-[#1f6b47]">
+                <AdminIcon name="checkCircle" size={16} className="mt-0.5 shrink-0" />
+                <span>
+                  <span className="font-semibold">{p.preview}</span> {lineSummary(line, (id) => (id && subjectById.get(id)?.label) || '?', t)}
+                </span>
+              </p>
+            </div>
+          )}
+
+        </div>
+      )}
     </div>
   );
 }

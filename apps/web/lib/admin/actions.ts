@@ -1,12 +1,18 @@
 'use server';
 
-import { InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
+import { EntryRoutes, EpanduanInstitutions, InstitutionSourceKinds, InstitutionTypes, MalaysianStates, StudyLevel, StudyModes, isEntryRoute } from '@edulaunch/contracts';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
+import { readFrom, withFrom } from './trail';
 import { isLocale, type Locale } from '../i18n/locale';
 import { getAccount, getAccessToken } from '../supabase/server';
 import * as api from './api';
-import { checkGroups, EditorState, type CheckedState } from './requirement-form';
+import { acceptable, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
+import { checkLines, EditorState, gradesFor, type CheckedLines } from './requirement-form';
+import { groupSourceUrl, rulesFromGroup, type MatchableSubject } from './epanduan-text';
+import { requirementSlots } from './requirement-slots';
+import { getReferenceData } from '../catalogue/api';
 
 /** Error keys shown from `dict.admin.errors` (or a form's own `errors`). */
 export type AdminErrorKey =
@@ -23,9 +29,11 @@ export type AdminErrorKey =
   | 'not_found'
   | 'confirmation_mismatch'
   | 'upu_code_taken'
+  | 'run_in_progress'
+  | 'service_unavailable'
   | 'noRules';
 
-const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'confirmation_mismatch', 'upu_code_taken'];
+const KNOWN: readonly string[] = ['forbidden', 'conflict', 'draft_exists', 'invalid_rule', 'missing_evidence', 'invalid_source', 'invalid_program', 'invalid_institution', 'reason_required', 'not_found', 'confirmation_mismatch', 'upu_code_taken', 'run_in_progress', 'service_unavailable'];
 
 export interface AdminFormState {
   /** A new time on every successful save, to show "Saved". */
@@ -34,9 +42,16 @@ export interface AdminFormState {
   /** Field problems, by field name, as keys of the form's own `errors`. */
   fieldErrors?: Record<string, string>;
   /** Requirement editor: problems by line and rule. */
-  problems?: CheckedState['problems'];
+  problems?: CheckedLines['problems'];
   /** Institution delete: whether it was requested (waiting for another admin) or cancelled. */
   status?: 'requested' | 'cancelled';
+  /** ePanduan import: how many found programmes became drafts or changes, and how many could not be saved. */
+  /** Programmes accepted from ePanduan; any that could not be saved are named with the reason. */
+  imported?: { created: number; updated: number; failed: number; failures?: Array<{ name: string; error: AdminErrorKey }> };
+  /** Requirements that went along with a programme sent for review or approved, and how many could not. */
+  alongside?: { action: 'submit' | 'approve'; done: number; failed: number };
+  /** Bulk send or approve from the task inbox: how many went through, and which did not and why. */
+  bulk?: { done: number; failed: Array<{ name: string; error: AdminErrorKey }> };
 }
 
 const localeOf = (form: FormData): Locale => {
@@ -48,10 +63,20 @@ const text = (form: FormData, name: string) => String(form.get(name) ?? '').trim
 
 /** The signed-in admin's token. Anyone else goes to their own home (the proxy checks too). */
 async function adminToken(locale: Locale): Promise<string> {
+  return (await adminSession(locale)).token;
+}
+
+/** The signed-in admin's token and whether they are a super admin (who may approve their own work). */
+async function adminSession(locale: Locale): Promise<{ token: string; superAdmin: boolean }> {
   const account = await getAccount();
   const token = await getAccessToken();
   if (!account || !token || account.role !== 'admin') redirect(`/${locale}`);
-  return token;
+  return { token, superAdmin: account.superAdmin };
+}
+
+/** The list the admin came from, sent with the form (`dari`), when it is a safe admin address. */
+function fromOf(form: FormData): string | null {
+  return readFrom(text(form, 'dari'), localeOf(form));
 }
 
 function errorKey(err: unknown): AdminErrorKey {
@@ -73,6 +98,7 @@ export async function saveInstitution(_prev: AdminFormState, form: FormData): Pr
     type: InstitutionTypes.find((t) => t === text(form, 'type')),
     websiteUrl: text(form, 'websiteUrl') || null,
     state: MalaysianStates.find((x) => x === text(form, 'state')) ?? null,
+    epanduanCode: EpanduanInstitutions.find((x) => x.code === text(form, 'epanduanCode'))?.code ?? null,
   };
   const fieldErrors: Record<string, string> = {};
   if (body.name.length < 3 || body.name.length > 160) fieldErrors.name = 'nameRequired';
@@ -156,28 +182,34 @@ function programmeDetails(form: FormData, isStream: boolean) {
   const fieldErrors: Record<string, string> = {};
   if (name.length < 3 || name.length > 160) fieldErrors.name = 'nameRequired';
   if (duration !== null && (!Number.isInteger(duration) || duration < 1 || duration > 16)) fieldErrors.durationSemesters = 'durationInvalid';
-  const upuCode = text(form, 'upuCode').toUpperCase() || null;
+  const programCode = text(form, 'programCode').toUpperCase() || null;
   // Required, with no fixed format yet (the official guideline for these codes is still being checked).
-  if (!isStream && !upuCode) fieldErrors.upuCode = 'upuRequired';
-  if (upuCode && upuCode.length > 30) fieldErrors.upuCode = 'upuTooLong';
+  if (!isStream && !programCode) fieldErrors.programCode = 'upuRequired';
+  if (programCode && programCode.length > 30) fieldErrors.programCode = 'upuTooLong';
   const sourceUrl = text(form, 'sourceUrl') || null;
   if (sourceUrl && !/^https?:\/\/\S+$/.test(sourceUrl)) fieldErrors.sourceUrl = 'sourceInvalid';
   const flag = (name: string) => form.get(name) === 'on';
+  const list = (name: string) => form.getAll(name).map((v) => String(v).trim()).filter(Boolean);
   return {
     details: {
       name,
       durationSemesters: duration,
       fieldIds: [...new Set(fieldIds)].slice(0, 10),
-      upuCode,
+      programCode,
       internalCode: text(form, 'internalCode') || null,
       faculty: text(form, 'faculty') || null,
       necCode: /^\d{4}$/.test(text(form, 'necCode')) ? text(form, 'necCode') : null,
       studyMode: StudyModes.find((m) => m === text(form, 'studyMode')) ?? null,
-      campus: text(form, 'campus') || null,
+      campuses: list('campuses').slice(0, 20),
       hasInterview: flag('hasInterview'),
       isStem: flag('isStem'),
       isTvet: flag('isTvet'),
       bumiputeraOnly: flag('bumiputeraOnly'),
+      jointDegree: flag('jointDegree'),
+      feeder: flag('feeder'),
+      careers: list('careers').slice(0, 100),
+      fees: text(form, 'fees').slice(0, 1000) || null,
+      note: text(form, 'note').slice(0, 2000) || null,
       sourceUrl,
     },
     fieldErrors,
@@ -202,8 +234,55 @@ export async function createProgramme(_prev: AdminFormState, form: FormData): Pr
   } catch (err) {
     return { error: errorKey(err) };
   }
+  await saveAdmission(token, id, form).catch(() => null);
+  // Typed with an ePanduan code: Syarat Khas is read in the background, as for accepted programmes.
+  if (details.programCode) await api.readSpecialRequirements(token, details.programCode.slice(0, 2), [details.programCode]).catch(() => null);
   refresh();
   redirect(`/${locale}/admin/program/${id}`);
+}
+
+/**
+ * Entry routes ("route|category" values) and the average merit from the programme form. They apply at once, as an
+ * import does; the programme's own details go through review.
+ */
+async function saveAdmission(token: string, id: string, form: FormData) {
+  if (!form.has('admission')) return;
+  const rows = form
+    .getAll('entryRouteRows')
+    .map(String)
+    .map((v) => {
+      const [entryRoute = '', category = ''] = v.split('|');
+      return { entryRoute, sourceCategory: CATEGORY.test(category) ? category : null };
+    })
+    .filter((r) => isEntryRoute(r.entryRoute));
+  await api.setEntryRoutes(token, id, rows);
+  const merit = Number(text(form, 'averageMerit'));
+  const year = Number(text(form, 'meritYear'));
+  if (text(form, 'averageMerit') && merit >= 0 && merit <= 100 && Number.isInteger(year) && year >= 2000 && year <= 2100) {
+    await api.recordAverageMerit(token, id, { intakeYear: year, averageMerit: merit });
+  }
+}
+
+export type EpanduanLookup =
+  | { status: 'found'; programme: api.FoundProgramme; institutionId: string | null }
+  | { status: 'not_found' | 'unavailable' };
+
+/**
+ * The programme with this code as last read from ePanduan, for the programme form's "fill from ePanduan", with the
+ * institution its code belongs to when exactly one institution has that ePanduan code.
+ */
+export async function lookupEpanduanProgramme(locale: string, code: string): Promise<EpanduanLookup> {
+  const token = await adminToken(isLocale(locale) ? locale : 'ms');
+  const clean = code.trim().toUpperCase();
+  if (!/^[A-Z0-9]{4,30}$/.test(clean)) return { status: 'not_found' };
+  try {
+    const [[programme], institutions] = await Promise.all([api.listFoundProgrammes(token, [clean]), api.listAdminInstitutions(token)]);
+    if (!programme) return { status: 'not_found' };
+    const owners = institutions.filter((i) => i.epanduanCode === clean.slice(0, 2));
+    return { status: 'found', programme, institutionId: owners.length === 1 ? owners[0]!.id : null };
+  } catch {
+    return { status: 'unavailable' };
+  }
 }
 
 /** Saves the edit page and returns to the programme, which then shows what happens next. */
@@ -211,7 +290,7 @@ export async function updateProgramme(_prev: AdminFormState, form: FormData): Pr
   const locale = localeOf(form);
   const id = text(form, 'id');
   // The form has no programme code field for a Form 4 stream.
-  const { details, fieldErrors } = programmeDetails(form, !form.has('upuCode'));
+  const { details, fieldErrors } = programmeDetails(form, !form.has('programCode'));
   // A draft that was never published may still move to another institution or level.
   const level = StudyLevel.safeParse(text(form, 'studyLevel'));
   const institutionId = text(form, 'institutionId');
@@ -221,11 +300,12 @@ export async function updateProgramme(_prev: AdminFormState, form: FormData): Pr
   const token = await adminToken(locale);
   try {
     await api.updateProgramme(token, id, { ...details, ...placement });
+    await saveAdmission(token, id, form);
   } catch (err) {
     return { error: errorKey(err) };
   }
   refresh();
-  redirect(`/${locale}/admin/program/${id}`);
+  redirect(withFrom(`/${locale}/admin/program/${id}`, fromOf(form)));
 }
 
 /** Send for review, approve, return with a reason, withdraw, discard a change, archive, reopen or delete a programme. */
@@ -234,10 +314,17 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
   const action = text(form, 'action');
   const reason = text(form, 'reason');
   if (action === 'return' && reason.length < 5) return { error: 'reason_required' };
-  const simple = ['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen'] as const;
+  const simple = ['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen', 'unpublish'] as const;
   const plain = simple.find((a) => a === action);
-  if (action !== 'return' && action !== 'delete' && !plain) return { error: 'generic' };
-  const token = await adminToken(locale);
+  if (action !== 'return' && action !== 'delete' && action !== 'requirements' && !plain) return { error: 'generic' };
+  const { token, superAdmin } = await adminSession(locale);
+  if (action === 'requirements') {
+    // A published programme's requirement drafts: sent for review, and published at once by a super admin.
+    const along = superAdmin ? 'approve' : 'submit';
+    const result = await withRequirements(token, text(form, 'id'), along, superAdmin);
+    refresh();
+    return { savedAt: Date.now(), alongside: { action: along, ...result } };
+  }
   if (action === 'delete') {
     // A draft or archived programme goes with its requirements; the admin returns to where it was listed.
     try {
@@ -249,35 +336,91 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
     const back = text(form, 'back');
     redirect(back.startsWith(`/${locale}/admin/`) ? back : `/${locale}/admin/program`);
   }
+  const id = text(form, 'id');
   try {
-    await api.reviewProgramme(token, text(form, 'id'), action === 'return' ? { action, reason } : { action: plain! });
+    await api.reviewProgramme(token, id, action === 'return' ? { action, reason } : { action: plain! });
   } catch (err) {
     return { error: errorKey(err) };
   }
+  const alongside = plain === 'submit' || plain === 'approve' ? { action: plain, ...(await withRequirements(token, id, plain, superAdmin)) } : undefined;
   refresh();
-  return { savedAt: Date.now() };
+  return { savedAt: Date.now(), alongside };
+}
+
+/**
+ * A programme's requirements follow it: sending the programme for review sends its drafts too, and approving it
+ * approves its requirements waiting for review, so a published programme does not stay "without requirements".
+ * Each still goes through its own rules (lines and a source; another admin approves), so a refused one stays as it was.
+ */
+async function withRequirements(token: string, programmeId: string, action: 'submit' | 'approve', superAdmin: boolean): Promise<{ done: number; failed: number }> {
+  const result = { done: 0, failed: 0 };
+  const programme = await api.getProgrammeDetail(token, programmeId).catch(() => null);
+  for (const r of programme?.requirements ?? []) {
+    const draft = r.status === 'draft' || r.status === 'returned';
+    // Approving takes what waits for review; a super admin, who may approve their own work, publishes drafts too.
+    const steps: Array<'submit' | 'approve'> =
+      action === 'submit' ? (draft ? ['submit'] : []) : r.status === 'in_review' ? ['approve'] : draft && superAdmin ? ['submit', 'approve'] : [];
+    if (!steps.length) continue;
+    try {
+      for (const step of steps) await api.reviewRequirement(token, r.id, { action: step });
+      result.done += 1;
+    } catch {
+      result.failed += 1;
+    }
+  }
+  return result;
 }
 
 /**
  * Starts a draft for a programme and route (from the published rules when there are any) and opens it.
  * If a draft already exists for that route, opens that one instead.
  */
+const CATEGORY = /^[a-z0-9]+:[A-Z0-9]+$/;
+
 export async function startRequirement(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
   const locale = localeOf(form);
   const programId = text(form, 'programId');
   const entryRoute = text(form, 'entryRoute');
   if (!isEntryRoute(entryRoute)) return { error: 'generic' };
+  // The ePanduan candidate category the requirement is for (one requirement each when categories differ).
+  const category = text(form, 'category');
+  const sourceCategory = CATEGORY.test(category) ? category : null;
   const token = await adminToken(locale);
   let id: string;
   try {
-    ({ id } = await api.createRequirementDraft(token, { programId, entryRoute }));
+    ({ id } = await api.createRequirementDraft(token, { programId, entryRoute, sourceCategory }));
   } catch (err) {
     const existing = err instanceof api.AdminApiError && err.code === 'draft_exists' ? err.message.match(/\(([0-9a-f-]{36})\)/)?.[1] : undefined;
     if (!existing) return { error: errorKey(err) };
     id = existing;
   }
+  // Copied from approved requirements of another programme: saved into the new draft at once, for the admin to check.
+  const copyFrom = text(form, 'copyFrom');
+  if (z.uuid().safeParse(copyFrom).success && (await copyInto(token, id, copyFrom))) {
+    refresh();
+    redirect(withFrom(`/${locale}/admin/syarat/${id}?disalin=1`, fromOf(form)));
+  }
   refresh();
-  redirect(`/${locale}/admin/syarat/${id}`);
+  // From an ePanduan category: the editor fills an empty draft from its text, for the admin to check and save.
+  const fill = text(form, 'fill');
+  redirect(withFrom(`/${locale}/admin/syarat/${id}${CATEGORY.test(fill) ? `?isi=${encodeURIComponent(fill)}` : ''}`, fromOf(form)));
+}
+
+/** Copies another requirement's lines into an empty draft; false when nothing was copied (the draft keeps its own). */
+async function copyInto(token: string, draftId: string, sourceId: string): Promise<boolean> {
+  try {
+    const [draft, source] = await Promise.all([api.getRequirementDetail(token, draftId), api.getRequirementDetail(token, sourceId)]);
+    if (draft.rules.length || !source.rules.length) return false;
+    await api.saveRequirementDraft(token, draftId, {
+      sourceUrl: source.sourceUrl,
+      sourceCategory: source.sourceCategory,
+      rules: source.rules.map((r) => ({ ...r, officialText: r.officialText ?? '' })),
+    });
+    return true;
+  } catch {
+    // Rules another route cannot take (subjects of another exam) are refused; the empty draft opens instead.
+    return false;
+  }
 }
 
 /** Saves the requirement editor; with `intent=submit` it also sends the draft for review. */
@@ -290,7 +433,7 @@ export async function saveRequirement(_prev: AdminFormState, form: FormData): Pr
     return { error: 'generic' };
   }
   const submit = text(form, 'intent') === 'submit';
-  const { rules, problems } = checkGroups(state.groups);
+  const { rules, problems } = checkLines(state.lines.map((l, i) => ({ ...l, key: String(i) })));
   if (problems.length) return { problems };
   if (submit && rules.length === 0) return { error: 'noRules' };
   const sourceUrl = state.sourceUrl.trim() || null;
@@ -300,14 +443,14 @@ export async function saveRequirement(_prev: AdminFormState, form: FormData): Pr
   const id = text(form, 'id');
   const token = await adminToken(locale);
   try {
-    await api.saveRequirementDraft(token, id, { sourceUrl, rules });
+    await api.saveRequirementDraft(token, id, { sourceUrl, sourceCategory: state.sourceCategory, rules });
     if (submit) await api.reviewRequirement(token, id, { action: 'submit' });
   } catch (err) {
     return { error: errorKey(err) };
   }
   refresh();
   // Back to the programme's requirements, which say what was done ("draft saved" or "sent for review").
-  redirect(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat&selesai=${submit ? 'hantar' : 'draf'}`);
+  redirect(withFrom(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat&selesai=${submit ? 'hantar' : 'draf'}`, fromOf(form)));
 }
 
 /** The reviewing admin approves (publishes) or returns a requirement draft. */
@@ -336,5 +479,311 @@ export async function discardRequirement(_prev: AdminFormState, form: FormData):
     return { error: errorKey(err) };
   }
   refresh();
-  redirect(`/${locale}/admin/program/${text(form, 'programId')}`);
+  redirect(withFrom(`/${locale}/admin/program/${text(form, 'programId')}?tab=syarat`, fromOf(form)));
+}
+
+/** Removes an entry route that has no requirements yet from a programme. */
+/**
+ * Removes one route from a programme with everything written for it: the admin's own draft (`draftId`), then the
+ * route itself, so its tab no longer shows. Published requirements are not removed this way (another admin approves
+ * every change students see). Programmes accepted before routes were kept get theirs from ePanduan first.
+ */
+export async function removeEntryRoute(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const token = await adminToken(locale);
+  const programId = text(form, 'programId');
+  const entryRoute = text(form, 'entryRoute');
+  const draftId = text(form, 'draftId');
+  // Only these candidate categories of the route go (the tab removed); none given removes the whole route.
+  const categories = form.getAll('categories').map(String).filter((c) => CATEGORY.test(c));
+  const removed = (r: { entryRoute: string; sourceCategory: string | null }) =>
+    r.entryRoute === entryRoute && (categories.length === 0 || (r.sourceCategory !== null && categories.includes(r.sourceCategory)));
+  try {
+    if (draftId) await api.discardRequirementDraft(token, draftId);
+    const programme = await api.getProgrammeDetail(token, programId);
+    if (programme.entryRoutes.length === 0 && programme.programCode) {
+      const [found] = await api.listFoundProgrammes(token, [programme.programCode]);
+      await api.setEntryRoutes(token, programId, found ? entryRoutesFromFound(found).filter((r) => !removed(r)) : []);
+    } else {
+      await api.removeEntryRoute(token, programId, entryRoute, categories);
+    }
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
+  refresh();
+  redirect(withFrom(`/${locale}/admin/program/${programId}?tab=syarat`, fromOf(form)));
+}
+
+/**
+ * Turns ePanduan's requirement text into drafts, so the admin reviews and edits instead of writing from nothing: one
+ * draft per requirement slot (route and group of categories with the same text) that has none yet, or only the slot
+ * given (`slot`), which then opens in the editor. Lines that cannot be checked as read stay as notes to finish.
+ */
+export async function draftFromEpanduan(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const token = await adminToken(locale);
+  const programId = text(form, 'programId');
+  const only = text(form, 'slot');
+  let opened: string | null = null;
+  try {
+    const subjects = await subjectsForReading();
+    const result = await syncEpanduanDrafts(token, programId, subjects, only || undefined);
+    if (result === null) return { error: 'conflict' };
+    opened = result.created.at(-1) ?? null;
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
+  refresh();
+  if (only && opened) redirect(withFrom(`/${locale}/admin/syarat/${opened}?disalin=epanduan`, fromOf(form)));
+  redirect(withFrom(`/${locale}/admin/program/${programId}?tab=syarat&selesai=dari-epanduan`, fromOf(form)));
+}
+
+/**
+ * Refreshes the drafts of an institution's programmes from ePanduan once Syarat Khas has been read: missing drafts
+ * are made, and drafts nobody has touched since they were made from Syarat Am get Syarat Khas too. Called by the
+ * import tab when reading finishes; edited drafts are never replaced.
+ */
+export async function refreshEpanduanDrafts(locale: string, institutionId: string): Promise<{ created: number; updated: number }> {
+  const token = await adminToken(isLocale(locale) ? locale : 'ms');
+  const totals = { created: 0, updated: 0 };
+  try {
+    const [programmes, subjects] = await Promise.all([api.listInstitutionProgrammes(token, institutionId), subjectsForReading()]);
+    const withCode = programmes.filter((x) => x.programCode && x.status !== 'archived');
+    // ePanduan's readings for every programme at once, instead of two requests per programme.
+    const codes = withCode.map((x) => x.programCode!);
+    const [found, special] = await Promise.all([api.listFoundProgrammes(token, codes), api.listSpecialRequirements(token, codes)]);
+    const readings = { found: new Map(found.map((f) => [f.code, f])), special };
+    for (const p of withCode) {
+      const result = await syncEpanduanDrafts(token, p.id, subjects, undefined, readings).catch(() => null);
+      totals.created += result?.created.length ?? 0;
+      totals.updated += result?.updated ?? 0;
+    }
+  } catch {
+    return totals;
+  }
+  if (totals.created || totals.updated) refresh();
+  return totals;
+}
+
+type ReadingSubjects = { subjects: MatchableSubject[]; validGrade: (subjectId: string, grade: string) => boolean };
+
+/** The catalogue's subjects, as the requirement reader matches them. */
+async function subjectsForReading(): Promise<ReadingSubjects> {
+  const reference = await getReferenceData();
+  const qualification = new Map(reference.subjects.map((s) => [s.id, s.qualification]));
+  return {
+    subjects: reference.subjects.map((s) => ({ id: s.id, qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) })),
+    validGrade: (subjectId, grade) => gradesFor(qualification.get(subjectId)).includes(grade),
+  };
+}
+
+/** Two rule lists say the same thing (order, kind, values, sentence). */
+function sameRules(a: Array<Partial<api.AdminRule>>, b: Array<Partial<api.AdminRule>>): boolean {
+  const key = (r: Partial<api.AdminRule>) =>
+    JSON.stringify([r.part, r.section ?? null, r.conditionType, r.minGrade ?? null, r.minValue === null || r.minValue === undefined ? null : Number(r.minValue), r.minCount ?? null, (r.officialText ?? '').trim(), r.subjectId ?? null, r.subjectIds ?? []]);
+  return a.length === b.length && a.every((r, i) => key(r) === key(b[i]!));
+}
+
+/**
+ * A programme's requirement drafts from its ePanduan text: one for each slot without a requirement (or only the
+ * slot given), and an untouched draft made before Syarat Khas was read is filled again with it. Null when the
+ * programme has no ePanduan reading.
+ */
+async function syncEpanduanDrafts(
+  token: string,
+  programId: string,
+  reading: ReadingSubjects,
+  only?: string,
+  /** ePanduan's readings already fetched for many programmes (an institution at once). */
+  readings?: { found: Map<string, api.FoundProgramme>; special: api.SpecialRequirement[] },
+): Promise<{ created: string[]; updated: number } | null> {
+  const programme = await api.getProgrammeDetail(token, programId);
+  if (!programme.programCode) return null;
+  const code = programme.programCode;
+  const [found, special] = readings
+    ? [readings.found.get(code), readings.special.filter((x) => x.code === code)]
+    : await Promise.all([api.listFoundProgrammes(token, [code]).then((x) => x[0]), api.listSpecialRequirements(token, [code])]);
+  if (!found) return null;
+  const kept = new Set(programme.entryRoutes);
+  const categories = found.categories.filter((c) => c.route && (kept.size === 0 || kept.has(c.route)));
+  const result = { created: [] as string[], updated: 0 };
+  for (const slot of requirementSlots(EntryRoutes, categories, special, programme.requirements)) {
+    if (!slot.group || (only && slot.key !== only)) continue;
+    const rules = rulesFromGroup(slot.group, reading.subjects, reading.validGrade);
+    if (slot.versions.length === 0) {
+      const { id } = await api.createRequirementDraft(token, { programId, entryRoute: slot.route, sourceCategory: slot.category });
+      if (rules.length) await api.saveRequirementDraft(token, id, { sourceUrl: groupSourceUrl(slot.group), sourceCategory: slot.category, rules });
+      result.created.push(id);
+      continue;
+    }
+    // A first draft, made from Syarat Am before Syarat Khas was read, and not edited since: take Syarat Khas too.
+    const [only1] = slot.versions;
+    if (slot.versions.length !== 1 || only1!.status !== 'draft' || slot.group.special?.status !== 'done') continue;
+    const detail = await api.getRequirementDetail(token, only1!.id);
+    const withoutSpecial = rulesFromGroup({ ...slot.group, special: null }, reading.subjects, reading.validGrade);
+    if (sameRules(detail.rules, withoutSpecial) && !sameRules(detail.rules, rules)) {
+      await api.saveRequirementDraft(token, only1!.id, { sourceUrl: detail.sourceUrl ?? groupSourceUrl(slot.group), sourceCategory: slot.category, rules });
+      result.updated += 1;
+    }
+  }
+  return result;
+}
+
+/**
+ * Sends the chosen drafts for review, or approves the chosen items, from the task inbox. Each item goes through the
+ * same rules as one at a time (another admin approves; requirements need lines and a source), so some may be
+ * refused: those are listed with the reason and the rest go through. Institution deletions are never in a bulk.
+ */
+export async function bulkReview(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const { token, superAdmin } = await adminSession(locale);
+  const action = text(form, 'bulkAction');
+  if (action !== 'submit' && action !== 'approve') return { error: 'generic' };
+  const items = form
+    .getAll('items')
+    .map(String)
+    .map((v) => {
+      const [kind = '', id = ''] = v.split('|');
+      return { kind, id, name: text(form, `name-${id}`) || id };
+    })
+    .filter((x) => (x.kind === 'programme' || x.kind === 'requirement') && z.uuid().safeParse(x.id).success)
+    .slice(0, 100);
+  if (items.length === 0) return { error: 'generic' };
+  const failed: Array<{ name: string; error: AdminErrorKey }> = [];
+  let done = 0;
+  // Requirements first, so a programme taking its own along never meets one already sent.
+  items.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'requirement' ? -1 : 1));
+  for (const item of items) {
+    try {
+      // A super admin "approving" a draft (from another admin's drafts) sends it first, then approves it.
+      const draft = ['draft', 'returned'].includes(text(form, `status-${item.id}`));
+      if (action === 'approve' && draft && superAdmin) {
+        if (item.kind === 'programme') await api.reviewProgramme(token, item.id, { action: 'submit' });
+        else await api.reviewRequirement(token, item.id, { action: 'submit' });
+      }
+      if (item.kind === 'programme') {
+        await api.reviewProgramme(token, item.id, { action });
+        // Its requirements not chosen on their own go along (chosen ones were handled first, below).
+        await withRequirements(token, item.id, action, superAdmin);
+      } else await api.reviewRequirement(token, item.id, { action });
+      done += 1;
+    } catch (err) {
+      failed.push({ name: item.name, error: errorKey(err) });
+    }
+  }
+  refresh();
+  return { bulk: { done, failed }, savedAt: Date.now() };
+}
+
+/** Starts reading an institution's programmes on ePanduan; the import tab shows the progress and then the result. */
+export async function startEpanduanImport(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const code = EpanduanInstitutions.find((x) => x.code === text(form, 'code'))?.code;
+  if (!code) return { error: 'generic' };
+  const token = await adminToken(locale);
+  try {
+    await api.startEpanduanRun(token, code);
+  } catch (err) {
+    // Already being read (for example by another admin): the tab simply shows that run.
+    if (!(err instanceof api.AdminApiError && err.code === 'run_in_progress')) return { error: errorKey(err) };
+  }
+  refresh();
+  return { savedAt: Date.now() };
+}
+
+const FACT_KEYS = [
+  'programCode',
+  'internalCode',
+  'faculty',
+  'necCode',
+  'studyMode',
+  'campuses',
+  'hasInterview',
+  'isStem',
+  'isTvet',
+  'bumiputeraOnly',
+  'jointDegree',
+  'feeder',
+  'careers',
+  'fees',
+  'note',
+  'sourceUrl',
+] as const;
+
+/**
+ * Accepts the chosen found programmes: a new one becomes a draft of this institution (with its average merit), a
+ * changed one gets only its changed details (a draft directly, a published programme as a change). Everything is
+ * worked out again here from the stored run and the catalogue, so only rows that may be accepted are saved, and
+ * another admin still approves each one before students see it.
+ */
+export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormData): Promise<AdminFormState> {
+  const locale = localeOf(form);
+  const institutionId = text(form, 'institutionId');
+  const chosen = new Set(form.getAll('codes').map(String));
+  if (!institutionId || chosen.size === 0) return { error: 'generic' };
+  const token = await adminToken(locale);
+  let comparison;
+  let necField: Map<string, string | null>;
+  try {
+    const institution = await api.getInstitutionDetail(token, institutionId);
+    if (!institution.epanduanCode) return { error: 'conflict' };
+    const [{ run }, existing, nec] = await Promise.all([
+      api.latestEpanduanRun(token, institution.epanduanCode),
+      api.listInstitutionProgrammes(token, institutionId),
+      api.listNecFields(token),
+    ]);
+    if (!run || run.status !== 'done') return { error: 'conflict' };
+    necField = new Map(nec.map((n) => [n.code, n.fieldId]));
+    comparison = compareFound(run.programmes, existing, new Set(necField.keys()));
+  } catch (err) {
+    return { error: errorKey(err) };
+  }
+
+  const imported = { created: 0, updated: 0, failed: 0, failures: [] as Array<{ name: string; error: AdminErrorKey }> };
+  const accepted: string[] = [];
+  // Each programme's requirements become drafts as soon as it is saved, so a long accept cut short (a timeout, a
+  // restart) still leaves every saved programme with its drafts; the import tab fills any gaps when opened.
+  const reading = await subjectsForReading().catch(() => null);
+  for (const row of comparison.rows.filter((r) => chosen.has(r.found.code) && acceptable(r))) {
+    try {
+      let id: string;
+      if (row.status === 'new') {
+        ({ id } = await api.createProgramme(token, { ...draftFromFound(row.found, necField), institutionId }));
+        imported.created += 1;
+      } else if (onlyRoutesChanged(row)) {
+        id = row.existing!.id;
+        imported.updated += 1;
+      } else {
+        const detail = await api.getProgrammeDetail(token, row.existing!.id);
+        const base = detail.pendingChanges ?? detail;
+        const current = {
+          name: base.name,
+          durationSemesters: base.durationSemesters,
+          fieldIds: base.fieldIds,
+          ...Object.fromEntries(FACT_KEYS.map((k) => [k, base[k]])),
+        } as api.ProgrammeBody;
+        await api.updateProgramme(token, row.existing!.id, updateFromFound(current, row, necField));
+        id = row.existing!.id;
+        imported.updated += 1;
+      }
+      if (row.found.merit !== null && row.found.year) await api.recordAverageMerit(token, id, { intakeYear: row.found.year, averageMerit: row.found.merit });
+      const routes = entryRoutesFromFound(row.found);
+      if (routes.length) await api.setEntryRoutes(token, id, routes);
+      accepted.push(row.found.code);
+      if (reading) await syncEpanduanDrafts(token, id, reading).catch(() => null);
+    } catch (err) {
+      imported.failed += 1;
+      imported.failures.push({ name: `${row.found.code} ${row.found.name}`, error: errorKey(err) });
+      console.error(`ePanduan accept: ${row.found.code} not saved`, err);
+    }
+  }
+  // Syarat Khas is read only for accepted programmes, in the background (a few seconds per category).
+  if (accepted.length) {
+    const institution = await api.getInstitutionDetail(token, institutionId).catch(() => null);
+    if (institution?.epanduanCode) await api.readSpecialRequirements(token, institution.epanduanCode, accepted).catch(() => null);
+    // The drafts were made from Syarat Am (and Syarat Khas where already read); the import tab fills in Syarat Khas
+    // when reading finishes (refreshEpanduanDrafts).
+  }
+  refresh();
+  return { savedAt: Date.now(), imported };
 }
