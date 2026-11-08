@@ -1,4 +1,4 @@
-import Link from 'next/link';
+  import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { ReviewStatus } from '@/lib/admin/api';
 import { format, type Dictionary } from '@/lib/i18n/locale';

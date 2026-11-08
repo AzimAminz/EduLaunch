@@ -41,7 +41,7 @@ const CreateBody = DetailsBody.extend({ institutionId: z.uuid().nullable(), stud
 const UpdateBody = DetailsBody.extend({ institutionId: z.uuid().nullable().optional(), studyLevel: StudyLevel.optional() });
 
 const ReviewBody = z.discriminatedUnion('action', [
-  z.object({ action: z.enum(['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen']) }),
+  z.object({ action: z.enum(['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen', 'unpublish']) }),
   z.object({ action: z.literal('return'), reason: z.string().min(5).max(1000) }),
 ]);
 

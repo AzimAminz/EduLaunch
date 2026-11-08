@@ -76,8 +76,21 @@ describe('Requirement', () => {
     expect(req.status).toBe('in_review');
   });
 
-  it('lets only the preparer edit a draft', () => {
-    expect(() => draft().edit('faiz', { rules: [rule()], sourceUrl: null })).toThrow(/Only the admin/);
+  it('lets another admin carry on a draft, who then becomes its preparer and cannot approve it', () => {
+    const req = draft();
+    req.edit('faiz', { rules: [rule()], sourceUrl: 'https://contoh.edu.my/prospektus' });
+    expect(req.preparedBy).toBe('faiz');
+    req.submitForReview('faiz');
+    expect(() => req.approve('faiz')).toThrow(/Another admin/);
+    req.approve('aina');
+    expect(req.status).toBe('published');
+  });
+
+  it('makes whoever sends a draft its preparer', () => {
+    const req = draft();
+    req.submitForReview('faiz');
+    expect(req.preparedBy).toBe('faiz');
+    expect(() => req.approve('faiz')).toThrow(/Another admin/);
   });
 
   it('checks the value of CGPA, MUET and credit rules', () => {

@@ -32,6 +32,8 @@ describe('programmeWorkflow', () => {
   it('edits a published programme through a change that follows the same steps', () => {
     const live = state({ status: 'published', preparedBy: null });
     expect(programmeWorkflow(live, me)).toEqual({ track: 'none', step: 2, message: 'published', actions: ['edit', 'archive'], canEdit: true });
+    // A super admin may also take it back to a draft.
+    expect(programmeWorkflow(live, me, true).actions).toEqual(['edit', 'unpublish', 'archive']);
     expect(programmeWorkflow({ ...live, pendingStatus: 'draft', pendingPreparedBy: me }, me)).toMatchObject({ track: 'change', step: 0, actions: ['submit', 'edit', 'discard'] });
     expect(programmeWorkflow({ ...live, pendingStatus: 'returned', pendingPreparedBy: me }, me).message).toBe('changeReturned');
     expect(programmeWorkflow({ ...live, pendingStatus: 'in_review', pendingPreparedBy: me }, me).actions).toEqual(['withdraw']);

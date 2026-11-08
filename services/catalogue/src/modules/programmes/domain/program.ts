@@ -225,6 +225,18 @@ export class Program extends AggregateRoot<string, ProgramProps> {
   }
 
   /** Brings an archived programme back as a draft, to be reviewed again before students see it. */
+  /**
+   * A super admin takes a published programme back to a draft to rework it (students stop seeing it until it is
+   * approved again). A change being prepared becomes the draft, so no edit is lost.
+   */
+  unpublish(by: string, superAdmin: boolean): void {
+    if (!superAdmin) throw new DomainError('forbidden', 'Only a super admin can unpublish a programme');
+    if (this.props.publishStatus !== 'published') throw new DomainError('conflict', 'Only a published programme can be unpublished');
+    if (this.props.pending?.status === 'in_review') throw new DomainError('conflict', 'Its changes are waiting for review; withdraw them first');
+    const details = this.props.pending?.details;
+    this.props = { ...this.props, ...(details ?? {}), publishStatus: 'draft', preparedBy: by, approvedBy: null, returnReason: null, pending: null };
+  }
+
   reopen(by: string): void {
     if (this.props.publishStatus !== 'archived') throw new DomainError('conflict', 'Only an archived programme can be reopened');
     this.props = { ...this.props, publishStatus: 'draft', preparedBy: by, approvedBy: null, returnReason: null };

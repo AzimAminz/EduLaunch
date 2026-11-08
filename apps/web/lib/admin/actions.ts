@@ -308,7 +308,7 @@ export async function decideProgramme(_prev: AdminFormState, form: FormData): Pr
   const action = text(form, 'action');
   const reason = text(form, 'reason');
   if (action === 'return' && reason.length < 5) return { error: 'reason_required' };
-  const simple = ['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen'] as const;
+  const simple = ['submit', 'approve', 'withdraw', 'discard', 'archive', 'reopen', 'unpublish'] as const;
   const plain = simple.find((a) => a === action);
   if (action !== 'return' && action !== 'delete' && action !== 'requirements' && !plain) return { error: 'generic' };
   const { token, superAdmin } = await adminSession(locale);

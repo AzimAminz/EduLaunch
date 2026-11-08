@@ -61,6 +61,15 @@ describe('Program', () => {
       expect(p.toSnapshot()).toMatchObject({ campuses: ['Kampus Induk', 'Kampus Bandar'], careers: ['Jurutera'] });
     });
 
+    it('lets only a super admin unpublish, back to a draft that keeps a change being prepared', () => {
+      const p = published();
+      expect(() => p.unpublish('admin-a', false)).toThrow(/super admin/);
+      p.edit('admin-a', { name: 'Diploma Sains Komputer (Baharu)' });
+      p.unpublish('super', true);
+      expect(p.toSnapshot()).toMatchObject({ publishStatus: 'draft', preparedBy: 'super', approvedBy: null, pending: null, name: 'Diploma Sains Komputer (Baharu)' });
+      expect(() => p.unpublish('super', true)).toThrow(/Only a published/);
+    });
+
     it('keeps an ePanduan career list of more than forty whole', () => {
       const p = draft();
       const careers = Array.from({ length: 58 }, (_, i) => `Kerjaya ${i + 1}`);

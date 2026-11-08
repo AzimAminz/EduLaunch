@@ -58,7 +58,8 @@ async function Requirement({ locale, dict, params, searchParams }: {
   const route = routes[req.entryRoute] ?? req.entryRoute;
   const me = account.id;
   const isDraft = req.status === 'draft' || req.status === 'returned';
-  const editing = isDraft && req.preparedBy === me;
+  // Any admin may carry on a draft (they become its preparer when they save or send it), as with programmes.
+  const editing = isDraft;
   // A super admin may also approve a draft they prepared.
   const reviewing = req.status === 'in_review' && (req.preparedBy !== me || account.superAdmin);
   const meta = format(t.requirement.meta, { institution: req.institutionName ?? '—', route, version: req.versionNo });
@@ -71,6 +72,7 @@ async function Requirement({ locale, dict, params, searchParams }: {
       <>
         <AdminHeading back={back} title={format(t.requirement.titleEdit, { programme: req.programmeName })} intro={meta} />
         {req.status === 'returned' && req.returnReason && <p className="rounded-[14px] bg-red/10 px-4 py-3 text-sm">{format(t.requirement.notes.returned, { reason: req.returnReason })}</p>}
+        {req.preparedBy !== me && <p className="rounded-[14px] bg-cream px-4 py-3 text-sm">{t.requirement.notes.otherDraft}</p>}
         <FreshOnNavigate>
           <RequirementEditor
             // A newer saved version (after a save elsewhere) starts the editor again from what is stored.

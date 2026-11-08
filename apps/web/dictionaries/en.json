@@ -655,7 +655,10 @@
         "review": "Review",
         "delete": "Delete programme",
         "deleteConfirm": "Delete this programme with its {count} requirement version(s)? This cannot be undone.",
-        "deleteYes": "Yes, delete"
+        "deleteYes": "Yes, delete",
+        "unpublish": "Unpublish to edit",
+        "unpublishConfirm": "This programme goes back to a draft and students stop seeing it until it is approved again. Its published requirements stay.",
+        "unpublishYes": "Yes, unpublish"
       },
       "tabs": {
         "details": "Details",
@@ -1043,7 +1046,7 @@
       "notes": {
         "waiting": "Waiting for another admin to review. You cannot approve your own draft.",
         "returned": "Returned by another admin: {reason}",
-        "otherDraft": "This draft was prepared by another admin. Only they can change it.",
+        "otherDraft": "Another admin prepared this draft. You can carry it on; once you save or send it, you become its preparer.",
         "published": "This version is published. To change it, make a new version: students keep seeing this one until the new version is approved.",
         "archived": "An old version, replaced by a newer one."
       },

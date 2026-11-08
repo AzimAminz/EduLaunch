@@ -260,7 +260,7 @@ export const createProgramme = (token: string, body: ProgrammeBody & { instituti
 export const updateProgramme = (token: string, id: string, body: ProgrammeBody & { institutionId?: string | null; studyLevel?: z.infer<typeof StudyLevel> }) =>
   call(token, `/programmes/${encodeURIComponent(id)}`, Status, send(body, 'PATCH'));
 
-export type ReviewAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
+export type ReviewAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' | 'unpublish' } | { action: 'return'; reason: string };
 
 export const deleteProgramme = (token: string, id: string) => call(token, `/programmes/${encodeURIComponent(id)}`, z.undefined(), { method: 'DELETE' });
 export const reviewProgramme = (token: string, id: string, body: ReviewAction) => call(token, `/programmes/${encodeURIComponent(id)}/review`, Status, send(body));

@@ -45,7 +45,7 @@ export class UpdateProgramme implements UseCase<UpdateProgrammeInput, { status: 
   }
 }
 
-export type ProgrammeAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' } | { action: 'return'; reason: string };
+export type ProgrammeAction = { action: 'submit' | 'approve' | 'withdraw' | 'discard' | 'archive' | 'reopen' | 'unpublish' } | { action: 'return'; reason: string };
 
 /** Publishing workflow: one entry point so the rules stay in the aggregate. */
 @Injectable()
@@ -76,6 +76,9 @@ export class ReviewProgramme implements UseCase<{ id: string; adminId: string; s
         break;
       case 'reopen':
         program.reopen(input.adminId);
+        break;
+      case 'unpublish':
+        program.unpublish(input.adminId, input.superAdmin === true);
         break;
     }
     await this.programs.save(program);

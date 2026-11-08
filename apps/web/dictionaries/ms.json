@@ -655,7 +655,10 @@
         "review": "Semak",
         "delete": "Padam program",
         "deleteConfirm": "Padam program ini bersama {count} versi syaratnya? Tindakan ini tidak boleh dibuat asal.",
-        "deleteYes": "Ya, padam"
+        "deleteYes": "Ya, padam",
+        "unpublish": "Nyahterbit untuk disunting",
+        "unpublishConfirm": "Program ini akan kembali menjadi draf dan pelajar tidak lagi melihatnya sehingga ia diluluskan semula. Syarat yang sudah diterbitkan kekal.",
+        "unpublishYes": "Ya, nyahterbit"
       },
       "tabs": {
         "details": "Maklumat",
@@ -1043,7 +1046,7 @@
       "notes": {
         "waiting": "Menunggu admin lain menyemak. Anda tidak boleh meluluskan draf sendiri.",
         "returned": "Dipulangkan oleh admin lain: {reason}",
-        "otherDraft": "Draf ini disediakan oleh admin lain. Hanya penyedia boleh mengubahnya.",
+        "otherDraft": "Draf ini disediakan oleh admin lain. Anda boleh menyambungnya; bila anda simpan atau hantar, anda menjadi penyedianya.",
         "published": "Versi ini sudah diterbitkan. Untuk menukarnya, buat versi baharu: pelajar terus melihat versi ini sehingga versi baharu diluluskan.",
         "archived": "Versi lama, digantikan oleh versi yang lebih baharu."
       },

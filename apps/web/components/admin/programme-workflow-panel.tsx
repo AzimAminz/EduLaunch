@@ -35,9 +35,10 @@ const ICON: Record<WorkflowAction, AdminIconName> = {
   archive: 'archive',
   reopen: 'rotate',
   delete: 'trash',
+  unpublish: 'undo',
 };
 
-const DANGER = new Set<WorkflowAction>(['discard', 'archive', 'delete']);
+const DANGER = new Set<WorkflowAction>(['discard', 'archive', 'delete', 'unpublish']);
 
 const TONE: Record<Workflow['message'], string> = {
   draftMine: 'bg-white',
@@ -64,7 +65,7 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
   const a = t.programme.act;
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(decideProgramme, {});
   // What the dialog asks about stays set while it closes, so its text does not vanish mid-animation.
-  const [asking, setAsking] = useState<'return' | 'discard' | 'archive' | 'delete' | null>(null);
+  const [asking, setAsking] = useState<'return' | 'discard' | 'archive' | 'delete' | 'unpublish' | null>(null);
   const [open, setOpen] = useState(false);
   const ask = (action: NonNullable<typeof asking>) => {
     setAsking(action);
@@ -148,7 +149,7 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
           {workflow.actions.filter((action) => action !== 'edit').map((action, i) => {
             const primary = i === 0;
             // These ask first, in a dialog: a reason to return, or a confirmation before discarding, hiding or deleting.
-            if (action === 'return' || action === 'discard' || action === 'archive' || action === 'delete') {
+            if (action === 'return' || action === 'discard' || action === 'archive' || action === 'delete' || action === 'unpublish') {
               return (
                 <button key={action} type="button" onClick={() => ask(action)} className={style(primary, DANGER.has(action))}>
                   <IconText icon={ICON[action]}>{label(action)}</IconText>
@@ -181,7 +182,9 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
               ? a.discardConfirm
               : asking === 'delete'
                 ? format(a.deleteConfirm, { count: requirementCount })
-                : t.programme.actions.archiveHint
+                : asking === 'unpublish'
+                  ? a.unpublishConfirm
+                  : t.programme.actions.archiveHint
         }
         footer={
           <>
@@ -191,7 +194,7 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
             {/* The dialog sits outside the form (a portal), so the button names the form it sends. */}
             <button type="submit" form={formId} disabled={pending} className={asking === 'return' ? style(true) : buttonClass(asking === 'delete' ? 'dangerSolid' : 'danger')}>
               <IconText icon={asking === 'return' ? 'send' : asking ? ICON[asking] : 'check'} busy={pending}>
-                {asking === 'return' ? t.requirement.review.send : asking === 'discard' ? a.discardYes : asking === 'delete' ? a.deleteYes : t.programme.actions.confirmArchive}
+                {asking === 'return' ? t.requirement.review.send : asking === 'discard' ? a.discardYes : asking === 'delete' ? a.deleteYes : asking === 'unpublish' ? a.unpublishYes : t.programme.actions.confirmArchive}
               </IconText>
             </button>
           </>

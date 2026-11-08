@@ -118,10 +118,13 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
     return this.props.preparedBy;
   }
 
-  /** The preparer changes the rules and source of their draft (or a draft returned to them). */
+  /**
+   * An admin changes the rules and source of a draft (or a returned one). As with programmes, any admin may carry on
+   * another's draft and then becomes its preparer, so another admin still approves it.
+   */
   edit(by: string, input: { rules: RequirementRule[]; sourceUrl: string | null; sourceCategory?: string | null }): void {
     this.assertEditable();
-    if (by !== this.props.preparedBy) throw new DomainError('forbidden', 'Only the admin who prepared this draft can edit it');
+    this.props.preparedBy = by;
     this.setSource(input.sourceUrl);
     if (input.sourceCategory !== undefined) {
       const category = input.sourceCategory?.trim() || null;
@@ -172,11 +175,12 @@ export class Requirement extends AggregateRoot<string, RequirementProps> {
     this.props.rules = rules.map((r) => ({ ...r, officialText: r.officialText!.trim(), section: r.section?.trim() || null, subjectIds: [...new Set(r.subjectIds)] }));
   }
 
+  /** Sends a draft for review; whoever sends it becomes its preparer (and so cannot approve it, unless a super admin). */
   submitForReview(by: string): void {
     this.assertEditable();
-    if (by !== this.props.preparedBy) throw new DomainError('forbidden', 'Only the admin who prepared the draft can submit it');
     if (this.props.rules.length === 0) throw new DomainError('invalid_rule', 'Add at least one rule before submitting');
     if (!this.props.sourceUrl) throw new DomainError('missing_evidence', 'Add the link to the official source before submitting');
+    this.props.preparedBy = by;
     this.props.status = 'in_review';
     this.props.returnReason = null;
   }
