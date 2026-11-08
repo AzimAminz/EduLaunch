@@ -68,20 +68,26 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
     const timer = setInterval(() => router.refresh(), running ? 3000 : 5000);
     return () => clearInterval(timer);
   }, [running, readingSpecial, router]);
-  // When Syarat Khas has been read, the drafts made at acceptance take it in (edited drafts are left alone).
+  // Accepted programmes always end up with their requirement drafts: when the tab opens (filling any left out by
+  // an accept that was cut short), and when Syarat Khas has been read (untouched drafts take it in; edited drafts
+  // are left alone).
   const wasReading = useRef(readingSpecial);
+  const filledOnOpen = useRef(false);
   const [drafted, setDrafted] = useState<{ created: number; updated: number } | null>(null);
   useEffect(() => {
-    if (wasReading.current && !readingSpecial) {
-      refreshEpanduanDrafts(locale, institutionId)
-        .then((r) => {
-          if (r.created || r.updated) setDrafted(r);
-          router.refresh();
-        })
-        .catch(() => null);
-    }
+    const finished = wasReading.current && !readingSpecial;
     wasReading.current = readingSpecial;
-  }, [readingSpecial, locale, institutionId, router]);
+    if (running || readingSpecial || (filledOnOpen.current && !finished)) return;
+    filledOnOpen.current = true;
+    refreshEpanduanDrafts(locale, institutionId)
+      .then((r) => {
+        if (r.created || r.updated) {
+          setDrafted(r);
+          router.refresh();
+        }
+      })
+      .catch(() => null);
+  }, [running, readingSpecial, locale, institutionId, router]);
   const specialByCode = useMemo(() => {
     const map = new Map<string, SpecialRequirement[]>();
     for (const s of special) map.set(s.code, [...(map.get(s.code) ?? []), s]);

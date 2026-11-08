@@ -68,29 +68,39 @@ html.lenis body {
 }
 
 /*
- * Reveal on scroll. Elements are hidden only once the head script has marked the page as able to animate
- * (`motion`), so server-rendered content stays visible without JavaScript; if the animation never runs, a delayed
- * fallback shows everything anyway.
+ * Reveal on scroll, done by the browser itself (scroll-driven animations): no script touches the elements, so
+ * server-rendered HTML hydrates as it was sent. Only when the head script has marked the page as able to animate
+ * (`motion`, i.e. no reduced motion) and the browser supports it; otherwise everything simply shows. Elements already
+ * on screen at load are past the range and show at once.
  */
-html.motion [data-reveal]:not([data-revealed]) {
-  opacity: 0;
-  animation: reveal-fallback 1ms 2.5s forwards;
+@supports (animation-timeline: view()) {
+  html.motion [data-reveal],
+  html.motion [data-reveal-stagger] > * {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+  html.motion [data-reveal='fade'] {
+    animation-name: reveal-fade;
+  }
+  html.motion [data-reveal='scale'] {
+    animation-name: reveal-scale;
+  }
 }
-html.motion [data-reveal='up']:not([data-revealed]),
-html.motion [data-reveal='']:not([data-revealed]) {
-  transform: translateY(14px);
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
 }
-html.motion [data-reveal='scale']:not([data-revealed]) {
-  transform: scale(0.98);
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
 }
-html.motion [data-reveal-stagger] > :not([data-revealed]) {
-  opacity: 0;
-  transform: translateY(10px);
-  animation: reveal-fallback 1ms 2.5s forwards;
-}
-@keyframes reveal-fallback {
-  to {
-    opacity: 1;
-    transform: none;
+@keyframes reveal-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
   }
 }

@@ -501,8 +501,13 @@ export async function refreshEpanduanDrafts(locale: string, institutionId: strin
   const totals = { created: 0, updated: 0 };
   try {
     const [programmes, subjects] = await Promise.all([api.listInstitutionProgrammes(token, institutionId), subjectsForReading()]);
-    for (const p of programmes.filter((x) => x.programCode && x.status !== 'archived')) {
-      const result = await syncEpanduanDrafts(token, p.id, subjects).catch(() => null);
+    const withCode = programmes.filter((x) => x.programCode && x.status !== 'archived');
+    // ePanduan's readings for every programme at once, instead of two requests per programme.
+    const codes = withCode.map((x) => x.programCode!);
+    const [found, special] = await Promise.all([api.listFoundProgrammes(token, codes), api.listSpecialRequirements(token, codes)]);
+    const readings = { found: new Map(found.map((f) => [f.code, f])), special };
+    for (const p of withCode) {
+      const result = await syncEpanduanDrafts(token, p.id, subjects, undefined, readings).catch(() => null);
       totals.created += result?.created.length ?? 0;
       totals.updated += result?.updated ?? 0;
     }
@@ -537,10 +542,20 @@ function sameRules(a: Array<Partial<api.AdminRule>>, b: Array<Partial<api.AdminR
  * slot given), and an untouched draft made before Syarat Khas was read is filled again with it. Null when the
  * programme has no ePanduan reading.
  */
-async function syncEpanduanDrafts(token: string, programId: string, reading: ReadingSubjects, only?: string): Promise<{ created: string[]; updated: number } | null> {
+async function syncEpanduanDrafts(
+  token: string,
+  programId: string,
+  reading: ReadingSubjects,
+  only?: string,
+  /** ePanduan's readings already fetched for many programmes (an institution at once). */
+  readings?: { found: Map<string, api.FoundProgramme>; special: api.SpecialRequirement[] },
+): Promise<{ created: string[]; updated: number } | null> {
   const programme = await api.getProgrammeDetail(token, programId);
   if (!programme.programCode) return null;
-  const [[found], special] = await Promise.all([api.listFoundProgrammes(token, [programme.programCode]), api.listSpecialRequirements(token, [programme.programCode])]);
+  const code = programme.programCode;
+  const [found, special] = readings
+    ? [readings.found.get(code), readings.special.filter((x) => x.code === code)]
+    : await Promise.all([api.listFoundProgrammes(token, [code]).then((x) => x[0]), api.listSpecialRequirements(token, [code])]);
   if (!found) return null;
   const kept = new Set(programme.entryRoutes);
   const categories = found.categories.filter((c) => c.route && (kept.size === 0 || kept.has(c.route)));
@@ -668,7 +683,9 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
 
   const imported = { created: 0, updated: 0, failed: 0 };
   const accepted: string[] = [];
-  const acceptedIds: string[] = [];
+  // Each programme's requirements become drafts as soon as it is saved, so a long accept cut short (a timeout, a
+  // restart) still leaves every saved programme with its drafts; the import tab fills any gaps when opened.
+  const reading = await subjectsForReading().catch(() => null);
   for (const row of comparison.rows.filter((r) => chosen.has(r.found.code) && acceptable(r))) {
     try {
       let id: string;
@@ -695,7 +712,7 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
       const routes = entryRoutesFromFound(row.found);
       if (routes.length) await api.setEntryRoutes(token, id, routes);
       accepted.push(row.found.code);
-      acceptedIds.push(id);
+      if (reading) await syncEpanduanDrafts(token, id, reading).catch(() => null);
     } catch {
       imported.failed += 1;
     }
@@ -704,10 +721,8 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
   if (accepted.length) {
     const institution = await api.getInstitutionDetail(token, institutionId).catch(() => null);
     if (institution?.epanduanCode) await api.readSpecialRequirements(token, institution.epanduanCode, accepted).catch(() => null);
-    // Their requirements become drafts at once, from Syarat Am (and Syarat Khas where already read); the import tab
-    // fills in Syarat Khas when reading finishes (refreshEpanduanDrafts).
-    const reading = await subjectsForReading().catch(() => null);
-    for (const id of acceptedIds) if (reading) await syncEpanduanDrafts(token, id, reading).catch(() => null);
+    // The drafts were made from Syarat Am (and Syarat Khas where already read); the import tab fills in Syarat Khas
+    // when reading finishes (refreshEpanduanDrafts).
   }
   refresh();
   return { savedAt: Date.now(), imported };
