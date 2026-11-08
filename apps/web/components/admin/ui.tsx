@@ -63,7 +63,7 @@ export function StatusChip({ status, t }: { status: ReviewStatus; t: AdminDict }
 
 export function AdminHeading({ title, intro, actions, back }: { title: string; intro?: ReactNode; actions?: ReactNode; back?: { href: string; label: string } }) {
   return (
-    <header className="flex flex-col gap-3">
+    <header data-reveal="fade" className="flex flex-col gap-3">
       {back && (
         <Link href={back.href} className="group inline-flex items-center gap-1.5 self-start rounded-md text-sm font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40">
           <AdminIcon name="arrowLeft" size={16} className="transition-transform duration-150 group-hover:-translate-x-0.5 motion-reduce:transition-none" />
@@ -82,7 +82,11 @@ export function AdminHeading({ title, intro, actions, back }: { title: string; i
 }
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <section className={`flex flex-col gap-4 rounded-[18px] border border-line bg-white p-5 lg:p-6 ${className}`}>{children}</section>;
+  return (
+    <section data-reveal className={`flex flex-col gap-4 rounded-[18px] border border-line bg-white p-5 lg:p-6 ${className}`}>
+      {children}
+    </section>
+  );
 }
 
 /** A link styled as a button: `primary` is the yellow action from the Figma admin screens. */
@@ -127,7 +131,7 @@ export function AdminTabs({ items, label }: { items: TabItem[]; label: string })
 /** An empty list that says so plainly, with an icon and (optionally) the next thing to do. */
 export function EmptyState({ icon, text, action }: { icon: AdminIconName; text: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-[14px] border border-dashed border-line bg-white px-6 py-8 text-center">
+    <div data-reveal="scale" className="flex flex-col items-center gap-3 rounded-[14px] border border-dashed border-line bg-white px-6 py-8 text-center">
       <span className="flex size-11 items-center justify-center rounded-full bg-bg text-muted">
         <AdminIcon name={icon} size={20} />
       </span>

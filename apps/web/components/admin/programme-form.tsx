@@ -11,6 +11,7 @@ import { STUDY_LEVEL_OPTIONS } from '@/lib/catalogue/presentation';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, TextField } from '@/components/auth/fields';
 import { Dropdown, type DropdownOption } from '@/components/ui/dropdown';
+import { Modal } from '@/components/ui/modal';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
@@ -635,45 +636,51 @@ export function ProgrammeForm({ locale, t, levels, noMatches, institutions, fiel
 
       {/* One bar on every step: going back on the left, going forward on the right, so nothing moves under the pointer. */}
       <div className="sticky bottom-0 z-10 -mx-5 -mb-5 rounded-b-[18px] border-t border-line bg-white/95 px-5 py-4 backdrop-blur lg:-mx-6 lg:-mb-6 lg:px-6">
-        {leaving ? (
-          <div role="alertdialog" aria-label={f.leave.message} className="flex flex-wrap items-center gap-3">
-            <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
-            <p className="flex-1 text-sm">{f.leave.message}</p>
-            <button type="button" onClick={() => setLeaving(false)} className={buttonClass('secondary')} autoFocus>
+        <div className="flex items-center gap-3">
+          {/* Each button has its own key, so a click on "Next" can never land on the "Save" button that replaces it. */}
+          {step === 0 ? (
+            <button key="cancel" type="button" onClick={cancel} className={buttonClass('ghost')}>
+              {f.cancel}
+            </button>
+          ) : (
+            <button key="back" type="button" onClick={() => goTo(step - 1)} className={buttonClass('secondary')}>
+              <IconText icon="arrowLeft">{f.steps.back}</IconText>
+            </button>
+          )}
+          <span className="ml-auto hidden text-[13px] text-muted sm:inline">{format(f.steps.of, { n: step + 1, total: steps.length })}</span>
+          {last ? (
+            <button key="save" type="submit" disabled={pending} className={`${buttonClass('primary')} ml-auto sm:ml-0`}>
+              <IconText icon={mode === 'new' ? 'plus' : 'save'} busy={pending}>
+                {mode === 'new' ? f.create : mode === 'change' ? f.saveChange : f.save}
+              </IconText>
+            </button>
+          ) : (
+            <button key="next" type="button" onClick={() => goTo(step + 1)} className={`${buttonClass('primary')} group ml-auto sm:ml-0`}>
+              <span>{f.steps.next}</span>
+              <AdminIcon name="arrowRight" size={16} className="transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+            </button>
+          )}
+        </div>
+      </div>
+      <Modal
+        open={leaving}
+        onClose={() => setLeaving(false)}
+        alert
+        tone="danger"
+        icon={<AdminIcon name="alert" size={20} />}
+        title={f.leave.title}
+        description={f.leave.message}
+        footer={
+          <>
+            <button type="button" onClick={() => setLeaving(false)} className={buttonClass('secondary')} data-autofocus>
               {f.leave.stay}
             </button>
-            <button type="button" onClick={() => router.push(cancelHref)} className={buttonClass('danger')}>
+            <button type="button" onClick={() => router.push(cancelHref)} className={buttonClass('dangerSolid')}>
               <IconText icon="trash">{f.leave.discard}</IconText>
             </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            {/* Each button has its own key, so a click on "Next" can never land on the "Save" button that replaces it. */}
-            {step === 0 ? (
-              <button key="cancel" type="button" onClick={cancel} className={buttonClass('ghost')}>
-                {f.cancel}
-              </button>
-            ) : (
-              <button key="back" type="button" onClick={() => goTo(step - 1)} className={buttonClass('secondary')}>
-                <IconText icon="arrowLeft">{f.steps.back}</IconText>
-              </button>
-            )}
-            <span className="ml-auto hidden text-[13px] text-muted sm:inline">{format(f.steps.of, { n: step + 1, total: steps.length })}</span>
-            {last ? (
-              <button key="save" type="submit" disabled={pending} className={`${buttonClass('primary')} ml-auto sm:ml-0`}>
-                <IconText icon={mode === 'new' ? 'plus' : 'save'} busy={pending}>
-                  {mode === 'new' ? f.create : mode === 'change' ? f.saveChange : f.save}
-                </IconText>
-              </button>
-            ) : (
-              <button key="next" type="button" onClick={() => goTo(step + 1)} className={`${buttonClass('primary')} group ml-auto sm:ml-0`}>
-                <span>{f.steps.next}</span>
-                <AdminIcon name="arrowRight" size={16} className="transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none" />
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+          </>
+        }
+      />
     </form>
   );
 }

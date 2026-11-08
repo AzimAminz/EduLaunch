@@ -488,7 +488,8 @@
       "leave": {
         "message": "Maklumat yang anda isi belum disimpan dan akan hilang.",
         "stay": "Teruskan mengisi",
-        "discard": "Buang dan keluar"
+        "discard": "Buang dan keluar",
+        "title": "Keluar tanpa simpan?"
       },
       "campuses": "Kampus",
       "campusesPlaceholder": "cth. UTM Johor Bahru, Johor",

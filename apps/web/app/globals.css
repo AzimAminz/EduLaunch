@@ -51,3 +51,46 @@ body {
   background: var(--color-bg);
   color: var(--color-navy);
 }
+
+/* Smooth scrolling (Lenis); the library's own rules, kept here because its stylesheet is not exported. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/*
+ * Reveal on scroll. Elements are hidden only once the head script has marked the page as able to animate
+ * (`motion`), so server-rendered content stays visible without JavaScript; if the animation never runs, a delayed
+ * fallback shows everything anyway.
+ */
+html.motion [data-reveal]:not([data-revealed]) {
+  opacity: 0;
+  animation: reveal-fallback 1ms 2.5s forwards;
+}
+html.motion [data-reveal='up']:not([data-revealed]),
+html.motion [data-reveal='']:not([data-revealed]) {
+  transform: translateY(14px);
+}
+html.motion [data-reveal='scale']:not([data-revealed]) {
+  transform: scale(0.98);
+}
+html.motion [data-reveal-stagger] > :not([data-revealed]) {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: reveal-fallback 1ms 2.5s forwards;
+}
+@keyframes reveal-fallback {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

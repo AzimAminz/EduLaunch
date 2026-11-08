@@ -27,7 +27,7 @@ export function TaskList({ tasks, locale, dict, now, action, empty, selectable =
   if (tasks.length === 0) return <EmptyState icon="checkCircle" text={empty} />;
   const routes: Record<string, string> = dict.requirements.routes;
   return (
-    <ul className="flex flex-col divide-y divide-line overflow-hidden rounded-[14px] border border-line">
+    <ul data-reveal-stagger className="flex flex-col divide-y divide-line overflow-hidden rounded-[14px] border border-line">
       {tasks.map((task) => (
         <li key={`${task.kind}:${task.id}`} className="flex flex-col gap-2 bg-white px-4 py-3 transition-colors duration-150 hover:bg-bg/70 sm:flex-row sm:items-center sm:gap-4">
           {selectable &&

@@ -3,6 +3,7 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { bulkReview, type AdminFormState } from '@/lib/admin/actions';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { Modal } from '@/components/ui/modal';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { AdminIcon } from './icons';
 import { IconText, buttonClass } from './ui';
@@ -23,6 +24,7 @@ export function BulkTasks({ locale, action, total, t, errors, children }: {
   children: ReactNode;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const formId = `bulk-${action}`;
   const [count, setCount] = useState(0);
   const [confirming, setConfirming] = useState(false);
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(bulkReview, {});
@@ -38,7 +40,7 @@ export function BulkTasks({ locale, action, total, t, errors, children }: {
   const all = count > 0 && count === total;
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} onChange={recount} className="flex flex-col gap-3">
+    <form id={formId} ref={formRef} onSubmit={onSubmit} onChange={recount} className="flex flex-col gap-3">
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="bulkAction" value={action} />
       {total > 0 && (
@@ -61,26 +63,29 @@ export function BulkTasks({ locale, action, total, t, errors, children }: {
           </button>
         </div>
       )}
-      {confirming && (
-        <div role="alertdialog" aria-label={action === 'approve' ? t.approveTitle : t.submitTitle} className="flex flex-col gap-3 rounded-[12px] border border-[#e0a800]/50 bg-cream px-4 py-3">
-          <p className="flex items-start gap-2 text-sm">
-            <AdminIcon name="alert" size={18} className="mt-0.5 shrink-0" />
-            <span>
-              <span className="font-semibold">{format(action === 'approve' ? t.approveTitle : t.submitTitle, { count })}</span> {action === 'approve' ? t.approveBody : t.submitBody}
-            </span>
-          </p>
-          <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setConfirming(false)} disabled={pending} className={buttonClass('secondary', 'sm')}>
+      <Modal
+        open={confirming}
+        onClose={() => setConfirming(false)}
+        alert
+        busy={pending}
+        tone={action === 'approve' ? 'neutral' : 'warn'}
+        icon={<AdminIcon name={action === 'approve' ? 'check' : 'send'} size={20} />}
+        title={format(action === 'approve' ? t.approveTitle : t.submitTitle, { count })}
+        description={action === 'approve' ? t.approveBody : t.submitBody}
+        footer={
+          <>
+            <button type="button" onClick={() => setConfirming(false)} disabled={pending} className={buttonClass('secondary')} data-autofocus>
               {t.cancel}
             </button>
-            <button type="submit" disabled={pending} className={buttonClass('primary', 'sm')}>
+            {/* The dialog sits outside the form (a portal), so the button names the form it sends. */}
+            <button type="submit" form={formId} disabled={pending} className={buttonClass('primary')}>
               <IconText icon={action === 'approve' ? 'check' : 'send'} busy={pending}>
                 {t.yes}
               </IconText>
             </button>
-          </div>
-        </div>
-      )}
+          </>
+        }
+      />
       {!pending && state.bulk && (
         <div role="status" className={`flex flex-col gap-1 rounded-[12px] px-4 py-3 text-sm ${state.bulk.failed.length ? 'bg-cream' : 'bg-mint text-[#1f6b47]'}`}>
           <p className="font-semibold">{format(action === 'approve' ? t.approved : t.sent, { count: state.bulk.done })}</p>

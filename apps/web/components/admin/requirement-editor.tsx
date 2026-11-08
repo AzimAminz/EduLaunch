@@ -10,6 +10,7 @@ import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
 import { Dropdown, type DropdownOption } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
+import { Modal } from '@/components/ui/modal';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { CategoryTabs } from './category-tabs';
 import { LinesView } from './requirement-lines-view';
@@ -406,30 +407,38 @@ export function RequirementEditor({ locale, id, programmeId, entryRoute, initial
           )}
         </div>
         {step === 3 && <p className="text-[13px] text-muted">{t.submitHint}</p>}
-        <form onSubmit={onDiscard} className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
+        <form id={`discard-${id}`} onSubmit={onDiscard} className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="programId" value={programmeId} />
-          {!discarding && discardState.error && <p className="text-[13px] text-red">{errors[discardState.error]}</p>}
-          {confirmDiscard ? (
+          <button type="button" onClick={() => setConfirmDiscard(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
+            <IconText icon="trash">{t.discard}</IconText>
+          </button>
+        </form>
+        <Modal
+          open={confirmDiscard}
+          onClose={() => setConfirmDiscard(false)}
+          alert
+          busy={discarding}
+          tone="danger"
+          icon={<AdminIcon name="trash" size={20} />}
+          title={t.discard}
+          description={t.discardConfirm}
+          footer={
             <>
-              <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
-              <span className="text-sm">{t.discardConfirm}</span>
-              <button type="submit" disabled={discarding} className={buttonClass('dangerSolid', 'sm')}>
+              <button type="button" onClick={() => setConfirmDiscard(false)} disabled={discarding} className={buttonClass('secondary')} data-autofocus>
+                {dict.admin.programme.actions.cancel}
+              </button>
+              <button type="submit" form={`discard-${id}`} disabled={discarding} className={buttonClass('dangerSolid')}>
                 <IconText icon="trash" busy={discarding}>
                   {t.discardYes}
                 </IconText>
               </button>
-              <button type="button" onClick={() => setConfirmDiscard(false)} className={buttonClass('secondary', 'sm')}>
-                {dict.admin.programme.actions.cancel}
-              </button>
             </>
-          ) : (
-            <button type="button" onClick={() => setConfirmDiscard(true)} className={`${buttonClass('ghost', 'sm')} text-[#b33a35] hover:bg-red/10`}>
-              <IconText icon="trash">{t.discard}</IconText>
-            </button>
-          )}
-        </form>
+          }
+        >
+          {!discarding && discardState.error && <p className="text-[13px] text-red">{errors[discardState.error]}</p>}
+        </Modal>
       </div>
     </div>
   );

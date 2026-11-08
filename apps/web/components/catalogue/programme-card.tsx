@@ -25,7 +25,7 @@ const STATUS_DOT: Record<RequirementStatus, string> = {
 export function ProgrammeCard({ href, programmeName, institutionName, meta, fields, requirementStatus, labels }: ProgrammeCardProps) {
   const status = { sample: labels.statusSample, published: labels.statusPublished, missing: labels.statusMissing }[requirementStatus];
   return (
-    <article className="flex min-w-0 flex-col gap-3 rounded-[22px] bg-white p-5">
+    <article className="flex min-w-0 flex-col gap-3 rounded-[22px] bg-white p-5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-12px_rgba(20,39,71,0.25)] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <div className="flex flex-col gap-1">
         <h3 className="text-[19px] font-semibold leading-tight text-navy">{programmeName}</h3>
         <p className="text-sm leading-tight text-muted">{institutionName}</p>

@@ -62,7 +62,9 @@ export function RouteTabs({ locale, programId, tabs, addHref, t, m, errors }: {
 }) {
   const [active, setActive] = useState(0);
   const [editing, setEditing] = useState(false);
+  // The route to remove stays set while the dialog closes, so its text does not vanish mid-animation.
   const [removing, setRemoving] = useState<RouteTab['removable']>(null);
+  const [confirming, setConfirming] = useState(false);
   const tab = tabs[Math.min(active, tabs.length - 1)];
   const tone = (s: Status) => TONE[s ?? 'none'];
 
@@ -94,7 +96,10 @@ export function RouteTabs({ locale, programId, tabs, addHref, t, m, errors }: {
                 {editing && x.removable && (
                   <button
                     type="button"
-                    onClick={() => setRemoving(x.removable)}
+                    onClick={() => {
+                      setRemoving(x.removable);
+                      setConfirming(true);
+                    }}
                     aria-label={`${t.manage.remove}: ${x.name}`}
                     title={t.manage.remove}
                     className="absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full bg-red text-white shadow-md transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 motion-reduce:transition-none"
@@ -156,7 +161,7 @@ export function RouteTabs({ locale, programId, tabs, addHref, t, m, errors }: {
         </div>
       )}
 
-      {removing && <RemoveDraftModal locale={locale} target={removing} texts={t.removeModal} errors={errors} onClose={() => setRemoving(null)} />}
+      <RemoveDraftModal locale={locale} open={confirming} target={removing} texts={t.removeModal} errors={errors} onClose={() => setConfirming(false)} />
     </div>
   );
 }

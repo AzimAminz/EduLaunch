@@ -68,7 +68,7 @@ async function SavedRecord({ lang, dict, params }: { lang: Locale; dict: Diction
         <h1 className="text-[32px] font-bold leading-tight lg:text-[44px]">{format(t.history.labels[kind], { year: record.examYear ?? t.history.noYear })}</h1>
         <p className="text-[15px] text-muted">{t.view.readOnly}</p>
       </header>
-      <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
+      <section data-reveal className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
         <p className="self-start rounded-full bg-bg px-3 py-1 text-xs font-semibold">{t.status[record.status]}</p>
         {details.length > 0 && (
           <dl className="grid gap-3 sm:grid-cols-3">

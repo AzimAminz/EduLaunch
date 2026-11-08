@@ -123,7 +123,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
         <Heading eyebrow={`${t.eyebrow} · ${levelTitle}`} title={format(h.titleFor, { name: h.shortNames[qualification] })} intro={h.intros[levelKey]} />
         <SectionTabs lang={lang} dict={dict} current="results" />
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-          <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
+          <section data-reveal className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-semibold">
                 {h.qualificationLabel}: {h.qualifications[qualification]}
@@ -196,7 +196,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
       <Heading eyebrow={`${t.eyebrow} · ${levelTitle}`} title={t.titles[form.variant]} intro={t.intros[form.variant]} />
       {choices.length > 0 && <SectionTabs lang={lang} dict={dict} current="spm" />}
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
+        <section data-reveal className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
           {schoolYear !== null && (
             <nav aria-label={t.yearTabs} className="flex flex-wrap gap-2">
               {tabs.map((item) => (

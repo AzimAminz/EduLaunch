@@ -5,6 +5,7 @@ import { decideProgramme, type AdminFormState } from '@/lib/admin/actions';
 import type { Workflow, WorkflowAction } from '@/lib/admin/programme-workflow';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert } from '@/components/auth/fields';
+import { Modal } from '@/components/ui/modal';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { AdminIcon, type AdminIconName } from './icons';
 import { IconText, buttonClass } from './ui';
@@ -60,13 +61,20 @@ const TONE: Record<Workflow['message'], string> = {
 export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message, requirementCount, backHref, t }: PanelProps) {
   const a = t.programme.act;
   const [state, onSubmit, pending] = useFormAction<AdminFormState>(decideProgramme, {});
+  // What the dialog asks about stays set while it closes, so its text does not vanish mid-animation.
   const [asking, setAsking] = useState<'return' | 'discard' | 'archive' | 'delete' | null>(null);
-  // After an action succeeds the programme moves on, so any open question box closes.
+  const [open, setOpen] = useState(false);
+  const ask = (action: NonNullable<typeof asking>) => {
+    setAsking(action);
+    setOpen(true);
+  };
+  // After an action succeeds the programme moves on, so the dialog closes.
   const [seenSave, setSeenSave] = useState(state.savedAt);
   if (state.savedAt !== seenSave) {
     setSeenSave(state.savedAt);
-    setAsking(null);
+    setOpen(false);
   }
+  const formId = `workflow-${programmeId}`;
   const change = workflow.track === 'change';
   const steps = change ? t.programme.steps.change : t.programme.steps.new;
 
@@ -102,13 +110,68 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
       <p className="text-[15px]">{message}</p>
       <FormAlert>{!pending && state.error ? t.errors[state.error] : undefined}</FormAlert>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-3">
+      <form id={formId} onSubmit={onSubmit} className="flex flex-col gap-3">
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name="id" value={programmeId} />
         <input type="hidden" name="back" value={backHref} />
-        {asking && <input type="hidden" name="action" value={asking} />}
+        {/* Only while the dialog is open, so a plain button's own action is never shadowed by an old question. */}
+        {open && asking && <input type="hidden" name="action" value={asking} />}
+        <div className="flex flex-wrap gap-2">
+          {/* Editing sits on the details tab it belongs to, so it is not read as editing every tab. */}
+          {workflow.actions.filter((action) => action !== 'edit').map((action, i) => {
+            const primary = i === 0;
+            // These ask first, in a dialog: a reason to return, or a confirmation before discarding, hiding or deleting.
+            if (action === 'return' || action === 'discard' || action === 'archive' || action === 'delete') {
+              return (
+                <button key={action} type="button" onClick={() => ask(action)} className={style(primary, DANGER.has(action))}>
+                  <IconText icon={ICON[action]}>{label(action)}</IconText>
+                </button>
+              );
+            }
+            return (
+              <button key={action} type="submit" name="action" value={action} disabled={pending} onClick={() => setPressed(action)} className={style(primary)}>
+                <IconText icon={ICON[action]} busy={pending && pressed === action}>
+                  {label(action)}
+                </IconText>
+              </button>
+            );
+          })}
+        </div>
+      </form>
 
-        {asking === 'return' ? (
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        alert={asking !== 'return'}
+        busy={pending}
+        tone={asking === 'return' ? 'warn' : 'danger'}
+        icon={asking ? <AdminIcon name={ICON[asking]} size={20} /> : null}
+        title={asking ? label(asking) : ''}
+        description={
+          asking === 'return'
+            ? undefined
+            : asking === 'discard'
+              ? a.discardConfirm
+              : asking === 'delete'
+                ? format(a.deleteConfirm, { count: requirementCount })
+                : t.programme.actions.archiveHint
+        }
+        footer={
+          <>
+            <button type="button" onClick={() => setOpen(false)} disabled={pending} className={style(false)} data-autofocus={asking !== 'return' || undefined}>
+              {t.programme.actions.cancel}
+            </button>
+            {/* The dialog sits outside the form (a portal), so the button names the form it sends. */}
+            <button type="submit" form={formId} disabled={pending} className={asking === 'return' ? style(true) : buttonClass(asking === 'delete' ? 'dangerSolid' : 'danger')}>
+              <IconText icon={asking === 'return' ? 'send' : asking ? ICON[asking] : 'check'} busy={pending}>
+                {asking === 'return' ? t.requirement.review.send : asking === 'discard' ? a.discardYes : asking === 'delete' ? a.deleteYes : t.programme.actions.confirmArchive}
+              </IconText>
+            </button>
+          </>
+        }
+      >
+        <FormAlert>{!pending && state.error ? t.errors[state.error] : undefined}</FormAlert>
+        {asking === 'return' && (
           <div className="flex flex-col gap-2">
             <label htmlFor="return-reason" className="text-sm font-semibold">
               {t.programme.actions.reasonLabel}
@@ -116,64 +179,17 @@ export function ProgrammeWorkflowPanel({ locale, programmeId, workflow, message,
             <textarea
               id="return-reason"
               name="reason"
+              form={formId}
               required
               minLength={5}
               maxLength={1000}
-              rows={3}
-              autoFocus
+              rows={4}
               placeholder={t.programme.actions.reasonPlaceholder}
               className="rounded-[10px] border border-[#9aa3b2] bg-white px-4 py-3 text-[15px] outline-none focus:border-navy focus:ring-2 focus:ring-navy/15"
             />
-            <div className="flex gap-2">
-              <button type="submit" disabled={pending} className={style(true)}>
-                <IconText icon="send" busy={pending}>
-                  {t.requirement.review.send}
-                </IconText>
-              </button>
-              <button type="button" onClick={() => setAsking(null)} className={style(false)}>
-                {t.programme.actions.cancel}
-              </button>
-            </div>
-          </div>
-        ) : asking ? (
-          <div role="alertdialog" aria-label={label(asking)} className="flex flex-wrap items-center gap-2 rounded-[12px] border border-red/30 bg-white px-4 py-3">
-            <AdminIcon name="alert" size={18} className="text-[#b33a35]" />
-            <span className="text-sm">
-              {asking === 'discard' ? a.discardConfirm : asking === 'delete' ? format(a.deleteConfirm, { count: requirementCount }) : t.programme.actions.archiveHint}
-            </span>
-            <button type="submit" disabled={pending} className={buttonClass(asking === 'delete' ? 'dangerSolid' : 'danger')}>
-              <IconText icon={ICON[asking]} busy={pending}>
-                {asking === 'discard' ? a.discardYes : asking === 'delete' ? a.deleteYes : t.programme.actions.confirmArchive}
-              </IconText>
-            </button>
-            <button type="button" onClick={() => setAsking(null)} className={style(false)}>
-              {t.programme.actions.cancel}
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {/* Editing sits on the details tab it belongs to, so it is not read as editing every tab. */}
-            {workflow.actions.filter((action) => action !== 'edit').map((action, i) => {
-              const primary = i === 0;
-              // These ask first: a reason to return, or a confirmation before discarding, hiding or deleting.
-              if (action === 'return' || action === 'discard' || action === 'archive' || action === 'delete') {
-                return (
-                  <button key={action} type="button" onClick={() => setAsking(action)} className={style(primary, DANGER.has(action))}>
-                    <IconText icon={ICON[action]}>{label(action)}</IconText>
-                  </button>
-                );
-              }
-              return (
-                <button key={action} type="submit" name="action" value={action} disabled={pending} onClick={() => setPressed(action)} className={style(primary)}>
-                  <IconText icon={ICON[action]} busy={pending && pressed === action}>
-                    {label(action)}
-                  </IconText>
-                </button>
-              );
-            })}
           </div>
         )}
-      </form>
+      </Modal>
     </section>
   );
 }

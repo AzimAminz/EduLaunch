@@ -488,7 +488,8 @@
       "leave": {
         "message": "What you have entered is not saved and will be lost.",
         "stay": "Keep editing",
-        "discard": "Discard and leave"
+        "discard": "Discard and leave",
+        "title": "Leave without saving?"
       },
       "campuses": "Campuses",
       "campusesPlaceholder": "e.g. UTM Johor Bahru, Johor",

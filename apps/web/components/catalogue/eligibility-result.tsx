@@ -30,7 +30,7 @@ export function EligibilityResult({ locale, answer, subjectNames, t, routeNames 
   );
 
   return (
-    <section aria-labelledby="eligibility-title" className="flex flex-col gap-4 rounded-[22px] bg-white p-6">
+    <section data-reveal aria-labelledby="eligibility-title" className="flex flex-col gap-4 rounded-[22px] bg-white p-6">
       <h2 id="eligibility-title" className="text-[22px] font-semibold leading-tight">
         {t.title}
       </h2>

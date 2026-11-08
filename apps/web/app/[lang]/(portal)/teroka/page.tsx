@@ -96,7 +96,8 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
         {format(t.resultCount, { count: page.total })}
         {hasSample && ` • ${t.sampleNote}`}
       </p>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {/* Cards come in one after another as the list scrolls into view. */}
+      <div data-reveal-stagger className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {page.items.map((p) => {
           const fields = p.fieldIds.map((id) => fieldsById.get(id)).filter((f) => f !== undefined);
           return (
