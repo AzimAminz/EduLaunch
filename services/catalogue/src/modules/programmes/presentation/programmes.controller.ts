@@ -31,7 +31,7 @@ const DetailsBody = z.object({
   bumiputeraOnly: z.boolean().optional(),
   jointDegree: z.boolean().optional(),
   feeder: z.boolean().optional(),
-  careers: z.array(z.string().max(200)).max(40).optional(),
+  careers: z.array(z.string().max(200)).max(100).optional(),
   fees: z.string().max(1000).nullable().optional(),
   note: z.string().max(2000).nullable().optional(),
   sourceUrl: z.string().max(600).nullable().optional(),

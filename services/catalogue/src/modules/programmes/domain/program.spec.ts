@@ -61,6 +61,14 @@ describe('Program', () => {
       expect(p.toSnapshot()).toMatchObject({ campuses: ['Kampus Induk', 'Kampus Bandar'], careers: ['Jurutera'] });
     });
 
+    it('keeps an ePanduan career list of more than forty whole', () => {
+      const p = draft();
+      const careers = Array.from({ length: 58 }, (_, i) => `Kerjaya ${i + 1}`);
+      p.edit('admin-a', { careers });
+      expect(p.toSnapshot().careers).toHaveLength(58);
+      expect(() => p.edit('admin-a', { careers: Array.from({ length: 101 }, (_, i) => `K${i}`) })).toThrow(/At most 100/);
+    });
+
     it('can be edited by any admin, who then becomes its preparer and cannot approve it', () => {
       const p = draft('admin-a');
       p.edit('admin-b', { name: 'Diploma Sains Komputer (Rangkaian)' });

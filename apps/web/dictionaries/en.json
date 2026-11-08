@@ -880,7 +880,7 @@
         "clear": "Clear the selection",
         "accept": "Accept {n} as drafts",
         "accepted": "{created} new drafts and {updated} changes saved. Send each one for another admin's review.",
-        "acceptedFailed": "{failed} could not be saved (for example the code is already used).",
+        "acceptedFailed": "{failed} could not be saved; the reasons are listed below.",
         "missingTitle": "Catalogue programmes no longer on ePanduan",
         "missingHint": "Only flagged for review. Nothing is archived automatically, because the page may have failed to load.",
         "flags": {

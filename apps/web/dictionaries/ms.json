@@ -880,7 +880,7 @@
         "clear": "Kosongkan pilihan",
         "accept": "Terima {n} sebagai draf",
         "accepted": "{created} draf baharu dan {updated} perubahan disimpan. Hantar setiap satu untuk semakan admin lain.",
-        "acceptedFailed": "{failed} tidak dapat disimpan (contohnya kod sudah digunakan).",
+        "acceptedFailed": "{failed} tidak dapat disimpan; sebabnya disenaraikan di bawah.",
         "missingTitle": "Program dalam katalog yang tiada lagi di ePanduan",
         "missingHint": "Hanya ditanda untuk disemak. Tiada program diarkibkan secara automatik, kerana halaman mungkin gagal dimuatkan.",
         "flags": {

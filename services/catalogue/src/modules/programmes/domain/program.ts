@@ -291,7 +291,8 @@ export class Program extends AggregateRoot<string, ProgramProps> {
       internalCode: text(d.internalCode, 20, 'University code'),
       faculty: text(d.faculty, 160, 'Faculty'),
       campuses: list(d.campuses, 20, 120, 'Campus'),
-      careers: list(d.careers, 40, 120, 'Career'),
+      // ePanduan lists up to a few dozen careers (one programme has over forty); the official list is kept whole.
+      careers: list(d.careers, 100, 120, 'Career'),
       fees: text(d.fees, 1000, 'Fees'),
       note: text(d.note, 2000, 'Note'),
       sourceUrl,

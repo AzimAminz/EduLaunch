@@ -316,6 +316,15 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
               {acceptState.imported.failed > 0 && ` ${format(m.acceptedFailed, { failed: acceptState.imported.failed })}`} {m.draftsMade}
             </p>
           )}
+          {!accepting && acceptState.imported?.failures?.length ? (
+            <ul className="list-disc rounded-[12px] bg-cream py-3 pl-9 pr-4 text-[13px]">
+              {acceptState.imported.failures.map((f) => (
+                <li key={f.name}>
+                  {f.name}: {t.errors[f.error]}
+                </li>
+              ))}
+            </ul>
+          ) : null}
           {drafted && (
             <p role="status" className="flex items-center gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
               <AdminIcon name="checkCircle" size={18} />

@@ -45,7 +45,8 @@ export interface AdminFormState {
   /** Institution delete: whether it was requested (waiting for another admin) or cancelled. */
   status?: 'requested' | 'cancelled';
   /** ePanduan import: how many found programmes became drafts or changes, and how many could not be saved. */
-  imported?: { created: number; updated: number; failed: number };
+  /** Programmes accepted from ePanduan; any that could not be saved are named with the reason. */
+  imported?: { created: number; updated: number; failed: number; failures?: Array<{ name: string; error: AdminErrorKey }> };
   /** Bulk send or approve from the task inbox: how many went through, and which did not and why. */
   bulk?: { done: number; failed: Array<{ name: string; error: AdminErrorKey }> };
 }
@@ -193,7 +194,7 @@ function programmeDetails(form: FormData, isStream: boolean) {
       bumiputeraOnly: flag('bumiputeraOnly'),
       jointDegree: flag('jointDegree'),
       feeder: flag('feeder'),
-      careers: list('careers').slice(0, 40),
+      careers: list('careers').slice(0, 100),
       fees: text(form, 'fees').slice(0, 1000) || null,
       note: text(form, 'note').slice(0, 2000) || null,
       sourceUrl,
@@ -681,7 +682,7 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
     return { error: errorKey(err) };
   }
 
-  const imported = { created: 0, updated: 0, failed: 0 };
+  const imported = { created: 0, updated: 0, failed: 0, failures: [] as Array<{ name: string; error: AdminErrorKey }> };
   const accepted: string[] = [];
   // Each programme's requirements become drafts as soon as it is saved, so a long accept cut short (a timeout, a
   // restart) still leaves every saved programme with its drafts; the import tab fills any gaps when opened.
@@ -713,8 +714,10 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
       if (routes.length) await api.setEntryRoutes(token, id, routes);
       accepted.push(row.found.code);
       if (reading) await syncEpanduanDrafts(token, id, reading).catch(() => null);
-    } catch {
+    } catch (err) {
       imported.failed += 1;
+      imported.failures.push({ name: `${row.found.code} ${row.found.name}`, error: errorKey(err) });
+      console.error(`ePanduan accept: ${row.found.code} not saved`, err);
     }
   }
   // Syarat Khas is read only for accepted programmes, in the background (a few seconds per category).
