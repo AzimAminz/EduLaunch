@@ -402,7 +402,10 @@
       "clearFilter": "Kosongkan",
       "allInstitutions": "Semua institusi",
       "changeBadge": "Ada perubahan",
-      "clearFilters": "Kosongkan tapisan"
+      "clearFilters": "Kosongkan tapisan",
+      "noMatches": "Tiada program yang sepadan dengan carian atau penapis ini.",
+      "noInstitution": "Aliran sekolah (tiada institusi)",
+      "searchHere": "Cari program di institusi ini"
     },
     "programmeForm": {
       "newTitle": "Tambah program baharu",
@@ -706,9 +709,11 @@
       "website": "Laman web rasmi",
       "websitePlaceholder": "https://",
       "columns": {
-        "name": "Nama",
-        "type": "Jenis",
-        "website": "Laman web"
+        "name": "Institusi",
+        "state": "Negeri",
+        "programmes": "Program",
+        "published": "Diterbitkan",
+        "open": "Dalam proses"
       },
       "types": {
         "public_university": "Universiti awam",
@@ -759,15 +764,30 @@
         "import": "Import ePanduan"
       },
       "summary": {
+        "programmes": "Program",
         "published": "Diterbitkan",
-        "open": "Belum diterbitkan",
+        "open": "Dalam proses",
         "withoutRequirements": "Tanpa syarat diterbitkan",
         "archived": "Diarkib",
-        "next": "Langkah seterusnya",
-        "nextNoProgrammes": "Tambah program pertama institusi ini.",
-        "nextNoSources": "Tambah sumber rasmi (halaman program atau prospektus) supaya program boleh disemak dengan sumbernya.",
-        "nextRequirements": "Tulis syarat untuk program yang belum ada syarat.",
-        "nextDone": "Semua program yang diterbitkan sudah ada syarat."
+        "todo": "Perlu tindakan",
+        "waiting": "Menunggu semakan",
+        "returned": "Dipulangkan untuk dibetulkan",
+        "missing": "Diterbitkan, tetapi syaratnya belum",
+        "viewAll": "Lihat semua {count}",
+        "allDone": "Tiada apa-apa yang menunggu. Semua program di sini sudah lengkap.",
+        "nothingYet": "Belum ada program di sini. Import dari ePanduan atau tambah satu.",
+        "about": "Tentang institusi",
+        "edit": "Sunting",
+        "lastImport": "Import ePanduan",
+        "openImport": "Buka",
+        "noCode": "Kod ePanduan belum ditetapkan, jadi program tidak boleh diimport.",
+        "neverImported": "Belum pernah diimport.",
+        "importRunning": "Sedang membaca ePanduan sekarang.",
+        "importFailed": "Bacaan terakhir gagal {when}.",
+        "importDone": "{found} program dijumpai, {when}.",
+        "manage": "Urus",
+        "add": "Tambah",
+        "noSources": "Belum ada sumber rasmi. Tambah halaman program atau prospektus supaya data boleh disemak."
       },
       "sourcesTitle": "Sumber rasmi",
       "sourcesIntro": "Tempat institusi ini menerbitkan program dan syaratnya. Admin menyemak data dengan sumber ini.",
@@ -956,7 +976,9 @@
         "noRequirementText": "ePanduan belum ada teks syarat untuk program ini. Buka tab Import pada institusinya dan tekan \"Semak semula\" untuk membacanya.",
         "draftsMade": "Syarat setiap program terus menjadi draf; Syarat Khas ditambah sendiri sebaik dibaca.",
         "draftsRefreshed": "Syarat Khas sudah dibaca: {updated} draf dikemas kini, {created} draf baharu. Semak dalam Peti tugasan (Draf saya)."
-      }
+      },
+      "deletionPending": "Menunggu pemadaman",
+      "noProgrammesYet": "Belum ada program di institusi ini. Import dari ePanduan atau tambah satu."
     },
     "requirement": {
       "titleEdit": "Kemas kini syarat: {programme}",

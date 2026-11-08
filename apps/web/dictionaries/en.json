@@ -402,7 +402,10 @@
       "clearFilter": "Clear",
       "allInstitutions": "All institutions",
       "changeBadge": "Has a change",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "noMatches": "No programme matches this search or filter.",
+      "noInstitution": "School stream (no institution)",
+      "searchHere": "Search this institution's programmes"
     },
     "programmeForm": {
       "newTitle": "Add a new programme",
@@ -706,9 +709,11 @@
       "website": "Official website",
       "websitePlaceholder": "https://",
       "columns": {
-        "name": "Name",
-        "type": "Type",
-        "website": "Website"
+        "name": "Institution",
+        "state": "State",
+        "programmes": "Programmes",
+        "published": "Published",
+        "open": "In progress"
       },
       "types": {
         "public_university": "Public university",
@@ -759,15 +764,30 @@
         "import": "Import ePanduan"
       },
       "summary": {
+        "programmes": "Programmes",
         "published": "Published",
-        "open": "Not yet published",
-        "withoutRequirements": "Without published requirements",
+        "open": "In progress",
+        "withoutRequirements": "No published requirements",
         "archived": "Archived",
-        "next": "Next step",
-        "nextNoProgrammes": "Add this institution's first programme.",
-        "nextNoSources": "Add official sources (programme page or prospectus) so programmes can be checked against them.",
-        "nextRequirements": "Write requirements for the programmes that have none.",
-        "nextDone": "Every published programme has requirements."
+        "todo": "Needs doing",
+        "waiting": "Waiting for review",
+        "returned": "Sent back to fix",
+        "missing": "Published, but requirements are not yet",
+        "viewAll": "View all {count}",
+        "allDone": "Nothing is waiting. Every programme here is complete.",
+        "nothingYet": "No programmes here yet. Import from ePanduan or add one.",
+        "about": "About the institution",
+        "edit": "Edit",
+        "lastImport": "ePanduan import",
+        "openImport": "Open",
+        "noCode": "No ePanduan code is set, so programmes cannot be imported.",
+        "neverImported": "Not imported yet.",
+        "importRunning": "Reading ePanduan now.",
+        "importFailed": "The last read failed {when}.",
+        "importDone": "{found} programmes found, {when}.",
+        "manage": "Manage",
+        "add": "Add",
+        "noSources": "No official sources yet. Add the programme page or prospectus so the data can be checked."
       },
       "sourcesTitle": "Official sources",
       "sourcesIntro": "Where this institution publishes its programmes and requirements. Admins check the data against these sources.",
@@ -956,7 +976,9 @@
         "noRequirementText": "No ePanduan requirement text for this programme yet. Open the institution's Import tab and press \"Check again\" to read it.",
         "draftsMade": "Each programme's requirements are now drafts; Syarat Khas is added on its own once read.",
         "draftsRefreshed": "Syarat Khas has been read: {updated} drafts updated, {created} new drafts. Review them in the task inbox (My drafts)."
-      }
+      },
+      "deletionPending": "Waiting to be deleted",
+      "noProgrammesYet": "No programmes at this institution yet. Import from ePanduan or add one."
     },
     "requirement": {
       "titleEdit": "Update requirements: {programme}",

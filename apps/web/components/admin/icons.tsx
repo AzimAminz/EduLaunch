@@ -68,6 +68,8 @@ const PATHS = {
   arrowLeft: <path d="m12 19-7-7 7-7M19 12H5" />,
   arrowRight: <path d="M5 12h14m-7-7 7 7-7 7" />,
   chevronRight: <path d="m9 18 6-6-6-6" />,
+  chevronDown: <path d="m6 9 6 6 6-6" />,
+  chevronUp: <path d="m18 15-6-6-6 6" />,
   clock: (
     <>
       <circle cx="12" cy="12" r="10" />

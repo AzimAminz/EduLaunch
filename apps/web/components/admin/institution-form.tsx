@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { EpanduanInstitutions, InstitutionTypes, MalaysianStates } from '@edulaunch/contracts';
 import { saveInstitution, type AdminFormState } from '@/lib/admin/actions';
@@ -24,7 +25,7 @@ export interface InstitutionValues {
  * Add an institution (it then opens on its profile) or correct its details.
  * Institutions are reference data: saved directly, no second-admin review.
  */
-export function InstitutionForm({ locale, t, noMatches, values, onCancel }: { locale: Locale; t: Dictionary['admin']; noMatches: string; values?: InstitutionValues; onCancel?: () => void }) {
+export function InstitutionForm({ locale, t, noMatches, values, onCancel, cancelHref }: { locale: Locale; t: Dictionary['admin']; noMatches: string; values?: InstitutionValues; onCancel?: () => void; cancelHref?: string }) {
   const i = t.institutions;
   const [type, setType] = useState(values?.type ?? '');
   const [state, setState] = useState(values?.state ?? '');
@@ -84,6 +85,11 @@ export function InstitutionForm({ locale, t, noMatches, values, onCancel }: { lo
           <button type="button" onClick={onCancel} className={buttonClass('secondary')}>
             <IconText icon="x">{i.cancel}</IconText>
           </button>
+        )}
+        {cancelHref && (
+          <Link href={cancelHref} className={buttonClass('secondary')}>
+            {i.cancel}
+          </Link>
         )}
         <Notice showKey={result.savedAt}>{i.saved}</Notice>
       </div>
