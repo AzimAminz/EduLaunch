@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { acceptFoundProgrammes, startEpanduanImport, type AdminFormState } from '@/lib/admin/actions';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { acceptFoundProgrammes, refreshEpanduanDrafts, startEpanduanImport, type AdminFormState } from '@/lib/admin/actions';
 import type { InstitutionProgramme, SpecialRequirement } from '@/lib/admin/api';
 import { acceptable, type ImportRow, type ImportStatus } from '@/lib/admin/epanduan-import';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
@@ -68,6 +68,20 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
     const timer = setInterval(() => router.refresh(), running ? 3000 : 5000);
     return () => clearInterval(timer);
   }, [running, readingSpecial, router]);
+  // When Syarat Khas has been read, the drafts made at acceptance take it in (edited drafts are left alone).
+  const wasReading = useRef(readingSpecial);
+  const [drafted, setDrafted] = useState<{ created: number; updated: number } | null>(null);
+  useEffect(() => {
+    if (wasReading.current && !readingSpecial) {
+      refreshEpanduanDrafts(locale, institutionId)
+        .then((r) => {
+          if (r.created || r.updated) setDrafted(r);
+          router.refresh();
+        })
+        .catch(() => null);
+    }
+    wasReading.current = readingSpecial;
+  }, [readingSpecial, locale, institutionId, router]);
   const specialByCode = useMemo(() => {
     const map = new Map<string, SpecialRequirement[]>();
     for (const s of special) map.set(s.code, [...(map.get(s.code) ?? []), s]);
@@ -293,7 +307,13 @@ export function EpanduanImport({ locale, institutionId, code, shared, run, rows,
             <p role="status" className="flex items-center gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
               <AdminIcon name="checkCircle" size={18} />
               {format(m.accepted, { created: acceptState.imported.created, updated: acceptState.imported.updated })}
-              {acceptState.imported.failed > 0 && ` ${format(m.acceptedFailed, { failed: acceptState.imported.failed })}`}
+              {acceptState.imported.failed > 0 && ` ${format(m.acceptedFailed, { failed: acceptState.imported.failed })}`} {m.draftsMade}
+            </p>
+          )}
+          {drafted && (
+            <p role="status" className="flex items-center gap-2 rounded-[12px] bg-mint px-4 py-3 text-sm text-[#1f6b47]">
+              <AdminIcon name="checkCircle" size={18} />
+              {format(m.draftsRefreshed, { updated: drafted.updated, created: drafted.created })}
             </p>
           )}
         </form>

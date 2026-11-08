@@ -940,7 +940,9 @@
         },
         "referenceTitle": "Reference from ePanduan",
         "referenceIntro": "The requirement text as JPT ePanduan writes it for each candidate category. Copy the relevant sentence as evidence while writing the requirements.",
-        "noRequirementText": "No ePanduan requirement text for this programme yet. Open the institution's Import tab and press \"Check again\" to read it."
+        "noRequirementText": "No ePanduan requirement text for this programme yet. Open the institution's Import tab and press \"Check again\" to read it.",
+        "draftsMade": "Each programme's requirements are now drafts; Syarat Khas is added on its own once read.",
+        "draftsRefreshed": "Syarat Khas has been read: {updated} drafts updated, {created} new drafts. Review them in the task inbox (My drafts)."
       }
     },
     "requirement": {

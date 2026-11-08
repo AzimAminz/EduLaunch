@@ -9,7 +9,7 @@ import { getAccount, getAccessToken } from '../supabase/server';
 import * as api from './api';
 import { acceptable, compareFound, draftFromFound, entryRoutesFromFound, onlyRoutesChanged, updateFromFound } from './epanduan-import';
 import { checkLines, EditorState, gradesFor, type CheckedLines } from './requirement-form';
-import { groupSourceUrl, rulesFromGroup } from './epanduan-text';
+import { groupSourceUrl, rulesFromGroup, type MatchableSubject } from './epanduan-text';
 import { requirementSlots } from './requirement-slots';
 import { getReferenceData } from '../catalogue/api';
 
@@ -479,32 +479,92 @@ export async function draftFromEpanduan(_prev: AdminFormState, form: FormData): 
   const only = text(form, 'slot');
   let opened: string | null = null;
   try {
-    const programme = await api.getProgrammeDetail(token, programId);
-    if (!programme.programCode) return { error: 'conflict' };
-    const [[found], special, reference] = await Promise.all([
-      api.listFoundProgrammes(token, [programme.programCode]),
-      api.listSpecialRequirements(token, [programme.programCode]),
-      getReferenceData(),
-    ]);
-    if (!found) return { error: 'conflict' };
-    const kept = new Set(programme.entryRoutes);
-    const categories = found.categories.filter((c) => c.route && (kept.size === 0 || kept.has(c.route)));
-    const subjects = reference.subjects.map((s) => ({ id: s.id, qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }));
-    const qualification = new Map(reference.subjects.map((s) => [s.id, s.qualification]));
-    const validGrade = (subjectId: string, grade: string) => gradesFor(qualification.get(subjectId)).includes(grade);
-    const slots = requirementSlots(EntryRoutes, categories, special, programme.requirements).filter((s) => s.group && s.versions.length === 0 && (!only || s.key === only));
-    for (const slot of slots) {
-      const { id } = await api.createRequirementDraft(token, { programId, entryRoute: slot.route, sourceCategory: slot.category });
-      const rules = rulesFromGroup(slot.group!, subjects, validGrade);
-      if (rules.length) await api.saveRequirementDraft(token, id, { sourceUrl: groupSourceUrl(slot.group!), sourceCategory: slot.category, rules });
-      opened = id;
-    }
+    const subjects = await subjectsForReading();
+    const result = await syncEpanduanDrafts(token, programId, subjects, only || undefined);
+    if (result === null) return { error: 'conflict' };
+    opened = result.created.at(-1) ?? null;
   } catch (err) {
     return { error: errorKey(err) };
   }
   refresh();
   if (only && opened) redirect(`/${locale}/admin/syarat/${opened}?disalin=epanduan`);
   redirect(`/${locale}/admin/program/${programId}?tab=syarat&selesai=dari-epanduan`);
+}
+
+/**
+ * Refreshes the drafts of an institution's programmes from ePanduan once Syarat Khas has been read: missing drafts
+ * are made, and drafts nobody has touched since they were made from Syarat Am get Syarat Khas too. Called by the
+ * import tab when reading finishes; edited drafts are never replaced.
+ */
+export async function refreshEpanduanDrafts(locale: string, institutionId: string): Promise<{ created: number; updated: number }> {
+  const token = await adminToken(isLocale(locale) ? locale : 'ms');
+  const totals = { created: 0, updated: 0 };
+  try {
+    const [programmes, subjects] = await Promise.all([api.listInstitutionProgrammes(token, institutionId), subjectsForReading()]);
+    for (const p of programmes.filter((x) => x.programCode && x.status !== 'archived')) {
+      const result = await syncEpanduanDrafts(token, p.id, subjects).catch(() => null);
+      totals.created += result?.created.length ?? 0;
+      totals.updated += result?.updated ?? 0;
+    }
+  } catch {
+    return totals;
+  }
+  if (totals.created || totals.updated) refresh();
+  return totals;
+}
+
+type ReadingSubjects = { subjects: MatchableSubject[]; validGrade: (subjectId: string, grade: string) => boolean };
+
+/** The catalogue's subjects, as the requirement reader matches them. */
+async function subjectsForReading(): Promise<ReadingSubjects> {
+  const reference = await getReferenceData();
+  const qualification = new Map(reference.subjects.map((s) => [s.id, s.qualification]));
+  return {
+    subjects: reference.subjects.map((s) => ({ id: s.id, qualification: s.qualification, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) })),
+    validGrade: (subjectId, grade) => gradesFor(qualification.get(subjectId)).includes(grade),
+  };
+}
+
+/** Two rule lists say the same thing (order, kind, values, sentence). */
+function sameRules(a: Array<Partial<api.AdminRule>>, b: Array<Partial<api.AdminRule>>): boolean {
+  const key = (r: Partial<api.AdminRule>) =>
+    JSON.stringify([r.part, r.section ?? null, r.conditionType, r.minGrade ?? null, r.minValue === null || r.minValue === undefined ? null : Number(r.minValue), r.minCount ?? null, (r.officialText ?? '').trim(), r.subjectId ?? null, r.subjectIds ?? []]);
+  return a.length === b.length && a.every((r, i) => key(r) === key(b[i]!));
+}
+
+/**
+ * A programme's requirement drafts from its ePanduan text: one for each slot without a requirement (or only the
+ * slot given), and an untouched draft made before Syarat Khas was read is filled again with it. Null when the
+ * programme has no ePanduan reading.
+ */
+async function syncEpanduanDrafts(token: string, programId: string, reading: ReadingSubjects, only?: string): Promise<{ created: string[]; updated: number } | null> {
+  const programme = await api.getProgrammeDetail(token, programId);
+  if (!programme.programCode) return null;
+  const [[found], special] = await Promise.all([api.listFoundProgrammes(token, [programme.programCode]), api.listSpecialRequirements(token, [programme.programCode])]);
+  if (!found) return null;
+  const kept = new Set(programme.entryRoutes);
+  const categories = found.categories.filter((c) => c.route && (kept.size === 0 || kept.has(c.route)));
+  const result = { created: [] as string[], updated: 0 };
+  for (const slot of requirementSlots(EntryRoutes, categories, special, programme.requirements)) {
+    if (!slot.group || (only && slot.key !== only)) continue;
+    const rules = rulesFromGroup(slot.group, reading.subjects, reading.validGrade);
+    if (slot.versions.length === 0) {
+      const { id } = await api.createRequirementDraft(token, { programId, entryRoute: slot.route, sourceCategory: slot.category });
+      if (rules.length) await api.saveRequirementDraft(token, id, { sourceUrl: groupSourceUrl(slot.group), sourceCategory: slot.category, rules });
+      result.created.push(id);
+      continue;
+    }
+    // A first draft, made from Syarat Am before Syarat Khas was read, and not edited since: take Syarat Khas too.
+    const [only1] = slot.versions;
+    if (slot.versions.length !== 1 || only1!.status !== 'draft' || slot.group.special?.status !== 'done') continue;
+    const detail = await api.getRequirementDetail(token, only1!.id);
+    const withoutSpecial = rulesFromGroup({ ...slot.group, special: null }, reading.subjects, reading.validGrade);
+    if (sameRules(detail.rules, withoutSpecial) && !sameRules(detail.rules, rules)) {
+      await api.saveRequirementDraft(token, only1!.id, { sourceUrl: detail.sourceUrl ?? groupSourceUrl(slot.group), sourceCategory: slot.category, rules });
+      result.updated += 1;
+    }
+  }
+  return result;
 }
 
 /**
@@ -608,6 +668,7 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
 
   const imported = { created: 0, updated: 0, failed: 0 };
   const accepted: string[] = [];
+  const acceptedIds: string[] = [];
   for (const row of comparison.rows.filter((r) => chosen.has(r.found.code) && acceptable(r))) {
     try {
       let id: string;
@@ -634,6 +695,7 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
       const routes = entryRoutesFromFound(row.found);
       if (routes.length) await api.setEntryRoutes(token, id, routes);
       accepted.push(row.found.code);
+      acceptedIds.push(id);
     } catch {
       imported.failed += 1;
     }
@@ -642,6 +704,10 @@ export async function acceptFoundProgrammes(_prev: AdminFormState, form: FormDat
   if (accepted.length) {
     const institution = await api.getInstitutionDetail(token, institutionId).catch(() => null);
     if (institution?.epanduanCode) await api.readSpecialRequirements(token, institution.epanduanCode, accepted).catch(() => null);
+    // Their requirements become drafts at once, from Syarat Am (and Syarat Khas where already read); the import tab
+    // fills in Syarat Khas when reading finishes (refreshEpanduanDrafts).
+    const reading = await subjectsForReading().catch(() => null);
+    for (const id of acceptedIds) if (reading) await syncEpanduanDrafts(token, id, reading).catch(() => null);
   }
   refresh();
   return { savedAt: Date.now(), imported };

@@ -940,7 +940,9 @@
         },
         "referenceTitle": "Rujukan dari ePanduan",
         "referenceIntro": "Teks syarat seperti yang tertulis di ePanduan JPT bagi setiap kategori calon. Salin ayat yang berkaitan sebagai bukti semasa menulis syarat.",
-        "noRequirementText": "ePanduan belum ada teks syarat untuk program ini. Buka tab Import pada institusinya dan tekan \"Semak semula\" untuk membacanya."
+        "noRequirementText": "ePanduan belum ada teks syarat untuk program ini. Buka tab Import pada institusinya dan tekan \"Semak semula\" untuk membacanya.",
+        "draftsMade": "Syarat setiap program terus menjadi draf; Syarat Khas ditambah sendiri sebaik dibaca.",
+        "draftsRefreshed": "Syarat Khas sudah dibaca: {updated} draf dikemas kini, {created} draf baharu. Semak dalam Peti tugasan (Draf saya)."
       }
     },
     "requirement": {
