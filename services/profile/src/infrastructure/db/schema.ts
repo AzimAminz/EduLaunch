@@ -100,7 +100,7 @@ export const questions = profile.table('question', {
   isActive: boolean('is_active').notNull().default(true),
 });
 
-/** A student's answer to one question of the interest test (1 = not like me … 5 = very like me). */
+/** A student's answer to one question of the interest test (0 = strongly dislike … 4 = strongly like, as in the O*NET Mini-IP). */
 export const assessments = profile.table(
   'assessment',
   {

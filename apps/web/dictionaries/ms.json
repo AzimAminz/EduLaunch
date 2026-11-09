@@ -1897,5 +1897,81 @@
       "confirmWordLabel": "Taip PADAM untuk mengesahkan",
       "deleteButton": "Padam akaun saya"
     }
+  },
+  "interest": {
+    "eyebrow": "KENALI DIRI",
+    "title": "Penilaian minat",
+    "introTitle": "30 aktiviti, kira-kira 5 minit",
+    "continueTitle": "Sambung dari tempat anda berhenti",
+    "intro": "Untuk setiap aktiviti kerja, pilih sejauh mana anda suka melakukannya. Jangan fikir sama ada anda pandai melakukannya atau berapa gajinya. Tiada jawapan betul atau salah. Jawapan disimpan setiap kali anda ke langkah seterusnya.",
+    "unavailable": "Penilaian minat belum tersedia. Cuba lagi kemudian.",
+    "test": {
+      "stepOf": "Langkah {step} daripada {steps}",
+      "answered": "{count}/{total} dijawab",
+      "progress": "Kemajuan penilaian minat",
+      "prompt": "Sejauh mana anda suka melakukan aktiviti ini?",
+      "scale": [
+        "Sangat tak suka",
+        "Tak suka",
+        "Tak pasti",
+        "Suka",
+        "Sangat suka"
+      ],
+      "back": "Kembali",
+      "next": "Seterusnya",
+      "finish": "Lihat keputusan",
+      "saving": "Menyimpan…",
+      "answerAll": "Jawab semua aktiviti dalam langkah ini dahulu.",
+      "incomplete": "Ada aktiviti yang belum dijawab. Semak semula langkah sebelum ini.",
+      "saveError": "Jawapan tidak dapat disimpan. Cuba lagi sebentar lagi.",
+      "savedNote": "Anda boleh berhenti bila-bila masa; jawapan yang disimpan kekal."
+    },
+    "result": {
+      "codeLabel": "Kod minat anda",
+      "completedOn": "Diambil pada {date}",
+      "lead": "Ini tiga jenis minat tertinggi anda daripada enam jenis minat Holland (RIASEC). Gabungan ketiga-tiganya lebih bermakna daripada satu huruf sahaja.",
+      "rank": "Minat ke-{n}",
+      "fieldsLabel": "Bidang yang biasanya sepadan:",
+      "allTitle": "Keenam-enam jenis minat",
+      "allHint": "Skor ialah jumlah jawapan anda bagi lima aktiviti setiap jenis, daripada 0 hingga 20.",
+      "scoreOf": "{score}/20",
+      "note": "Minat menunjukkan apa yang anda suka, bukan apa yang anda mampu. Gunakannya untuk meneroka pilihan, bukan sebagai keputusan muktamad.",
+      "explore": "Teroka program",
+      "retake": "Ambil semula",
+      "retakeHint": "Keputusan sekarang kekal sehingga anda selesai mengambil penilaian semula."
+    },
+    "types": {
+      "R": {
+        "name": "Realistik",
+        "body": "Suka kerja praktikal: membina, membaiki dan mengendalikan alat, mesin, tumbuhan atau haiwan. Lebih suka hasil yang nampak berbanding kerja di atas kertas.",
+        "fields": "kejuruteraan, teknologi, automotif, pertanian, pembinaan."
+      },
+      "I": {
+        "name": "Penyiasat",
+        "body": "Suka memerhati, mengkaji dan menyelesaikan masalah dengan idea dan data. Suka bertanya kenapa dan bagaimana sesuatu berlaku.",
+        "fields": "sains, perubatan, farmasi, sains komputer, penyelidikan."
+      },
+      "A": {
+        "name": "Artistik",
+        "body": "Suka mencipta dan meluahkan idea melalui reka bentuk, tulisan, muzik atau persembahan. Lebih selesa dengan kerja yang bebas berbanding peraturan yang ketat.",
+        "fields": "seni reka, media, muzik, seni bina, penulisan."
+      },
+      "S": {
+        "name": "Sosial",
+        "body": "Suka membantu, mengajar, menjaga dan bekerjasama dengan orang lain. Rasa puas apabila dapat memberi kesan kepada hidup orang.",
+        "fields": "pendidikan, kejururawatan, kaunseling, kerja sosial, kesihatan."
+      },
+      "E": {
+        "name": "Keusahawanan",
+        "body": "Suka memimpin, memujuk dan membuat keputusan. Berani mengambil risiko untuk mencapai sasaran, termasuk dalam perniagaan.",
+        "fields": "perniagaan, pengurusan, pemasaran, undang-undang, keusahawanan."
+      },
+      "C": {
+        "name": "Konvensional",
+        "body": "Suka kerja yang tersusun dengan data, nombor, rekod dan prosedur yang jelas. Teliti dan suka memastikan semuanya tepat.",
+        "fields": "perakaunan, kewangan, pentadbiran, logistik, sistem maklumat."
+      }
+    },
+    "source": "Soalan daripada O*NET Mini Interest Profiler (O*NET Career Exploration Tools, U.S. Department of Labor, Employment and Training Administration). EduLaunch menterjemah dan mengubah suai sebahagian maklumat ini; USDOL/ETA tidak meluluskan, menyokong atau menguji pengubahsuaian ini. Digunakan di bawah"
   }
 }
