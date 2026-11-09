@@ -1673,7 +1673,6 @@
     "noRoute": "Program ini belum menyenaraikan syarat untuk laluan anda. Syarat yang ada: {routes}.",
     "noResults": "Isi dan sahkan keputusan anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
     "fillResults": "Isi keputusan saya",
-    "updateResults": "Kemas kini keputusan",
     "disclaimer": "Semakan ini panduan sahaja. Keputusan kemasukan ditentukan oleh institusi.",
     "loadError": "Kelayakan tidak dapat disemak buat sementara. Cuba lagi sebentar lagi.",
     "checking": "Menyemak kelayakan anda…",
@@ -1766,12 +1765,7 @@
       "below": "Merit anda {merit} adalah {gap} mata di bawah purata merit calon yang ditawarkan pada {year} ({average})."
     },
     "note": "Purata ialah merit purata calon yang mendapat tawaran, jadi ada yang ditawarkan dengan merit lebih rendah. Ia bukan jaminan atau ramalan tawaran.",
-    "noAverage": "Merit anda {merit}. Program ini belum ada purata merit yang boleh dibandingkan.",
-    "otherGroupSpm": "Merit anda {merit}. Purata program ini untuk lepasan SPM, jadi ia tidak dibandingkan dengan merit anda.",
-    "otherGroupPreu": "Merit anda {merit}. Purata program ini untuk lepasan STPM, Matrikulasi atau Asasi, jadi ia tidak dibandingkan dengan merit anda.",
-    "noMerit": "Isi keputusan anda untuk melihat merit anda berbanding purata program ini.",
     "openLab": "Cuba dalam Merit Lab",
-    "openLabEmpty": "Buka Merit Lab",
     "targetNote": "Ini merit sasaran, dikira daripada gred sasaran SPM anda."
   },
   "settings": {

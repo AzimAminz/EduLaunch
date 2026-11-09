@@ -88,7 +88,6 @@ export function EligibilityResult({ locale, answer, subjectNames, t, routeNames 
               <p className="text-[12px] text-muted">{t.toConfirmNote}</p>
             </div>
           )}
-          {answer.status !== 'eligible' && resultsLink(t.updateResults)}
         </>
       )}
 

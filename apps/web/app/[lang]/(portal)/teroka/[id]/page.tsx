@@ -339,15 +339,10 @@ async function MeritStanding({ lang, dict, entryRoutes, averageMerit }: { lang: 
   if (!inputs || inputs.level === 'form1_3') return null;
   const merit = studentMerit(inputs);
   const comparison = merit === null ? null : compareMerit({ mode: inputs.mode, merit }, { entryRoutes, averageMerit });
-  const tone = comparison?.status === 'comparable' ? { above: 'bg-mint', near: 'bg-cream', below: 'bg-[#ffedea]' }[comparison.band] : 'bg-white';
-  const sentence =
-    merit === null
-      ? t.noMerit
-      : !comparison || comparison.status === 'no_average'
-        ? format(t.noAverage, { merit: merit.toFixed(2) })
-        : comparison.status === 'other_group'
-          ? format(comparison.group === 'spm' ? t.otherGroupSpm : t.otherGroupPreu, { merit: merit.toFixed(2) })
-          : format(t.bands[comparison.band], { merit: merit.toFixed(2), average: comparison.average.toFixed(2), year: comparison.year, gap: Math.abs(comparison.gap).toFixed(2) });
+  // Shown only when there is a real comparison; otherwise the card says nothing useful, so it is left out.
+  if (merit === null || comparison?.status !== 'comparable') return null;
+  const tone = { above: 'bg-mint', near: 'bg-cream', below: 'bg-[#ffedea]' }[comparison.band];
+  const sentence = format(t.bands[comparison.band], { merit: merit.toFixed(2), average: comparison.average.toFixed(2), year: comparison.year, gap: Math.abs(comparison.gap).toFixed(2) });
   return (
     <section aria-labelledby="merit-title" className={`flex flex-col gap-4 rounded-[22px] p-6 sm:flex-row sm:items-center sm:justify-between ${tone}`}>
       <div className="flex min-w-0 flex-col gap-1.5">
@@ -355,11 +350,11 @@ async function MeritStanding({ lang, dict, entryRoutes, averageMerit }: { lang: 
           {t.title}
         </h2>
         <p className="text-sm">{sentence}</p>
-        {merit !== null && inputs.basis === 'target' && <p className="text-[13px] font-medium">{t.targetNote}</p>}
-        {comparison?.status === 'comparable' && <p className="text-[13px] text-muted">{t.note}</p>}
+        {inputs.basis === 'target' && <p className="text-[13px] font-medium">{t.targetNote}</p>}
+        <p className="text-[13px] text-muted">{t.note}</p>
       </div>
       <Link href={`/${lang}/merit-lab`} className="shrink-0 self-start text-sm font-semibold text-navy underline underline-offset-2 sm:self-center">
-        {merit === null ? t.openLabEmpty : t.openLab}
+        {t.openLab}
       </Link>
     </section>
   );
