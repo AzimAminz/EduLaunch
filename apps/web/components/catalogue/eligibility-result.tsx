@@ -51,9 +51,16 @@ export function EligibilityResult({ locale, answer, subjectNames, t, routeNames 
             <p className="text-sm">{format(t.statusBody[answer.status], { route: routeName(answer.entryRoute) })}</p>
             {answer.isTargetBased && <p className="text-[13px] font-medium">{t.targetNote}</p>}
           </div>
-          <ul className="flex flex-col gap-2">
-            {answer.groups.map((group, i) => (
-              <li key={i} className="flex gap-3 rounded-[12px] bg-bg px-4 py-3 text-sm">
+          {/* A plain list split by thin rules: one line per requirement, no box around each. */}
+          <ul className="flex flex-col divide-y divide-line">
+            {/* Syarat Am and Syarat Khas often both ask for the CGPA or MUET: an identical line is listed once. */}
+            {answer.groups
+              .filter((group, i, all) => {
+                const key = (g: typeof group) => `${g.passed}|${g.rules.map((r) => explainRule(r, subjectNames, t)).join('|')}`;
+                return all.findIndex((other) => key(other) === key(group)) === i;
+              })
+              .map((group, i) => (
+              <li key={i} className="flex gap-3 py-2.5 text-sm first:pt-0 last:pb-0">
                 <span aria-hidden className={`mt-0.5 font-bold ${group.passed ? 'text-[#2e7d57]' : 'text-red'}`}>
                   {group.passed ? '✓' : '✗'}
                 </span>
