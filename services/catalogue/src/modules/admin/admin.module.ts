@@ -185,12 +185,22 @@ export class AdminQueries {
           .from(requirements)
           .where(and(inArray(requirements.programId, rows.map((r) => r.id)), ne(requirements.reviewStatus, 'archived')))
       : [];
+    // The newest average merit from ePanduan for each row (an admin checks the imported data at a glance).
+    const merits = rows.length
+      ? await this.db
+          .select({ programId: admissionStats.programId, intakeYear: admissionStats.intakeYear, value: admissionStats.averageMerit })
+          .from(admissionStats)
+          .where(and(inArray(admissionStats.programId, rows.map((r) => r.id)), isNotNull(admissionStats.averageMerit)))
+          .orderBy(desc(admissionStats.intakeYear))
+      : [];
     const items = rows.map((r) => {
       const mine = reqs.filter((x) => x.programId === r.id);
+      const merit = merits.find((m) => m.programId === r.id);
       return {
         ...r,
         publishedRoutes: [...new Set(mine.filter((x) => x.status === 'published').map((x) => x.entryRoute))].sort(),
         openDrafts: mine.filter((x) => OPEN.includes(x.status)).length,
+        averageMerit: merit ? { intakeYear: merit.intakeYear, value: Number(merit.value) } : null,
       };
     });
     return { items, total: total?.value ?? 0, page: q.page, pageSize: q.pageSize };

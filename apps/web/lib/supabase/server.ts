@@ -29,6 +29,8 @@ export interface Account {
   id: string;
   email: string;
   name: string | null;
+  /** The profile picture's address in storage, or null for initials. */
+  avatarUrl: string | null;
   role: Role;
   /** An admin who may approve their own work (demos, one-person team); set only by the service key. */
   superAdmin: boolean;
@@ -40,11 +42,12 @@ export async function getAccount(): Promise<Account | null> {
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
   if (!claims?.sub) return null;
-  const meta = (claims.user_metadata ?? {}) as { full_name?: string };
+  const meta = (claims.user_metadata ?? {}) as { full_name?: string; avatar_url?: string | null };
   return {
     id: claims.sub,
     email: claims.email ?? '',
     name: meta.full_name?.trim() || null,
+    avatarUrl: meta.avatar_url || null,
     role: claims.app_metadata?.role === 'admin' ? 'admin' : 'student',
     superAdmin: claims.app_metadata?.role === 'admin' && claims.app_metadata?.super_admin === true,
   };

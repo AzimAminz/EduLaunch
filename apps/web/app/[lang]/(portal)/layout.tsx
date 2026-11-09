@@ -4,7 +4,8 @@ import { Sidebar } from '@/components/portal/sidebar';
 import { studentNav } from '@/components/portal/student-nav';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
-import { requireRole } from '@/lib/supabase/server';
+import { getMe } from '@/lib/profile/api';
+import { getAccessToken, requireRole } from '@/lib/supabase/server';
 
 /** Student portal frame: sidebar on the left (a menu on phones), page content in a 1088px column. */
 export default async function PortalLayout({ children, params }: LayoutProps<'/[lang]'>) {
@@ -27,10 +28,13 @@ export default async function PortalLayout({ children, params }: LayoutProps<'/[
 async function PortalSidebar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   // Students only; admins are sent to the admin console.
   const account = await requireRole(locale, 'student');
+  // The level decides which menu items apply (no Merit Lab before Form 4); the full menu if it cannot be read.
+  const token = await getAccessToken();
+  const level = token ? await getMe(token).then((me) => me.educationLevel).catch(() => null) : null;
   return (
     <Sidebar
       locale={locale}
-      {...studentNav(locale, dict.nav)}
+      {...studentNav(locale, dict.nav, level)}
       homeHref={`/${locale}/teroka`}
       labels={{ toggleSidebar: dict.nav.toggleSidebar, signOut: dict.auth.signOut, signedInAs: dict.auth.signedInAs }}
       language={dict.language}

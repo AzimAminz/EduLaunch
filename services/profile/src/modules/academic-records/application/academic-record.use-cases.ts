@@ -23,6 +23,8 @@ export interface SaveRecordInput extends Partial<ResultDetails> {
   qualification: RecordQualification;
   kind: RecordKind;
   examYear: number | null;
+  /** School grades and SPM targets: the form they are for. Left out, the record keeps the form it has. */
+  formLevel?: number | null;
   subjects: Array<{ subjectId: string; grade: string; customName?: string | null }>;
 }
 
@@ -66,7 +68,28 @@ export class AcademicRecordService {
     const record =
       (await this.records.findCurrent(studentId, input.qualification, input.kind, input.examYear)) ??
       AcademicRecord.start(randomUUID(), { studentId, qualification: input.qualification, kind: input.kind, examYear: null });
+    return this.apply(record, input);
+  }
+
+  /**
+   * Saves the whole form onto one record the caller already has (an older record opened from the history), the year
+   * included. School grades and SPM targets are kept one record per year, so a year another record already holds
+   * is refused rather than leaving two records for the same form.
+   */
+  async saveRecord(caller: Caller, recordId: string, input: Omit<SaveRecordInput, 'qualification' | 'kind'>) {
+    const record = await this.ownedRecord(caller, recordId);
+    const { studentId, qualification, kind } = record.toSnapshot();
+    if ((kind === 'school' || kind === 'target') && input.examYear === null) throw new DomainError('invalid_record', 'Choose the year (form) of these results');
+    if (kind === 'school' || kind === 'target') {
+      const other = await this.records.findCurrent(studentId, qualification, kind, input.examYear);
+      if (other && other.toSnapshot().id !== recordId) throw new DomainError('record_year_taken', 'Another record already holds the results for that year');
+    }
+    return this.apply(record, { ...input, qualification, kind });
+  }
+
+  private async apply(record: AcademicRecord, input: SaveRecordInput) {
     record.setExamYear(input.examYear);
+    if (input.formLevel !== undefined) record.setFormLevel(input.formLevel);
     record.replaceSubjects(input.subjects);
     record.setResultDetails({
       cgpa: input.cgpa ?? null,

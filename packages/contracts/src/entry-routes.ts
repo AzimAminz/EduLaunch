@@ -78,3 +78,49 @@ export const MalaysianStates = [
 /** Kinds of official source an institution publishes its programmes in (its website is a field of its own). */
 export const InstitutionSourceKinds = ['programme_page', 'prospectus', 'epanduan', 'other'] as const;
 export type InstitutionSourceKind = (typeof InstitutionSourceKinds)[number];
+
+/**
+ * Which entry routes apply to a student, best match first. A programme can publish requirements
+ * per route (after SPM, after STPM, after matriculation/foundation, after diploma, Form 3 streams).
+ * SVM, SKM, DVM and DKM holders use their own route when the programme has one, then the closest general
+ * route: SVM → certificate → SPM, SKM → SPM, DVM/DKM → diploma.
+ */
+export function routesFor(snapshot: { educationLevel: string | null; higherQualification?: string | null }): EntryRoute[] {
+  switch (snapshot.educationLevel) {
+    case 'form1_3':
+      return ['form3'];
+    case 'form4_5':
+    case 'after_spm':
+      return ['spm'];
+    case 'after_certificate':
+      switch (snapshot.higherQualification) {
+        case 'svm':
+          return ['svm', 'sijil', 'spm'];
+        case 'skm':
+          return ['skm', 'spm'];
+        default:
+          return ['sijil', 'spm'];
+      }
+    case 'after_preu':
+      switch (snapshot.higherQualification) {
+        case 'stpm':
+          return ['stpm'];
+        case 'a_level':
+          return ['a_level', 'stpm'];
+        case 'matriculation':
+        case 'foundation':
+          return ['matrikulasi'];
+        case 'diploma':
+          return ['diploma'];
+        case 'dvm':
+          return ['dvm', 'diploma'];
+        case 'dkm':
+          return ['dkm', 'diploma'];
+        default:
+          return [];
+      }
+    default:
+      // No level chosen yet.
+      return [];
+  }
+}

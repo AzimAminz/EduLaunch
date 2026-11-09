@@ -34,6 +34,8 @@ interface AcademicRecordProps {
   qualification: RecordQualification;
   kind: RecordKind;
   examYear: number | null;
+  /** School grades: Form 1–3; SPM targets: Form 4–5; null for every other record (or an old one not told yet). */
+  formLevel: number | null;
   cgpa: number | null;
   muetBand: number | null;
   fieldId: string | null;
@@ -57,7 +59,7 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
       throw new DomainError('invalid_record', 'School grades use the school grade scale, and only school records use it');
     }
     if (input.kind === 'target' && input.qualification !== 'spm') throw new DomainError('invalid_record', 'Only SPM has target grades');
-    return new AcademicRecord(id, { ...input, cgpa: null, muetBand: null, fieldId: null, customFieldName: null, programmeName: null, qualificationLevel: null, stream: null, semesterGpas: null, subjects: [], status: 'draft', confirmedAt: null });
+    return new AcademicRecord(id, { ...input, formLevel: null, cgpa: null, muetBand: null, fieldId: null, customFieldName: null, programmeName: null, qualificationLevel: null, stream: null, semesterGpas: null, subjects: [], status: 'draft', confirmedAt: null });
   }
 
   static restore(id: string, props: AcademicRecordProps): AcademicRecord {
@@ -110,6 +112,19 @@ export class AcademicRecord extends AggregateRoot<string, AcademicRecordProps> {
     }
     if (examYear === this.props.examYear) return;
     this.props.examYear = examYear;
+    this.reopen();
+  }
+
+  /** The form these results are for: 1–3 for school grades, 4–5 for SPM targets, nothing for any other record. */
+  setFormLevel(formLevel: number | null): void {
+    const { kind } = this.props;
+    if (formLevel !== null) {
+      const [low, high] = kind === 'school' ? [1, 3] : kind === 'target' ? [4, 5] : [0, -1];
+      if (high < low) throw new DomainError('invalid_record', 'Only school grades and SPM targets are kept per form');
+      if (!Number.isInteger(formLevel) || formLevel < low || formLevel > high) throw new DomainError('invalid_record', `Choose Form ${low} to ${high}`);
+    }
+    if (formLevel === this.props.formLevel) return;
+    this.props.formLevel = formLevel;
     this.reopen();
   }
 

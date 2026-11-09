@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { PendingDetails } from '@/lib/admin/api';
 import { changedFields } from '@/lib/admin/programme-workflow';
+import { averageGroup } from '@/lib/merit/compare';
 import { format, type Dictionary } from '@/lib/i18n/locale';
 
 /** Names for the IDs and codes a programme stores, so the page shows words. */
@@ -71,7 +72,13 @@ function labels(dict: Dictionary): Record<keyof PendingDetails, string> {
 }
 
 /** The programme's details, read only, in the same groups as the form. */
-export function ProgrammeDetails({ details, dict, names }: { details: PendingDetails; dict: Dictionary; names: DetailNames }) {
+/** The programme's admission facts from ePanduan: its entry routes and its newest average merit. */
+export interface AdmissionFacts {
+  entryRoutes: string[];
+  averageMerit: { intakeYear: number; value: number } | null;
+}
+
+export function ProgrammeDetails({ details, dict, names, admission }: { details: PendingDetails; dict: Dictionary; names: DetailNames; admission?: AdmissionFacts }) {
   const f = dict.admin.programmeForm;
   const show = shows(dict, names);
   const label = labels(dict);
@@ -115,6 +122,7 @@ export function ProgrammeDetails({ details, dict, names }: { details: PendingDet
               {flags.length ? flags.map((k) => <span key={k} className="rounded-full bg-[#f1f2f4] px-2.5 py-0.5 text-[13px]">{label[k]}</span>) : dict.admin.programme.values.none}
             </dd>
           </div>
+          {admission && <AdmissionRows facts={admission} dict={dict} />}
         </Group>
       )}
       {!stream && (
@@ -185,5 +193,38 @@ export function ProgrammeChanges({ live, proposed, dict, names, by }: { live: Pe
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Entry routes and the average merit from ePanduan, with whose average it is (SPM leavers or pre-university), or
+ * why there is none: ePanduan shows no merit for diploma, DKM and DVM candidates.
+ */
+function AdmissionRows({ facts, dict }: { facts: AdmissionFacts; dict: Dictionary }) {
+  const m = dict.admin.programme.merit;
+  const routes: Record<string, string> = dict.requirements.routes;
+  const group = averageGroup(facts.entryRoutes);
+  return (
+    <>
+      <div className="flex flex-col gap-0.5">
+        <dt className="text-[13px] text-muted">{dict.admin.programme.entryRoutes}</dt>
+        <dd className="text-[15px] font-medium">{facts.entryRoutes.length ? facts.entryRoutes.map((r) => routes[r] ?? r).join(', ') : dict.admin.programme.values.none}</dd>
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <dt className="text-[13px] text-muted">{m.label}</dt>
+        <dd className="text-[15px] font-medium">
+          {facts.averageMerit ? (
+            <>
+              <span className="tabular-nums">{facts.averageMerit.value.toFixed(2)}%</span>
+              <span className="block text-[13px] font-normal text-muted">
+                {format(m.detail, { year: facts.averageMerit.intakeYear, group: group === 'preu' ? m.groupPreu : group === 'spm' ? m.groupSpm : m.groupUnknown })}
+              </span>
+            </>
+          ) : (
+            <span className="text-[13px] font-normal text-muted">{group ? m.none : m.noneForRoutes}</span>
+          )}
+        </dd>
+      </div>
+    </>
   );
 }

@@ -40,11 +40,12 @@ describe('EligibilityResult', () => {
     expect(within(items[0]!).getByText('Bahasa Melayu: perlu C, anda B')).toBeInTheDocument();
     expect(within(items[1]!).getByText('Matematik: perlu B, anda C+')).toBeInTheDocument();
     expect(within(items[2]!).getByText('Salah satu daripada:')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Kemas kini keputusan' })).toHaveAttribute('href', '/ms/dokumen');
+    // No "update results" button here: the check reads the profile, which is edited from the profile page.
+    expect(screen.queryByRole('link', { name: 'Kemas kini keputusan' })).not.toBeInTheDocument();
   });
 
   it('asks for results when none are confirmed', () => {
-    show({ state: 'no_results', entryRoute: 'spm' });
+    show({ state: 'no_results', entryRoute: 'spm', missing: 'grades' });
     expect(screen.getByText(/laluan Lepasan SPM/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Isi keputusan saya' })).toBeInTheDocument();
   });

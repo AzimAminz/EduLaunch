@@ -435,3 +435,84 @@ Tested by: ____________ Date: ____________
 **Result:** ☐ All passed ☐ Problems found (describe below)
 
 Tested by: ____________ Date: ____________
+
+---
+
+## Admin redesign and draft workflow (8 Nov 2026)
+
+Log in as `superadmin@edulaunch.test` (password `EduLaunch@2026`) unless a step says otherwise.
+
+### A. Lists and the way back
+
+- [ ] **Institusi**, **Program**, an institution's **Program** tab and **Peti tugasan** are the same kind of table: numbered rows, the whole row opens the item, hovering a row shows a navy bar on the left and an arrow on the right, Tab moves through rows with a visible focus.
+- [ ] Clicking a column heading sorts by it; clicking it again flips the order; only the sorted column shows an arrow.
+- [ ] Search and filters (institution, status) sit on one row; choosing a filter updates the list at once; **Kosongkan penapis** clears them.
+- [ ] Under each table: "1–20 daripada N", rows per page (10 · 20 · 50) and page numbers on one line. Numbers carry on across pages (page 2 starts at 21).
+- [ ] Open UTeM → **Program** tab → page 2 → a programme. The breadcrumb reads **Institusi › Universiti Teknikal Malaysia Melaka › code**. Clicking the institution returns to the **Program** tab, page 2.
+- [ ] Open a programme from **Program** (with a status filter on). The breadcrumb's first item is **Program** and returns to the filtered list. The same from **Peti tugasan** returns to the inbox tab.
+- [ ] From a programme, open a requirement, edit and save it: the page after saving still has the same breadcrumb.
+
+### B. Institution summary
+
+- [ ] **Ringkasan** shows one strip of counts (Program, Diterbitkan, Dalam proses, Tanpa syarat diterbitkan, Diarkib); each opens the matching list.
+- [ ] **Perlu tindakan** lists programmes waiting for review, sent back, and published without requirements (5 each, with **Lihat semua N**), or says nothing is waiting.
+- [ ] The side shows the institution's facts, the last ePanduan import (programmes found and when) and its official sources.
+
+### C. Drafts and publishing
+
+- [ ] **Peti tugasan → Draf admin lain** lists drafts another admin started. As super admin, tick some and **Luluskan yang dipilih**: they are published; the list and the home counts go down.
+- [ ] As an ordinary admin (`admin.b@contoh.com`), the same tab offers **Hantar yang dipilih**; the items move to another admin's **Untuk saya**.
+- [ ] A draft requirement another admin prepared opens in the editor with a note saying you become its preparer when you save or send it.
+- [ ] Sending a draft programme for review sends its requirement drafts too; approving it approves those in review. As super admin, approving also publishes its drafts.
+- [ ] A published programme with requirement drafts shows "N syarat program ini masih draf…" with **Terbitkan N syarat** (super admin) or **Hantar N syarat untuk semakan** (others).
+- [ ] A published requirement has **Buat versi baharu** (on its page and its route tab): version 2 opens with the same lines; students keep version 1 until version 2 is approved.
+- [ ] As super admin, a published programme has **Nyahterbit untuk disunting** beside **Arkibkan**; after confirming it is a draft again and can be edited. Ordinary admins do not see it.
+
+### D. Import
+
+- [ ] **Import ePanduan → Terima** for many programmes saves all of them (no "Could not save" part way). A programme that cannot be saved is listed with its reason.
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________
+
+---
+
+## Merit Lab and merit against the programme average (8 Nov 2026)
+
+Formulas come from the ePanduan merit calculator (Kementerian Pendidikan Tinggi), read 8 Nov 2026. Use a student account with SPM results.
+
+### A. SPM merit
+
+- [ ] **Merit Lab** opens with the student's SPM grades (actual results, else targets). The four universal subjects come first (BM, BI, Matematik, Sejarah); a missing one is listed with "—".
+- [ ] The stream starts on the one that gives the best merit; changing it changes which subjects count as **Pakej** (each row says Universal, Pakej, Tambahan or Tidak dikira).
+- [ ] Check one case by hand against the official calculator (https://online.mohe.gov.my/epanduan/kalkulatorMerit/spm) with the same grades, stream and co-curricular mark: both give the same merit to two decimals.
+- [ ] Straight A+ in BM, BI, Matematik, Sejarah, Biologi, Kimia, Fizik and Pendidikan Islam, STEM A, co-curricular 10 gives **100.00**.
+- [ ] Changing a grade updates the mark at once, the label turns to "Simulasi", and the row shows "asalnya X". Reloading the page brings back the profile's grades (nothing was saved).
+- [ ] **Tambah subjek** adds a subject; × removes it. STEM C counts one package subject.
+- [ ] The breakdown shows Universal /40, Pakej /30, Tambahan /10, Akademik /90, Kokurikulum /10; a missing universal or package subject is explained under it.
+
+### B. CGPA merit
+
+- [ ] A student after STPM, matriculation or foundation sees **PNGK anda**: CGPA 3.50 with co-curricular 9 gives **87.75**.
+- [ ] A diploma student sees CGPA only (no co-curricular): CGPA 3.00 gives **75.00**.
+- [ ] An A-Level student sees a note that there is no official A-Level formula, and the SPM merit.
+
+### C. By level, and merit on the profile
+
+- [ ] A Form 1–3 student has no **Merit Lab** in the menu. Opening `/ms/merit-lab` directly says merit starts in Form 4, with what helps now (interest test, exploring programmes). No merit card shows on programme pages or on the profile.
+- [ ] A Form 4–5 student sees **Merit sasaran anda** in Merit Lab, worked out from their SPM target grades (even if a trial result was saved as actual), and the programme card says it is a target merit.
+- [ ] After SPM (and after pre-university or a diploma), Merit Lab shows the merit from actual results or the CGPA.
+- [ ] **Profil saya** shows the merit worked out automatically from the saved results (or "Merit sasaran anda" in Form 4–5), with **Cuba dalam Merit Lab**. Saving new results changes it without opening Merit Lab. A student with no results is told the merit appears once they add them.
+
+### D. Against the programme average
+
+- [ ] On a programme that takes SPM leavers and has an average merit (for example Diploma Sains Komputer, UTeM), the card **Merit anda berbanding purata program** shows both numbers, the gap in words and the year, tinted green (3 or more above), yellow (near) or red (more than 2 below), with the note that the average is not a guarantee.
+- [ ] On a degree programme for STPM / matriculation students, an SPM student is told the average is for another group and no comparison is made.
+- [ ] Set co-curricular to 7.5 in Merit Lab, then open the programme again: the card uses 7.5.
+- [ ] A student with no results is asked to add them, with a link to Merit Lab.
+- [ ] Both pages work in English (`/en/...`) and on a phone.
+
+**Result:** ☐ All passed ☐ Problems found (describe below)
+
+Tested by: ____________ Date: ____________

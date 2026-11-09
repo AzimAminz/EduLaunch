@@ -68,6 +68,8 @@ for (const svc of services) {
   if (svc !== 'content') values.RABBITMQ_URL = rabbitUrl;
   if (svc === 'recommendation') Object.assign(values, { CATALOGUE_URL: `http://127.0.0.1:${ports.catalogue}`, PROFILE_URL: `http://127.0.0.1:${ports.profile}` });
   if (svc === 'engagement') values.PROFILE_URL = `http://127.0.0.1:${ports.profile}`;
+  // The profile service deletes a student's sign-in account when they delete their account (Settings → Privacy).
+  if (svc === 'profile') Object.assign(values, { SUPABASE_URL: status.API_URL, SUPABASE_SERVICE_ROLE_KEY: status.SERVICE_ROLE_KEY ?? status.SECRET_KEY });
   writeEnv(file, values);
 }
 

@@ -21,4 +21,6 @@ export abstract class RecommendationStore {
   abstract replaceFor(studentId: string, items: RecommendationItem[]): Promise<void>;
   abstract listFor(studentId: string): Promise<RecommendationItem[]>;
   abstract studentsWithProgramme(programId: string): Promise<string[]>;
+  /** Removes everything kept for a student (they deleted their account). */
+  abstract forget(studentId: string): Promise<void>;
 }

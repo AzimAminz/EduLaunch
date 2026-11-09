@@ -5,7 +5,7 @@ import type { HigherQualification } from '@edulaunch/contracts';
 import { chooseEducationLevel, previewEducationLevel } from '@/lib/auth/actions';
 import type { RecordSummary } from '@/lib/profile/api';
 import { EDUCATION_LEVELS, QUALIFICATION_CHOICES, asksQualification } from '@/lib/profile/levels';
-import { historyKind } from '@/lib/profile/records';
+import { recordLabel } from '@/lib/profile/records';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, SubmitButton } from '@/components/auth/fields';
 import { Notice } from '@/components/ui/notice';
@@ -17,7 +17,7 @@ interface LevelPickerProps {
   t: Dictionary['onboarding'];
   errors: Dictionary['auth']['errors'];
   /** Names shown in the dialog: the qualifications and the student's saved records. */
-  names: { qualifications: Dictionary['higher']['qualifications']; records: Dictionary['academic']['history']['labels']; noYear: string };
+  names: { qualifications: Dictionary['higher']['qualifications']; history: Dictionary['academic']['history'] };
   /** The profile page shows the current choice and stays put after saving; onboarding starts empty and goes on. */
   initial?: { level: Level | null; formYear: number | null; higherQualification: HigherQualification | null };
   /** Stay on this page after saving and show `savedLabel` (the profile page). Also checks which records would be removed. */
@@ -208,7 +208,7 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
                   <p className="font-semibold">{d.removeTitle}</p>
                   <ul className="list-disc pl-5 text-sm">
                     {dialog.remove.map((r) => (
-                      <li key={r.id}>{format(names.records[historyKind(r)], { year: r.examYear ?? names.noYear })}</li>
+                      <li key={r.id}>{recordLabel(r, names.history)}</li>
                     ))}
                   </ul>
                   <p className="text-[13px]">{d.removeBody}</p>

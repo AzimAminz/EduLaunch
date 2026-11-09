@@ -20,7 +20,7 @@ export type EligibilityGroup = z.infer<typeof Group>;
 export const EligibilityAnswer = z.discriminatedUnion('state', [
   z.object({ state: z.literal('no_requirement') }),
   z.object({ state: z.literal('no_route'), routes: z.array(z.string()) }),
-  z.object({ state: z.literal('no_results'), entryRoute: z.string() }),
+  z.object({ state: z.literal('no_results'), entryRoute: z.string(), missing: z.enum(['grades', 'cgpa']).default('grades') }),
   z.object({
     state: z.literal('checked'),
     entryRoute: z.string(),

@@ -31,7 +31,8 @@
     "askAi": "Ask AI with sources",
     "updates": "Updates",
     "help": "Help",
-    "toggleSidebar": "Toggle sidebar"
+    "toggleSidebar": "Toggle sidebar",
+    "settings": "Settings"
   },
   "levels": {
     "form4_stream": "Form 4 stream",
@@ -47,7 +48,7 @@
   "directory": {
     "eyebrow": "PROGRAMME DIRECTORY",
     "title": "Universities & programmes",
-    "intro": "Find programmes by university, field and level. Records marked \"sample\" are not real requirements.",
+    "intro": "Find programmes by university, field and level.",
     "searchTitle": "Find study options",
     "university": "University",
     "allUniversities": "All universities",
@@ -57,8 +58,7 @@
     "allLevels": "All levels",
     "search": "Search programmes",
     "noMatches": "No matches",
-    "resultCount": "{count} programmes found",
-    "sampleNote": "includes sample data • official sources not yet verified",
+    "resultCount": "{count} programmes",
     "emptyTitle": "No programmes match",
     "emptyBody": "Try choosing \"All\" in one of the filters.",
     "clearFilters": "Clear filters",
@@ -70,23 +70,67 @@
     "errorBody": "This part is temporarily unavailable. Please try again shortly."
   },
   "card": {
-    "view": "View programme & requirements",
-    "statusSample": "Requirements: sample data, not verified",
-    "statusPublished": "Entry requirements available",
-    "statusMissing": "Requirements: not available yet",
+    "view": "View programme",
+    "merit": "Average merit {year}",
+    "sample": "Sample data",
     "streamProvider": "Secondary schools"
   },
   "detail": {
     "back": "Back to directory",
     "requirementsTitle": "Entry requirements",
-    "entryRoute": "Entry route",
     "noRequirement": "Entry requirements for this programme are not available yet.",
-    "sourceTitle": "Source check",
-    "sourceSample": "Sample record: not verified. Do not use it for real decisions.",
-    "sourcePublished": "Published after review by two admins.",
-    "evidenceTitle": "Evidence & sources",
-    "evidenceIntro": "The source sentences each requirement is based on.",
-    "notFound": "This programme was not found."
+    "sourceTitle": "Source",
+    "sourceSample": "These requirements are sample data, not from an official source. Do not use them for real decisions.",
+    "sourcePublished": "From ePanduan, published after two admins checked it.",
+    "notFound": "This programme was not found.",
+    "flagsLabel": "Programme features",
+    "flags": {
+      "stem": "STEM",
+      "tvet": "TVET",
+      "interview": "Interview / test",
+      "bumiputera": "Bumiputera only",
+      "jointDegree": "Joint degree",
+      "feeder": "Feeder programme"
+    },
+    "facts": {
+      "level": "Level",
+      "duration": "Duration",
+      "semesters": "{n} semesters (± {years} years)",
+      "mode": "Study mode",
+      "merit": "Average merit {year}",
+      "meritNone": "Average merit"
+    },
+    "modes": {
+      "conventional": "Conventional",
+      "work_based": "Work-based (2U2I / 3U1I)",
+      "distance": "Distance learning"
+    },
+    "info": {
+      "title": "Programme details",
+      "institution": "Institution",
+      "programCode": "Programme code",
+      "internalCode": "University code",
+      "faculty": "Faculty / school",
+      "nec": "NEC field",
+      "fields": "Fields",
+      "campuses": "Campuses",
+      "routes": "Entry routes"
+    },
+    "careers": "Careers",
+    "fees": "Fees",
+    "note": "Note",
+    "openSource": "Open the official source",
+    "forYou": {
+      "title": "REQUIREMENTS FOR YOU",
+      "target": "You have not taken SPM yet. These are the requirements for SPM leavers; the check above uses your target grades.",
+      "early": "You have not taken SPM yet. These are the requirements for SPM leavers, as a guide for later.",
+      "closest": "This programme has no requirements of its own for {yours}, so the {route} requirements apply to you.",
+      "notOffered": "This programme does not take {route} directly.",
+      "noLevel": "Choose your education level in your profile to see the requirements for your route.",
+      "offered": "Routes it takes: {routes}.",
+      "wayIn": "After SPM, you can get here through foundation, matriculation, STPM or a diploma first.",
+      "otherRoutes": "Other routes' requirements ({count})"
+    }
   },
   "requirements": {
     "atLeastGrade": "At least grade {grade}",
@@ -203,7 +247,16 @@
       "levelRequired": "Choose your education level.",
       "formRequired": "Choose your form.",
       "generic": "Something went wrong. Please try again shortly.",
-      "qualificationRequired": "Choose your qualification."
+      "qualificationRequired": "Choose your qualification.",
+      "tooLong": "Too long.",
+      "invalidDate": "Enter a valid date of birth.",
+      "sameEmail": "This is already your e-mail.",
+      "passwordMismatch": "The passwords do not match.",
+      "wrongPassword": "Your current password is not right.",
+      "avatarType": "Choose a JPEG, PNG or WebP picture.",
+      "avatarFailed": "The picture could not be uploaded. Try again.",
+      "confirmWord": "Type DELETE to confirm.",
+      "deleteFailed": "The account could not be deleted right now. Try again shortly, or contact us."
     }
   },
   "onboarding": {
@@ -386,7 +439,8 @@
         "requirements": "Published requirements",
         "status": "Status",
         "actions": "Actions",
-        "updated": "Updated"
+        "updated": "Updated",
+        "merit": "Average merit"
       },
       "noRequirements": "None yet",
       "openDrafts": "{count} draft(s)",
@@ -693,6 +747,15 @@
         "pending": "{n} of this programme's requirements are still drafts, so students cannot see them yet.",
         "publish": "Publish {n} requirements",
         "send": "Send {n} requirements for review"
+      },
+      "merit": {
+        "label": "Average merit (ePanduan)",
+        "detail": "{year} intake · average of {group} offered a place",
+        "groupSpm": "SPM leavers",
+        "groupPreu": "STPM, matriculation or foundation students",
+        "groupUnknown": "this programme's candidates",
+        "none": "None. ePanduan shows no average merit for this programme yet.",
+        "noneForRoutes": "None. ePanduan shows no merit for diploma, DKM or DVM candidates."
       }
     },
     "institutions": {
@@ -1299,6 +1362,26 @@
     },
     "noYear": "Choose a year",
     "scale": "Grade scale: {scale}.",
+    "streamPresets": {
+      "title": "Quick fill by stream",
+      "hint": "Choose your stream to add its elective subjects in one go. You can still remove or add subjects afterwards.",
+      "names": {
+        "stem_a": "STEM A",
+        "stem_b": "STEM B",
+        "stem_c": "STEM C",
+        "humanities": "Humanities"
+      },
+      "notes": {
+        "stem_a": "Added: Additional Mathematics, Physics, Chemistry and Biology. Add Islamic Education or Moral Education if you took it.",
+        "stem_b": "Added: Additional Mathematics, Physics, Chemistry and Computer Science. Swap Computer Science for your technical subject if it differs.",
+        "stem_c": "Added: Science. Add your vocational subject by typing its name under Add subject.",
+        "humanities": "Added: Science, Economics, Principles of Accounting and Geography. Remove the ones you did not take and add any others."
+      }
+    },
+    "formLabel": "Form",
+    "formPlaceholder": "Choose a form",
+    "formOption": "Form {form}",
+    "yearLabel": "Year",
     "subjectsTitle": "Subjects taken",
     "subjectsHint": "Compulsory subjects are listed first. Remove those that do not apply, add any that are missing.",
     "colSubject": "Subject",
@@ -1350,6 +1433,8 @@
       "noSubjects": "Add at least one subject.",
       "missingGrade": "Choose a grade for every subject.",
       "generic": "Could not save. Please try again shortly.",
+      "formRequired": "Choose the form for this record.",
+      "yearTaken": "Another record already holds that year. Choose another year or edit that record.",
       "yearRequired": "Choose the results year."
     },
     "sideTitle": {
@@ -1380,6 +1465,10 @@
       "title": "Saved records",
       "intro": "Older records stay as history when you move up a form or change level. Nothing is deleted.",
       "empty": "No records saved yet.",
+      "withForm": {
+        "school": "Form {form} results ({year})",
+        "target": "Form {form} target grades ({year})"
+      },
       "labels": {
         "school": "School results {year}",
         "target": "Form 4–5 grades {year}",
@@ -1403,7 +1492,11 @@
     },
     "view": {
       "back": "Back to academic documents",
-      "readOnly": "This record is shown for reference. To edit it, choose the matching education level in your Profile."
+      "readOnly": "A record you saved earlier. If something is wrong, choose Edit to correct it.",
+      "edit": "Edit",
+      "editTitle": "Edit {record}",
+      "editIntro": "Correct the form, the year or the grades, then save. Your education level stays the same.",
+      "doneEditing": "Done, back to the record"
     },
     "schoolTab": "Form {form} · {year}",
     "limitReached": "You have reached the limit of {max} subjects. Remove one that does not apply to add another.",
@@ -1412,11 +1505,11 @@
   "profile": {
     "eyebrow": "PERSONAL SPACE",
     "title": "My profile",
-    "intro": "Your education level and results are kept in the same account.",
+    "intro": "Your education level, results and merit in one place.",
     "account": "Account",
     "levelTitle": "Education level",
     "levelNone": "Not chosen",
-    "changeLevel": "Change education level",
+    "changeLevel": "Change level",
     "changeLevelHint": "When you move up, older records stay as history. If some records do not fit the new level, you are asked to confirm before they are deleted.",
     "saveLevel": "Save level",
     "academicTitle": "Academic results",
@@ -1425,7 +1518,49 @@
     "sideTitle": "Continue on any device.",
     "sideBody": "Your data and progress are linked to the same account.",
     "openProfile": "Open my profile",
-    "levelSaved": "Education level updated."
+    "levelSaved": "Education level updated.",
+    "merit": {
+      "title": "YOUR MERIT",
+      "titleTarget": "YOUR TARGET MERIT",
+      "fromSpm": "Worked out automatically from your SPM results, with the official formula.",
+      "fromCgpa": "Worked out automatically from your CGPA, with the official formula.",
+      "fromTarget": "Worked out automatically from your SPM target grades. This is an estimate, not a real result.",
+      "empty": "Add your results and your merit is worked out automatically.",
+      "tryIt": "Try it in Merit Lab",
+      "open": "Open Merit Lab",
+      "label": "Your merit",
+      "labelTarget": "Your target merit"
+    },
+    "cancel": "Cancel",
+    "noResults": "No results yet",
+    "noResultsBody": "You have not saved results for this level yet.",
+    "updateResults": "Update results",
+    "addResults": "Add results",
+    "viewRecord": "View record",
+    "cgpa": "CGPA",
+    "next": {
+      "title": "NEXT STEP",
+      "level": "Choose your education level",
+      "levelBody": "Your level decides the results form and the suggestions you see.",
+      "levelAction": "Choose level",
+      "results": "Add your results",
+      "resultsBody": "Results are needed for the eligibility check, your merit and programme suggestions.",
+      "resultsAction": "Add results",
+      "interest": "Get to know your interests",
+      "interestBody": "The interest test helps you choose a stream in Form 4.",
+      "interestAction": "Start the test",
+      "explore": "Find programmes that fit",
+      "exploreBody": "Your profile is ready. See the programmes you can enter and compare your merit.",
+      "exploreAction": "Explore programmes"
+    },
+    "accountHint": "The name and e-mail you sign in with.",
+    "levelHint": "Decides the results form, merit and suggestions you see.",
+    "academicHint": "The results used for the eligibility check and your merit.",
+    "meritTitle": "Merit",
+    "meritHint": "Worked out automatically from your results with the official formula.",
+    "subject": "Subject",
+    "grade": "Grade",
+    "editAccount": "Manage account"
   },
   "higher": {
     "titles": {
@@ -1435,6 +1570,11 @@
     "intros": {
       "after_preu": "For a bachelor's degree, universities look at your qualification, CGPA, MUET, field or stream, and basic SPM results. Some programmes also check STPM, A-Level and matriculation subject grades (e.g. B in Biology).",
       "after_certificate": "For a diploma, polytechnics and universities look at your certificate in a related field, its CGPA (or SKM level) and your basic SPM results."
+    },
+    "spmMissing": {
+      "title": "Your SPM results are not filled in yet.",
+      "body": "Most programmes also check basic SPM grades, so the eligibility check is incomplete without them.",
+      "action": "Enter SPM results"
     },
     "sectionsLabel": "Results sections",
     "sections": {
@@ -1567,13 +1707,195 @@
     "noRequirement": "This programme's requirements are not verified yet, so your eligibility cannot be checked.",
     "noRoute": "This programme does not list requirements for your route yet. Routes listed: {routes}.",
     "noResults": "Enter and confirm your results first to check eligibility for the {route} route.",
+    "noGrades": "These requirements check SPM subject grades. Enter your SPM results first to check eligibility for the {route} route.",
+    "noCgpa": "These requirements check your CGPA. Enter your CGPA first to check eligibility for the {route} route.",
     "fillResults": "Enter my results",
-    "updateResults": "Update results",
     "disclaimer": "This check is a guide only. Admission decisions are made by the institution.",
     "loadError": "Eligibility cannot be checked right now. Please try again shortly.",
     "checking": "Checking your eligibility…",
     "fromList": "Grade {grade} in {required} subjects from: {subjects} (you have {actual})",
     "toConfirm": "To confirm yourself",
     "toConfirmNote": "The system cannot check these from your results. Make sure you meet them before applying."
+  },
+  "meritLab": {
+    "eyebrow": "MERIT LAB",
+    "title": "Work out your merit.",
+    "intro": "Your merit is worked out from your results with the official formula. Change a grade to see what it does; your profile stays as it is.",
+    "gradesTitle": "Your SPM results",
+    "cgpaTitle": "Your CGPA",
+    "fromActual": "Taken from the actual SPM results in your profile.",
+    "fromTarget": "Taken from the SPM target grades in your profile.",
+    "noRecord": "Your profile has no SPM results yet. Fill in grades below to try it.",
+    "stream": "Stream",
+    "streams": {
+      "stem_a": "STEM A",
+      "stem_b": "STEM B",
+      "stem_c": "STEM C",
+      "humanities": "Humanities, professional arts and others"
+    },
+    "streamHint": {
+      "stem_a": "Package subjects: Biology, Physics, Chemistry or Additional Mathematics (best two).",
+      "stem_b": "Package subjects: STEM A subjects or technical subjects such as Computer Science and Engineering Studies (best two).",
+      "stem_c": "Package subject: one vocational or technical subject.",
+      "humanities": "Package subjects: languages, literature, Islamic studies, humanities and arts (best two)."
+    },
+    "part": {
+      "universal": "Universal",
+      "package": "Package",
+      "additional": "Additional",
+      "notCounted": "Not counted"
+    },
+    "wasGrade": "was {grade}",
+    "gradeFor": "Grade for {subject}",
+    "remove": "Remove {subject}",
+    "addSubject": "Add a subject",
+    "add": "Add",
+    "cgpa": "CGPA (0.00 – 4.00)",
+    "cocurricular": "Co-curricular",
+    "cocurricularHint": "A mark from 0 to 10 from your school co-curricular record. If you do not know it yet, leave it as an estimate.",
+    "resultTitle": "Your merit",
+    "outOf": "out of 100",
+    "basis": {
+      "actual": "Based on your actual results",
+      "target": "An estimate from your target grades",
+      "simulation": "Simulation: you changed the results beside it"
+    },
+    "academic": "Academic",
+    "missingUniversal": "One or more universal subjects have no grade, so they count as zero.",
+    "missingPackage": "There are not enough package subjects for this stream, so the package part is not full.",
+    "formula": {
+      "spm": "Formula: universal (40) + package (30) + additional (10), converted to 90, plus co-curricular (10).",
+      "cgpa": "Formula: (CGPA ÷ 4.00) × 90, plus co-curricular (10).",
+      "diploma": "Formula: (CGPA ÷ 4.00) × 100. Co-curricular marks do not count."
+    },
+    "source": "ePanduan merit calculator, Ministry of Higher Education",
+    "checked": "checked 8 Nov 2026",
+    "disclaimer": "This is an estimate for planning. The official mark is set when you apply, and merit does not guarantee an offer.",
+    "aLevel": "There is no official merit formula for A-Level, so the merit below comes from your SPM results.",
+    "addResults": "Want a result that is exactly yours?",
+    "addResultsLink": "Add your results to your profile",
+    "nextTitle": "From merit to programme choices",
+    "nextBody": "Compare your merit with the average merit of the programmes you like.",
+    "nextAction": "Explore programmes",
+    "titleTarget": "Your target merit.",
+    "introTarget": "Worked out from the SPM target grades in your profile with the official formula. Try raising one grade to see what it does; your profile stays as it is.",
+    "resultTitleTarget": "Your target merit",
+    "early": {
+      "title": "Merit starts in Form 4.",
+      "intro": "Merit is worked out from SPM results: core subjects, stream subjects and co-curricular marks. In Form 1–3 you have not chosen a stream yet, so there is no merit to work out.",
+      "nowTitle": "What helps now",
+      "now": [
+        "Get to know your interests, so choosing a Form 4 stream feels surer.",
+        "Explore university programmes and see which SPM subjects they usually ask for.",
+        "When you reach Form 4, add your SPM target grades to your profile; Merit Lab will appear in the menu."
+      ],
+      "interest": "Start the interest test"
+    }
+  },
+  "meritStanding": {
+    "title": "Your merit against the programme average",
+    "yours": "Your merit",
+    "average": "{year} average",
+    "bands": {
+      "above": "Your merit of {merit} is {gap} points above the average merit of students offered a place in {year} ({average}).",
+      "near": "Your merit of {merit} is close to the average merit of students offered a place in {year} ({average}).",
+      "below": "Your merit of {merit} is {gap} points below the average merit of students offered a place in {year} ({average})."
+    },
+    "note": "The average is the mean merit of students who were offered a place, so some were offered one with a lower merit. It is not a guarantee or a forecast of an offer.",
+    "openLab": "Try it in Merit Lab",
+    "targetNote": "This is a target merit, worked out from your SPM target grades."
+  },
+  "settings": {
+    "title": "Settings",
+    "intro": "Manage your account, security and preferences.",
+    "save": "Save",
+    "saved": "Saved",
+    "sections": {
+      "profil": {
+        "title": "Personal profile",
+        "hint": "Picture, name and school"
+      },
+      "log-masuk": {
+        "title": "Sign-in & security",
+        "hint": "E-mail, password, devices"
+      },
+      "notifikasi": {
+        "title": "Notifications",
+        "hint": "What we tell you about"
+      },
+      "privasi": {
+        "title": "Privacy & data",
+        "hint": "Your data, consent, delete account"
+      }
+    },
+    "avatar": {
+      "change": "Change picture",
+      "remove": "Remove",
+      "hint": "JPEG, PNG or WebP. We crop it square and shrink it.",
+      "saved": "Picture updated."
+    },
+    "profile": {
+      "avatar": "Profile picture",
+      "avatarHint": "Shown beside your name. Without one, your initials are used.",
+      "title": "Personal details",
+      "hint": "This name shows in the portal and in our e-mails to you.",
+      "fullName": "Full name",
+      "school": "School or institution",
+      "schoolHint": "Optional. Helps us tailor information to you.",
+      "dateOfBirth": "Date of birth",
+      "dateOfBirthHint": "Optional. Students under 18 need a parent's consent for some features.",
+      "language": "Language",
+      "languageHint": "The language of the portal and of our e-mails to you."
+    },
+    "security": {
+      "emailTitle": "E-mail address",
+      "emailHint": "The e-mail you sign in with and get updates at. We send a confirmation link to the new address.",
+      "currentEmail": "Current e-mail:",
+      "newEmail": "New e-mail",
+      "changeEmail": "Send confirmation link",
+      "emailSent": "A confirmation link has been sent. Open it from the new e-mail (and the old one, if asked) to finish the change.",
+      "passwordTitle": "Password",
+      "passwordTitleHint": "Enter your current password first, so only you can change it.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Repeat new password",
+      "passwordHint": "At least 8 characters.",
+      "changePassword": "Change password",
+      "passwordChanged": "Password changed.",
+      "show": "Show",
+      "hide": "Hide",
+      "devicesTitle": "Other devices",
+      "devicesHint": "Forgot to sign out on a school or library computer? Sign out of every other device; this one stays signed in.",
+      "signOutOthers": "Sign out of other devices",
+      "signedOutOthers": "Other devices are signed out."
+    },
+    "notifications": {
+      "title": "Notices in the portal",
+      "hint": "They appear under Updates. We never send marketing e-mail.",
+      "requirementChanges": "Changes to saved programmes' requirements",
+      "requirementChangesHint": "Tell me when the entry requirements of a programme in Saved choices change."
+    },
+    "privacy": {
+      "dataTitle": "Download your data",
+      "dataHint": "One file (JSON) with everything we keep about you: account, profile, results, saved programmes and notification choices.",
+      "download": "Download data",
+      "consentTitle": "Parental consent",
+      "consentHint": "Students under 18 need a parent's or guardian's consent to use EduLaunch.",
+      "consentStatement": "My parent or guardian knows and agrees that I use EduLaunch to plan my studies.",
+      "consentConfirm": "Confirm consent",
+      "consentRequired": "Tick the statement first.",
+      "consentGiven": "Confirmed on {date}.",
+      "consentNoDob": "Add your date of birth in Personal profile so we know whether consent is needed.",
+      "consentNotNeeded": "Not needed: you are 18 or older.",
+      "deleteTitle": "Delete account",
+      "deleteHint": "This is permanent and cannot be undone.",
+      "deleteWhat": [
+        "Your sign-in account, profile and picture are deleted.",
+        "Your academic results, saved programmes, notifications and recommendations are deleted.",
+        "You can sign up again with the same e-mail, but the old data does not come back."
+      ],
+      "confirmWordLabel": "Type DELETE to confirm",
+      "deleteButton": "Delete my account"
+    }
   }
 }

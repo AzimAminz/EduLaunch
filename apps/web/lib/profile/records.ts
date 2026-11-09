@@ -104,7 +104,7 @@ export function matchOfficialSubject(name: string, subjects: SubjectOption[]): S
   return subjects.find((s) => [s.name, ...s.keywords].some((w) => w.toLocaleLowerCase() === wanted));
 }
 
-export type RecordFormError = 'noSubjects' | 'missingGrade' | 'yearRequired' | 'generic';
+export type RecordFormError = 'noSubjects' | 'missingGrade' | 'yearRequired' | 'formRequired' | 'yearTaken' | 'generic';
 
 const Rows = z.array(z.object({ subjectId: z.uuid(), grade: z.string(), customName: z.string().nullish() }));
 
@@ -243,4 +243,46 @@ export function rowsForStream(stream: MatriculationStream, subjects: SubjectOpti
   const ids = STREAM_SUBJECTS[stream].map((name) => subjects.find((s) => s.keywords.includes(name))?.id).filter((id): id is string => !!id);
   const graded = new Map(current.map((r) => [r.subjectId, r]));
   return [...ids.map((id) => graded.get(id) ?? { subjectId: id, grade: '' }), ...current.filter((r) => !ids.includes(r.subjectId) && r.grade)];
+}
+
+export const SpmStreams = ['stem_a', 'stem_b', 'stem_c', 'humanities'] as const;
+export type SpmStream = (typeof SpmStreams)[number];
+
+/**
+ * The electives a typical student in each SPM stream sits, by their catalogue names, so the form can be filled in
+ * one tap and then adjusted. STEM A takes the four pure science subjects; STEM B two of them with a technical
+ * subject; STEM C general Science with a vocational subject (not in the catalogue, so the student adds it);
+ * humanities takes Science with humanities and commerce subjects.
+ */
+const SPM_STREAM_SUBJECTS: Record<SpmStream, string[]> = {
+  stem_a: ['Matematik Tambahan', 'Fizik', 'Kimia', 'Biologi'],
+  stem_b: ['Matematik Tambahan', 'Fizik', 'Kimia', 'Sains Komputer'],
+  stem_c: ['Sains'],
+  humanities: ['Sains', 'Ekonomi', 'Prinsip Perakaunan', 'Geografi'],
+};
+
+/**
+ * Rows for an SPM stream: the compulsory subjects, the stream's electives, and every subject that already has a
+ * grade. Ungraded electives from another stream are dropped, so trying a different stream does not pile them up.
+ */
+export function rowsForSpmStream(stream: SpmStream, subjects: SubjectOption[], current: SubjectRow[], locale: string): SubjectRow[] {
+  const byName = (name: string) => subjects.find((s) => s.keywords.includes(name) || s.name === name);
+  const wanted = new Set([...subjects.filter((s) => s.isMandatory).map((s) => s.id), ...SPM_STREAM_SUBJECTS[stream].map((n) => byName(n)?.id).filter((id): id is string => !!id)]);
+  const kept = current.filter((r) => r.grade || r.customName || wanted.has(r.subjectId));
+  const have = new Set(kept.map((r) => r.subjectId));
+  return sortRows([...kept, ...[...wanted].filter((id) => !have.has(id)).map((id) => ({ subjectId: id, grade: '' }))], subjects, locale);
+}
+
+/**
+ * How a saved record is named: "Prestasi Tingkatan 3 (2026)" when the form of school grades or SPM targets is
+ * known, else the plain label ("Prestasi sekolah 2026").
+ */
+export function recordLabel(
+  r: { qualification: string; kind: string; examYear: number | null; formLevel?: number | null },
+  names: { labels: Record<HistoryKind, string>; withForm: { school: string; target: string }; noYear: string },
+): string {
+  const kind = historyKind(r);
+  const year = r.examYear ?? names.noYear;
+  if (r.formLevel && (kind === 'school' || kind === 'target')) return names.withForm[kind].replace('{form}', String(r.formLevel)).replace('{year}', String(year)).trim();
+  return names.labels[kind].replace('{year}', String(year)).trim();
 }

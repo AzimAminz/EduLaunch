@@ -315,7 +315,7 @@ export function RowArrow() {
       <AdminIcon
         name="chevronRight"
         size={16}
-        className="-translate-x-1 text-navy opacity-0 transition-[opacity,transform] duration-150 group-hover/row:translate-x-0 group-hover/row:opacity-100 group-has-[a:focus-visible]/row:translate-x-0 group-has-[a:focus-visible]/row:opacity-100 motion-reduce:transition-none"
+        className="pointer-events-none -translate-x-1 text-navy opacity-0 transition-[opacity,transform] duration-150 group-hover/row:translate-x-0 group-hover/row:opacity-100 group-has-[a:focus-visible]/row:translate-x-0 group-has-[a:focus-visible]/row:opacity-100 motion-reduce:transition-none"
       />
     </td>
   );

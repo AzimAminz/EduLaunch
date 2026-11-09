@@ -70,6 +70,6 @@ describe('CheckEligibility', () => {
 
   it('asks for results when none are confirmed', async () => {
     const answer = await useCase([spmRequirement], snapshot({ grades: [] })).execute({ caller, programId });
-    expect(answer).toEqual({ state: 'no_results', entryRoute: 'spm' });
+    expect(answer).toEqual({ state: 'no_results', entryRoute: 'spm', missing: 'grades' });
   });
 });

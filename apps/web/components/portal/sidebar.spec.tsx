@@ -62,3 +62,17 @@ describe('Sidebar', () => {
     expect(screen.getAllByRole('button', { name: ms.nav.toggleSidebar })[1]).toHaveAttribute('aria-expanded', 'false');
   });
 });
+
+describe('studentNav', () => {
+  const hrefs = (level?: string) => studentNav('ms', ms.nav, level).groups.flatMap((g) => g.items.map((i) => i.href));
+
+  it('leaves out Merit Lab before Form 4, when there are no SPM subjects to work merit from', () => {
+    expect(hrefs('form1_3')).not.toContain('/ms/merit-lab');
+  });
+
+  it('keeps Merit Lab from Form 4 on, and when the level is not known', () => {
+    expect(hrefs('form4_5')).toContain('/ms/merit-lab');
+    expect(hrefs('after_spm')).toContain('/ms/merit-lab');
+    expect(hrefs()).toContain('/ms/merit-lab');
+  });
+});

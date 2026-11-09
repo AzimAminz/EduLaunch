@@ -7,11 +7,12 @@ import { GradeScales, hasSubjectGrades, type MatriculationStream } from '@edulau
 import { HigherResultsForm } from '@/components/academic/higher-results-form';
 import { RecordHistory } from '@/components/academic/record-history';
 import { SubjectTable } from '@/components/academic/subject-table';
-import { fieldName, getReferenceData, localName } from '@/lib/catalogue/api';
+import { fieldName, getReferenceData } from '@/lib/catalogue/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
-import { getCurrentRecord, getMe, listRecords, type AcademicRecord } from '@/lib/profile/api';
-import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, formTabsFor, rowsForStream, sortRows, startingRows, type HigherQualification, type RecordVariant, type SubjectOption } from '@/lib/profile/records';
+import { getCurrentRecord, getMe, listRecords } from '@/lib/profile/api';
+import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, formTabsFor, rowsForStream, type HigherQualification, type RecordVariant } from '@/lib/profile/records';
+import { subjectOptions, toRows } from '@/lib/profile/form-rows';
 import { getAccessToken } from '@/lib/supabase/server';
 
 const SIDE_IMAGE: Record<RecordVariant, string> = {
@@ -22,7 +23,6 @@ const SIDE_IMAGE: Record<RecordVariant, string> = {
 };
 
 type SearchParams = PageProps<'/[lang]/dokumen'>['searchParams'];
-type Reference = Awaited<ReturnType<typeof getReferenceData>>;
 
 /**
  * "Dokumen akademik": the results form for the student's level (Figma: Profil akademik · …) and their saved records.
@@ -40,13 +40,6 @@ export default async function AcademicPage({ searchParams }: PageProps<'/[lang]/
   );
 }
 
-const subjectOptions = (reference: Reference, qualification: string, lang: Locale): SubjectOption[] =>
-  reference.subjects
-    .filter((s) => s.qualification === qualification)
-    .map((s) => ({ id: s.id, name: localName(s, lang), category: s.category, isMandatory: s.isMandatory, keywords: [s.name, s.nameEn ?? '', ...s.aliases].filter(Boolean) }));
-
-const toRows = (record: AcademicRecord | null, subjects: SubjectOption[], lang: Locale) =>
-  record ? sortRows(record.subjects.map((s) => ({ subjectId: s.subjectId, grade: s.grade, customName: s.customName })), subjects, lang) : startingRows(subjects, lang);
 
 /** Loads the level, the student's history and the subject list. */
 async function loadBasics(token: string) {
@@ -121,7 +114,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
       <>
         {/* Name the qualification the student chose, e.g. "Kelayakan Matrikulasi". */}
         <Heading eyebrow={`${t.eyebrow} · ${levelTitle}`} title={format(h.titleFor, { name: h.shortNames[qualification] })} intro={h.intros[levelKey]} />
-        <SectionTabs lang={lang} dict={dict} current="results" />
+        <SectionTabs lang={lang} dict={dict} current="results" spmMissing={!history.some((r) => r.qualification === 'spm' && r.kind === 'actual')} />
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <section data-reveal className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -222,6 +215,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
             grades={gradesFor(form.qualification)}
             years={years}
             fixedYear={schoolYear ?? undefined}
+            fixedForm={tab?.form}
             initialYear={record?.examYear ?? null}
             initialRows={toRows(record, subjects, lang)}
             status={record?.status ?? 'none'}
@@ -251,12 +245,12 @@ function Heading({ eyebrow, title, intro }: { eyebrow: string; title: string; in
 }
 
 /** "Qualification" | "Basic SPM" for students after pre-university or diploma. */
-function SectionTabs({ lang, dict, current }: { lang: Locale; dict: Dictionary; current: 'results' | 'spm' }) {
+function SectionTabs({ lang, dict, current, spmMissing }: { lang: Locale; dict: Dictionary; current: 'results' | 'spm'; spmMissing?: boolean }) {
   const tabs = [
     { key: 'results', href: `/${lang}/dokumen`, label: dict.higher.sections.results },
     { key: 'spm', href: `/${lang}/dokumen?bahagian=spm`, label: dict.higher.sections.spm },
   ] as const;
-  return (
+  const nav = (
     <nav aria-label={dict.higher.sectionsLabel} className="flex gap-1 self-start rounded-[12px] bg-white p-1">
       {tabs.map((tab) => (
         <Link
@@ -266,9 +260,25 @@ function SectionTabs({ lang, dict, current }: { lang: Locale; dict: Dictionary; 
           className={`rounded-[9px] px-4 py-2 text-sm font-semibold ${tab.key === current ? 'bg-navy text-white' : 'hover:bg-bg'}`}
         >
           {tab.label}
+          {tab.key === 'spm' && spmMissing && <span aria-hidden className="ml-1.5 inline-block size-2 rounded-full bg-[#d98a00] align-middle" />}
         </Link>
       ))}
     </nav>
+  );
+  if (!spmMissing) return nav;
+  // Most programmes also check basic SPM grades, so say plainly when they are not filled in yet.
+  return (
+    <div className="flex flex-col gap-3">
+      {nav}
+      <div role="status" className="flex flex-col gap-3 rounded-[16px] bg-cream p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm">
+          <span className="font-semibold">{dict.higher.spmMissing.title}</span> {dict.higher.spmMissing.body}
+        </p>
+        <Link href={`/${lang}/dokumen?bahagian=spm`} className="shrink-0 self-start rounded-[10px] bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90 sm:self-center">
+          {dict.higher.spmMissing.action}
+        </Link>
+      </div>
+    </div>
   );
 }
 

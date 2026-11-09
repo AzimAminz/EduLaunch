@@ -22,7 +22,7 @@ beforeAll(() => {
 });
 beforeEach(() => vi.clearAllMocks());
 
-const names = (d: typeof ms) => ({ qualifications: d.higher.qualifications, records: d.academic.history.labels, noYear: d.academic.history.noYear });
+const names = (d: typeof ms) => ({ qualifications: d.higher.qualifications, history: d.academic.history });
 const setup = (props: Partial<Parameters<typeof LevelPicker>[0]> = {}) =>
   render(<LevelPicker locale="ms" t={ms.onboarding} errors={ms.auth.errors} names={names(ms)} {...props} />);
 

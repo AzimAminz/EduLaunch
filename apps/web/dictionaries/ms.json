@@ -31,7 +31,8 @@
     "askAi": "Tanya AI bersumber",
     "updates": "Kemas kini",
     "help": "Bantuan",
-    "toggleSidebar": "Togol sidebar"
+    "toggleSidebar": "Togol sidebar",
+    "settings": "Tetapan"
   },
   "levels": {
     "form4_stream": "Aliran Tingkatan 4",
@@ -47,7 +48,7 @@
   "directory": {
     "eyebrow": "DIREKTORI PROGRAM",
     "title": "Universiti & program",
-    "intro": "Cari program mengikut universiti, bidang dan peringkat. Rekod yang ditanda \"contoh\" bukan syarat sebenar.",
+    "intro": "Cari program ikut universiti, bidang dan peringkat.",
     "searchTitle": "Cari pilihan pengajian",
     "university": "Universiti",
     "allUniversities": "Semua universiti",
@@ -57,8 +58,7 @@
     "allLevels": "Semua peringkat",
     "search": "Cari program",
     "noMatches": "Tiada padanan",
-    "resultCount": "{count} program dijumpai",
-    "sampleNote": "termasuk data contoh • sumber rasmi belum disahkan",
+    "resultCount": "{count} program",
     "emptyTitle": "Tiada program sepadan",
     "emptyBody": "Cuba pilih \"Semua\" pada salah satu penapis.",
     "clearFilters": "Kosongkan penapis",
@@ -70,23 +70,67 @@
     "errorBody": "Bahagian ini tidak dapat dihubungi buat sementara. Cuba lagi sebentar lagi."
   },
   "card": {
-    "view": "Lihat program & syarat",
-    "statusSample": "Syarat: data contoh, belum disahkan",
-    "statusPublished": "Syarat kemasukan tersedia",
-    "statusMissing": "Syarat: belum tersedia",
+    "view": "Lihat program",
+    "merit": "Purata merit {year}",
+    "sample": "Data contoh",
     "streamProvider": "Sekolah menengah"
   },
   "detail": {
     "back": "Kembali ke direktori",
     "requirementsTitle": "Syarat kemasukan",
-    "entryRoute": "Laluan kemasukan",
     "noRequirement": "Syarat kemasukan untuk program ini belum tersedia.",
-    "sourceTitle": "Pengesahan sumber",
-    "sourceSample": "Rekod contoh: belum disahkan. Jangan gunakan untuk keputusan sebenar.",
-    "sourcePublished": "Diterbitkan selepas disemak oleh dua admin.",
-    "evidenceTitle": "Bukti & sumber",
-    "evidenceIntro": "Ayat daripada sumber yang menjadi asas setiap syarat.",
-    "notFound": "Program ini tidak dijumpai."
+    "sourceTitle": "Sumber",
+    "sourceSample": "Syarat ini data contoh, bukan dari sumber rasmi. Jangan gunakan untuk keputusan sebenar.",
+    "sourcePublished": "Maklumat ini daripada ePanduan dan diterbitkan selepas disemak oleh dua admin.",
+    "notFound": "Program ini tidak dijumpai.",
+    "flagsLabel": "Ciri program",
+    "flags": {
+      "stem": "STEM",
+      "tvet": "TVET",
+      "interview": "Ada temu duga / ujian",
+      "bumiputera": "Bumiputera sahaja",
+      "jointDegree": "Ijazah bersama",
+      "feeder": "Program pengumpan"
+    },
+    "facts": {
+      "level": "Peringkat",
+      "duration": "Tempoh",
+      "semesters": "{n} semester (± {years} tahun)",
+      "mode": "Mod pengajian",
+      "merit": "Purata merit {year}",
+      "meritNone": "Purata merit"
+    },
+    "modes": {
+      "conventional": "Konvensional",
+      "work_based": "Berasaskan kerja (2U2I / 3U1I)",
+      "distance": "Pembelajaran jarak jauh"
+    },
+    "info": {
+      "title": "Maklumat program",
+      "institution": "Institusi",
+      "programCode": "Kod program",
+      "internalCode": "Kod universiti",
+      "faculty": "Fakulti / pusat pengajian",
+      "nec": "Bidang NEC",
+      "fields": "Bidang",
+      "campuses": "Kampus",
+      "routes": "Laluan masuk"
+    },
+    "careers": "Kerjaya",
+    "fees": "Yuran",
+    "note": "Catatan",
+    "openSource": "Buka sumber rasmi",
+    "forYou": {
+      "title": "SYARAT UNTUK ANDA",
+      "target": "Anda belum mengambil SPM. Ini syarat untuk lepasan SPM; semakan di atas guna gred sasaran anda.",
+      "early": "Anda belum mengambil SPM. Ini syarat untuk lepasan SPM, sebagai panduan untuk masa depan.",
+      "closest": "Program ini tiada syarat khusus untuk {yours}, jadi syarat {route} digunakan untuk anda.",
+      "notOffered": "Program ini tidak menerima {route} secara terus.",
+      "noLevel": "Pilih peringkat pendidikan di profil untuk melihat syarat bagi laluan anda.",
+      "offered": "Laluan yang diterima: {routes}.",
+      "wayIn": "Selepas SPM, anda boleh masuk ke program ini melalui Asasi, Matrikulasi, STPM atau Diploma dahulu.",
+      "otherRoutes": "Syarat laluan lain ({count})"
+    }
   },
   "requirements": {
     "atLeastGrade": "Sekurang-kurangnya gred {grade}",
@@ -203,7 +247,16 @@
       "levelRequired": "Pilih tahap pendidikan anda.",
       "formRequired": "Pilih tingkatan anda.",
       "generic": "Sesuatu tidak kena. Cuba lagi sebentar lagi.",
-      "qualificationRequired": "Pilih kelayakan anda."
+      "qualificationRequired": "Pilih kelayakan anda.",
+      "tooLong": "Terlalu panjang.",
+      "invalidDate": "Masukkan tarikh lahir yang sah.",
+      "sameEmail": "Ini sudah e-mel anda sekarang.",
+      "passwordMismatch": "Kata laluan tidak sama.",
+      "wrongPassword": "Kata laluan semasa tidak betul.",
+      "avatarType": "Pilih gambar JPEG, PNG atau WebP.",
+      "avatarFailed": "Gambar tidak dapat dimuat naik. Cuba lagi.",
+      "confirmWord": "Taip PADAM untuk mengesahkan.",
+      "deleteFailed": "Akaun tidak dapat dipadam sekarang. Cuba lagi sebentar, atau hubungi kami."
     }
   },
   "onboarding": {
@@ -386,7 +439,8 @@
         "requirements": "Syarat diterbitkan",
         "status": "Status",
         "actions": "Tindakan",
-        "updated": "Dikemas kini"
+        "updated": "Dikemas kini",
+        "merit": "Purata merit"
       },
       "noRequirements": "Belum ada",
       "openDrafts": "{count} draf",
@@ -693,6 +747,15 @@
         "pending": "{n} syarat program ini masih draf, jadi pelajar belum melihatnya.",
         "publish": "Terbitkan {n} syarat",
         "send": "Hantar {n} syarat untuk semakan"
+      },
+      "merit": {
+        "label": "Purata merit (ePanduan)",
+        "detail": "Pengambilan {year} · purata calon {group} yang ditawarkan",
+        "groupSpm": "lepasan SPM",
+        "groupPreu": "lepasan STPM, Matrikulasi atau Asasi",
+        "groupUnknown": "program ini",
+        "none": "Tiada. ePanduan belum memaparkan purata merit untuk program ini.",
+        "noneForRoutes": "Tiada. ePanduan tidak memaparkan merit untuk lepasan Diploma, DKM atau DVM."
       }
     },
     "institutions": {
@@ -1299,6 +1362,26 @@
     },
     "noYear": "Pilih tahun",
     "scale": "Skala gred: {scale}.",
+    "streamPresets": {
+      "title": "Isi pantas ikut aliran",
+      "hint": "Pilih aliran anda untuk menambah mata pelajaran elektifnya sekali gus. Anda masih boleh buang atau tambah mata pelajaran selepas itu.",
+      "names": {
+        "stem_a": "STEM A",
+        "stem_b": "STEM B",
+        "stem_c": "STEM C",
+        "humanities": "Kemanusiaan"
+      },
+      "notes": {
+        "stem_a": "Ditambah: Matematik Tambahan, Fizik, Kimia dan Biologi. Tambah Pendidikan Islam atau Pendidikan Moral jika anda mengambilnya.",
+        "stem_b": "Ditambah: Matematik Tambahan, Fizik, Kimia dan Sains Komputer. Tukar Sains Komputer kepada mata pelajaran teknikal anda jika berbeza.",
+        "stem_c": "Ditambah: Sains. Tambah mata pelajaran vokasional anda dengan menaip namanya di Tambah mata pelajaran.",
+        "humanities": "Ditambah: Sains, Ekonomi, Prinsip Perakaunan dan Geografi. Buang yang tidak anda ambil dan tambah yang lain."
+      }
+    },
+    "formLabel": "Tingkatan",
+    "formPlaceholder": "Pilih tingkatan",
+    "formOption": "Tingkatan {form}",
+    "yearLabel": "Tahun",
     "subjectsTitle": "Subjek yang diambil",
     "subjectsHint": "Subjek wajib disenaraikan dahulu. Buang yang tidak berkenaan, tambah yang belum ada.",
     "colSubject": "Subjek",
@@ -1350,6 +1433,8 @@
       "noSubjects": "Tambah sekurang-kurangnya satu subjek.",
       "missingGrade": "Pilih gred untuk setiap subjek.",
       "generic": "Tidak dapat disimpan. Cuba lagi sebentar lagi.",
+      "formRequired": "Pilih tingkatan untuk rekod ini.",
+      "yearTaken": "Sudah ada rekod lain untuk tahun itu. Pilih tahun lain atau sunting rekod tersebut.",
       "yearRequired": "Pilih tahun keputusan."
     },
     "sideTitle": {
@@ -1380,6 +1465,10 @@
       "title": "Rekod tersimpan",
       "intro": "Rekod lama kekal sebagai sejarah apabila anda naik tingkatan atau menukar tahap. Tiada yang dipadam.",
       "empty": "Belum ada rekod disimpan.",
+      "withForm": {
+        "school": "Prestasi Tingkatan {form} ({year})",
+        "target": "Gred sasaran Tingkatan {form} ({year})"
+      },
       "labels": {
         "school": "Prestasi sekolah {year}",
         "target": "Gred Tingkatan 4–5 {year}",
@@ -1403,7 +1492,11 @@
     },
     "view": {
       "back": "Kembali ke dokumen akademik",
-      "readOnly": "Rekod ini dipaparkan untuk rujukan. Untuk menyuntingnya, buka tahap pendidikan yang berkaitan di Profil."
+      "readOnly": "Rekod yang anda simpan sebelum ini. Jika ada yang salah, tekan Sunting untuk membetulkannya.",
+      "edit": "Sunting",
+      "editTitle": "Sunting {record}",
+      "editIntro": "Betulkan tingkatan, tahun atau gred, kemudian simpan. Tahap pendidikan anda tidak berubah.",
+      "doneEditing": "Selesai, kembali ke rekod"
     },
     "schoolTab": "Tingkatan {form} · {year}",
     "limitReached": "Had {max} subjek dicapai. Buang subjek yang tidak berkenaan untuk menambah subjek lain.",
@@ -1412,11 +1505,11 @@
   "profile": {
     "eyebrow": "RUANG PERIBADI",
     "title": "Profil saya",
-    "intro": "Tahap pendidikan dan keputusan anda disimpan dalam akaun yang sama.",
+    "intro": "Peringkat pendidikan, keputusan dan merit anda di satu tempat.",
     "account": "Akaun",
     "levelTitle": "Tahap pendidikan",
     "levelNone": "Belum dipilih",
-    "changeLevel": "Tukar tahap pendidikan",
+    "changeLevel": "Tukar peringkat",
     "changeLevelHint": "Bila anda naik tahap, rekod lama kekal sebagai sejarah. Jika ada rekod yang tidak sesuai dengan tahap baharu, anda diminta mengesahkan dahulu sebelum ia dipadam.",
     "saveLevel": "Simpan tahap",
     "academicTitle": "Keputusan akademik",
@@ -1425,7 +1518,49 @@
     "sideTitle": "Sambung pada mana-mana peranti.",
     "sideBody": "Data dan kemajuan dipautkan kepada akaun yang sama.",
     "openProfile": "Buka profil saya",
-    "levelSaved": "Tahap pendidikan dikemas kini."
+    "levelSaved": "Tahap pendidikan dikemas kini.",
+    "merit": {
+      "title": "MERIT ANDA",
+      "titleTarget": "MERIT SASARAN ANDA",
+      "fromSpm": "Dikira automatik daripada keputusan SPM anda, dengan formula rasmi.",
+      "fromCgpa": "Dikira automatik daripada PNGK anda, dengan formula rasmi.",
+      "fromTarget": "Dikira automatik daripada gred sasaran SPM anda. Ini anggaran, bukan keputusan sebenar.",
+      "empty": "Isi keputusan anda, dan merit akan dikira secara automatik.",
+      "tryIt": "Cuba dalam Merit Lab",
+      "open": "Buka Merit Lab",
+      "label": "Merit anda",
+      "labelTarget": "Merit sasaran anda"
+    },
+    "cancel": "Batal",
+    "noResults": "Belum ada keputusan",
+    "noResultsBody": "Anda belum menyimpan keputusan untuk peringkat ini.",
+    "updateResults": "Kemas kini keputusan",
+    "addResults": "Isi keputusan",
+    "viewRecord": "Lihat rekod",
+    "cgpa": "PNGK",
+    "next": {
+      "title": "LANGKAH SETERUSNYA",
+      "level": "Pilih peringkat pendidikan anda",
+      "levelBody": "Peringkat menentukan borang keputusan dan cadangan yang anda lihat.",
+      "levelAction": "Pilih peringkat",
+      "results": "Isi keputusan anda",
+      "resultsBody": "Keputusan diperlukan untuk semakan kelayakan, merit dan cadangan program.",
+      "resultsAction": "Isi keputusan",
+      "interest": "Kenali minat anda",
+      "interestBody": "Penilaian minat membantu anda memilih aliran di Tingkatan 4.",
+      "interestAction": "Mula penilaian",
+      "explore": "Cari program yang sesuai",
+      "exploreBody": "Profil anda sudah sedia. Lihat program yang boleh anda masuki dan bandingkan merit anda.",
+      "exploreAction": "Teroka program"
+    },
+    "accountHint": "Nama dan e-mel yang anda gunakan untuk log masuk.",
+    "levelHint": "Menentukan borang keputusan, merit dan cadangan yang anda lihat.",
+    "academicHint": "Keputusan yang digunakan untuk semakan kelayakan dan merit.",
+    "meritTitle": "Merit",
+    "meritHint": "Dikira automatik daripada keputusan anda dengan formula rasmi.",
+    "subject": "Subjek",
+    "grade": "Gred",
+    "editAccount": "Urus akaun"
   },
   "higher": {
     "titles": {
@@ -1435,6 +1570,11 @@
     "intros": {
       "after_preu": "Untuk ijazah sarjana muda, universiti menilai kelayakan anda, PNGK, MUET, bidang atau jurusan, dan keputusan SPM asas. Gred subjek STPM, A-Level dan Matrikulasi juga disemak oleh sesetengah program (contohnya B dalam Biologi).",
       "after_certificate": "Untuk Diploma, politeknik dan universiti menilai sijil anda dalam bidang berkaitan, PNGK (atau tahap SKM) dan keputusan SPM asas."
+    },
+    "spmMissing": {
+      "title": "Keputusan SPM belum diisi.",
+      "body": "Kebanyakan program turut menyemak gred SPM asas, jadi semakan kelayakan tidak lengkap tanpanya.",
+      "action": "Isi keputusan SPM"
     },
     "sectionsLabel": "Bahagian keputusan",
     "sections": {
@@ -1567,13 +1707,195 @@
     "noRequirement": "Syarat program ini belum disahkan, jadi kelayakan anda belum boleh disemak.",
     "noRoute": "Program ini belum menyenaraikan syarat untuk laluan anda. Syarat yang ada: {routes}.",
     "noResults": "Isi dan sahkan keputusan anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
+    "noGrades": "Syarat ini menyemak gred mata pelajaran SPM. Isi keputusan SPM anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
+    "noCgpa": "Syarat ini menyemak PNGK. Isi PNGK anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
     "fillResults": "Isi keputusan saya",
-    "updateResults": "Kemas kini keputusan",
     "disclaimer": "Semakan ini panduan sahaja. Keputusan kemasukan ditentukan oleh institusi.",
     "loadError": "Kelayakan tidak dapat disemak buat sementara. Cuba lagi sebentar lagi.",
     "checking": "Menyemak kelayakan anda…",
     "fromList": "Gred {grade} dalam {required} subjek daripada: {subjects} (anda ada {actual})",
     "toConfirm": "Perlu disahkan sendiri",
     "toConfirmNote": "Sistem tidak dapat menyemak perkara ini daripada keputusan anda. Pastikan anda memenuhinya sebelum memohon."
+  },
+  "meritLab": {
+    "eyebrow": "MERIT LAB",
+    "title": "Kira merit anda.",
+    "intro": "Markah merit dikira daripada keputusan anda dengan formula rasmi. Tukar gred untuk melihat kesannya; profil anda tidak berubah.",
+    "gradesTitle": "Keputusan SPM anda",
+    "cgpaTitle": "PNGK anda",
+    "fromActual": "Diambil daripada keputusan SPM sebenar dalam profil anda.",
+    "fromTarget": "Diambil daripada gred sasaran SPM dalam profil anda.",
+    "noRecord": "Profil anda belum ada keputusan SPM. Isi gred di bawah untuk mencuba.",
+    "stream": "Aliran",
+    "streams": {
+      "stem_a": "STEM A",
+      "stem_b": "STEM B",
+      "stem_c": "STEM C",
+      "humanities": "Kemanusiaan, sastera ikhtisas dan lain-lain"
+    },
+    "streamHint": {
+      "stem_a": "Subjek pakej: Biologi, Fizik, Kimia atau Matematik Tambahan (dua terbaik).",
+      "stem_b": "Subjek pakej: subjek STEM A atau subjek teknikal seperti Sains Komputer dan Pengajian Kejuruteraan (dua terbaik).",
+      "stem_c": "Subjek pakej: satu subjek vokasional atau teknikal.",
+      "humanities": "Subjek pakej: bahasa, kesusasteraan, pengajian Islam, kemanusiaan dan seni (dua terbaik)."
+    },
+    "part": {
+      "universal": "Universal",
+      "package": "Pakej",
+      "additional": "Tambahan",
+      "notCounted": "Tidak dikira"
+    },
+    "wasGrade": "asalnya {grade}",
+    "gradeFor": "Gred {subject}",
+    "remove": "Buang {subject}",
+    "addSubject": "Tambah subjek",
+    "add": "Tambah",
+    "cgpa": "PNGK (0.00 – 4.00)",
+    "cocurricular": "Kokurikulum",
+    "cocurricularHint": "Markah 0 – 10 daripada rekod kokurikulum sekolah anda. Jika belum tahu, biarkan sebagai anggaran.",
+    "resultTitle": "Markah merit anda",
+    "outOf": "daripada 100",
+    "basis": {
+      "actual": "Berdasarkan keputusan sebenar anda",
+      "target": "Anggaran berdasarkan gred sasaran anda",
+      "simulation": "Simulasi: anda menukar keputusan di sebelah"
+    },
+    "academic": "Akademik",
+    "missingUniversal": "Satu atau lebih subjek universal belum ada gred, jadi ia dikira sifar.",
+    "missingPackage": "Subjek pakej untuk aliran ini belum cukup, jadi bahagian pakej kurang daripada penuh.",
+    "formula": {
+      "spm": "Formula: universal (40) + pakej (30) + tambahan (10), ditukar kepada 90, campur kokurikulum (10).",
+      "cgpa": "Formula: (PNGK ÷ 4.00) × 90, campur kokurikulum (10).",
+      "diploma": "Formula: (PNGK ÷ 4.00) × 100. Kokurikulum tidak dikira."
+    },
+    "source": "Kalkulator merit ePanduan, Kementerian Pendidikan Tinggi",
+    "checked": "disemak 8 Nov 2026",
+    "disclaimer": "Ini anggaran untuk perancangan. Markah rasmi ditentukan semasa permohonan, dan merit tidak menjamin tawaran.",
+    "aLevel": "Tiada formula merit rasmi untuk A-Level, jadi merit di bawah dikira daripada keputusan SPM anda.",
+    "addResults": "Mahu hasil yang tepat untuk anda?",
+    "addResultsLink": "Isi keputusan dalam profil",
+    "nextTitle": "Dari merit kepada pilihan program",
+    "nextBody": "Bandingkan merit anda dengan purata merit program yang anda minati.",
+    "nextAction": "Teroka program",
+    "titleTarget": "Merit sasaran anda.",
+    "introTarget": "Merit dikira daripada gred sasaran SPM dalam profil anda dengan formula rasmi. Cuba naikkan satu gred dan lihat kesannya; profil anda tidak berubah.",
+    "resultTitleTarget": "Merit sasaran anda",
+    "early": {
+      "title": "Merit bermula di Tingkatan 4.",
+      "intro": "Markah merit dikira daripada keputusan SPM, iaitu subjek teras, subjek aliran dan kokurikulum. Di Tingkatan 1–3, anda belum memilih aliran, jadi belum ada merit untuk dikira.",
+      "nowTitle": "Yang berguna sekarang",
+      "now": [
+        "Kenali minat anda supaya pilihan aliran di Tingkatan 4 lebih yakin.",
+        "Teroka program universiti dan lihat subjek SPM yang biasanya diperlukan.",
+        "Bila anda masuk Tingkatan 4, isi gred sasaran SPM dalam profil; Merit Lab akan muncul di menu."
+      ],
+      "interest": "Mula penilaian minat"
+    }
+  },
+  "meritStanding": {
+    "title": "Merit anda berbanding purata program",
+    "yours": "Merit anda",
+    "average": "Purata {year}",
+    "bands": {
+      "above": "Merit anda {merit} adalah {gap} mata di atas purata merit calon yang ditawarkan pada {year} ({average}).",
+      "near": "Merit anda {merit} hampir dengan purata merit calon yang ditawarkan pada {year} ({average}).",
+      "below": "Merit anda {merit} adalah {gap} mata di bawah purata merit calon yang ditawarkan pada {year} ({average})."
+    },
+    "note": "Purata ialah merit purata calon yang mendapat tawaran, jadi ada yang ditawarkan dengan merit lebih rendah. Ia bukan jaminan atau ramalan tawaran.",
+    "openLab": "Cuba dalam Merit Lab",
+    "targetNote": "Ini merit sasaran, dikira daripada gred sasaran SPM anda."
+  },
+  "settings": {
+    "title": "Tetapan",
+    "intro": "Urus akaun, keselamatan dan pilihan anda.",
+    "save": "Simpan",
+    "saved": "Disimpan",
+    "sections": {
+      "profil": {
+        "title": "Profil peribadi",
+        "hint": "Gambar, nama dan sekolah"
+      },
+      "log-masuk": {
+        "title": "Log masuk & keselamatan",
+        "hint": "E-mel, kata laluan, peranti"
+      },
+      "notifikasi": {
+        "title": "Notifikasi",
+        "hint": "Apa yang kami maklumkan"
+      },
+      "privasi": {
+        "title": "Privasi & data",
+        "hint": "Data anda, persetujuan, padam akaun"
+      }
+    },
+    "avatar": {
+      "change": "Tukar gambar",
+      "remove": "Buang",
+      "hint": "JPEG, PNG atau WebP. Kami potong menjadi segi empat dan kecilkan.",
+      "saved": "Gambar dikemas kini."
+    },
+    "profile": {
+      "avatar": "Gambar profil",
+      "avatarHint": "Dipaparkan di sebelah nama anda. Tanpa gambar, inisial anda digunakan.",
+      "title": "Butiran peribadi",
+      "hint": "Nama ini dipaparkan dalam portal dan e-mel kami kepada anda.",
+      "fullName": "Nama penuh",
+      "school": "Sekolah atau institusi",
+      "schoolHint": "Pilihan. Membantu kami menyesuaikan maklumat untuk anda.",
+      "dateOfBirth": "Tarikh lahir",
+      "dateOfBirthHint": "Pilihan. Pelajar bawah 18 tahun memerlukan persetujuan ibu bapa untuk sesetengah ciri.",
+      "language": "Bahasa",
+      "languageHint": "Bahasa portal dan e-mel kami kepada anda."
+    },
+    "security": {
+      "emailTitle": "Alamat e-mel",
+      "emailHint": "E-mel untuk log masuk dan makluman. Kami hantar pautan pengesahan ke alamat baharu.",
+      "currentEmail": "E-mel semasa:",
+      "newEmail": "E-mel baharu",
+      "changeEmail": "Hantar pautan pengesahan",
+      "emailSent": "Pautan pengesahan sudah dihantar. Buka pautan dalam e-mel baharu (dan e-mel lama jika diminta) untuk melengkapkan pertukaran.",
+      "passwordTitle": "Kata laluan",
+      "passwordTitleHint": "Masukkan kata laluan semasa dahulu, supaya hanya anda boleh menukarnya.",
+      "currentPassword": "Kata laluan semasa",
+      "newPassword": "Kata laluan baharu",
+      "confirmPassword": "Ulang kata laluan baharu",
+      "passwordHint": "Sekurang-kurangnya 8 aksara.",
+      "changePassword": "Tukar kata laluan",
+      "passwordChanged": "Kata laluan ditukar.",
+      "show": "Tunjuk",
+      "hide": "Sorok",
+      "devicesTitle": "Peranti lain",
+      "devicesHint": "Terlupa log keluar di komputer sekolah atau perpustakaan? Log keluar dari semua peranti lain; peranti ini kekal log masuk.",
+      "signOutOthers": "Log keluar dari peranti lain",
+      "signedOutOthers": "Peranti lain sudah dilog keluar."
+    },
+    "notifications": {
+      "title": "Makluman dalam portal",
+      "hint": "Muncul di Kemas kini. Kami tidak menghantar e-mel pemasaran.",
+      "requirementChanges": "Perubahan syarat program yang disimpan",
+      "requirementChangesHint": "Beritahu saya bila syarat kemasukan program dalam Pilihan disimpan berubah."
+    },
+    "privacy": {
+      "dataTitle": "Muat turun data anda",
+      "dataHint": "Satu fail (JSON) dengan semua yang kami simpan tentang anda: akaun, profil, keputusan, program disimpan dan pilihan notifikasi.",
+      "download": "Muat turun data",
+      "consentTitle": "Persetujuan ibu bapa",
+      "consentHint": "Pelajar bawah 18 tahun perlu persetujuan ibu bapa atau penjaga untuk menggunakan EduLaunch.",
+      "consentStatement": "Ibu bapa atau penjaga saya tahu dan bersetuju saya menggunakan EduLaunch untuk merancang pengajian.",
+      "consentConfirm": "Sahkan persetujuan",
+      "consentRequired": "Tandakan pernyataan ini dahulu.",
+      "consentGiven": "Disahkan pada {date}.",
+      "consentNoDob": "Isi tarikh lahir di Profil peribadi supaya kami tahu sama ada persetujuan diperlukan.",
+      "consentNotNeeded": "Tidak diperlukan: anda berumur 18 tahun atau lebih.",
+      "deleteTitle": "Padam akaun",
+      "deleteHint": "Tindakan ini kekal dan tidak boleh dibuat asal.",
+      "deleteWhat": [
+        "Akaun log masuk, profil dan gambar anda dipadam.",
+        "Keputusan akademik, program disimpan, notifikasi dan cadangan anda dipadam.",
+        "Anda boleh mendaftar semula dengan e-mel yang sama, tetapi data lama tidak kembali."
+      ],
+      "confirmWordLabel": "Taip PADAM untuk mengesahkan",
+      "deleteButton": "Padam akaun saya"
+    }
   }
 }

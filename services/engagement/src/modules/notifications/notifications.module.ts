@@ -46,6 +46,13 @@ class RequirementChangeNotifier implements OnApplicationBootstrap {
       );
       this.logger.log(`Notified ${userIds.length} students about ${programId}`);
     });
+
+    // A deleted account takes its notifications and support tickets with it.
+    await this.events.subscribe('forget-deleted-account', [Events.AccountDeleted], async (e) => {
+      const { accountId } = e.payload as EventPayloads[typeof Events.AccountDeleted];
+      await this.db.delete(notifications).where(eq(notifications.userId, accountId));
+      await this.db.delete(schema.supportTickets).where(eq(schema.supportTickets.userId, accountId));
+    });
   }
 }
 

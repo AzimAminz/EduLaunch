@@ -65,6 +65,7 @@ export function ProgrammeTable({
             {header('name', c.programme, 'w-[42%]')}
             {header('level', c.level)}
             <th className={ts.th}>{c.requirements}</th>
+            <th className={`${ts.th} text-right`}>{c.merit}</th>
             {header('status', c.status)}
             {header('updated', c.updated, 'text-right [&>a]:flex-row-reverse')}
             <th aria-hidden className="w-10" />
@@ -89,6 +90,17 @@ export function ProgrammeTable({
                   <p className="text-[#8a5a00]">{t.programmes.noRequirements}</p>
                 )}
                 {p.openDrafts > 0 && <p className="text-muted">{format(t.programmes.openDrafts, { count: p.openDrafts })}</p>}
+              </td>
+              {/* The newest average merit from ePanduan, with its intake year; a dash when ePanduan shows none. */}
+              <td className={`${ts.td} whitespace-nowrap text-right tabular-nums`}>
+                {p.averageMerit ? (
+                  <>
+                    <p className="text-[13px] font-medium">{p.averageMerit.value.toFixed(2)}</p>
+                    <p className="text-[12px] text-muted">{p.averageMerit.intakeYear}</p>
+                  </>
+                ) : (
+                  <span className="text-muted">—</span>
+                )}
               </td>
               <td className={ts.td}>
                 <StatusChip status={p.status} t={t} note={p.pendingStatus ? t.programmes.changeBadge : undefined} />

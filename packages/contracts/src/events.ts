@@ -9,6 +9,8 @@ export const Events = {
   ProgrammeDeleted: 'catalogue.programme.deleted',
   AcademicRecordConfirmed: 'profile.academic-record.confirmed',
   AssessmentCompleted: 'profile.assessment.completed',
+  /** A student deleted their account: every service removes what it keeps about them. */
+  AccountDeleted: 'profile.account.deleted',
   RecommendationsGenerated: 'recommendation.list.generated',
 } as const;
 
@@ -24,5 +26,6 @@ export interface EventPayloads {
   [Events.AcademicRecordConfirmed]: { studentId: string; recordId: string };
   /** The student finished the interest test; the result is on the student. */
   [Events.AssessmentCompleted]: { studentId: string };
+  [Events.AccountDeleted]: { accountId: string; studentId: string };
   [Events.RecommendationsGenerated]: { studentId: string; count: number; topProgramId: string | null };
 }

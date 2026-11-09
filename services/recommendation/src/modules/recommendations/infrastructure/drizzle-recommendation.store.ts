@@ -31,4 +31,8 @@ export class DrizzleRecommendationStore extends RecommendationStore {
     const rows = await this.db.selectDistinct({ id: recommendations.studentId }).from(recommendations).where(eq(recommendations.programId, programId));
     return rows.map((r) => r.id);
   }
+
+  async forget(studentId: string): Promise<void> {
+    await this.db.delete(recommendations).where(eq(recommendations.studentId, studentId));
+  }
 }

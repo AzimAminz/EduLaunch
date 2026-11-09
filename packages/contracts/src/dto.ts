@@ -19,6 +19,32 @@ export const ProgramSummary = z.object({
 export type ProgramSummary = z.infer<typeof ProgramSummary>;
 
 /**
+ * One programme as students see it: the summary plus the published details an admin approved (never a change still
+ * waiting for review), as the official source states them.
+ */
+export const ProgramDetail = ProgramSummary.extend({
+  details: z.object({
+    programCode: z.string().nullable(),
+    internalCode: z.string().nullable(),
+    faculty: z.string().nullable(),
+    necCode: z.string().nullable(),
+    studyMode: z.string().nullable(),
+    campuses: z.array(z.string()),
+    hasInterview: z.boolean(),
+    isStem: z.boolean(),
+    isTvet: z.boolean(),
+    bumiputeraOnly: z.boolean(),
+    jointDegree: z.boolean(),
+    feeder: z.boolean(),
+    careers: z.array(z.string()),
+    fees: z.string().nullable(),
+    note: z.string().nullable(),
+    sourceUrl: z.string().nullable(),
+  }),
+});
+export type ProgramDetail = z.infer<typeof ProgramDetail>;
+
+/**
  * Rule kinds, following how official sources write requirements (JPT ePanduan):
  * - min_grade: grade in one subject ("Gred C bagi Bahasa Melayu"); key_subject is the older name for it.
  * - min_credits: credits in any subjects ("DUA (2) C dalam mana-mana matapelajaran").

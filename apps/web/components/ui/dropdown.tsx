@@ -1,6 +1,7 @@
 'use client';
 
-import { useId, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type FocusEvent, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from '@/components/ui/icon';
 
 export interface DropdownOption {
@@ -63,6 +64,10 @@ export function Dropdown({
   const id = useId();
   const listId = `${id}-list`;
   const fieldRef = useRef<HTMLInputElement & HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  // Where the open list sits: on top of the page (so no card, table or modal clips it), below the field when there
+  // is room and above it when there is more room there, never taller than the space it has.
+  const [place, setPlace] = useState<CSSProperties | null>(null);
   const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? '';
   // An empty value ("All …") leaves the search field empty so its placeholder shows.
   const textOf = (v: string) => (v ? labelOf(v) : '');
@@ -89,6 +94,39 @@ export function Dropdown({
     if (createLabel && onCreate && typed && query && !exact) return [...list, { value: CREATE, label: createLabel(text.trim()) }];
     return list;
   }, [createLabel, onCreate, options, searchable, text, typed]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const measure = () => {
+      const box = boxRef.current?.getBoundingClientRect();
+      if (!box) return;
+      const gap = 6;
+      const margin = 12;
+      const below = window.innerHeight - box.bottom - gap - margin;
+      const above = box.top - gap - margin;
+      const up = below < 220 && above > below;
+      setPlace({
+        position: 'fixed',
+        left: Math.max(margin, Math.min(box.left, window.innerWidth - margin - box.width)),
+        minWidth: box.width,
+        maxWidth: window.innerWidth - margin * 2,
+        maxHeight: Math.max(120, Math.min(288, up ? above : below)),
+        ...(up ? { bottom: window.innerHeight - box.top + gap } : { top: box.bottom + gap }),
+      });
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('scroll', measure, true);
+    return () => {
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('scroll', measure, true);
+    };
+  }, [open]);
+
+  // Keyboard moves keep the highlighted option in view.
+  useEffect(() => {
+    if (open) document.getElementById(`${id}-opt-${active}`)?.scrollIntoView?.({ block: 'nearest' });
+  }, [active, id, open]);
 
   function openList() {
     if (open) return;
@@ -154,6 +192,7 @@ export function Dropdown({
         {label}
       </label>
       <div
+        ref={boxRef}
         className={`flex cursor-pointer items-center rounded-xl border-[1.5px] ${border} ${highlight ? 'bg-yellow' : 'bg-white'} focus-within:ring-2 focus-within:ring-yellow ${
           small ? 'gap-1.5 rounded-[9px] px-3 py-2' : 'gap-2.5 px-4 py-[15px]'
         }`}
@@ -189,13 +228,15 @@ export function Dropdown({
         <Icon src="/icons/chevron-down.svg" size={small ? 16 : 20} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </div>
 
-      {open && (
-        <ul
-          id={listId}
-          role="listbox"
-          aria-label={label}
-          className={`absolute top-full z-30 mt-1 max-h-72 overflow-auto rounded-xl border border-line bg-white py-1 shadow-lg ${small ? 'min-w-full' : 'w-full'}`}
-        >
+      {open &&
+        createPortal(
+          <ul
+            id={listId}
+            role="listbox"
+            aria-label={label}
+            style={place ?? { visibility: 'hidden' }}
+            className="z-[60] overflow-y-auto overscroll-contain rounded-xl border border-line bg-white py-1 shadow-lg"
+          >
           {visible.length === 0 ? (
             <li className="px-4 py-3 text-sm text-muted">{noMatchesLabel}</li>
           ) : (
@@ -218,8 +259,9 @@ export function Dropdown({
               </li>
             ))
           )}
-        </ul>
-      )}
+          </ul>,
+          document.body,
+        )}
     </div>
   );
 }

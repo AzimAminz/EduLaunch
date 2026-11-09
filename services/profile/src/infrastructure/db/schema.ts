@@ -39,6 +39,8 @@ export const students = profile.table('student', {
   /** Result of the interest test (RIASEC), worked out from the student's answers in `assessment`. */
   riasecScores: jsonb('riasec_scores').$type<Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>>(),
   interestTestAt: timestamp('interest_test_at', { withTimezone: true }),
+  /** What the student wants to be told about (Settings → Notifications). */
+  notificationPrefs: jsonb('notification_prefs').$type<{ requirementChanges: boolean }>().notNull().default({ requirementChanges: true }),
 });
 
 export const academicRecords = profile.table('academic_record', {
@@ -59,6 +61,8 @@ export const academicRecords = profile.table('academic_record', {
   qualification: text('qualification').notNull(),
   recordKind: recordKind('record_kind').notNull(),
   examYear: smallint('exam_year'),
+  /** School grades and SPM targets: the form (Tingkatan 1–3, 4–5) the results are for. */
+  formLevel: smallint('form_level'),
   cgpa: numeric('cgpa', { precision: 3, scale: 2 }),
   muetBand: numeric('muet_band', { precision: 2, scale: 1 }),
   entrySource: text('entry_source').notNull().default('manual'),
