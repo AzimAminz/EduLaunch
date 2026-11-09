@@ -17,7 +17,7 @@ export function RequirementLinesView({ rules, subjectNames, t }: { rules: AdminR
 export function LinesView({ lines, subjectNames, t }: { lines: EditorLine[]; subjectNames: ReadonlyMap<string, string>; t: Dictionary['admin']['requirement'] }) {
   const name = (id: string | null) => (id && subjectNames.get(id)) || '?';
   return (
-    <div className="grid gap-3 xl:grid-cols-2">
+    <div className="grid items-start gap-3 xl:grid-cols-2">
       {PARTS.map((part) => {
         const own = lines.filter((l) => l.part === part);
         return (

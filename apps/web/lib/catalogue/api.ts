@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from 'next/cache';
-import { ProgramSummary, PublishedRequirement } from '@edulaunch/contracts';
+import { ProgramDetail, ProgramSummary, PublishedRequirement } from '@edulaunch/contracts';
 import { z } from 'zod';
 import type { Locale } from '../i18n/locale';
 import { filtersToQuery, type ProgrammeFilters } from './search-params';
@@ -44,12 +44,14 @@ export async function getReferenceData() {
   'use cache';
   cacheLife('minutes');
   cacheTag('catalogue-reference');
-  const [institutions, fields, subjects] = await Promise.all([
+  const [institutions, fields, subjects, necFields] = await Promise.all([
     get('/institutions', z.array(Institution)),
     get('/fields', z.array(Field)),
     get('/subjects', z.array(Subject)),
+    // Field names by NEC code; the page still works without them.
+    get('/nec-fields', z.array(z.object({ code: z.string(), name: z.string() }))).catch(() => []),
   ]);
-  return { institutions, fields, subjects };
+  return { institutions, fields, subjects, necFields };
 }
 
 export async function searchProgrammes(filters: ProgrammeFilters, pageSize = 12) {
@@ -57,8 +59,9 @@ export async function searchProgrammes(filters: ProgrammeFilters, pageSize = 12)
   return get(`/programmes?pageSize=${pageSize}${query ? `&${query}` : ''}`, z.object({ items: z.array(ProgramSummary), total: z.number(), page: z.number(), pageSize: z.number() }));
 }
 
+/** One programme with its approved details (code, faculty, campuses, careers, fees…), as students may see it. */
 export async function getProgramme(id: string) {
-  return get(`/programmes/${encodeURIComponent(id)}`, ProgramSummary);
+  return get(`/programmes/${encodeURIComponent(id)}`, ProgramDetail);
 }
 
 export async function getPublishedRequirements(programIds: string[]) {

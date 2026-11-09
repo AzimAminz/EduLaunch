@@ -26,6 +26,11 @@ export class ReferenceQueries {
     return this.db.select().from(schema.fields).orderBy(schema.fields.name);
   }
 
+  /** National Education Code fields (code and name), to name a programme's field of study. */
+  necFields() {
+    return this.db.select({ code: schema.necFields.code, name: schema.necFields.name }).from(schema.necFields).orderBy(schema.necFields.code);
+  }
+
   institutions() {
     return this.db
       .select({
@@ -54,6 +59,12 @@ export class ReferenceController {
   @Get('fields')
   fields() {
     return this.queries.fields();
+  }
+
+  @Public()
+  @Get('nec-fields')
+  necFields() {
+    return this.queries.necFields();
   }
 
   @Public()

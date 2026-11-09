@@ -78,14 +78,48 @@
   "detail": {
     "back": "Back to directory",
     "requirementsTitle": "Entry requirements",
-    "entryRoute": "Entry route",
     "noRequirement": "Entry requirements for this programme are not available yet.",
-    "sourceTitle": "Source check",
-    "sourceSample": "Sample record: not verified. Do not use it for real decisions.",
-    "sourcePublished": "Published after review by two admins.",
-    "evidenceTitle": "Evidence & sources",
-    "evidenceIntro": "The source sentences each requirement is based on.",
-    "notFound": "This programme was not found."
+    "sourceTitle": "Source",
+    "sourceSample": "These requirements are sample data, not from an official source. Do not use them for real decisions.",
+    "sourcePublished": "From ePanduan, published after two admins checked it.",
+    "notFound": "This programme was not found.",
+    "flagsLabel": "Programme features",
+    "flags": {
+      "stem": "STEM",
+      "tvet": "TVET",
+      "interview": "Interview / test",
+      "bumiputera": "Bumiputera only",
+      "jointDegree": "Joint degree",
+      "feeder": "Feeder programme"
+    },
+    "facts": {
+      "level": "Level",
+      "duration": "Duration",
+      "semesters": "{n} semesters (± {years} years)",
+      "mode": "Study mode",
+      "merit": "Average merit {year}",
+      "meritNone": "Average merit"
+    },
+    "modes": {
+      "conventional": "Conventional",
+      "work_based": "Work-based (2U2I / 3U1I)",
+      "distance": "Distance learning"
+    },
+    "info": {
+      "title": "Programme details",
+      "institution": "Institution",
+      "programCode": "Programme code",
+      "internalCode": "University code",
+      "faculty": "Faculty / school",
+      "nec": "NEC field",
+      "fields": "Fields",
+      "campuses": "Campuses",
+      "routes": "Entry routes"
+    },
+    "careers": "Careers",
+    "fees": "Fees",
+    "note": "Note",
+    "openSource": "Open the official source"
   },
   "requirements": {
     "atLeastGrade": "At least grade {grade}",

@@ -78,14 +78,48 @@
   "detail": {
     "back": "Kembali ke direktori",
     "requirementsTitle": "Syarat kemasukan",
-    "entryRoute": "Laluan kemasukan",
     "noRequirement": "Syarat kemasukan untuk program ini belum tersedia.",
-    "sourceTitle": "Pengesahan sumber",
-    "sourceSample": "Rekod contoh: belum disahkan. Jangan gunakan untuk keputusan sebenar.",
-    "sourcePublished": "Diterbitkan selepas disemak oleh dua admin.",
-    "evidenceTitle": "Bukti & sumber",
-    "evidenceIntro": "Ayat daripada sumber yang menjadi asas setiap syarat.",
-    "notFound": "Program ini tidak dijumpai."
+    "sourceTitle": "Sumber",
+    "sourceSample": "Syarat ini data contoh, bukan dari sumber rasmi. Jangan gunakan untuk keputusan sebenar.",
+    "sourcePublished": "Maklumat ini daripada ePanduan dan diterbitkan selepas disemak oleh dua admin.",
+    "notFound": "Program ini tidak dijumpai.",
+    "flagsLabel": "Ciri program",
+    "flags": {
+      "stem": "STEM",
+      "tvet": "TVET",
+      "interview": "Ada temu duga / ujian",
+      "bumiputera": "Bumiputera sahaja",
+      "jointDegree": "Ijazah bersama",
+      "feeder": "Program pengumpan"
+    },
+    "facts": {
+      "level": "Peringkat",
+      "duration": "Tempoh",
+      "semesters": "{n} semester (± {years} tahun)",
+      "mode": "Mod pengajian",
+      "merit": "Purata merit {year}",
+      "meritNone": "Purata merit"
+    },
+    "modes": {
+      "conventional": "Konvensional",
+      "work_based": "Berasaskan kerja (2U2I / 3U1I)",
+      "distance": "Pembelajaran jarak jauh"
+    },
+    "info": {
+      "title": "Maklumat program",
+      "institution": "Institusi",
+      "programCode": "Kod program",
+      "internalCode": "Kod universiti",
+      "faculty": "Fakulti / pusat pengajian",
+      "nec": "Bidang NEC",
+      "fields": "Bidang",
+      "campuses": "Kampus",
+      "routes": "Laluan masuk"
+    },
+    "careers": "Kerjaya",
+    "fees": "Yuran",
+    "note": "Catatan",
+    "openSource": "Buka sumber rasmi"
   },
   "requirements": {
     "atLeastGrade": "Sekurang-kurangnya gred {grade}",
