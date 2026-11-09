@@ -386,7 +386,8 @@
         "requirements": "Published requirements",
         "status": "Status",
         "actions": "Actions",
-        "updated": "Updated"
+        "updated": "Updated",
+        "merit": "Average merit"
       },
       "noRequirements": "None yet",
       "openDrafts": "{count} draft(s)",
@@ -693,6 +694,15 @@
         "pending": "{n} of this programme's requirements are still drafts, so students cannot see them yet.",
         "publish": "Publish {n} requirements",
         "send": "Send {n} requirements for review"
+      },
+      "merit": {
+        "label": "Average merit (ePanduan)",
+        "detail": "{year} intake · average of {group} offered a place",
+        "groupSpm": "SPM leavers",
+        "groupPreu": "STPM, matriculation or foundation students",
+        "groupUnknown": "this programme's candidates",
+        "none": "None. ePanduan shows no average merit for this programme yet.",
+        "noneForRoutes": "None. ePanduan shows no merit for diploma, DKM or DVM candidates."
       }
     },
     "institutions": {

@@ -386,7 +386,8 @@
         "requirements": "Syarat diterbitkan",
         "status": "Status",
         "actions": "Tindakan",
-        "updated": "Dikemas kini"
+        "updated": "Dikemas kini",
+        "merit": "Purata merit"
       },
       "noRequirements": "Belum ada",
       "openDrafts": "{count} draf",
@@ -693,6 +694,15 @@
         "pending": "{n} syarat program ini masih draf, jadi pelajar belum melihatnya.",
         "publish": "Terbitkan {n} syarat",
         "send": "Hantar {n} syarat untuk semakan"
+      },
+      "merit": {
+        "label": "Purata merit (ePanduan)",
+        "detail": "Pengambilan {year} · purata calon {group} yang ditawarkan",
+        "groupSpm": "lepasan SPM",
+        "groupPreu": "lepasan STPM, Matrikulasi atau Asasi",
+        "groupUnknown": "program ini",
+        "none": "Tiada. ePanduan belum memaparkan purata merit untuk program ini.",
+        "noneForRoutes": "Tiada. ePanduan tidak memaparkan merit untuk lepasan Diploma, DKM atau DVM."
       }
     },
     "institutions": {

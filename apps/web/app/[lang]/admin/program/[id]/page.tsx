@@ -185,7 +185,7 @@ async function Programme({ locale, dict, params, searchParams }: { locale: Local
                 )}
               </div>
             </div>
-            <ProgrammeDetails details={live} dict={dict} names={names} />
+            <ProgrammeDetails details={live} dict={dict} names={names} admission={{ entryRoutes: programme.entryRoutes, averageMerit: programme.averageMerit }} />
           </Card>
         </>
       ) : (

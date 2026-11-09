@@ -89,6 +89,8 @@ const ProgrammeRow = z.object({
   updatedAt: z.coerce.date(),
   publishedRoutes: z.array(z.string()),
   openDrafts: z.number(),
+  /** The newest average merit from ePanduan, when it shows one. */
+  averageMerit: z.object({ intakeYear: z.number(), value: z.number() }).nullable().default(null),
 });
 export type ProgrammeRow = z.infer<typeof ProgrammeRow>;
 
