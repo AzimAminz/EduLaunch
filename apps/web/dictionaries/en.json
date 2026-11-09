@@ -1899,55 +1899,12 @@
     }
   },
   "interest": {
-    "eyebrow": "KNOW YOURSELF",
     "title": "Interest test",
-    "introTitle": "30 activities, about 5 minutes",
-    "intro": "For each work activity, choose how much you would like doing it. Don't think about whether you are good at it or how much it pays; there are no right or wrong answers. Every answer is saved straight away, so you can stop and carry on at any time, even on another device.",
     "unavailable": "The interest test is not available yet. Please try again later.",
-    "test": {
-      "questionOf": "Question {n}/{total}",
-      "answered": "{count}/{total} answered",
-      "prompt": "How much would you like doing this activity?",
-      "flag": "Flag",
-      "flagged": "Flagged",
-      "flaggedList": "Flagged to check",
-      "map": "All questions",
-      "legendDone": "Answered",
-      "legendOpen": "Not answered",
-      "skip": "Skip",
-      "back": "Previous",
-      "reviewAction": "Review & submit",
-      "reviewOpenTitle": "Some questions are not answered yet",
-      "reviewOpenBody": "Tap a question number to answer it. Your result is worked out once all 30 are answered.",
-      "reviewDoneTitle": "Every question is answered!",
-      "reviewDoneBody": "Check the questions you flagged if you like, or go straight to your result.",
-      "reviewBack": "Back to the questions",
-      "finish": "See my result",
-      "saving": "Saving…",
-      "saved": "Saved",
-      "autoSave": "Answers are saved automatically",
-      "saveError": "Could not save. Check your connection.",
-      "incomplete": "Some questions are not answered yet.",
-      "milestone": "{count}/{total} done. Keep going!",
-      "keys": "Keyboard shortcuts: 1–5 to answer, ← → to move, F to flag.",
-      "progress": "Interest test progress",
-      "scale": [
-        "Strongly dislike",
-        "Dislike",
-        "Unsure",
-        "Like",
-        "Strongly like"
-      ]
-    },
     "result": {
       "codeLabel": "Your interest code",
       "completedOn": "Taken on {date}",
-      "lead": "These are your three strongest of the six Holland interest types (RIASEC). The three together say more than any one letter.",
-      "rank": "Interest {n}",
-      "fieldsLabel": "Fields that usually match:",
       "allTitle": "All six interest types",
-      "allHint": "Each score is the sum of your answers to the five activities of that type, from 0 to 20.",
-      "scoreOf": "{score}/20",
       "note": "Interests show what you like, not what you can do. Use them to explore options, not as a final decision.",
       "explore": "Explore programmes",
       "retake": "Retake",
@@ -1962,40 +1919,127 @@
       "retakeStarting": "Starting…",
       "retakingTitle": "You are taking the test again.",
       "retakingBody": "{count}/{total} questions answered. The result below is your earlier one.",
-      "retakingAction": "Carry on"
+      "retakingAction": "Carry on",
+      "questDone": "Quest complete!",
+      "more": "More"
     },
     "types": {
       "R": {
         "name": "Realistic",
         "body": "Enjoys practical work: building, fixing and handling tools, machines, plants or animals. Prefers results you can see over paperwork.",
-        "fields": "engineering, technology, automotive, agriculture, construction."
+        "fields": [
+          "engineering",
+          "technology",
+          "automotive",
+          "agriculture",
+          "construction"
+        ],
+        "tagline": "Likes building & fixing"
       },
       "I": {
         "name": "Investigative",
         "body": "Enjoys observing, studying and solving problems with ideas and data. Likes asking why and how things happen.",
-        "fields": "science, medicine, pharmacy, computer science, research."
+        "fields": [
+          "science",
+          "medicine",
+          "pharmacy",
+          "computer science",
+          "research"
+        ],
+        "tagline": "Likes studying & finding out"
       },
       "A": {
         "name": "Artistic",
         "body": "Enjoys creating and expressing ideas through design, writing, music or performance. More at ease with open work than strict rules.",
-        "fields": "design, media, music, architecture, writing."
+        "fields": [
+          "design",
+          "media",
+          "music",
+          "architecture",
+          "writing"
+        ],
+        "tagline": "Likes creating & making"
       },
       "S": {
         "name": "Social",
         "body": "Enjoys helping, teaching, caring for and working with people. Feels rewarded by making a difference in others' lives.",
-        "fields": "education, nursing, counselling, social work, health."
+        "fields": [
+          "education",
+          "nursing",
+          "counselling",
+          "social work",
+          "health"
+        ],
+        "tagline": "Likes helping people"
       },
       "E": {
         "name": "Enterprising",
         "body": "Enjoys leading, persuading and making decisions. Willing to take risks to reach a goal, including in business.",
-        "fields": "business, management, marketing, law, entrepreneurship."
+        "fields": [
+          "business",
+          "management",
+          "marketing",
+          "law",
+          "entrepreneurship"
+        ],
+        "tagline": "Likes leading & selling"
       },
       "C": {
         "name": "Conventional",
         "body": "Enjoys orderly work with data, numbers, records and clear procedures. Careful and likes things to be exact.",
-        "fields": "accounting, finance, administration, logistics, information systems."
+        "fields": [
+          "accounting",
+          "finance",
+          "administration",
+          "logistics",
+          "information systems"
+        ],
+        "tagline": "Likes organising & data"
       }
     },
-    "source": "Questions from the O*NET Mini Interest Profiler (O*NET Career Exploration Tools, U.S. Department of Labor, Employment and Training Administration). EduLaunch has translated and modified all or some of this information; USDOL/ETA has not approved, endorsed, or tested these modifications. Used under the"
+    "source": "Questions from the O*NET Mini Interest Profiler (O*NET Career Exploration Tools, U.S. Department of Labor, Employment and Training Administration). EduLaunch has translated and modified all or some of this information; USDOL/ETA has not approved, endorsed, or tested these modifications. Used under the",
+    "game": {
+      "title": "Interest Quest",
+      "startLine": "Choose how much you would like each activity.",
+      "facts": [
+        "30 questions",
+        "~5 minutes",
+        "No wrong answers"
+      ],
+      "start": "Start",
+      "level": "LV {n}/{of}",
+      "levelShort": "LV {n}",
+      "xp": "{xp} XP",
+      "levelUp": "Level {n} clear!",
+      "question": "Question {n}",
+      "flag": "Flag",
+      "flagged": "Flagged",
+      "map": "Map",
+      "mapTitle": "Question map",
+      "close": "Close",
+      "done": "Done",
+      "open": "Empty",
+      "back": "Back",
+      "skip": "Skip",
+      "review": "Submit",
+      "answered": "{count}/{total} answered",
+      "reviewOpen": "Some questions are empty",
+      "reviewDone": "All done!",
+      "reviewBack": "Back",
+      "finish": "See my result",
+      "saving": "Saving…",
+      "saved": "Saved ✓",
+      "saveError": "Could not save",
+      "incomplete": "Some questions are not answered yet.",
+      "progress": "Progress",
+      "scale": [
+        "Strongly dislike",
+        "Dislike",
+        "Unsure",
+        "Like",
+        "Strongly like"
+      ]
+    },
+    "sourceShort": "Questions: O*NET Mini Interest Profiler (USDOL/ETA) · licence details"
   }
 }

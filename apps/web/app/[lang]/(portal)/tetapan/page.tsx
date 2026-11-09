@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Suspense, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { AvatarField } from '@/components/settings/avatar-field';
@@ -8,6 +8,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getDetails, getNotificationPrefs } from '@/lib/profile/api';
 import { getAccessToken, getAccount } from '@/lib/supabase/server';
+import { Pending } from '@/components/ui/pending';
 
 /** The settings areas, each its own view with its own address (?bahagian=…), as settings pages usually are. */
 const SETTINGS_SECTIONS = ['profil', 'log-masuk', 'notifikasi', 'privasi'] as const;
@@ -29,9 +30,9 @@ export default async function SettingsPage({ searchParams }: PageProps<'/[lang]/
         <p className="text-[15px] text-muted">{t.intro}</p>
       </header>
       {/* The section and the account are request-time data. */}
-      <Suspense fallback={<p className="text-sm text-muted">{dict.academic.loading}</p>}>
+      <Pending label={dict.academic.loading} variant="panels">
         <Settings lang={lang} dict={dict} searchParams={searchParams} />
-      </Suspense>
+      </Pending>
     </>
   );
 }

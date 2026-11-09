@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { MeritLab } from '@/components/merit/merit-lab';
@@ -8,6 +7,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { KOKO_COOKIE, loadMeritInputs } from '@/lib/merit/student';
 import { getAccessToken } from '@/lib/supabase/server';
+import { Pending } from '@/components/ui/pending';
 
 /**
  * Merit Lab (Figma W04): the student's merit from their own results, with the official formula. Form 4–5 students
@@ -22,9 +22,9 @@ export default async function MeritLabPage() {
     <>
       <p className="-mb-2 text-xs font-semibold tracking-wide text-muted">{t.eyebrow}</p>
       {/* The student's level and records are request-time data. */}
-      <Suspense fallback={<p className="text-sm text-muted">{dict.academic.loading}</p>}>
+      <Pending label={dict.academic.loading} variant="form">
         <Lab locale={lang} dict={dict} />
-      </Suspense>
+      </Pending>
     </>
   );
 }

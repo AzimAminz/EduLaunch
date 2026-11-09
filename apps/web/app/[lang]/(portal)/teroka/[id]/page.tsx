@@ -14,6 +14,7 @@ import { loadMeritInputs, studentMerit } from '@/lib/merit/student';
 import { getMe } from '@/lib/profile/api';
 import { getEligibility } from '@/lib/recommendation/api';
 import { getAccessToken } from '@/lib/supabase/server';
+import { Pending } from '@/components/ui/pending';
 
 /**
  * A programme as students see it: the same approved facts an admin sees (code, faculty, NEC field, mode, campuses,
@@ -30,9 +31,9 @@ export default async function ProgrammePage({ params }: PageProps<'/[lang]/terok
         ← {dict.detail.back}
       </Link>
       {/* The programme id is only known at request time. */}
-      <Suspense fallback={<p className="text-sm text-muted">{dict.directory.loading}</p>}>
+      <Pending label={dict.directory.loading} variant="panels">
         <Programme lang={lang} dict={dict} params={params} />
-      </Suspense>
+      </Pending>
     </>
   );
 }

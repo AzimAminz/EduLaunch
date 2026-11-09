@@ -146,3 +146,63 @@ html.lenis body {
   .quiz-confetti { display: none; }
   .quiz-toast { animation: none; }
 }
+
+/* Content that arrives after its skeleton fades in briefly instead of popping in. */
+@keyframes content-in {
+  from { opacity: 0; transform: translateY(4px); }
+}
+.content-in { animation: content-in 200ms ease-out both; }
+/* Popovers open from where they are anchored and close back into it. */
+@keyframes pop-open {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+@keyframes pop-close {
+  to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+.pop-open { transform-origin: top; animation: pop-open 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.pop-close { transform-origin: top; animation: pop-close 140ms ease-in both; }
+@media (prefers-reduced-motion: reduce) {
+  .content-in, .pop-open, .pop-close { animation: none; }
+}
+
+/* Pixel game look for the interest quest: notched pixel borders, chunky buttons that press down, stepped motion. */
+.px-frame {
+  box-shadow: 0 -4px 0 0 var(--px, #0b1530), 0 4px 0 0 var(--px, #0b1530), -4px 0 0 0 var(--px, #0b1530), 4px 0 0 0 var(--px, #0b1530);
+}
+.px-btn {
+  box-shadow: 0 -3px 0 0 #0b1530, 0 3px 0 0 #0b1530, -3px 0 0 0 #0b1530, 3px 0 0 0 #0b1530, inset 0 -5px 0 0 rgba(0, 0, 0, 0.28);
+  transition: transform 80ms steps(2);
+}
+.px-btn:active, .px-btn[data-pressed='true'] { transform: translateY(3px); box-shadow: 0 -3px 0 0 #0b1530, 0 3px 0 0 #0b1530, -3px 0 0 0 #0b1530, 3px 0 0 0 #0b1530, inset 0 -2px 0 0 rgba(0, 0, 0, 0.28); }
+.px-crisp { image-rendering: pixelated; shape-rendering: crispEdges; }
+@keyframes px-hop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes px-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes px-float {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-28px); }
+}
+@keyframes px-blink {
+  50% { opacity: 0; }
+}
+@keyframes px-banner {
+  0% { opacity: 0; transform: scale(0.6); }
+  15%, 85% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+.px-hop { animation: px-hop 320ms steps(4) both; }
+.px-idle { animation: px-idle 1.2s steps(2) infinite; }
+.px-float { animation: px-float 700ms steps(7) both; }
+.px-blink { animation: px-blink 1s steps(1) infinite; }
+.px-banner { animation: px-banner 1.6s steps(8) both; }
+.px-walk { transition: transform 300ms steps(5); }
+@media (prefers-reduced-motion: reduce) {
+  .px-hop, .px-idle, .px-blink { animation: none; }
+  .px-float, .px-banner { animation-duration: 0.01ms; }
+  .px-walk, .px-btn { transition: none; }
+}

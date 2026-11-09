@@ -4,38 +4,43 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { finishInterestTest, saveInterestAnswer } from '@/lib/interests/actions';
+import { pixelFont } from './font';
+import { FLAG, HERO, HERO_COLOURS, STAR, Sprite, face } from './pixel';
 
 const ANSWERS = [0, 1, 2, 3, 4] as const;
 /** One colour per answer, from "strongly dislike" to "strongly like" (white text passes contrast on each). */
 const TILE = ['bg-[#c2413b]', 'bg-[#b45a17]', 'bg-[#5f6b7f]', 'bg-[#2f7d8c]', 'bg-[#23825a]'];
-const MILESTONES = [10, 20];
+const PER_LEVEL = 6;
+const XP_PER_ANSWER = 10;
 
 interface Props {
   locale: Locale;
   questions: Array<{ id: string; text: string }>;
   saved: Record<string, number>;
   progress: { current: number; flags: string[] };
-  t: Dictionary['interest']['test'];
+  t: Dictionary['interest']['game'];
 }
 
 type Save = 'idle' | 'saving' | 'saved' | 'error';
 
 /**
- * The interest test as a quiz: one activity at a time, big answer tiles (or keys 1–5), a flag to come back later, a
- * numbered map to jump to any question, and back and forward. Every answer, the flags and the question open are
- * saved on the server as the student goes, so a reload or another device carries on in the same place.
+ * The interest test as a small pixel quest: five levels of six activities, a hero who hops forward with each answer,
+ * XP, a flag to come back later, a level map to jump to any question, and back and skip. Every answer, the flags and
+ * the question open are saved on the server as the student goes, so a reload or another device carries on in place.
  */
 export function InterestTest({ locale, questions, saved, progress, t }: Props) {
   const router = useRouter();
   const total = questions.length;
+  const levels = Math.ceil(total / PER_LEVEL);
   const [answers, setAnswers] = useState<Record<string, number>>(saved);
   const [flags, setFlags] = useState<string[]>(progress.flags);
   const [current, setCurrent] = useState(Math.min(progress.current, total - 1));
-  const [direction, setDirection] = useState<'next' | 'prev'>('next');
+  const [started, setStarted] = useState(Object.keys(saved).length > 0);
   const [mapOpen, setMapOpen] = useState(false);
   const [review, setReview] = useState(false);
-  const [popped, setPopped] = useState<number | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [pressed, setPressed] = useState<number | null>(null);
+  const [gain, setGain] = useState(0);
+  const [banner, setBanner] = useState<string | null>(null);
   const [save, setSave] = useState<Save>('idle');
   const [finishError, setFinishError] = useState<string | null>(null);
   const [finishing, startFinish] = useTransition();
@@ -47,6 +52,9 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
   const answered = questions.filter((q) => answers[q.id] !== undefined).length;
   const allDone = answered === total;
   const flagged = flags.includes(question.id);
+  const level = Math.floor(current / PER_LEVEL);
+  const levelStart = level * PER_LEVEL;
+  const levelQuestions = questions.slice(levelStart, levelStart + PER_LEVEL);
 
   const persist = useCallback(
     (answer: { questionId: string; answer: number } | null, next: { current: number; flags: string[] }) => {
@@ -60,13 +68,12 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
   );
 
   const goTo = useCallback(
-    (index: number, opts: { save?: boolean } = {}) => {
+    (index: number) => {
       if (index < 0 || index >= total || index === current) return;
       if (advance.current) clearTimeout(advance.current);
-      setDirection(index > current ? 'next' : 'prev');
       setCurrent(index);
       setMapOpen(false);
-      if (opts.save !== false) persist(null, { current: index, flags });
+      persist(null, { current: index, flags });
     },
     [current, flags, persist, total],
   );
@@ -81,23 +88,25 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
   };
 
   const choose = (value: number) => {
+    const first = answers[question.id] === undefined;
     const next = { ...answers, [question.id]: value };
     setAnswers(next);
-    setPopped(value);
-    const count = questions.filter((q) => next[q.id] !== undefined).length;
-    if (answers[question.id] === undefined && MILESTONES.includes(count)) setToast(format(t.milestone, { count, total }));
-    // Move on to the next open question after a short beat, so the choice is seen.
+    setPressed(value);
+    if (first) setGain((g) => g + 1);
+    // A level is cleared when its six questions all have an answer.
+    const cleared = first && levelQuestions.every((q) => next[q.id] !== undefined);
+    if (cleared) setBanner(format(t.levelUp, { n: level + 1 }));
     const target = current + 1 < total && next[questions[current + 1]!.id] === undefined ? current + 1 : nextOpen(current, next);
     persist({ questionId: question.id, answer: value }, { current: target ?? current, flags });
     if (advance.current) clearTimeout(advance.current);
-    advance.current = setTimeout(() => {
-      setPopped(null);
-      if (target === null) setReview(true);
-      else {
-        setDirection(target > current ? 'next' : 'prev');
-        setCurrent(target);
-      }
-    }, 320);
+    advance.current = setTimeout(
+      () => {
+        setPressed(null);
+        if (target === null) setReview(true);
+        else setCurrent(target);
+      },
+      cleared ? 900 : 360,
+    );
   };
 
   const toggleFlag = () => {
@@ -117,15 +126,17 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
     });
   };
 
-  // Keys: 1–5 answer, arrows move, F flags.
+  // Keys: 1–5 answer, arrows move, F flags, M opens the map.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (review || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!started || review || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable], [role=dialog]')) return;
       if (e.key >= '1' && e.key <= '5') choose(Number(e.key) - 1);
       else if (e.key === 'ArrowRight') goTo(current + 1);
       else if (e.key === 'ArrowLeft') goTo(current - 1);
       else if (e.key === 'f' || e.key === 'F') toggleFlag();
+      else if (e.key === 'm' || e.key === 'M') setMapOpen((o) => !o);
+      else if (e.key === 'Escape' && mapOpen) setMapOpen(false);
       else return;
       e.preventDefault();
     };
@@ -134,17 +145,42 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
   });
 
   useEffect(() => {
-    if (!toast) return;
-    const id = setTimeout(() => setToast(null), 2200);
+    if (!banner) return;
+    const id = setTimeout(() => setBanner(null), 1600);
     return () => clearTimeout(id);
-  }, [toast]);
-
+  }, [banner]);
   useEffect(() => () => void (advance.current && clearTimeout(advance.current)), []);
+
+  const shell = `relative flex flex-col gap-4 rounded-[6px] bg-[#13224a] p-4 text-white px-frame sm:p-6 ${pixelFont.className}`;
+
+  if (!started)
+    return (
+      <section className={`${shell} items-center py-10 text-center`}>
+        <div className="flex items-end gap-4">
+          <Sprite rows={STAR} palette={{ Y: '#ffd84d' }} size={22} className="px-blink" />
+          <Sprite rows={HERO} palette={HERO_COLOURS} size={72} className="px-idle" />
+          <Sprite rows={STAR} palette={{ Y: '#ffd84d' }} size={22} className="px-blink [animation-delay:500ms]" />
+        </div>
+        <h2 className="text-[40px] font-bold uppercase leading-none tracking-wide text-yellow sm:text-[52px]">{t.title}</h2>
+        <p className="max-w-[340px] text-[18px] text-white/85">{t.startLine}</p>
+        <ul className="flex flex-wrap justify-center gap-2 text-[15px]">
+          {t.facts.map((f) => (
+            <li key={f} className="rounded-[4px] bg-white/10 px-3 py-1.5">
+              {f}
+            </li>
+          ))}
+        </ul>
+        <button type="button" onClick={() => setStarted(true)} className="px-btn mt-2 rounded-[4px] bg-yellow px-10 py-3 text-[24px] font-bold uppercase text-navy">
+          ▶ {t.start}
+        </button>
+      </section>
+    );
 
   if (review)
     return (
       <Review
         t={t}
+        shell={shell}
         total={total}
         answered={answered}
         flagged={flags.map((id) => questions.findIndex((q) => q.id === id)).filter((i) => i >= 0).sort((a, b) => a - b)}
@@ -159,227 +195,119 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
       />
     );
 
+  const position = current - levelStart;
   return (
-    <div className="flex flex-col gap-4">
-      {/* The stage: progress, flag and the question map. */}
-      <div className="relative flex flex-col gap-3 rounded-[22px] bg-navy p-4 text-white sm:p-5">
-        <div className="flex items-center gap-3">
-          <p className="shrink-0 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold tabular-nums">{format(t.questionOf, { n: current + 1, total })}</p>
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/15" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={answered} aria-label={t.progress}>
-            <div className="h-full origin-left rounded-full bg-yellow transition-transform duration-300 motion-reduce:transition-none" style={{ transform: `scaleX(${answered / total})` }} />
+    <section className={shell}>
+      {/* HUD: level, XP, the 30 blocks and the save state. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[18px]">
+        <span className="rounded-[4px] bg-yellow px-2.5 py-0.5 font-sans font-bold text-navy">{format(t.level, { n: level + 1, of: levels })}</span>
+        <span className="relative font-sans font-bold tabular-nums text-yellow">
+          {format(t.xp, { xp: answered * XP_PER_ANSWER })}
+          {gain > 0 && (
+            <span key={gain} aria-hidden className="px-float absolute -top-5 left-0 font-sans text-[14px] text-[#7ee2a8]">
+              +{XP_PER_ANSWER}
+            </span>
+          )}
+        </span>
+        <span className="ml-auto text-[14px] text-white/60" role="status">
+          {save === 'saving' ? t.saving : save === 'error' ? t.saveError : save === 'saved' ? t.saved : ''}
+        </span>
+      </div>
+      <div className="grid grid-cols-[repeat(30,minmax(0,1fr))] gap-[3px]" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={answered} aria-label={t.progress}>
+        {questions.map((q) => (
+          <span key={q.id} className={`h-2.5 ${answers[q.id] !== undefined ? 'bg-yellow' : 'bg-white/15'}`} />
+        ))}
+      </div>
+
+      {/* The level path: six tiles, the hero standing on the question open. */}
+      <div className="relative mt-2 grid grid-cols-6 gap-2">
+        {levelQuestions.map((q, i) => {
+          const done = answers[q.id] !== undefined;
+          return (
+            <button
+              key={q.id}
+              type="button"
+              onClick={() => goTo(levelStart + i)}
+              aria-label={format(t.question, { n: levelStart + i + 1 })}
+              className={`relative mt-14 h-6 rounded-[2px] text-[12px] font-bold ${done ? 'bg-[#23825a]' : 'bg-white/15'} ${i === position ? 'outline outline-2 outline-yellow' : ''}`}
+            >
+              {flags.includes(q.id) && (
+                <span className="absolute -top-4 right-0.5">
+                  <Sprite rows={FLAG} palette={{ K: '#ffffff', R: '#ffd84d' }} size={12} />
+                </span>
+              )}
+            </button>
+          );
+        })}
+        <div aria-hidden className="px-walk pointer-events-none absolute left-0 top-0 flex w-[calc((100%-2.5rem)/6)] justify-center" style={{ transform: `translateX(calc(${position} * (100% + 0.5rem)))` }}>
+          <div key={current} className="px-hop">
+            <Sprite rows={HERO} palette={HERO_COLOURS} size={40} />
           </div>
-          <p className="shrink-0 text-sm tabular-nums text-white/80">
-            {answered}/{total}
-          </p>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <SaveState state={save} t={t} />
+        {banner && (
+          <p role="status" className="px-banner absolute inset-x-0 -top-2 mx-auto w-fit rounded-[4px] bg-yellow px-4 py-1 text-[20px] font-bold uppercase text-navy">
+            {banner}
+          </p>
+        )}
+      </div>
+
+      {/* The question, in a dialogue box. */}
+      <div className="relative flex flex-col gap-2 rounded-[4px] bg-white p-4 text-navy px-frame sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-sans text-[15px] font-bold text-[#2f5bd3]">{format(t.question, { n: current + 1 })}</span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={toggleFlag}
               aria-pressed={flagged}
-              className={`inline-flex h-10 items-center gap-1.5 rounded-[10px] px-3 text-sm font-semibold transition-colors ${flagged ? 'bg-yellow text-navy' : 'bg-white/10 hover:bg-white/20'}`}
+              className={`inline-flex h-10 items-center gap-1.5 rounded-[4px] px-3 text-[15px] font-bold ${flagged ? 'bg-yellow' : 'bg-bg hover:bg-blue'}`}
             >
-              <FlagIcon filled={flagged} />
+              <Sprite rows={FLAG} palette={{ K: '#0b1530', R: flagged ? '#c2413b' : '#8792a6' }} size={14} />
               {flagged ? t.flagged : t.flag}
             </button>
-            <button
-              type="button"
-              onClick={() => setMapOpen((o) => !o)}
-              aria-expanded={mapOpen}
-              aria-controls="quiz-map"
-              className="inline-flex h-10 items-center gap-1.5 rounded-[10px] bg-white/10 px-3 text-sm font-semibold transition-colors hover:bg-white/20"
-            >
-              <GridIcon />
+            <button type="button" onClick={() => setMapOpen((o) => !o)} aria-expanded={mapOpen} aria-controls="quest-map" className="h-10 rounded-[4px] bg-bg px-3 text-[15px] font-bold hover:bg-blue">
               {t.map}
             </button>
           </div>
         </div>
-        {mapOpen && (
-          <QuestionMap
-            questions={questions}
-            answers={answers}
-            flags={flags}
-            current={current}
-            t={t}
-            onJump={(i) => goTo(i)}
-            onReview={allDone ? () => setReview(true) : undefined}
-          />
-        )}
+        <h2 key={current} className="content-in text-[24px] font-semibold leading-tight sm:text-[30px]">
+          {question.text}
+        </h2>
+        {mapOpen && <QuestMap questions={questions} answers={answers} flags={flags} current={current} t={t} onJump={goTo} onClose={() => setMapOpen(false)} onReview={allDone ? () => setReview(true) : undefined} />}
       </div>
 
-      {/* The question: slides in from the side it came from. */}
-      <section key={question.id} aria-live="polite" className={`flex flex-col gap-5 rounded-[22px] bg-white p-5 sm:p-7 ${direction === 'next' ? 'quiz-in-next' : 'quiz-in-prev'}`}>
-        <div className="flex items-start gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-[12px] bg-blue text-sm font-bold tabular-nums">{current + 1}</span>
-          <div className="flex flex-col gap-1">
-            <p className="text-[13px] font-semibold text-muted">{t.prompt}</p>
-            <h2 className="text-[22px] font-bold leading-snug sm:text-[26px]">{question.text}</h2>
-          </div>
-        </div>
-        <div role="radiogroup" aria-label={question.text} className="grid gap-2 sm:grid-cols-5">
-          {ANSWERS.map((a) => {
-            const chosen = answers[question.id] === a;
-            return (
-              <button
-                key={a}
-                type="button"
-                role="radio"
-                aria-checked={chosen}
-                onClick={() => choose(a)}
-                className={`relative flex min-h-[52px] items-center gap-3 rounded-[14px] px-4 py-3 text-left text-[15px] font-semibold text-white transition-[transform,box-shadow] duration-150 active:scale-[0.97] sm:min-h-[96px] sm:flex-col sm:items-center sm:justify-center sm:gap-2 sm:text-center motion-reduce:transition-none ${TILE[a]} ${
-                  chosen ? 'ring-4 ring-yellow ring-offset-2' : 'hover:-translate-y-0.5 hover:shadow-lg'
-                } ${popped === a ? 'quiz-pop' : ''}`}
-              >
-                <Face level={a} />
-                <span className="leading-tight">{t.scale[a]}</span>
-                <kbd className="ml-auto rounded-md bg-white/20 px-1.5 text-[11px] font-semibold sm:absolute sm:right-2 sm:top-2 sm:ml-0">{a + 1}</kbd>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      <div className="flex items-center justify-between gap-3">
-        <button type="button" onClick={() => goTo(current - 1)} disabled={current === 0} className="h-11 rounded-[12px] border border-line bg-white px-4 text-sm font-semibold transition-colors hover:bg-bg disabled:opacity-40">
-          ← {t.back}
-        </button>
-        {allDone ? (
-          <button type="button" onClick={() => setReview(true)} className="h-11 rounded-[12px] bg-navy px-5 text-sm font-semibold text-white transition-colors hover:bg-navy/90">
-            {t.reviewAction} →
-          </button>
-        ) : (
-          <button type="button" onClick={() => goTo(current + 1)} disabled={current === total - 1} className="h-11 rounded-[12px] border border-line bg-white px-4 text-sm font-semibold transition-colors hover:bg-bg disabled:opacity-40">
-            {t.skip} →
-          </button>
-        )}
-      </div>
-      <p className="hidden text-[12px] text-muted sm:block">{t.keys}</p>
-
-      {toast && (
-        <p role="status" className="quiz-toast pointer-events-none fixed inset-x-0 bottom-6 z-40 mx-auto w-fit rounded-full bg-navy px-5 py-3 text-sm font-semibold text-white shadow-xl">
-          {toast}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function SaveState({ state, t }: { state: Save; t: Props['t'] }) {
-  const text = state === 'saving' ? t.saving : state === 'saved' ? t.saved : state === 'error' ? t.saveError : t.autoSave;
-  return (
-    <p role="status" className={`text-[13px] ${state === 'error' ? 'text-[#ffb4ae]' : 'text-white/70'}`}>
-      {text}
-    </p>
-  );
-}
-
-/** Every question as a numbered tile: answered, flagged, open, and the one on screen. */
-function QuestionMap(props: {
-  questions: Props['questions'];
-  answers: Record<string, number>;
-  flags: string[];
-  current: number;
-  t: Props['t'];
-  onJump: (i: number) => void;
-  onReview?: () => void;
-}) {
-  const { questions, answers, flags, current, t, onJump, onReview } = props;
-  return (
-    <div id="quiz-map" className="quiz-in-next flex flex-col gap-3 rounded-[16px] bg-white p-4 text-navy">
-      <ol className="grid grid-cols-6 gap-2 sm:grid-cols-10">
-        {questions.map((q, i) => {
-          const done = answers[q.id] !== undefined;
-          const flag = flags.includes(q.id);
+      {/* Answers: chunky pixel buttons that press down. */}
+      <div role="radiogroup" aria-label={question.text} className="grid gap-3 sm:grid-cols-5">
+        {ANSWERS.map((a) => {
+          const chosen = answers[question.id] === a;
           return (
-            <li key={q.id}>
-              <button
-                type="button"
-                onClick={() => onJump(i)}
-                aria-current={i === current ? 'step' : undefined}
-                aria-label={`${format(t.questionOf, { n: i + 1, total: questions.length })}${done ? `, ${t.legendDone}` : ''}${flag ? `, ${t.flagged}` : ''}`}
-                className={`relative grid h-11 w-full place-items-center rounded-[10px] text-sm font-bold tabular-nums transition-colors ${
-                  flag ? 'bg-yellow' : done ? 'bg-navy text-white' : 'border border-line bg-white hover:bg-blue'
-                } ${i === current ? 'ring-2 ring-[#2f5bd3] ring-offset-2' : ''}`}
-              >
-                {i + 1}
-                {flag && (
-                  <span className="absolute -right-1 -top-1">
-                    <FlagIcon filled small />
-                  </span>
-                )}
-              </button>
-            </li>
+            <button
+              key={a}
+              type="button"
+              role="radio"
+              aria-checked={chosen}
+              data-pressed={pressed === a}
+              onClick={() => choose(a)}
+              className={`px-btn flex min-h-[56px] items-center gap-3 rounded-[4px] px-4 py-2 text-left text-[17px] font-bold leading-tight text-white sm:min-h-[104px] sm:flex-col sm:justify-center sm:text-center ${TILE[a]} ${chosen ? 'outline outline-4 outline-offset-4 outline-yellow' : ''}`}
+            >
+              <Sprite rows={face(a)} palette={{ K: '#ffffff' }} size={30} />
+              <span>{t.scale[a]}</span>
+            </button>
           );
         })}
-      </ol>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="size-3 rounded bg-navy" /> {t.legendDone}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="size-3 rounded bg-yellow" /> {t.flagged}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="size-3 rounded border border-line" /> {t.legendOpen}
-        </span>
-        {onReview && (
-          <button type="button" onClick={onReview} className="ml-auto text-sm font-semibold text-navy underline underline-offset-2">
-            {t.reviewAction}
-          </button>
-        )}
       </div>
-    </div>
-  );
-}
 
-/** Before the result: what is still open or flagged, each a tap away; the result once all are answered. */
-function Review(props: { t: Props['t']; total: number; answered: number; flagged: number[]; open: number[]; onOpen: (i: number) => void; onFinish: () => void; finishing: boolean; error: string | null }) {
-  const { t, total, answered, flagged, open, onOpen, onFinish, finishing, error } = props;
-  const done = open.length === 0;
-  const chips = (list: number[], tone: string) => (
-    <ul className="flex flex-wrap gap-2">
-      {list.map((i) => (
-        <li key={i}>
-          <button type="button" onClick={() => onOpen(i)} className={`h-10 min-w-10 rounded-[10px] px-3 text-sm font-bold tabular-nums ${tone}`}>
-            {i + 1}
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
-  return (
-    <section className="quiz-in-next flex flex-col gap-5 rounded-[22px] bg-white p-5 sm:p-7">
-      <div className="flex flex-col gap-1">
-        <p className="text-[13px] font-semibold text-muted">{format(t.answered, { count: answered, total })}</p>
-        <h2 className="text-[24px] font-bold leading-tight">{done ? t.reviewDoneTitle : t.reviewOpenTitle}</h2>
-        <p className="text-sm text-muted">{done ? t.reviewDoneBody : t.reviewOpenBody}</p>
-      </div>
-      {open.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold">{t.legendOpen}</p>
-          {chips(open, 'border border-line bg-white hover:bg-blue')}
-        </div>
-      )}
-      {flagged.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold">{t.flaggedList}</p>
-          {chips(flagged, 'bg-yellow hover:brightness-95')}
-        </div>
-      )}
-      {error && (
-        <p role="alert" className="rounded-[12px] bg-[#fdecea] px-4 py-3 text-sm text-[#b33a35]">
-          {error}
-        </p>
-      )}
-      <div className="flex flex-wrap gap-3">
-        <button type="button" onClick={() => onOpen(open[0] ?? flagged[0] ?? 0)} className="h-11 rounded-[12px] border border-line bg-white px-5 text-sm font-semibold hover:bg-bg">
-          ← {t.reviewBack}
+      <div className="flex items-center justify-between gap-3 text-[16px]">
+        <button type="button" onClick={() => goTo(current - 1)} disabled={current === 0} className="h-11 rounded-[4px] bg-white/10 px-4 font-bold hover:bg-white/20 disabled:opacity-30">
+          ◀ {t.back}
         </button>
-        {done && (
-          <button type="button" onClick={onFinish} disabled={finishing} className="h-11 rounded-[12px] bg-navy px-6 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-60">
-            {finishing ? t.saving : t.finish}
+        {allDone ? (
+          <button type="button" onClick={() => setReview(true)} className="px-btn h-11 rounded-[4px] bg-yellow px-5 font-bold uppercase text-navy">
+            {t.review} ▶
+          </button>
+        ) : (
+          <button type="button" onClick={() => goTo(current + 1)} disabled={current === total - 1} className="h-11 rounded-[4px] bg-white/10 px-4 font-bold hover:bg-white/20 disabled:opacity-30">
+            {t.skip} ▶
           </button>
         )}
       </div>
@@ -387,36 +315,118 @@ function Review(props: { t: Props['t']; total: number; answered: number; flagged
   );
 }
 
-function FlagIcon({ filled, small }: { filled?: boolean; small?: boolean }) {
-  const size = small ? 14 : 18;
+/** The level map: every question as a tile, by level, opening over the question. */
+function QuestMap(props: {
+  questions: Props['questions'];
+  answers: Record<string, number>;
+  flags: string[];
+  current: number;
+  t: Props['t'];
+  onJump: (i: number) => void;
+  onClose: () => void;
+  onReview?: () => void;
+}) {
+  const { questions, answers, flags, current, t, onJump, onClose, onReview } = props;
   return (
-    <svg aria-hidden width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={small ? 'text-navy' : ''}>
-      <path d="M4 22V4" />
-      <path d="M4 4h12l-2 4 2 4H4" />
-    </svg>
+    <div id="quest-map" className="pop-open absolute inset-x-2 top-14 z-20 flex flex-col gap-3 rounded-[4px] bg-[#13224a] p-4 text-white shadow-2xl px-frame">
+      <div className="flex items-center justify-between">
+        <p className="text-[18px] font-bold uppercase text-yellow">{t.mapTitle}</p>
+        <button type="button" onClick={onClose} aria-label={t.close} className="grid size-9 place-items-center rounded-[4px] bg-white/10 text-[18px] font-bold hover:bg-white/20">
+          ✕
+        </button>
+      </div>
+      {Array.from({ length: Math.ceil(questions.length / PER_LEVEL) }, (_, lv) => (
+        <div key={lv} className="flex items-center gap-2">
+          <span className="w-12 shrink-0 font-sans text-[13px] font-bold text-white/60">{format(t.levelShort, { n: lv + 1 })}</span>
+          <ol className="grid flex-1 grid-cols-6 gap-1.5">
+            {questions.slice(lv * PER_LEVEL, (lv + 1) * PER_LEVEL).map((q, j) => {
+              const i = lv * PER_LEVEL + j;
+              const done = answers[q.id] !== undefined;
+              const flag = flags.includes(q.id);
+              return (
+                <li key={q.id}>
+                  <button
+                    type="button"
+                    onClick={() => onJump(i)}
+                    aria-current={i === current ? 'step' : undefined}
+                    aria-label={`${format(t.question, { n: i + 1 })}${done ? `, ${t.done}` : ''}${flag ? `, ${t.flagged}` : ''}`}
+                    className={`relative grid h-10 w-full place-items-center rounded-[3px] font-sans text-[15px] font-bold tabular-nums ${flag ? 'bg-yellow text-navy' : done ? 'bg-[#23825a]' : 'bg-white/10 hover:bg-white/20'} ${i === current ? 'outline outline-2 outline-offset-2 outline-white' : ''}`}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      ))}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-white/70">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-3 bg-[#23825a]" /> {t.done}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-3 bg-yellow" /> {t.flagged}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-3 bg-white/15" /> {t.open}
+        </span>
+        {onReview && (
+          <button type="button" onClick={onReview} className="ml-auto font-bold text-yellow underline underline-offset-2">
+            {t.review}
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
-function GridIcon() {
-  return (
-    <svg aria-hidden width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <rect x="3" y="3" width="7" height="7" rx="1.5" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" />
-    </svg>
+/** Before the result: questions still open or flagged, each a tap away; the result once all are answered. */
+function Review(props: { t: Props['t']; shell: string; total: number; answered: number; flagged: number[]; open: number[]; onOpen: (i: number) => void; onFinish: () => void; finishing: boolean; error: string | null }) {
+  const { t, shell, total, answered, flagged, open, onOpen, onFinish, finishing, error } = props;
+  const done = open.length === 0;
+  const chips = (list: number[], tone: string) => (
+    <ul className="flex flex-wrap justify-center gap-2">
+      {list.map((i) => (
+        <li key={i}>
+          <button type="button" onClick={() => onOpen(i)} className={`h-10 min-w-10 rounded-[3px] px-3 font-sans text-[15px] font-bold tabular-nums ${tone}`}>
+            {i + 1}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
-}
-
-/** A simple face from frowning (0) to beaming (4), drawn so it costs nothing to load. */
-function Face({ level }: { level: number }) {
-  const mouth = ['M8 16.5q4-3 8 0', 'M8.5 16q3.5-1.5 7 0', 'M8.5 15.5h7', 'M8.5 14.5q3.5 2 7 0', 'M8 14q4 4 8 0'][level];
   return (
-    <svg aria-hidden width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="shrink-0">
-      <circle cx="12" cy="12" r="9.5" />
-      <circle cx="9" cy="10" r="0.9" fill="currentColor" />
-      <circle cx="15" cy="10" r="0.9" fill="currentColor" />
-      <path d={mouth} />
-    </svg>
+    <section className={`${shell} content-in items-center text-center`}>
+      <Sprite rows={HERO} palette={HERO_COLOURS} size={64} className={done ? 'px-hop' : 'px-idle'} />
+      <p className="font-sans text-[16px] tabular-nums text-white/70">{format(t.answered, { count: answered, total })}</p>
+      <h2 className="text-[30px] font-bold uppercase leading-tight text-yellow">{done ? t.reviewDone : t.reviewOpen}</h2>
+      {open.length > 0 && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-[15px] font-bold">{t.open}</p>
+          {chips(open, 'bg-white/15 hover:bg-white/25')}
+        </div>
+      )}
+      {flagged.length > 0 && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-[15px] font-bold">{t.flagged}</p>
+          {chips(flagged, 'bg-yellow text-navy')}
+        </div>
+      )}
+      {error && (
+        <p role="alert" className="rounded-[4px] bg-[#c2413b] px-4 py-2 text-[15px]">
+          {error}
+        </p>
+      )}
+      <div className="flex flex-wrap justify-center gap-3">
+        <button type="button" onClick={() => onOpen(open[0] ?? flagged[0] ?? 0)} className="h-12 rounded-[4px] bg-white/10 px-5 text-[16px] font-bold hover:bg-white/20">
+          ◀ {t.reviewBack}
+        </button>
+        {done && (
+          <button type="button" onClick={onFinish} disabled={finishing} className="px-btn h-12 rounded-[4px] bg-yellow px-6 text-[18px] font-bold uppercase text-navy disabled:opacity-60">
+            {finishing ? t.saving : `${t.finish} ▶`}
+          </button>
+        )}
+      </div>
+    </section>
   );
 }
