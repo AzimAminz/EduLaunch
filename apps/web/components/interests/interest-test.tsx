@@ -4,8 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { finishInterestTest, saveInterestAnswer } from '@/lib/interests/actions';
-import { pixelFont } from './font';
-import { FLAG, HERO, HERO_COLOURS, STAR, Sprite, face } from './pixel';
+import { FLAG, Rimau, STAR, Sprite, face } from './pixel';
 
 const ANSWERS = [0, 1, 2, 3, 4] as const;
 /** One colour per answer, from "strongly dislike" to "strongly like" (white text passes contrast on each). */
@@ -151,18 +150,18 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
   }, [banner]);
   useEffect(() => () => void (advance.current && clearTimeout(advance.current)), []);
 
-  const shell = `relative flex flex-col gap-4 rounded-[6px] bg-[#13224a] p-4 text-white px-frame sm:p-6 ${pixelFont.className}`;
+  const shell = 'relative flex flex-col gap-4 rounded-[8px] bg-[#13224a] p-4 text-white px-frame sm:p-6';
 
   if (!started)
     return (
-      <section className={`${shell} items-center py-10 text-center`}>
+      <section className={`${shell} items-center justify-center py-12 text-center`}>
         <div className="flex items-end gap-4">
           <Sprite rows={STAR} palette={{ Y: '#ffd84d' }} size={22} className="px-blink" />
-          <Sprite rows={HERO} palette={HERO_COLOURS} size={72} className="px-idle" />
+          <Rimau height={140} />
           <Sprite rows={STAR} palette={{ Y: '#ffd84d' }} size={22} className="px-blink [animation-delay:500ms]" />
         </div>
-        <h2 className="text-[40px] font-bold uppercase leading-none tracking-wide text-yellow sm:text-[52px]">{t.title}</h2>
-        <p className="max-w-[340px] text-[18px] text-white/85">{t.startLine}</p>
+        <h2 className="text-[36px] font-extrabold uppercase leading-none tracking-wide text-yellow sm:text-[48px]">{t.title}</h2>
+        <p className="text-balance text-[18px] text-white/85">{t.startLine}</p>
         <ul className="flex flex-wrap justify-center gap-2 text-[15px]">
           {t.facts.map((f) => (
             <li key={f} className="rounded-[4px] bg-white/10 px-3 py-1.5">
@@ -195,149 +194,126 @@ export function InterestTest({ locale, questions, saved, progress, t }: Props) {
       />
     );
 
-  const position = current - levelStart;
   return (
-    <section className={shell}>
-      {/* HUD: level, XP, the 30 blocks and the save state. */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[18px]">
-        <span className="rounded-[4px] bg-yellow px-2.5 py-0.5 font-sans font-bold text-navy">{format(t.level, { n: level + 1, of: levels })}</span>
-        <span className="relative font-sans font-bold tabular-nums text-yellow">
-          {format(t.xp, { xp: answered * XP_PER_ANSWER })}
-          {gain > 0 && (
-            <span key={gain} aria-hidden className="px-float absolute -top-5 left-0 font-sans text-[14px] text-[#7ee2a8]">
-              +{XP_PER_ANSWER}
-            </span>
-          )}
-        </span>
-        <span className="ml-auto text-[14px] text-white/60" role="status">
-          {save === 'saving' ? t.saving : save === 'error' ? t.saveError : save === 'saved' ? t.saved : ''}
-        </span>
-      </div>
-      <div className="grid grid-cols-[repeat(30,minmax(0,1fr))] gap-[3px]" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={answered} aria-label={t.progress}>
-        {questions.map((q) => (
-          <span key={q.id} className={`h-2.5 ${answers[q.id] !== undefined ? 'bg-yellow' : 'bg-white/15'}`} />
-        ))}
-      </div>
-
-      {/* The level path: six tiles, the hero standing on the question open. */}
-      <div className="relative mt-2 grid grid-cols-6 gap-2">
-        {levelQuestions.map((q, i) => {
-          const done = answers[q.id] !== undefined;
-          return (
-            <button
-              key={q.id}
-              type="button"
-              onClick={() => goTo(levelStart + i)}
-              aria-label={format(t.question, { n: levelStart + i + 1 })}
-              className={`relative mt-14 h-6 rounded-[2px] text-[12px] font-bold ${done ? 'bg-[#23825a]' : 'bg-white/15'} ${i === position ? 'outline outline-2 outline-yellow' : ''}`}
-            >
-              {flags.includes(q.id) && (
-                <span className="absolute -top-4 right-0.5">
-                  <Sprite rows={FLAG} palette={{ K: '#ffffff', R: '#ffd84d' }} size={12} />
+    <section className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
+      {/* Left: progress, level and XP, and every question to jump to. */}
+      <aside className="relative flex flex-col gap-4 rounded-[8px] bg-[#13224a] p-4 text-white px-frame sm:p-5 lg:sticky lg:top-6">
+        <div className="flex items-center gap-3">
+          <div key={answered} className={answered ? 'px-hop' : ''}>
+            <Rimau height={76} />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-[13px] text-white/60">{t.progress}</p>
+            <p className="text-[24px] font-bold leading-none tabular-nums">
+              {answered}
+              <span className="text-[16px] font-semibold text-white/60">/{total}</span>
+            </p>
+          </div>
+          <div className="ml-auto flex flex-col items-end gap-1">
+            <span className="rounded-[4px] bg-yellow px-2 py-0.5 text-[13px] font-bold text-navy">{format(t.level, { n: level + 1, of: levels })}</span>
+            <span className="relative text-[14px] font-bold tabular-nums text-yellow">
+              {format(t.xp, { xp: answered * XP_PER_ANSWER })}
+              {gain > 0 && (
+                <span key={gain} aria-hidden className="px-float absolute -top-4 right-0 text-[13px] text-[#7ee2a8]">
+                  +{XP_PER_ANSWER}
                 </span>
               )}
-            </button>
-          );
-        })}
-        <div aria-hidden className="px-walk pointer-events-none absolute left-0 top-0 flex w-[calc((100%-2.5rem)/6)] justify-center" style={{ transform: `translateX(calc(${position} * (100% + 0.5rem)))` }}>
-          <div key={current} className="px-hop">
-            <Sprite rows={HERO} palette={HERO_COLOURS} size={40} />
+            </span>
           </div>
         </div>
+        <div className="grid grid-cols-[repeat(30,minmax(0,1fr))] gap-[2px]" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={answered} aria-label={t.progress}>
+          {questions.map((q) => (
+            <span key={q.id} className={`h-2 ${answers[q.id] !== undefined ? 'bg-yellow' : 'bg-white/15'}`} />
+          ))}
+        </div>
         {banner && (
-          <p role="status" className="px-banner absolute inset-x-0 -top-2 mx-auto w-fit rounded-[4px] bg-yellow px-4 py-1 text-[20px] font-bold uppercase text-navy">
+          <p role="status" className="px-banner self-center rounded-[4px] bg-yellow px-4 py-1 text-[16px] font-bold uppercase text-navy">
             {banner}
           </p>
         )}
-      </div>
 
-      {/* The question, in a dialogue box. */}
-      <div className="relative flex flex-col gap-2 rounded-[4px] bg-white p-4 text-navy px-frame sm:p-5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-sans text-[15px] font-bold text-[#2f5bd3]">{format(t.question, { n: current + 1 })}</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={toggleFlag}
-              aria-pressed={flagged}
-              className={`inline-flex h-10 items-center gap-1.5 rounded-[4px] px-3 text-[15px] font-bold ${flagged ? 'bg-yellow' : 'bg-bg hover:bg-blue'}`}
-            >
-              <Sprite rows={FLAG} palette={{ K: '#0b1530', R: flagged ? '#c2413b' : '#8792a6' }} size={14} />
-              {flagged ? t.flagged : t.flag}
-            </button>
-            <button type="button" onClick={() => setMapOpen((o) => !o)} aria-expanded={mapOpen} aria-controls="quest-map" className="h-10 rounded-[4px] bg-bg px-3 text-[15px] font-bold hover:bg-blue">
-              {t.map}
-            </button>
-          </div>
-        </div>
-        <h2 key={current} className="content-in text-[24px] font-semibold leading-tight sm:text-[30px]">
-          {question.text}
-        </h2>
-        {mapOpen && <QuestMap questions={questions} answers={answers} flags={flags} current={current} t={t} onJump={goTo} onClose={() => setMapOpen(false)} onReview={allDone ? () => setReview(true) : undefined} />}
-      </div>
-
-      {/* Answers: chunky pixel buttons that press down. */}
-      <div role="radiogroup" aria-label={question.text} className="grid gap-3 sm:grid-cols-5">
-        {ANSWERS.map((a) => {
-          const chosen = answers[question.id] === a;
-          return (
-            <button
-              key={a}
-              type="button"
-              role="radio"
-              aria-checked={chosen}
-              data-pressed={pressed === a}
-              onClick={() => choose(a)}
-              className={`px-btn flex min-h-[56px] items-center gap-3 rounded-[4px] px-4 py-2 text-left text-[17px] font-bold leading-tight text-white sm:min-h-[104px] sm:flex-col sm:justify-center sm:text-center ${TILE[a]} ${chosen ? 'outline outline-4 outline-offset-4 outline-yellow' : ''}`}
-            >
-              <Sprite rows={face(a)} palette={{ K: '#ffffff' }} size={30} />
-              <span>{t.scale[a]}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="flex items-center justify-between gap-3 text-[16px]">
-        <button type="button" onClick={() => goTo(current - 1)} disabled={current === 0} className="h-11 rounded-[4px] bg-white/10 px-4 font-bold hover:bg-white/20 disabled:opacity-30">
-          ◀ {t.back}
+        {/* The map: always on the left on a computer; folded on a phone. */}
+        <button type="button" onClick={() => setMapOpen((o) => !o)} aria-expanded={mapOpen} aria-controls="quest-map" className="flex h-11 items-center justify-between rounded-[4px] bg-white/10 px-3 text-[15px] font-semibold hover:bg-white/20 lg:hidden">
+          {t.mapTitle}
+          <span aria-hidden className={`transition-transform ${mapOpen ? 'rotate-180' : ''}`}>▾</span>
         </button>
-        {allDone ? (
-          <button type="button" onClick={() => setReview(true)} className="px-btn h-11 rounded-[4px] bg-yellow px-5 font-bold uppercase text-navy">
+        <div className={`${mapOpen ? 'pop-open flex' : 'hidden'} lg:flex`}>
+          <QuestMap questions={questions} answers={answers} flags={flags} current={current} t={t} onJump={goTo} />
+        </div>
+
+        <p className="min-h-5 text-[13px] text-white/60" role="status">
+          {save === 'saving' ? t.saving : save === 'error' ? t.saveError : save === 'saved' ? t.saved : ''}
+        </p>
+        {allDone && (
+          <button type="button" onClick={() => setReview(true)} className="px-btn h-12 rounded-[4px] bg-yellow px-5 text-[16px] font-bold uppercase text-navy">
             {t.review} ▶
           </button>
-        ) : (
-          <button type="button" onClick={() => goTo(current + 1)} disabled={current === total - 1} className="h-11 rounded-[4px] bg-white/10 px-4 font-bold hover:bg-white/20 disabled:opacity-30">
+        )}
+      </aside>
+
+      {/* Right: the question and its answers. */}
+      <div className="flex flex-col gap-5 rounded-[8px] bg-white p-5 text-navy px-frame sm:p-7">
+        <div className="flex items-center justify-between gap-3">
+          <span className="rounded-[4px] bg-blue px-2.5 py-1 text-[14px] font-bold text-[#2f5bd3]">{format(t.question, { n: current + 1 })}</span>
+          <button
+            type="button"
+            onClick={toggleFlag}
+            aria-pressed={flagged}
+            className={`inline-flex h-10 items-center gap-1.5 rounded-[4px] px-3 text-[14px] font-semibold ${flagged ? 'bg-yellow' : 'bg-bg hover:bg-blue'}`}
+          >
+            <Sprite rows={FLAG} palette={{ K: '#0b1530', R: flagged ? '#c2413b' : '#8792a6' }} size={14} />
+            {flagged ? t.flagged : t.flag}
+          </button>
+        </div>
+        <div key={current} className="content-in flex flex-col gap-1">
+          <p className="text-[14px] text-muted">{t.prompt}</p>
+          <h2 className="text-[24px] font-bold leading-snug sm:text-[28px]">{question.text}</h2>
+        </div>
+
+        {/* Answers: chunky buttons that press down. */}
+        <div role="radiogroup" aria-label={question.text} className="flex flex-col gap-3">
+          {ANSWERS.map((a) => {
+            const chosen = answers[question.id] === a;
+            return (
+              <button
+                key={a}
+                type="button"
+                role="radio"
+                aria-checked={chosen}
+                data-pressed={pressed === a}
+                onClick={() => choose(a)}
+                className={`px-btn flex min-h-[56px] items-center gap-3 rounded-[4px] px-4 py-2.5 text-left text-[17px] font-semibold text-white ${TILE[a]} ${chosen ? 'outline outline-4 outline-offset-2 outline-yellow' : ''}`}
+              >
+                <Sprite rows={face(a)} palette={{ K: '#ffffff' }} size={26} />
+                <span className="flex-1">{t.scale[a]}</span>
+                <kbd className="hidden rounded-[3px] bg-black/20 px-1.5 text-[12px] font-semibold sm:inline">{a + 1}</kbd>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 border-t border-line pt-4 text-[15px]">
+          <button type="button" onClick={() => goTo(current - 1)} disabled={current === 0} className="h-11 rounded-[4px] bg-bg px-4 font-semibold hover:bg-blue disabled:opacity-40">
+            ◀ {t.back}
+          </button>
+          <button type="button" onClick={() => goTo(current + 1)} disabled={current === total - 1} className="h-11 rounded-[4px] bg-bg px-4 font-semibold hover:bg-blue disabled:opacity-40">
             {t.skip} ▶
           </button>
-        )}
+        </div>
       </div>
     </section>
   );
 }
 
-/** The level map: every question as a tile, by level, opening over the question. */
-function QuestMap(props: {
-  questions: Props['questions'];
-  answers: Record<string, number>;
-  flags: string[];
-  current: number;
-  t: Props['t'];
-  onJump: (i: number) => void;
-  onClose: () => void;
-  onReview?: () => void;
-}) {
-  const { questions, answers, flags, current, t, onJump, onClose, onReview } = props;
+/** Every question as a numbered tile, by level: answered, flagged, empty, and the one open. */
+function QuestMap(props: { questions: Props['questions']; answers: Record<string, number>; flags: string[]; current: number; t: Props['t']; onJump: (i: number) => void }) {
+  const { questions, answers, flags, current, t, onJump } = props;
   return (
-    <div id="quest-map" className="pop-open absolute inset-x-2 top-14 z-20 flex flex-col gap-3 rounded-[4px] bg-[#13224a] p-4 text-white shadow-2xl px-frame">
-      <div className="flex items-center justify-between">
-        <p className="text-[18px] font-bold uppercase text-yellow">{t.mapTitle}</p>
-        <button type="button" onClick={onClose} aria-label={t.close} className="grid size-9 place-items-center rounded-[4px] bg-white/10 text-[18px] font-bold hover:bg-white/20">
-          ✕
-        </button>
-      </div>
+    <div id="quest-map" className="flex w-full flex-col gap-2">
+      <p className="hidden text-[13px] font-semibold uppercase tracking-wide text-white/60 lg:block">{t.mapTitle}</p>
       {Array.from({ length: Math.ceil(questions.length / PER_LEVEL) }, (_, lv) => (
         <div key={lv} className="flex items-center gap-2">
-          <span className="w-12 shrink-0 font-sans text-[13px] font-bold text-white/60">{format(t.levelShort, { n: lv + 1 })}</span>
+          <span className="w-9 shrink-0 text-[12px] font-bold text-white/50">{format(t.levelShort, { n: lv + 1 })}</span>
           <ol className="grid flex-1 grid-cols-6 gap-1.5">
             {questions.slice(lv * PER_LEVEL, (lv + 1) * PER_LEVEL).map((q, j) => {
               const i = lv * PER_LEVEL + j;
@@ -350,7 +326,7 @@ function QuestMap(props: {
                     onClick={() => onJump(i)}
                     aria-current={i === current ? 'step' : undefined}
                     aria-label={`${format(t.question, { n: i + 1 })}${done ? `, ${t.done}` : ''}${flag ? `, ${t.flagged}` : ''}`}
-                    className={`relative grid h-10 w-full place-items-center rounded-[3px] font-sans text-[15px] font-bold tabular-nums ${flag ? 'bg-yellow text-navy' : done ? 'bg-[#23825a]' : 'bg-white/10 hover:bg-white/20'} ${i === current ? 'outline outline-2 outline-offset-2 outline-white' : ''}`}
+                    className={`grid h-9 w-full place-items-center rounded-[3px] text-[13px] font-bold tabular-nums transition-colors ${flag ? 'bg-yellow text-navy' : done ? 'bg-[#23825a]' : 'bg-white/10 hover:bg-white/20'} ${i === current ? 'outline outline-2 outline-offset-2 outline-white' : ''}`}
                   >
                     {i + 1}
                   </button>
@@ -360,21 +336,16 @@ function QuestMap(props: {
           </ol>
         </div>
       ))}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-white/70">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-[12px] text-white/70">
         <span className="inline-flex items-center gap-1.5">
-          <span className="size-3 bg-[#23825a]" /> {t.done}
+          <span className="size-2.5 bg-[#23825a]" /> {t.done}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="size-3 bg-yellow" /> {t.flagged}
+          <span className="size-2.5 bg-yellow" /> {t.flagged}
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="size-3 bg-white/15" /> {t.open}
+          <span className="size-2.5 bg-white/15" /> {t.open}
         </span>
-        {onReview && (
-          <button type="button" onClick={onReview} className="ml-auto font-bold text-yellow underline underline-offset-2">
-            {t.review}
-          </button>
-        )}
       </div>
     </div>
   );
@@ -388,7 +359,7 @@ function Review(props: { t: Props['t']; shell: string; total: number; answered: 
     <ul className="flex flex-wrap justify-center gap-2">
       {list.map((i) => (
         <li key={i}>
-          <button type="button" onClick={() => onOpen(i)} className={`h-10 min-w-10 rounded-[3px] px-3 font-sans text-[15px] font-bold tabular-nums ${tone}`}>
+          <button type="button" onClick={() => onOpen(i)} className={`h-10 min-w-10 rounded-[3px] px-3 text-[15px] font-bold tabular-nums ${tone}`}>
             {i + 1}
           </button>
         </li>
@@ -397,8 +368,10 @@ function Review(props: { t: Props['t']; shell: string; total: number; answered: 
   );
   return (
     <section className={`${shell} content-in items-center text-center`}>
-      <Sprite rows={HERO} palette={HERO_COLOURS} size={64} className={done ? 'px-hop' : 'px-idle'} />
-      <p className="font-sans text-[16px] tabular-nums text-white/70">{format(t.answered, { count: answered, total })}</p>
+      <div className={done ? 'px-hop' : ''}>
+        <Rimau height={110} />
+      </div>
+      <p className="text-[16px] tabular-nums text-white/70">{format(t.answered, { count: answered, total })}</p>
       <h2 className="text-[30px] font-bold uppercase leading-tight text-yellow">{done ? t.reviewDone : t.reviewOpen}</h2>
       {open.length > 0 && (
         <div className="flex flex-col items-center gap-2">

@@ -2038,7 +2038,8 @@
         "Tak pasti",
         "Suka",
         "Sangat suka"
-      ]
+      ],
+      "prompt": "Sejauh mana anda suka melakukan aktiviti ini?"
     },
     "sourceShort": "Sumber soalan: O*NET Mini Interest Profiler (USDOL/ETA) · butiran lesen"
   }

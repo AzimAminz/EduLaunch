@@ -1,9 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
-import { pixelFont } from '@/components/interests/font';
 import { InterestTest } from '@/components/interests/interest-test';
-import { HERO, HERO_COLOURS, Sprite } from '@/components/interests/pixel';
+import { Rimau } from '@/components/interests/pixel';
 import { Confetti, RetakeButton } from '@/components/interests/result-parts';
 import { Pending } from '@/components/ui/pending';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -73,11 +72,13 @@ function Result({ lang, t, result, fresh, retaking, total }: { lang: Locale; t: 
       )}
 
       {/* The headline: "quest complete", the three-letter code and where the interests point. */}
-      <section className={`px-frame relative grid gap-6 overflow-hidden rounded-[6px] bg-[#13224a] p-5 ${pixelFont.className} text-white sm:p-7 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center`}>
+      <section className="px-frame relative grid gap-6 overflow-hidden rounded-[8px] bg-[#13224a] p-5 text-white sm:p-7 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center">
         {fresh && <Confetti />}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <Sprite rows={HERO} palette={HERO_COLOURS} size={40} className={fresh ? 'px-hop' : 'px-idle'} />
+            <div className={fresh ? 'px-hop' : ''}>
+              <Rimau height={72} />
+            </div>
             <p className="text-[20px] font-bold uppercase text-yellow">{fresh ? t.result.questDone : t.result.codeLabel}</p>
           </div>
           <div className="flex gap-2">
@@ -98,7 +99,7 @@ function Result({ lang, t, result, fresh, retaking, total }: { lang: Locale; t: 
         {top.map((type, i) => (
           <li key={type} className="flex flex-col gap-3 rounded-[18px] bg-white p-5">
             <div className="flex items-center gap-3">
-              <span className={`grid size-11 place-items-center rounded-[6px] ${pixelFont.className} text-[22px] font-bold ${i === 0 ? 'bg-yellow' : 'bg-blue'}`}>{type}</span>
+              <span className={`grid size-11 place-items-center rounded-[6px] text-[22px] font-bold ${i === 0 ? 'bg-yellow' : 'bg-blue'}`}>{type}</span>
               <div className="flex flex-col">
                 <p className="text-[17px] font-semibold leading-tight">{t.types[type].name}</p>
                 <p className="text-sm text-muted">{t.types[type].tagline}</p>

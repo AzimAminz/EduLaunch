@@ -2038,7 +2038,8 @@
         "Unsure",
         "Like",
         "Strongly like"
-      ]
+      ],
+      "prompt": "How much would you like doing this activity?"
     },
     "sourceShort": "Questions: O*NET Mini Interest Profiler (USDOL/ETA) · licence details"
   }
