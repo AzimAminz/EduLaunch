@@ -31,7 +31,8 @@
     "askAi": "Ask AI with sources",
     "updates": "Updates",
     "help": "Help",
-    "toggleSidebar": "Toggle sidebar"
+    "toggleSidebar": "Toggle sidebar",
+    "settings": "Settings"
   },
   "levels": {
     "form4_stream": "Form 4 stream",
@@ -203,7 +204,14 @@
       "levelRequired": "Choose your education level.",
       "formRequired": "Choose your form.",
       "generic": "Something went wrong. Please try again shortly.",
-      "qualificationRequired": "Choose your qualification."
+      "qualificationRequired": "Choose your qualification.",
+      "tooLong": "Too long.",
+      "invalidDate": "Enter a valid date of birth.",
+      "sameEmail": "This is already your e-mail.",
+      "passwordMismatch": "The passwords do not match.",
+      "wrongPassword": "Your current password is not right.",
+      "avatarType": "Choose a JPEG, PNG or WebP picture.",
+      "avatarFailed": "The picture could not be uploaded. Try again."
     }
   },
   "onboarding": {
@@ -1422,11 +1430,11 @@
   "profile": {
     "eyebrow": "PERSONAL SPACE",
     "title": "My profile",
-    "intro": "Your education level and results are kept in the same account.",
+    "intro": "Your education level, results and merit in one place.",
     "account": "Account",
     "levelTitle": "Education level",
     "levelNone": "Not chosen",
-    "changeLevel": "Change education level",
+    "changeLevel": "Change level",
     "changeLevelHint": "When you move up, older records stay as history. If some records do not fit the new level, you are asked to confirm before they are deleted.",
     "saveLevel": "Save level",
     "academicTitle": "Academic results",
@@ -1444,8 +1452,40 @@
       "fromTarget": "Worked out automatically from your SPM target grades. This is an estimate, not a real result.",
       "empty": "Add your results and your merit is worked out automatically.",
       "tryIt": "Try it in Merit Lab",
-      "open": "Open Merit Lab"
-    }
+      "open": "Open Merit Lab",
+      "label": "Your merit",
+      "labelTarget": "Your target merit"
+    },
+    "cancel": "Cancel",
+    "noResults": "No results yet",
+    "noResultsBody": "You have not saved results for this level yet.",
+    "updateResults": "Update results",
+    "addResults": "Add results",
+    "viewRecord": "View record",
+    "cgpa": "CGPA",
+    "next": {
+      "title": "NEXT STEP",
+      "level": "Choose your education level",
+      "levelBody": "Your level decides the results form and the suggestions you see.",
+      "levelAction": "Choose level",
+      "results": "Add your results",
+      "resultsBody": "Results are needed for the eligibility check, your merit and programme suggestions.",
+      "resultsAction": "Add results",
+      "interest": "Get to know your interests",
+      "interestBody": "The interest test helps you choose a stream in Form 4.",
+      "interestAction": "Start the test",
+      "explore": "Find programmes that fit",
+      "exploreBody": "Your profile is ready. See the programmes you can enter and compare your merit.",
+      "exploreAction": "Explore programmes"
+    },
+    "accountHint": "The name and e-mail you sign in with.",
+    "levelHint": "Decides the results form, merit and suggestions you see.",
+    "academicHint": "The results used for the eligibility check and your merit.",
+    "meritTitle": "Merit",
+    "meritHint": "Worked out automatically from your results with the official formula.",
+    "subject": "Subject",
+    "grade": "Grade",
+    "editAccount": "Manage account"
   },
   "higher": {
     "titles": {
@@ -1688,5 +1728,62 @@
     "openLab": "Try it in Merit Lab",
     "openLabEmpty": "Open Merit Lab",
     "targetNote": "This is a target merit, worked out from your SPM target grades."
+  },
+  "settings": {
+    "title": "Settings",
+    "intro": "Manage your account, security and preferences.",
+    "save": "Save",
+    "saved": "Saved",
+    "sections": {
+      "profil": {
+        "title": "Personal profile",
+        "hint": "Picture, name and school"
+      },
+      "log-masuk": {
+        "title": "Sign-in & security",
+        "hint": "E-mail, password, devices"
+      }
+    },
+    "avatar": {
+      "change": "Change picture",
+      "remove": "Remove",
+      "hint": "JPEG, PNG or WebP. We crop it square and shrink it.",
+      "saved": "Picture updated."
+    },
+    "profile": {
+      "avatar": "Profile picture",
+      "avatarHint": "Shown beside your name. Without one, your initials are used.",
+      "title": "Personal details",
+      "hint": "This name shows in the portal and in our e-mails to you.",
+      "fullName": "Full name",
+      "school": "School or institution",
+      "schoolHint": "Optional. Helps us tailor information to you.",
+      "dateOfBirth": "Date of birth",
+      "dateOfBirthHint": "Optional. Students under 18 need a parent's consent for some features.",
+      "language": "Language",
+      "languageHint": "The language of the portal and of our e-mails to you."
+    },
+    "security": {
+      "emailTitle": "E-mail address",
+      "emailHint": "The e-mail you sign in with and get updates at. We send a confirmation link to the new address.",
+      "currentEmail": "Current e-mail:",
+      "newEmail": "New e-mail",
+      "changeEmail": "Send confirmation link",
+      "emailSent": "A confirmation link has been sent. Open it from the new e-mail (and the old one, if asked) to finish the change.",
+      "passwordTitle": "Password",
+      "passwordTitleHint": "Enter your current password first, so only you can change it.",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Repeat new password",
+      "passwordHint": "At least 8 characters.",
+      "changePassword": "Change password",
+      "passwordChanged": "Password changed.",
+      "show": "Show",
+      "hide": "Hide",
+      "devicesTitle": "Other devices",
+      "devicesHint": "Forgot to sign out on a school or library computer? Sign out of every other device; this one stays signed in.",
+      "signOutOthers": "Sign out of other devices",
+      "signedOutOthers": "Other devices are signed out."
+    }
   }
 }

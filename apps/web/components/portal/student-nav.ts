@@ -42,6 +42,7 @@ const GROUPS: Array<{ title?: keyof Nav; items: Item[] }> = [
 
 const FOOTER: Item[] = [
   { key: 'updates', slug: 'kemas-kini', icon: 'bell' },
+  { key: 'settings', slug: 'tetapan', icon: 'settings' },
   { key: 'help', slug: 'bantuan', icon: 'help' },
 ];
 

@@ -96,3 +96,16 @@ export const saveCurrentRecord = (token: string, body: SaveRecordBody) => call(t
 export const listRecords = (token: string) => call(token, '/me/records', z.array(AcademicRecord));
 
 export const getRecord = (token: string, id: string) => call(token, `/me/records/${encodeURIComponent(id)}`, AcademicRecord);
+
+const Details = z.object({
+  schoolName: z.string().nullable(),
+  dateOfBirth: z.string().nullable(),
+  parentConsentAt: z.coerce.date().nullable(),
+});
+export type Details = z.infer<typeof Details>;
+
+/** The student's personal details (school, date of birth) and when a parent agreed, if they have. */
+export const getDetails = (token: string) => call(token, '/me/details', Details);
+
+export const updateDetails = (token: string, body: { schoolName?: string | null; dateOfBirth?: string | null }) =>
+  call(token, '/me/details', Details, { method: 'PATCH', body: JSON.stringify(body) });

@@ -7,6 +7,21 @@ import { z } from 'zod';
 import { GetOrCreateMe, GetStudentSnapshot, PreviewLevelChange, UpdateEducationLevel } from '../modules/students/application/student.use-cases.js';
 import { AcademicRecordService } from '../modules/academic-records/application/academic-record.use-cases.js';
 
+/** Personal details the student sets in Settings. A date of birth must be a real past date (age 8 to 100). */
+const DetailsBody = z.object({
+  schoolName: z.string().trim().max(160).nullable().optional(),
+  dateOfBirth: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .refine((d) => {
+      const date = new Date(`${d}T00:00:00Z`);
+      const age = (Date.now() - date.getTime()) / (365.25 * 24 * 3600 * 1000);
+      return !Number.isNaN(date.getTime()) && age >= 8 && age <= 100;
+    }, 'Not a plausible date of birth')
+    .nullable()
+    .optional(),
+});
+
 const LevelBody = z.object({
   level: StudentSnapshot.shape.educationLevel,
   formYear: z.number().int().nullable().default(null),
@@ -130,6 +145,29 @@ export class ProfileController {
   @Get('internal/students/:id/snapshot')
   getSnapshot(@Param('id', ParseUUIDPipe) id: string) {
     return this.snapshot.execute({ studentId: id });
+  }
+
+  /** The student's personal details (school, date of birth) and whether a parent has agreed. */
+  @Roles('student')
+  @Get('me/details')
+  async details(@CurrentCaller() caller: Caller) {
+    const { studentId } = await this.me.execute(caller);
+    const [row] = await this.db
+      .select({ schoolName: schema.students.schoolName, dateOfBirth: schema.students.dateOfBirth, parentConsentAt: schema.students.parentConsentAt })
+      .from(schema.students)
+      .where(eq(schema.students.id, studentId));
+    return row ?? { schoolName: null, dateOfBirth: null, parentConsentAt: null };
+  }
+
+  @Roles('student')
+  @Patch('me/details')
+  async updateDetails(@CurrentCaller() caller: Caller, @Body(new ZodPipe(DetailsBody)) body: z.infer<typeof DetailsBody>) {
+    const { studentId } = await this.me.execute(caller);
+    const set: Partial<typeof schema.students.$inferInsert> = {};
+    if (body.schoolName !== undefined) set.schoolName = body.schoolName || null;
+    if (body.dateOfBirth !== undefined) set.dateOfBirth = body.dateOfBirth;
+    if (Object.keys(set).length) await this.db.update(schema.students).set(set).where(eq(schema.students.id, studentId));
+    return this.details(caller);
   }
 
   @Roles('student')

@@ -31,7 +31,8 @@
     "askAi": "Tanya AI bersumber",
     "updates": "Kemas kini",
     "help": "Bantuan",
-    "toggleSidebar": "Togol sidebar"
+    "toggleSidebar": "Togol sidebar",
+    "settings": "Tetapan"
   },
   "levels": {
     "form4_stream": "Aliran Tingkatan 4",
@@ -203,7 +204,14 @@
       "levelRequired": "Pilih tahap pendidikan anda.",
       "formRequired": "Pilih tingkatan anda.",
       "generic": "Sesuatu tidak kena. Cuba lagi sebentar lagi.",
-      "qualificationRequired": "Pilih kelayakan anda."
+      "qualificationRequired": "Pilih kelayakan anda.",
+      "tooLong": "Terlalu panjang.",
+      "invalidDate": "Masukkan tarikh lahir yang sah.",
+      "sameEmail": "Ini sudah e-mel anda sekarang.",
+      "passwordMismatch": "Kata laluan tidak sama.",
+      "wrongPassword": "Kata laluan semasa tidak betul.",
+      "avatarType": "Pilih gambar JPEG, PNG atau WebP.",
+      "avatarFailed": "Gambar tidak dapat dimuat naik. Cuba lagi."
     }
   },
   "onboarding": {
@@ -1422,11 +1430,11 @@
   "profile": {
     "eyebrow": "RUANG PERIBADI",
     "title": "Profil saya",
-    "intro": "Tahap pendidikan dan keputusan anda disimpan dalam akaun yang sama.",
+    "intro": "Peringkat pendidikan, keputusan dan merit anda di satu tempat.",
     "account": "Akaun",
     "levelTitle": "Tahap pendidikan",
     "levelNone": "Belum dipilih",
-    "changeLevel": "Tukar tahap pendidikan",
+    "changeLevel": "Tukar peringkat",
     "changeLevelHint": "Bila anda naik tahap, rekod lama kekal sebagai sejarah. Jika ada rekod yang tidak sesuai dengan tahap baharu, anda diminta mengesahkan dahulu sebelum ia dipadam.",
     "saveLevel": "Simpan tahap",
     "academicTitle": "Keputusan akademik",
@@ -1444,8 +1452,40 @@
       "fromTarget": "Dikira automatik daripada gred sasaran SPM anda. Ini anggaran, bukan keputusan sebenar.",
       "empty": "Isi keputusan anda, dan merit akan dikira secara automatik.",
       "tryIt": "Cuba dalam Merit Lab",
-      "open": "Buka Merit Lab"
-    }
+      "open": "Buka Merit Lab",
+      "label": "Merit anda",
+      "labelTarget": "Merit sasaran anda"
+    },
+    "cancel": "Batal",
+    "noResults": "Belum ada keputusan",
+    "noResultsBody": "Anda belum menyimpan keputusan untuk peringkat ini.",
+    "updateResults": "Kemas kini keputusan",
+    "addResults": "Isi keputusan",
+    "viewRecord": "Lihat rekod",
+    "cgpa": "PNGK",
+    "next": {
+      "title": "LANGKAH SETERUSNYA",
+      "level": "Pilih peringkat pendidikan anda",
+      "levelBody": "Peringkat menentukan borang keputusan dan cadangan yang anda lihat.",
+      "levelAction": "Pilih peringkat",
+      "results": "Isi keputusan anda",
+      "resultsBody": "Keputusan diperlukan untuk semakan kelayakan, merit dan cadangan program.",
+      "resultsAction": "Isi keputusan",
+      "interest": "Kenali minat anda",
+      "interestBody": "Penilaian minat membantu anda memilih aliran di Tingkatan 4.",
+      "interestAction": "Mula penilaian",
+      "explore": "Cari program yang sesuai",
+      "exploreBody": "Profil anda sudah sedia. Lihat program yang boleh anda masuki dan bandingkan merit anda.",
+      "exploreAction": "Teroka program"
+    },
+    "accountHint": "Nama dan e-mel yang anda gunakan untuk log masuk.",
+    "levelHint": "Menentukan borang keputusan, merit dan cadangan yang anda lihat.",
+    "academicHint": "Keputusan yang digunakan untuk semakan kelayakan dan merit.",
+    "meritTitle": "Merit",
+    "meritHint": "Dikira automatik daripada keputusan anda dengan formula rasmi.",
+    "subject": "Subjek",
+    "grade": "Gred",
+    "editAccount": "Urus akaun"
   },
   "higher": {
     "titles": {
@@ -1688,5 +1728,62 @@
     "openLab": "Cuba dalam Merit Lab",
     "openLabEmpty": "Buka Merit Lab",
     "targetNote": "Ini merit sasaran, dikira daripada gred sasaran SPM anda."
+  },
+  "settings": {
+    "title": "Tetapan",
+    "intro": "Urus akaun, keselamatan dan pilihan anda.",
+    "save": "Simpan",
+    "saved": "Disimpan",
+    "sections": {
+      "profil": {
+        "title": "Profil peribadi",
+        "hint": "Gambar, nama dan sekolah"
+      },
+      "log-masuk": {
+        "title": "Log masuk & keselamatan",
+        "hint": "E-mel, kata laluan, peranti"
+      }
+    },
+    "avatar": {
+      "change": "Tukar gambar",
+      "remove": "Buang",
+      "hint": "JPEG, PNG atau WebP. Kami potong menjadi segi empat dan kecilkan.",
+      "saved": "Gambar dikemas kini."
+    },
+    "profile": {
+      "avatar": "Gambar profil",
+      "avatarHint": "Dipaparkan di sebelah nama anda. Tanpa gambar, inisial anda digunakan.",
+      "title": "Butiran peribadi",
+      "hint": "Nama ini dipaparkan dalam portal dan e-mel kami kepada anda.",
+      "fullName": "Nama penuh",
+      "school": "Sekolah atau institusi",
+      "schoolHint": "Pilihan. Membantu kami menyesuaikan maklumat untuk anda.",
+      "dateOfBirth": "Tarikh lahir",
+      "dateOfBirthHint": "Pilihan. Pelajar bawah 18 tahun memerlukan persetujuan ibu bapa untuk sesetengah ciri.",
+      "language": "Bahasa",
+      "languageHint": "Bahasa portal dan e-mel kami kepada anda."
+    },
+    "security": {
+      "emailTitle": "Alamat e-mel",
+      "emailHint": "E-mel untuk log masuk dan makluman. Kami hantar pautan pengesahan ke alamat baharu.",
+      "currentEmail": "E-mel semasa:",
+      "newEmail": "E-mel baharu",
+      "changeEmail": "Hantar pautan pengesahan",
+      "emailSent": "Pautan pengesahan sudah dihantar. Buka pautan dalam e-mel baharu (dan e-mel lama jika diminta) untuk melengkapkan pertukaran.",
+      "passwordTitle": "Kata laluan",
+      "passwordTitleHint": "Masukkan kata laluan semasa dahulu, supaya hanya anda boleh menukarnya.",
+      "currentPassword": "Kata laluan semasa",
+      "newPassword": "Kata laluan baharu",
+      "confirmPassword": "Ulang kata laluan baharu",
+      "passwordHint": "Sekurang-kurangnya 8 aksara.",
+      "changePassword": "Tukar kata laluan",
+      "passwordChanged": "Kata laluan ditukar.",
+      "show": "Tunjuk",
+      "hide": "Sorok",
+      "devicesTitle": "Peranti lain",
+      "devicesHint": "Terlupa log keluar di komputer sekolah atau perpustakaan? Log keluar dari semua peranti lain; peranti ini kekal log masuk.",
+      "signOutOthers": "Log keluar dari peranti lain",
+      "signedOutOthers": "Peranti lain sudah dilog keluar."
+    }
   }
 }
