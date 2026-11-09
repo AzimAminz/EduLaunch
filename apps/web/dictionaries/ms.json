@@ -243,7 +243,9 @@
       "passwordMismatch": "Kata laluan tidak sama.",
       "wrongPassword": "Kata laluan semasa tidak betul.",
       "avatarType": "Pilih gambar JPEG, PNG atau WebP.",
-      "avatarFailed": "Gambar tidak dapat dimuat naik. Cuba lagi."
+      "avatarFailed": "Gambar tidak dapat dimuat naik. Cuba lagi.",
+      "confirmWord": "Taip PADAM untuk mengesahkan.",
+      "deleteFailed": "Akaun tidak dapat dipadam sekarang. Cuba lagi sebentar, atau hubungi kami."
     }
   },
   "onboarding": {
@@ -1774,6 +1776,14 @@
       "log-masuk": {
         "title": "Log masuk & keselamatan",
         "hint": "E-mel, kata laluan, peranti"
+      },
+      "notifikasi": {
+        "title": "Notifikasi",
+        "hint": "Apa yang kami maklumkan"
+      },
+      "privasi": {
+        "title": "Privasi & data",
+        "hint": "Data anda, persetujuan, padam akaun"
       }
     },
     "avatar": {
@@ -1816,6 +1826,34 @@
       "devicesHint": "Terlupa log keluar di komputer sekolah atau perpustakaan? Log keluar dari semua peranti lain; peranti ini kekal log masuk.",
       "signOutOthers": "Log keluar dari peranti lain",
       "signedOutOthers": "Peranti lain sudah dilog keluar."
+    },
+    "notifications": {
+      "title": "Makluman dalam portal",
+      "hint": "Muncul di Kemas kini. Kami tidak menghantar e-mel pemasaran.",
+      "requirementChanges": "Perubahan syarat program yang disimpan",
+      "requirementChangesHint": "Beritahu saya bila syarat kemasukan program dalam Pilihan disimpan berubah."
+    },
+    "privacy": {
+      "dataTitle": "Muat turun data anda",
+      "dataHint": "Satu fail (JSON) dengan semua yang kami simpan tentang anda: akaun, profil, keputusan, program disimpan dan pilihan notifikasi.",
+      "download": "Muat turun data",
+      "consentTitle": "Persetujuan ibu bapa",
+      "consentHint": "Pelajar bawah 18 tahun perlu persetujuan ibu bapa atau penjaga untuk menggunakan EduLaunch.",
+      "consentStatement": "Ibu bapa atau penjaga saya tahu dan bersetuju saya menggunakan EduLaunch untuk merancang pengajian.",
+      "consentConfirm": "Sahkan persetujuan",
+      "consentRequired": "Tandakan pernyataan ini dahulu.",
+      "consentGiven": "Disahkan pada {date}.",
+      "consentNoDob": "Isi tarikh lahir di Profil peribadi supaya kami tahu sama ada persetujuan diperlukan.",
+      "consentNotNeeded": "Tidak diperlukan: anda berumur 18 tahun atau lebih.",
+      "deleteTitle": "Padam akaun",
+      "deleteHint": "Tindakan ini kekal dan tidak boleh dibuat asal.",
+      "deleteWhat": [
+        "Akaun log masuk, profil dan gambar anda dipadam.",
+        "Keputusan akademik, program disimpan, notifikasi dan cadangan anda dipadam.",
+        "Anda boleh mendaftar semula dengan e-mel yang sama, tetapi data lama tidak kembali."
+      ],
+      "confirmWordLabel": "Taip PADAM untuk mengesahkan",
+      "deleteButton": "Padam akaun saya"
     }
   }
 }

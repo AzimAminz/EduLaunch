@@ -3,14 +3,14 @@ import { Suspense, type ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { AvatarField } from '@/components/settings/avatar-field';
-import { EmailForm, PasswordForm, ProfileForm, SignOutOthers } from '@/components/settings/forms';
+import { DeleteAccountForm, EmailForm, NotificationsForm, ParentConsentForm, PasswordForm, ProfileForm, SignOutOthers } from '@/components/settings/forms';
 import { getDictionary } from '@/lib/i18n/dictionaries';
-import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
-import { getDetails } from '@/lib/profile/api';
+import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { getDetails, getNotificationPrefs } from '@/lib/profile/api';
 import { getAccessToken, getAccount } from '@/lib/supabase/server';
 
 /** The settings areas, each its own view with its own address (?bahagian=…), as settings pages usually are. */
-const SETTINGS_SECTIONS = ['profil', 'log-masuk'] as const;
+const SETTINGS_SECTIONS = ['profil', 'log-masuk', 'notifikasi', 'privasi'] as const;
 type Section = (typeof SETTINGS_SECTIONS)[number];
 
 /**
@@ -34,6 +34,15 @@ export default async function SettingsPage({ searchParams }: PageProps<'/[lang]/
       </Suspense>
     </>
   );
+}
+
+/** Whole years since a date of birth (YYYY-MM-DD). */
+function ageOf(dateOfBirth: string): number {
+  const born = new Date(`${dateOfBirth}T00:00:00`);
+  const now = new Date();
+  let age = now.getFullYear() - born.getFullYear();
+  if (now.getMonth() < born.getMonth() || (now.getMonth() === born.getMonth() && now.getDate() < born.getDate())) age -= 1;
+  return age;
 }
 
 /** One panel: its title and what it does, then its content. */
@@ -116,6 +125,34 @@ async function Settings({ lang, dict, searchParams }: { lang: Locale; dict: Dict
             </Panel>
             <Panel title={t.security.devicesTitle} description={t.security.devicesHint}>
               <SignOutOthers t={t} errors={dict.auth.errors} />
+            </Panel>
+          </>
+        )}
+        {section === 'notifikasi' && (
+          <Panel title={t.notifications.title} description={t.notifications.hint}>
+            <NotificationsForm locale={lang} requirementChanges={(await getNotificationPrefs(token).catch(() => null))?.requirementChanges ?? true} t={t} errors={dict.auth.errors} />
+          </Panel>
+        )}
+        {section === 'privasi' && (
+          <>
+            <Panel title={t.privacy.dataTitle} description={t.privacy.dataHint}>
+              <a href={`/${lang}/tetapan/data`} download className="inline-flex h-11 items-center self-start rounded-[12px] bg-navy px-5 text-sm font-semibold text-white transition-colors hover:bg-navy/90">
+                {t.privacy.download}
+              </a>
+            </Panel>
+            <Panel title={t.privacy.consentTitle} description={t.privacy.consentHint}>
+              {details.parentConsentAt ? (
+                <p className="text-sm font-medium text-[#1f6b47]">{format(t.privacy.consentGiven, { date: details.parentConsentAt.toLocaleDateString(lang === 'ms' ? 'ms-MY' : 'en-MY', { day: 'numeric', month: 'long', year: 'numeric' }) })}</p>
+              ) : !details.dateOfBirth ? (
+                <p className="text-sm text-muted">{t.privacy.consentNoDob}</p>
+              ) : ageOf(details.dateOfBirth) >= 18 ? (
+                <p className="text-sm text-muted">{t.privacy.consentNotNeeded}</p>
+              ) : (
+                <ParentConsentForm locale={lang} t={t} errors={dict.auth.errors} />
+              )}
+            </Panel>
+            <Panel title={t.privacy.deleteTitle} description={t.privacy.deleteHint} tone="danger">
+              <DeleteAccountForm locale={lang} t={t} errors={dict.auth.errors} />
             </Panel>
           </>
         )}

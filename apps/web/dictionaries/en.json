@@ -243,7 +243,9 @@
       "passwordMismatch": "The passwords do not match.",
       "wrongPassword": "Your current password is not right.",
       "avatarType": "Choose a JPEG, PNG or WebP picture.",
-      "avatarFailed": "The picture could not be uploaded. Try again."
+      "avatarFailed": "The picture could not be uploaded. Try again.",
+      "confirmWord": "Type DELETE to confirm.",
+      "deleteFailed": "The account could not be deleted right now. Try again shortly, or contact us."
     }
   },
   "onboarding": {
@@ -1774,6 +1776,14 @@
       "log-masuk": {
         "title": "Sign-in & security",
         "hint": "E-mail, password, devices"
+      },
+      "notifikasi": {
+        "title": "Notifications",
+        "hint": "What we tell you about"
+      },
+      "privasi": {
+        "title": "Privacy & data",
+        "hint": "Your data, consent, delete account"
       }
     },
     "avatar": {
@@ -1816,6 +1826,34 @@
       "devicesHint": "Forgot to sign out on a school or library computer? Sign out of every other device; this one stays signed in.",
       "signOutOthers": "Sign out of other devices",
       "signedOutOthers": "Other devices are signed out."
+    },
+    "notifications": {
+      "title": "Notices in the portal",
+      "hint": "They appear under Updates. We never send marketing e-mail.",
+      "requirementChanges": "Changes to saved programmes' requirements",
+      "requirementChangesHint": "Tell me when the entry requirements of a programme in Saved choices change."
+    },
+    "privacy": {
+      "dataTitle": "Download your data",
+      "dataHint": "One file (JSON) with everything we keep about you: account, profile, results, saved programmes and notification choices.",
+      "download": "Download data",
+      "consentTitle": "Parental consent",
+      "consentHint": "Students under 18 need a parent's or guardian's consent to use EduLaunch.",
+      "consentStatement": "My parent or guardian knows and agrees that I use EduLaunch to plan my studies.",
+      "consentConfirm": "Confirm consent",
+      "consentRequired": "Tick the statement first.",
+      "consentGiven": "Confirmed on {date}.",
+      "consentNoDob": "Add your date of birth in Personal profile so we know whether consent is needed.",
+      "consentNotNeeded": "Not needed: you are 18 or older.",
+      "deleteTitle": "Delete account",
+      "deleteHint": "This is permanent and cannot be undone.",
+      "deleteWhat": [
+        "Your sign-in account, profile and picture are deleted.",
+        "Your academic results, saved programmes, notifications and recommendations are deleted.",
+        "You can sign up again with the same e-mail, but the old data does not come back."
+      ],
+      "confirmWordLabel": "Type DELETE to confirm",
+      "deleteButton": "Delete my account"
     }
   }
 }

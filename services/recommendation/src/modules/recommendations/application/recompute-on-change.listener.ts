@@ -27,5 +27,11 @@ export class RecomputeOnChange implements OnApplicationBootstrap {
       this.logger.log(`Requirement changed for ${programId}; recomputing ${affected.length} students`);
       for (const studentId of affected) await this.generate.execute({ studentId });
     });
+
+    // A deleted account takes its cached recommendations with it.
+    await this.events.subscribe('account-deleted', [Events.AccountDeleted], async (e) => {
+      const { studentId } = e.payload as EventPayloads[typeof Events.AccountDeleted];
+      await this.store.forget(studentId);
+    });
   }
 }

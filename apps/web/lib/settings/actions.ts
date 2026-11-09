@@ -2,11 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { authErrorKey } from '../auth/errors';
 import { MIN_PASSWORD_LENGTH, type AuthErrorKey } from '../auth/schemas';
 import { isLocale, type Locale } from '../i18n/locale';
-import { updateDetails } from '../profile/api';
+import { deleteMyAccount, giveParentConsent, setNotificationPrefs, updateDetails } from '../profile/api';
 import { createClient, getAccessToken, getAccount } from '../supabase/server';
 
 /** What a settings form shows after a submit: saved (a new time each save), a message, or what to fix. */
@@ -108,4 +109,60 @@ export async function signOutOtherDevices(): Promise<SettingsState> {
   const { error } = await supabase.auth.signOut({ scope: 'others' });
   if (error) return { error: authErrorKey(error) };
   return { savedAt: Date.now(), notice: 'signedOutOthers' };
+}
+
+/** Which notices the student wants; saved at once when a switch changes. */
+export async function saveNotifications(_prev: SettingsState, form: FormData): Promise<SettingsState> {
+  const token = await getAccessToken();
+  if (!token) return { error: 'generic' };
+  try {
+    await setNotificationPrefs(token, { requirementChanges: form.get('requirementChanges') === 'on' });
+  } catch {
+    return { error: 'generic' };
+  }
+  return { savedAt: Date.now() };
+}
+
+/** A student under 18 records that a parent or guardian agreed, after ticking the statement. */
+export async function confirmParentConsent(_prev: SettingsState, form: FormData): Promise<SettingsState> {
+  if (form.get('agree') !== 'on') return { fieldErrors: { agree: 'required' } };
+  const token = await getAccessToken();
+  if (!token) return { error: 'generic' };
+  try {
+    await giveParentConsent(token);
+  } catch {
+    return { error: 'generic' };
+  }
+  revalidatePath(`/${localeOf(form)}/tetapan`);
+  return { savedAt: Date.now() };
+}
+
+/**
+ * Deletes the account for good, after the current password and the confirmation word typed out ("PADAM" or
+ * "DELETE"), then signs out and opens the home page.
+ */
+export async function deleteAccount(_prev: SettingsState, form: FormData): Promise<SettingsState> {
+  const locale = localeOf(form);
+  const password = String(form.get('password') ?? '');
+  const word = text(form, 'confirmWord').toUpperCase();
+  const fieldErrors: SettingsState['fieldErrors'] = {};
+  if (!password) fieldErrors.password = 'required';
+  if (word !== 'PADAM' && word !== 'DELETE') fieldErrors.confirmWord = 'confirmWord';
+  if (Object.keys(fieldErrors).length) return { fieldErrors };
+
+  const account = await getAccount();
+  if (!account) return { error: 'generic' };
+  const supabase = await createClient();
+  const check = await supabase.auth.signInWithPassword({ email: account.email, password });
+  if (check.error) return check.error.code === 'invalid_credentials' ? { fieldErrors: { password: 'wrongPassword' } } : { error: authErrorKey(check.error) };
+  const token = await getAccessToken();
+  if (!token) return { error: 'generic' };
+  try {
+    await deleteMyAccount(token);
+  } catch {
+    return { error: 'deleteFailed' };
+  }
+  // The sign-in account is gone; clear this browser's session too.
+  await supabase.auth.signOut().catch(() => undefined);
+  redirect(`/${locale}?akaun=dipadam`);
 }

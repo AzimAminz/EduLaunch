@@ -1,0 +1,1 @@
+ALTER TABLE "profile"."student" ADD COLUMN "notification_prefs" jsonb DEFAULT '{"requirementChanges":true}'::jsonb NOT NULL;

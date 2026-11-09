@@ -109,3 +109,21 @@ export const getDetails = (token: string) => call(token, '/me/details', Details)
 
 export const updateDetails = (token: string, body: { schoolName?: string | null; dateOfBirth?: string | null }) =>
   call(token, '/me/details', Details, { method: 'PATCH', body: JSON.stringify(body) });
+
+const NotificationPrefs = z.object({ requirementChanges: z.boolean() });
+export type NotificationPrefs = z.infer<typeof NotificationPrefs>;
+
+export const getNotificationPrefs = (token: string) => call(token, '/me/notifications', NotificationPrefs);
+export const setNotificationPrefs = (token: string, body: NotificationPrefs) => call(token, '/me/notifications', NotificationPrefs, { method: 'PATCH', body: JSON.stringify(body) });
+
+/** Records that a parent or guardian agreed (students under 18). */
+export const giveParentConsent = (token: string) => call(token, '/me/parent-consent', Details, { method: 'POST' });
+
+/** The programmes the student saved, for "download my data". */
+export const listSavedProgrammes = (token: string) => call(token, '/me/saved-programmes', z.array(z.object({ programId: z.uuid(), savedAt: z.coerce.date().optional() }).loose()));
+
+/** Deletes the student's account everywhere (the profile service also deletes the sign-in account). */
+export async function deleteMyAccount(token: string): Promise<void> {
+  const res = await fetch(`${GATEWAY_URL}/api/profile/me`, { method: 'DELETE', headers: { authorization: `Bearer ${token}` }, cache: 'no-store' });
+  if (!res.ok) throw new Error(`Account deletion failed (${res.status})`);
+}

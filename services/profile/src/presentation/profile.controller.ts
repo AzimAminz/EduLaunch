@@ -1,6 +1,9 @@
-import { Body, Controller, Delete, Get, Inject, Param, ParseUUIDPipe, Patch, Post, Put, Query } from '@nestjs/common';
-import { CurrentCaller, DRIZZLE, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
-import { and, eq } from 'drizzle-orm';
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, ParseUUIDPipe, Patch, Post, Put, Query, ServiceUnavailableException } from '@nestjs/common';
+import { CurrentCaller, DRIZZLE, EventBus, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
+import { createEvent } from '@edulaunch/ddd';
+import { Events } from '@edulaunch/contracts';
+import { env } from '../config.js';
+import { and, eq, sql } from 'drizzle-orm';
 import * as schema from '../infrastructure/db/schema.js';
 import { HigherQualifications, MAX_SEMESTERS, MAX_SUBJECTS_PER_RECORD, MatriculationStreams, RecordQualifications, StudentSnapshot } from '@edulaunch/contracts';
 import { z } from 'zod';
@@ -21,6 +24,8 @@ const DetailsBody = z.object({
     .nullable()
     .optional(),
 });
+
+const NotificationsBody = z.object({ requirementChanges: z.boolean() });
 
 const LevelBody = z.object({
   level: StudentSnapshot.shape.educationLevel,
@@ -62,6 +67,7 @@ export class ProfileController {
     private readonly snapshot: GetStudentSnapshot,
     private readonly records: AcademicRecordService,
     @Inject(DRIZZLE) private readonly db: Database<typeof schema>,
+    @Inject(EventBus) private readonly events: EventBus,
   ) {}
 
   @Roles('student')
@@ -170,6 +176,52 @@ export class ProfileController {
     return this.details(caller);
   }
 
+  /** What the student wants to be told about. */
+  @Roles('student')
+  @Get('me/notifications')
+  async notifications(@CurrentCaller() caller: Caller) {
+    const { studentId } = await this.me.execute(caller);
+    const [row] = await this.db.select({ prefs: schema.students.notificationPrefs }).from(schema.students).where(eq(schema.students.id, studentId));
+    return row?.prefs ?? { requirementChanges: true };
+  }
+
+  @Roles('student')
+  @Patch('me/notifications')
+  async setNotifications(@CurrentCaller() caller: Caller, @Body(new ZodPipe(NotificationsBody)) body: z.infer<typeof NotificationsBody>) {
+    const { studentId } = await this.me.execute(caller);
+    await this.db.update(schema.students).set({ notificationPrefs: body }).where(eq(schema.students.id, studentId));
+    return body;
+  }
+
+  /** A student under 18 records that a parent or guardian agreed to their using EduLaunch. */
+  @Roles('student')
+  @Post('me/parent-consent')
+  async parentConsent(@CurrentCaller() caller: Caller) {
+    const { studentId } = await this.me.execute(caller);
+    await this.db.update(schema.students).set({ parentConsentAt: new Date() }).where(eq(schema.students.id, studentId));
+    return this.details(caller);
+  }
+
+  /**
+   * Deletes the student's account: their profile, results and saved programmes here, the sign-in account in
+   * Supabase, and (through the event) what other services keep about them. The web app checks the password first.
+   */
+  @Roles('student')
+  @Delete('me')
+  @HttpCode(204)
+  async deleteAccount(@CurrentCaller() caller: Caller) {
+    if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) throw new ServiceUnavailableException('Account deletion is not set up (SUPABASE_SERVICE_ROLE_KEY)');
+    const { studentId } = await this.me.execute(caller);
+    // The sign-in account first: if that fails, nothing is lost and the student can try again.
+    const res = await fetch(new URL(`/auth/v1/admin/users/${caller.userId}`, env.SUPABASE_URL), {
+      method: 'DELETE',
+      headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` },
+    });
+    if (!res.ok && res.status !== 404) throw new ServiceUnavailableException(`Could not delete the sign-in account (${res.status})`);
+    await this.db.delete(schema.accounts).where(eq(schema.accounts.id, caller.userId));
+    await this.events.publish([createEvent(Events.AccountDeleted, { accountId: caller.userId, studentId })]);
+  }
+
   @Roles('student')
   @Get('me/saved-programmes')
   async savedProgrammes(@CurrentCaller() caller: Caller) {
@@ -201,7 +253,8 @@ export class ProfileController {
       .select({ accountId: schema.students.accountId })
       .from(schema.savedPrograms)
       .innerJoin(schema.students, eq(schema.students.id, schema.savedPrograms.studentId))
-      .where(eq(schema.savedPrograms.programId, programId));
+      // Only students who still want to hear when a saved programme's requirements change.
+      .where(and(eq(schema.savedPrograms.programId, programId), sql`coalesce((${schema.students.notificationPrefs} ->> 'requirementChanges')::boolean, true)`));
     return rows.map((r) => r.accountId);
   }
 }
