@@ -54,7 +54,7 @@ export function ProgrammeCard({ href, programmeName, institutionName, meta, fiel
         ) : (
           <span />
         )}
-        <span aria-hidden className="text-sm font-semibold text-navy transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none">
+        <span aria-hidden className="pointer-events-none text-sm font-semibold text-navy transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none">
           {labels.view} →
         </span>
       </div>
