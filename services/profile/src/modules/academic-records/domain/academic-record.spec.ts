@@ -177,3 +177,31 @@ describe('AcademicRecord', () => {
     expect(r.isConfirmed).toBe(false);
   });
 });
+
+describe('AcademicRecord form level', () => {
+  const school = () => AcademicRecord.start('s', { studentId: 's1', qualification: 'school', kind: 'school', examYear: 2026 });
+  const target = () => AcademicRecord.start('t', { studentId: 's1', qualification: 'spm', kind: 'target', examYear: 2026 });
+
+  it('keeps Form 1–3 for school grades and Form 4–5 for SPM targets', () => {
+    const r = school();
+    r.setFormLevel(3);
+    expect(r.toSnapshot().formLevel).toBe(3);
+    const t = target();
+    t.setFormLevel(5);
+    expect(t.toSnapshot().formLevel).toBe(5);
+  });
+
+  it('refuses a form outside the record kind, and any form on actual SPM results', () => {
+    expect(() => school().setFormLevel(4)).toThrow(DomainError);
+    expect(() => target().setFormLevel(3)).toThrow(DomainError);
+    expect(() => spm().setFormLevel(5)).toThrow(DomainError);
+  });
+
+  it('asks for confirming again after the form changes', () => {
+    const r = school();
+    r.replaceSubjects([{ subjectId: 'bm', grade: 'A' }]);
+    r.confirm();
+    r.setFormLevel(2);
+    expect(r.isConfirmed).toBe(false);
+  });
+});

@@ -61,6 +61,8 @@ export const academicRecords = profile.table('academic_record', {
   qualification: text('qualification').notNull(),
   recordKind: recordKind('record_kind').notNull(),
   examYear: smallint('exam_year'),
+  /** School grades and SPM targets: the form (Tingkatan 1–3, 4–5) the results are for. */
+  formLevel: smallint('form_level'),
   cgpa: numeric('cgpa', { precision: 3, scale: 2 }),
   muetBand: numeric('muet_band', { precision: 2, scale: 1 }),
   entrySource: text('entry_source').notNull().default('manual'),

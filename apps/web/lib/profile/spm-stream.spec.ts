@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { rowsForSpmStream, type SubjectOption } from './records';
+import { recordLabel, rowsForSpmStream, type SubjectOption } from './records';
 
 const subject = (id: string, name: string, isMandatory = false): SubjectOption => ({ id, name, category: 'x', isMandatory, keywords: [name] });
 const subjects = [
@@ -30,5 +30,17 @@ describe('rowsForSpmStream', () => {
     const first = rowsForSpmStream('stem_a', subjects, [], 'ms');
     const second = rowsForSpmStream('humanities', subjects, first, 'ms');
     expect(ids(second)).toEqual(['bm', 'eko', 'math', 'sci']);
+  });
+});
+
+describe('recordLabel', () => {
+  const names = { labels: { school: 'Prestasi sekolah {year}', target: 'Gred Tingkatan 4–5 {year}', actual: 'Keputusan SPM {year}' } as never, withForm: { school: 'Prestasi Tingkatan {form} ({year})', target: 'Gred sasaran Tingkatan {form} ({year})' }, noYear: '' };
+
+  it('names the form when it is known', () => {
+    expect(recordLabel({ qualification: 'school', kind: 'school', examYear: 2026, formLevel: 3 }, names)).toBe('Prestasi Tingkatan 3 (2026)');
+  });
+
+  it('falls back to the year alone for an older record without a form', () => {
+    expect(recordLabel({ qualification: 'school', kind: 'school', examYear: 2026, formLevel: null }, names)).toBe('Prestasi sekolah 2026');
   });
 });

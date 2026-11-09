@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { AcademicRecord } from '@/lib/profile/api';
-import { historyKind } from '@/lib/profile/records';
+import { recordLabel } from '@/lib/profile/records';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 
 /** "Saved records": the student's history across levels (school years, SPM targets, actual SPM). Nothing is deleted. */
@@ -18,7 +18,7 @@ export function RecordHistory({ locale, t, records, currentId }: { locale: Local
             return (
               <li key={r.id} className="flex items-center justify-between gap-3 py-2.5">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold">{format(t.labels[historyKind(r)], { year: r.examYear ?? t.noYear })}</p>
+                  <p className="text-sm font-semibold">{recordLabel(r, t)}</p>
                   <p className="text-xs text-muted">
                     {r.cgpa !== null || r.muetBand !== null
                       ? format(t.details, { cgpa: r.cgpa?.toFixed(2) ?? '–', muet: r.muetBand === null ? '–' : r.muetBand === 5.5 ? '5+' : r.muetBand.toFixed(1) })

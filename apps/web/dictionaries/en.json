@@ -1378,6 +1378,10 @@
         "humanities": "Added: Science, Economics, Principles of Accounting and Geography. Remove the ones you did not take and add any others."
       }
     },
+    "formLabel": "Form",
+    "formPlaceholder": "Choose a form",
+    "formOption": "Form {form}",
+    "yearLabel": "Year",
     "subjectsTitle": "Subjects taken",
     "subjectsHint": "Compulsory subjects are listed first. Remove those that do not apply, add any that are missing.",
     "colSubject": "Subject",
@@ -1429,6 +1433,8 @@
       "noSubjects": "Add at least one subject.",
       "missingGrade": "Choose a grade for every subject.",
       "generic": "Could not save. Please try again shortly.",
+      "formRequired": "Choose the form for this record.",
+      "yearTaken": "Another record already holds that year. Choose another year or edit that record.",
       "yearRequired": "Choose the results year."
     },
     "sideTitle": {
@@ -1459,6 +1465,10 @@
       "title": "Saved records",
       "intro": "Older records stay as history when you move up a form or change level. Nothing is deleted.",
       "empty": "No records saved yet.",
+      "withForm": {
+        "school": "Form {form} results ({year})",
+        "target": "Form {form} target grades ({year})"
+      },
       "labels": {
         "school": "School results {year}",
         "target": "Form 4–5 grades {year}",
@@ -1485,7 +1495,7 @@
       "readOnly": "A record you saved earlier. If something is wrong, choose Edit to correct it.",
       "edit": "Edit",
       "editTitle": "Edit {record}",
-      "editIntro": "Correct the grades or the year, then save. Your education level stays the same.",
+      "editIntro": "Correct the form, the year or the grades, then save. Your education level stays the same.",
       "doneEditing": "Done, back to the record"
     },
     "schoolTab": "Form {form} · {year}",

@@ -24,6 +24,12 @@ interface SubjectTableProps {
   initialRows: SubjectRow[];
   /** The saved record's status, shown until the student edits again. */
   status: 'none' | 'draft' | 'confirmed';
+  /** The form the results are for when it is set by the page (the form tabs). */
+  fixedForm?: number;
+  /** Editing an older record: the record saved onto, with its form chosen here among these. */
+  recordId?: string;
+  formChoices?: number[];
+  initialForm?: number | null;
 }
 
 /**
@@ -31,7 +37,7 @@ interface SubjectTableProps {
  * × to remove, and "Add subject" that searches the official list or keeps a subject typed by the student.
  * Everything is saved together.
  */
-export function SubjectTable({ locale, variant, t, subjects, grades, years, fixedYear, initialYear, initialRows, status }: SubjectTableProps) {
+export function SubjectTable({ locale, variant, t, subjects, grades, years, fixedYear, initialYear, initialRows, status, fixedForm, recordId, formChoices, initialForm }: SubjectTableProps) {
   const [rows, setRowsState] = useState(initialRows);
   const [year, setYearState] = useState(initialYear ? String(initialYear) : '');
   // Any edit after loading or saving means what is on screen is not what is saved.
@@ -43,6 +49,11 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
   };
   const setYear = (value: string) => {
     setYearState(value);
+    setEdited(true);
+  };
+  const [formLevel, setFormState] = useState(initialForm ? String(initialForm) : '');
+  const setForm = (value: string) => {
+    setFormState(value);
     setEdited(true);
   };
 
@@ -61,19 +72,36 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
       <input type="hidden" name="variant" value={variant} />
       <input type="hidden" name="subjects" value={JSON.stringify(rows)} />
       <input type="hidden" name="examYear" value={fixedYear ?? year} />
+      {recordId && <input type="hidden" name="recordId" value={recordId} />}
+      {(fixedForm !== undefined || formChoices) && <input type="hidden" name="formLevel" value={fixedForm ?? formLevel} />}
 
-      {fixedYear === undefined && (
-        <Dropdown
-          className="max-w-[260px]"
-          label={t.examYear.spm}
-          value={year}
-          onChange={setYear}
-          options={years.map((y) => ({ value: String(y), label: String(y) }))}
-          placeholder={t.noYear}
-          noMatchesLabel={t.noMatches}
-          searchable={false}
-          invalid={error === 'yearRequired'}
-        />
+      {(fixedYear === undefined || formChoices) && (
+        <div className="grid gap-4 sm:grid-cols-2 sm:max-w-[540px]">
+          {formChoices && (
+            <Dropdown
+              label={t.formLabel}
+              value={formLevel}
+              onChange={setForm}
+              options={formChoices.map((f) => ({ value: String(f), label: format(t.formOption, { form: f }) }))}
+              placeholder={t.formPlaceholder}
+              noMatchesLabel={t.noMatches}
+              searchable={false}
+              invalid={error === 'formRequired'}
+            />
+          )}
+          {fixedYear === undefined && (
+            <Dropdown
+              label={variant === 'school' || variant === 'target' ? t.yearLabel : t.examYear.spm}
+              value={year}
+              onChange={setYear}
+              options={years.map((y) => ({ value: String(y), label: String(y) }))}
+              placeholder={t.noYear}
+              noMatchesLabel={t.noMatches}
+              searchable={false}
+              invalid={error === 'yearRequired' || error === 'yearTaken'}
+            />
+          )}
+        </div>
       )}
 
       <div className="flex flex-col gap-1">

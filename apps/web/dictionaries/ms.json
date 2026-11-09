@@ -1378,6 +1378,10 @@
         "humanities": "Ditambah: Sains, Ekonomi, Prinsip Perakaunan dan Geografi. Buang yang tidak anda ambil dan tambah yang lain."
       }
     },
+    "formLabel": "Tingkatan",
+    "formPlaceholder": "Pilih tingkatan",
+    "formOption": "Tingkatan {form}",
+    "yearLabel": "Tahun",
     "subjectsTitle": "Subjek yang diambil",
     "subjectsHint": "Subjek wajib disenaraikan dahulu. Buang yang tidak berkenaan, tambah yang belum ada.",
     "colSubject": "Subjek",
@@ -1429,6 +1433,8 @@
       "noSubjects": "Tambah sekurang-kurangnya satu subjek.",
       "missingGrade": "Pilih gred untuk setiap subjek.",
       "generic": "Tidak dapat disimpan. Cuba lagi sebentar lagi.",
+      "formRequired": "Pilih tingkatan untuk rekod ini.",
+      "yearTaken": "Sudah ada rekod lain untuk tahun itu. Pilih tahun lain atau sunting rekod tersebut.",
       "yearRequired": "Pilih tahun keputusan."
     },
     "sideTitle": {
@@ -1459,6 +1465,10 @@
       "title": "Rekod tersimpan",
       "intro": "Rekod lama kekal sebagai sejarah apabila anda naik tingkatan atau menukar tahap. Tiada yang dipadam.",
       "empty": "Belum ada rekod disimpan.",
+      "withForm": {
+        "school": "Prestasi Tingkatan {form} ({year})",
+        "target": "Gred sasaran Tingkatan {form} ({year})"
+      },
       "labels": {
         "school": "Prestasi sekolah {year}",
         "target": "Gred Tingkatan 4–5 {year}",
@@ -1485,7 +1495,7 @@
       "readOnly": "Rekod yang anda simpan sebelum ini. Jika ada yang salah, tekan Sunting untuk membetulkannya.",
       "edit": "Sunting",
       "editTitle": "Sunting {record}",
-      "editIntro": "Betulkan gred atau tahun, kemudian simpan. Tahap pendidikan anda tidak berubah.",
+      "editIntro": "Betulkan tingkatan, tahun atau gred, kemudian simpan. Tahap pendidikan anda tidak berubah.",
       "doneEditing": "Selesai, kembali ke rekod"
     },
     "schoolTab": "Tingkatan {form} · {year}",

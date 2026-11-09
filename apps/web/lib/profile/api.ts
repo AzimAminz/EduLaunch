@@ -22,8 +22,25 @@ async function call<T extends z.ZodType>(token: string, path: string, schema: T,
     headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
     cache: 'no-store',
   });
-  if (!res.ok) throw new Error(`Profile request failed (${res.status}) for ${path}`);
+  if (!res.ok) {
+    const code = await res
+      .json()
+      .then((b: { code?: unknown }) => (typeof b.code === 'string' ? b.code : undefined))
+      .catch(() => undefined);
+    throw new ProfileRequestError(res.status, code, path);
+  }
   return schema.parse(await res.json());
+}
+
+/** A refused profile request, with the service's error code (e.g. record_year_taken) when it sent one. */
+export class ProfileRequestError extends Error {
+  constructor(
+    readonly status: number,
+    readonly code: string | undefined,
+    path: string,
+  ) {
+    super(`Profile request failed (${status}${code ? `, ${code}` : ''}) for ${path}`);
+  }
 }
 
 /** Creates the profile on first use. */
@@ -38,7 +55,7 @@ export interface LevelBody {
 /** Sets the level; records that no longer fit it are removed by the profile service (see previewLevelChange). */
 export const setEducationLevel = (token: string, body: LevelBody) => call(token, '/me/education-level', Me, { method: 'PATCH', body: JSON.stringify(body) });
 
-const RecordSummary = z.object({ id: z.uuid(), qualification: z.enum(RecordQualifications), kind: z.enum(['actual', 'target', 'school']), examYear: z.number().nullable() });
+const RecordSummary = z.object({ id: z.uuid(), qualification: z.enum(RecordQualifications), kind: z.enum(['actual', 'target', 'school']), examYear: z.number().nullable(), formLevel: z.number().nullable().default(null) });
 export type RecordSummary = z.infer<typeof RecordSummary>;
 
 /** The saved records a level change would remove, shown to the student before they confirm. */
@@ -55,6 +72,7 @@ const AcademicRecord = z.object({
   qualification: Qualification,
   kind: RecordKind,
   examYear: z.number().nullable(),
+  formLevel: z.number().nullable().default(null),
   cgpa: z.number().nullable(),
   muetBand: z.number().nullable(),
   fieldId: z.uuid().nullable(),
@@ -79,6 +97,7 @@ export interface SaveRecordBody {
   qualification: Qualification;
   kind: RecordKind;
   examYear: number | null;
+  formLevel?: number | null;
   subjects: Array<{ subjectId: string; grade: string; customName: string | null }>;
   cgpa?: number | null;
   muetBand?: number | null;
@@ -91,6 +110,10 @@ export interface SaveRecordBody {
 }
 
 export const saveCurrentRecord = (token: string, body: SaveRecordBody) => call(token, '/me/records/current', AcademicRecord, { method: 'PUT', body: JSON.stringify(body) });
+
+/** Saves the whole form onto one older record, its year and form included. */
+export const saveRecordById = (token: string, id: string, body: Omit<SaveRecordBody, 'qualification' | 'kind'>) =>
+  call(token, `/me/records/${encodeURIComponent(id)}`, AcademicRecord, { method: 'PUT', body: JSON.stringify(body) });
 
 /** Every saved record: the student's academic history across levels, newest exam year first. */
 export const listRecords = (token: string) => call(token, '/me/records', z.array(AcademicRecord));

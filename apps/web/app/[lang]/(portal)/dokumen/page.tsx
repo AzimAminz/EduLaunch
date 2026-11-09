@@ -215,6 +215,7 @@ async function Academic({ lang, dict, searchParams }: { lang: Locale; dict: Dict
             grades={gradesFor(form.qualification)}
             years={years}
             fixedYear={schoolYear ?? undefined}
+            fixedForm={tab?.form}
             initialYear={record?.examYear ?? null}
             initialRows={toRows(record, subjects, lang)}
             status={record?.status ?? 'none'}

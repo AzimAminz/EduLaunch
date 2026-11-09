@@ -11,7 +11,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getRecord } from '@/lib/profile/api';
 import { subjectOptions, toRows } from '@/lib/profile/form-rows';
-import { gradesFor, historyKind, rowsForStream, type HigherQualification, type RecordVariant } from '@/lib/profile/records';
+import { gradesFor, historyKind, recordLabel, rowsForStream, type HigherQualification, type RecordVariant } from '@/lib/profile/records';
 import { getAccessToken } from '@/lib/supabase/server';
 
 /**
@@ -79,7 +79,7 @@ async function SavedRecord({ lang, dict, params, searchParams }: { lang: Locale;
     ...(record.programmeName ? [[h.programme, record.programmeName] as [string, string]] : []),
     ...(record.semesterGpas ?? []).map((g, i) => [format(h.semesters.label, { n: i + 1 }), g === null ? '–' : g.toFixed(2)] as [string, string]),
   ];
-  const title = format(t.history.labels[kind], { year: record.examYear ?? t.history.noYear });
+  const title = recordLabel(record, t.history);
   const here = `/${lang}/dokumen/rekod/${record.id}`;
 
   if (editing) {
@@ -132,8 +132,10 @@ async function SavedRecord({ lang, dict, params, searchParams }: { lang: Locale;
               subjects={subjects}
               grades={gradesFor(record.qualification as 'school' | 'spm')}
               years={years}
-              // School grades and SPM targets are kept per year, so the year stays the record's own.
-              fixedYear={variant !== 'actual' && record.examYear ? record.examYear : undefined}
+              // Saved onto this record, so its year (and, for school grades and SPM targets, its form) can change too.
+              recordId={record.id}
+              formChoices={variant === 'school' ? [1, 2, 3] : variant === 'target' ? [4, 5] : undefined}
+              initialForm={record.formLevel}
               initialYear={record.examYear}
               initialRows={toRows(record, subjects, lang)}
               status={record.status}

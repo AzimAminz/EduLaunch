@@ -10,7 +10,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { loadMeritInputs, studentMerit } from '@/lib/merit/student';
 import { getMe, listRecords, type AcademicRecord } from '@/lib/profile/api';
-import { higherChoicesFor, historyKind, recordFormFor } from '@/lib/profile/records';
+import { higherChoicesFor, recordFormFor, recordLabel } from '@/lib/profile/records';
 import { getAccessToken, getAccount } from '@/lib/supabase/server';
 
 /**
@@ -88,7 +88,7 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
         ? `${dict.onboarding.levels[me.educationLevel].title} · ${dict.higher.qualifications[me.higherQualification]}`
         : dict.onboarding.levels[me.educationLevel].title;
   const name = account.name ?? account.email;
-  const label = (r: AcademicRecord) => format(dict.academic.history.labels[historyKind(r)], { year: r.examYear ?? dict.academic.history.noYear }).trim();
+  const label = (r: AcademicRecord) => recordLabel(r, dict.academic.history);
   const subjectName = new Map(reference.subjects.map((s) => [s.id, localName(s, lang)]));
   // Only when something is missing: the one step that unlocks the rest.
   const missing = !me.educationLevel
@@ -132,7 +132,7 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
             locale={lang}
             t={dict.onboarding}
             errors={dict.auth.errors}
-            names={{ qualifications: dict.higher.qualifications, records: dict.academic.history.labels, noYear: dict.academic.history.noYear }}
+            names={{ qualifications: dict.higher.qualifications, history: dict.academic.history }}
             initial={{ level: me.educationLevel, formYear: me.formYear, higherQualification: me.higherQualification }}
             savedLabel={t.levelSaved}
             submitLabel={t.saveLevel}

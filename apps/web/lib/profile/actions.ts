@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isLocale } from '../i18n/locale';
 import { getAccessToken } from '../supabase/server';
-import { saveCurrentRecord } from './api';
+import { ProfileRequestError, saveCurrentRecord, saveRecordById } from './api';
 import { HigherQualifications } from '@edulaunch/contracts';
 import { gradesFor, parseHigherSubmission, parseRecordSubmission, recordFormFor, type HigherFormError, type HigherQualification, type RecordFormError } from './records';
 
@@ -26,13 +26,22 @@ export async function saveAcademicRecord(_prev: RecordFormState, form: FormData)
   // School results are kept per year, so they need one.
   const parsed = parseRecordSubmission(form, gradesFor(record.qualification), { yearRequired: record.kind === 'school' });
   if ('error' in parsed) return { error: parsed.error };
+  // School grades and SPM targets say which form they are for (from the form tabs, or chosen when editing).
+  const perForm = record.kind === 'school' || record.kind === 'target';
+  const formValue = Number(form.get('formLevel'));
+  const formLevel = perForm && Number.isInteger(formValue) && formValue >= 1 && formValue <= 5 ? formValue : null;
+  if (perForm && form.get('formLevel') !== null && formLevel === null) return { error: 'formRequired' };
+  // An older record opened from the history is saved onto itself, so its year and form can change too.
+  const recordId = String(form.get('recordId') ?? '');
 
   const token = await getAccessToken();
   if (!token) redirect(`/${isLocale(locale) ? locale : 'ms'}/log-masuk`);
   try {
-    await saveCurrentRecord(token, { qualification: record.qualification, kind: record.kind, ...parsed });
-  } catch {
-    return { error: 'generic' };
+    const body = { ...parsed, ...(perForm && form.get('formLevel') !== null ? { formLevel } : {}) };
+    if (recordId) await saveRecordById(token, recordId, body);
+    else await saveCurrentRecord(token, { qualification: record.qualification, kind: record.kind, ...body });
+  } catch (e) {
+    return { error: e instanceof ProfileRequestError && e.code === 'record_year_taken' ? 'yearTaken' : 'generic' };
   }
   // Re-render this page and any page that shows these results (status, profile summary) without a reload.
   revalidatePath('/[lang]', 'layout');

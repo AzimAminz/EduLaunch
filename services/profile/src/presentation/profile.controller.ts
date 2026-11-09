@@ -45,6 +45,7 @@ const RecordKey = z.object({
 });
 const SaveRecordBody = RecordKey.extend({
   examYear: z.number().int().min(2000).max(2100).nullable().default(null),
+  formLevel: z.number().int().min(1).max(5).nullable().optional(),
   subjects: z
     .array(z.object({ subjectId: z.uuid(), grade: z.string().min(1).max(3), customName: z.string().trim().min(1).max(80).nullable().default(null) }))
     .max(MAX_SUBJECTS_PER_RECORD),
@@ -108,6 +109,17 @@ export class ProfileController {
   @Put('me/records/current')
   saveCurrentRecord(@CurrentCaller() caller: Caller, @Body(new ZodPipe(SaveRecordBody)) body: z.infer<typeof SaveRecordBody>) {
     return this.records.saveCurrent(caller, body);
+  }
+
+  /** Saves the whole form onto one of the caller's older records, its year included. */
+  @Roles('student')
+  @Put('me/records/:recordId')
+  saveRecord(
+    @CurrentCaller() caller: Caller,
+    @Param('recordId', ParseUUIDPipe) recordId: string,
+    @Body(new ZodPipe(SaveRecordBody.omit({ qualification: true, kind: true }))) body: Omit<z.infer<typeof SaveRecordBody>, 'qualification' | 'kind'>,
+  ) {
+    return this.records.saveRecord(caller, recordId, body);
   }
 
   // Declared after "current" so that path is not read as a record id.
