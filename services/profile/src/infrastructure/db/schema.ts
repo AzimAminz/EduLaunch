@@ -39,6 +39,8 @@ export const students = profile.table('student', {
   /** Result of the interest test (RIASEC), worked out from the student's answers in `assessment`. */
   riasecScores: jsonb('riasec_scores').$type<Record<'R' | 'I' | 'A' | 'S' | 'E' | 'C', number>>(),
   interestTestAt: timestamp('interest_test_at', { withTimezone: true }),
+  /** Where the student is in the interest test: the question open and the questions flagged to come back to. */
+  interestProgress: jsonb('interest_progress').$type<{ current: number; flags: string[] }>(),
   /** What the student wants to be told about (Settings → Notifications). */
   notificationPrefs: jsonb('notification_prefs').$type<{ requirementChanges: boolean }>().notNull().default({ requirementChanges: true }),
 });

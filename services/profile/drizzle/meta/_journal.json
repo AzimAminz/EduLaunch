@@ -99,6 +99,13 @@
       "when": 1794225037452,
       "tag": "0013_interest_test_mini_ip",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794225697556,
+      "tag": "0014_interest_progress",
+      "breakpoints": true
     }
   ]
 }

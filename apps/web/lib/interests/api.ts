@@ -11,6 +11,8 @@ const InterestTest = z.object({
   questions: z.array(z.object({ id: z.uuid(), text: z.string(), textEn: z.string().nullable() })),
   answers: z.record(z.string(), z.number()),
   result: z.object({ scores: Scores, code: z.string(), completedAt: z.coerce.date().nullable() }).nullable(),
+  answeredSinceResult: z.number().default(0),
+  progress: z.object({ current: z.number(), flags: z.array(z.string()) }).default({ current: 0, flags: [] }),
 });
 export type InterestTest = z.infer<typeof InterestTest>;
 
@@ -28,5 +30,7 @@ async function call<T extends z.ZodType>(token: string, path: string, schema: T,
 export const getInterestTest = (token: string) => call(token, '', InterestTest);
 export const saveInterestAnswers = (token: string, answers: Array<{ questionId: string; answer: number }>) =>
   call(token, '/answers', z.object({ saved: z.number() }), { method: 'PUT', body: JSON.stringify({ answers }) });
+export const saveInterestProgress = (token: string, progress: { current: number; flags: string[] }) =>
+  call(token, '/progress', z.object({ current: z.number() }).loose(), { method: 'PUT', body: JSON.stringify(progress) });
 export const submitInterestTest = (token: string) => call(token, '/submit', z.object({ code: z.string() }).loose(), { method: 'POST' });
 export const restartInterestTest = (token: string) => call(token, '/answers', z.null(), { method: 'DELETE' });

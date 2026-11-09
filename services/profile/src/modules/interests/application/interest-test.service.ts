@@ -34,8 +34,8 @@ export class InterestTestService {
     const { studentId } = await this.me.execute(caller);
     const [list, saved, [student]] = await Promise.all([
       this.activeQuestions(),
-      this.db.select({ questionId: assessments.questionId, answer: assessments.answer }).from(assessments).where(eq(assessments.studentId, studentId)),
-      this.db.select({ scores: students.riasecScores, at: students.interestTestAt }).from(students).where(eq(students.id, studentId)),
+      this.db.select({ questionId: assessments.questionId, answer: assessments.answer, at: assessments.answeredAt }).from(assessments).where(eq(assessments.studentId, studentId)),
+      this.db.select({ scores: students.riasecScores, at: students.interestTestAt, progress: students.interestProgress }).from(students).where(eq(students.id, studentId)),
     ]);
     const ids = new Set(list.map((q) => q.id));
     const result = student?.scores ? { scores: student.scores, code: hollandCode(student.scores), completedAt: student.at } : null;
@@ -43,7 +43,18 @@ export class InterestTestService {
       questions: list.map(({ id, text, textEn }) => ({ id, text, textEn })),
       answers: Object.fromEntries(saved.filter((a) => ids.has(a.questionId)).map((a) => [a.questionId, a.answer])),
       result,
+      // Answers given after the last result: a retake under way (0 when the answers are the ones that made the result).
+      answeredSinceResult: student?.at ? saved.filter((a) => ids.has(a.questionId) && a.at > student.at!).length : 0,
+      // Only flags on questions still in the test.
+      progress: { current: student?.progress?.current ?? 0, flags: (student?.progress?.flags ?? []).filter((id) => ids.has(id)) },
     };
+  }
+
+  /** Remembers the question open and the flagged ones, so a reload or another device carries on in the same place. */
+  async saveProgress(caller: Caller, progress: { current: number; flags: string[] }) {
+    const { studentId } = await this.me.execute(caller);
+    await this.db.update(students).set({ interestProgress: { current: progress.current, flags: [...new Set(progress.flags)] } }).where(eq(students.id, studentId));
+    return progress;
   }
 
   /** Saves some answers (one step of the test); unknown questions and answers outside 0–4 are refused. */
@@ -75,7 +86,7 @@ export class InterestTestService {
     if (list.length === 0) throw new DomainError('test_unavailable', 'The interest test is not set up yet');
     const scores: RiasecScores = scoreInterestTest(list, new Map(saved.map((a) => [a.questionId, a.answer])));
     const completedAt = new Date();
-    await this.db.update(students).set({ riasecScores: scores, interestTestAt: completedAt }).where(eq(students.id, studentId));
+    await this.db.update(students).set({ riasecScores: scores, interestTestAt: completedAt, interestProgress: null }).where(eq(students.id, studentId));
     await this.events.publish([createEvent(Events.AssessmentCompleted, { studentId })]);
     return { scores, code: hollandCode(scores), completedAt };
   }
@@ -84,5 +95,6 @@ export class InterestTestService {
   async restart(caller: Caller) {
     const { studentId } = await this.me.execute(caller);
     await this.db.delete(assessments).where(eq(assessments.studentId, studentId));
+    await this.db.update(students).set({ interestProgress: null }).where(eq(students.id, studentId));
   }
 }
