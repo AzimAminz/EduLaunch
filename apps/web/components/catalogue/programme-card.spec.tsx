@@ -16,39 +16,39 @@ const base = {
 
 describe('ProgrammeCard', () => {
   it('leads with the programme name, then the institution and its level', () => {
-    render(<ProgrammeCard {...base} requirementStatus="published" />);
+    render(<ProgrammeCard {...base} />);
     expect(screen.getByRole('heading', { name: 'Diploma Sains Komputer' })).toBeInTheDocument();
     expect(screen.getByText('Politeknik Contoh B')).toBeInTheDocument();
     expect(screen.getByText('Diploma • 3 tahun')).toBeInTheDocument();
   });
 
-  it('lists its fields', () => {
-    render(<ProgrammeCard {...base} fields={['Seni & Reka Bentuk', 'Komputer & Teknologi Maklumat']} requirementStatus="published" />);
-    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Seni & Reka Bentuk', 'Komputer & Teknologi Maklumat']);
+  it('lists up to two fields and says how many more there are', () => {
+    render(<ProgrammeCard {...base} fields={['Seni & Reka Bentuk', 'Komputer & Teknologi Maklumat', 'Pendidikan']} />);
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Seni & Reka Bentuk', 'Komputer & Teknologi Maklumat', '+1']);
   });
 
   it('shows information only, with no pictures to upload', () => {
-    const { container } = render(<ProgrammeCard {...base} requirementStatus="published" />);
+    const { container } = render(<ProgrammeCard {...base} />);
     expect(container.querySelector('[data-world]')).toBeNull();
+    expect(container.querySelector('img')).toBeNull();
   });
 
-  it('links to the programme page', () => {
-    render(<ProgrammeCard {...base} requirementStatus="published" />);
-    expect(screen.getByRole('link', { name: /Lihat program & syarat/ })).toHaveAttribute('href', base.href);
+  it('opens the programme from its name (the whole card is the link)', () => {
+    render(<ProgrammeCard {...base} />);
+    expect(screen.getByRole('link', { name: 'Diploma Sains Komputer' })).toHaveAttribute('href', base.href);
   });
 
-  it('is honest about where the requirements stand', () => {
-    const { rerender } = render(<ProgrammeCard {...base} requirementStatus="sample" />);
-    expect(screen.getByText('Syarat: data contoh, belum disahkan')).toBeInTheDocument();
-    rerender(<ProgrammeCard {...base} requirementStatus="published" />);
-    expect(screen.getByText('Syarat kemasukan tersedia')).toBeInTheDocument();
-    rerender(<ProgrammeCard {...base} requirementStatus="missing" />);
-    expect(screen.getByText('Syarat: belum tersedia')).toBeInTheDocument();
+  it('shows the average merit with its year when there is one, and marks sample data', () => {
+    const { rerender } = render(<ProgrammeCard {...base} averageMerit={{ intakeYear: 2026, value: 84.87 }} />);
+    expect(screen.getByText('Purata merit 2026')).toBeInTheDocument();
+    expect(screen.getByText('84.87')).toBeInTheDocument();
+    rerender(<ProgrammeCard {...base} sample />);
+    expect(screen.getByText('Data contoh')).toBeInTheDocument();
   });
 
   it('uses the labels it is given, so it works in English too', () => {
-    render(<ProgrammeCard {...base} labels={en.card} requirementStatus="missing" />);
-    expect(screen.getByRole('link', { name: /View programme & requirements/ })).toBeInTheDocument();
-    expect(screen.getByText('Requirements: not available yet')).toBeInTheDocument();
+    render(<ProgrammeCard {...base} labels={en.card} averageMerit={{ intakeYear: 2026, value: 80 }} />);
+    expect(screen.getByText('View programme →')).toBeInTheDocument();
+    expect(screen.getByText('Average merit 2026')).toBeInTheDocument();
   });
 });

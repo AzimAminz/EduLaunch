@@ -48,7 +48,7 @@
   "directory": {
     "eyebrow": "DIREKTORI PROGRAM",
     "title": "Universiti & program",
-    "intro": "Cari program mengikut universiti, bidang dan peringkat. Rekod yang ditanda \"contoh\" bukan syarat sebenar.",
+    "intro": "Cari program ikut universiti, bidang dan peringkat.",
     "searchTitle": "Cari pilihan pengajian",
     "university": "Universiti",
     "allUniversities": "Semua universiti",
@@ -58,8 +58,7 @@
     "allLevels": "Semua peringkat",
     "search": "Cari program",
     "noMatches": "Tiada padanan",
-    "resultCount": "{count} program dijumpai",
-    "sampleNote": "termasuk data contoh • sumber rasmi belum disahkan",
+    "resultCount": "{count} program",
     "emptyTitle": "Tiada program sepadan",
     "emptyBody": "Cuba pilih \"Semua\" pada salah satu penapis.",
     "clearFilters": "Kosongkan penapis",
@@ -71,10 +70,9 @@
     "errorBody": "Bahagian ini tidak dapat dihubungi buat sementara. Cuba lagi sebentar lagi."
   },
   "card": {
-    "view": "Lihat program & syarat",
-    "statusSample": "Syarat: data contoh, belum disahkan",
-    "statusPublished": "Syarat kemasukan tersedia",
-    "statusMissing": "Syarat: belum tersedia",
+    "view": "Lihat program",
+    "merit": "Purata merit {year}",
+    "sample": "Data contoh",
     "streamProvider": "Sekolah menengah"
   },
   "detail": {

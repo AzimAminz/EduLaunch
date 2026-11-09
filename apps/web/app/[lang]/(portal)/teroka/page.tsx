@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SearchPanel } from '@/components/catalogue/search-panel';
-import { ProgrammeCard, type RequirementStatus } from '@/components/catalogue/programme-card';
+import { ProgrammeCard } from '@/components/catalogue/programme-card';
 import { fieldName, getPublishedRequirements, getReferenceData, searchProgrammes } from '@/lib/catalogue/api';
 import { programmeMeta } from '@/lib/catalogue/presentation';
 import { filtersToQuery, parseFilters } from '@/lib/catalogue/search-params';
@@ -81,12 +81,8 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
 
   const institutionName = new Map(reference.institutions.map((i) => [i.id, i.name]));
   const fieldsById = new Map(reference.fields.map((f) => [f.id, f]));
-  const statusFor = (programId: string): RequirementStatus => {
-    const req = requirements.find((r) => r.programId === programId);
-    if (!req) return 'missing';
-    return req.rules.some((r) => r.officialText?.startsWith('[Contoh]')) ? 'sample' : 'published';
-  };
-  const hasSample = page.items.some((p) => statusFor(p.id) === 'sample');
+  // Requirements entered as sample data are marked on their card, so nobody takes them for real ones.
+  const isSample = (programId: string) => requirements.some((r) => r.programId === programId && r.rules.some((rule) => rule.officialText?.startsWith('[Contoh]')));
   const pages = Math.max(1, Math.ceil(page.total / page.pageSize));
   const pageHref = (n: number) => `/${lang}/teroka?${filtersToQuery({ ...filters, page: n })}`;
 
@@ -94,7 +90,6 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
     <section aria-label={t.title} className="flex flex-col gap-[22px]">
       <p className="text-sm leading-tight text-muted">
         {format(t.resultCount, { count: page.total })}
-        {hasSample && ` • ${t.sampleNote}`}
       </p>
       {/* Cards come in one after another as the list scrolls into view. */}
       <div data-reveal-stagger className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -109,7 +104,8 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
               institutionName={p.institutionId ? (institutionName.get(p.institutionId) ?? '') : dict.card.streamProvider}
               meta={programmeMeta(p.studyLevel, p.durationSemesters, dict)}
               fields={fields.map((f) => fieldName(f, lang))}
-              requirementStatus={statusFor(p.id)}
+              averageMerit={p.averageMerit}
+              sample={isSample(p.id)}
               labels={dict.card}
             />
           );

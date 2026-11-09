@@ -48,7 +48,7 @@
   "directory": {
     "eyebrow": "PROGRAMME DIRECTORY",
     "title": "Universities & programmes",
-    "intro": "Find programmes by university, field and level. Records marked \"sample\" are not real requirements.",
+    "intro": "Find programmes by university, field and level.",
     "searchTitle": "Find study options",
     "university": "University",
     "allUniversities": "All universities",
@@ -58,8 +58,7 @@
     "allLevels": "All levels",
     "search": "Search programmes",
     "noMatches": "No matches",
-    "resultCount": "{count} programmes found",
-    "sampleNote": "includes sample data • official sources not yet verified",
+    "resultCount": "{count} programmes",
     "emptyTitle": "No programmes match",
     "emptyBody": "Try choosing \"All\" in one of the filters.",
     "clearFilters": "Clear filters",
@@ -71,10 +70,9 @@
     "errorBody": "This part is temporarily unavailable. Please try again shortly."
   },
   "card": {
-    "view": "View programme & requirements",
-    "statusSample": "Requirements: sample data, not verified",
-    "statusPublished": "Entry requirements available",
-    "statusMissing": "Requirements: not available yet",
+    "view": "View programme",
+    "merit": "Average merit {year}",
+    "sample": "Sample data",
     "streamProvider": "Secondary schools"
   },
   "detail": {
