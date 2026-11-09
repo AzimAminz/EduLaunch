@@ -498,7 +498,14 @@ Formulas come from the ePanduan merit calculator (Kementerian Pendidikan Tinggi)
 - [ ] A diploma student sees CGPA only (no co-curricular): CGPA 3.00 gives **75.00**.
 - [ ] An A-Level student sees a note that there is no official A-Level formula, and the SPM merit.
 
-### C. Against the programme average
+### C. By level, and merit on the profile
+
+- [ ] A Form 1–3 student has no **Merit Lab** in the menu. Opening `/ms/merit-lab` directly says merit starts in Form 4, with what helps now (interest test, exploring programmes). No merit card shows on programme pages or on the profile.
+- [ ] A Form 4–5 student sees **Merit sasaran anda** in Merit Lab, worked out from their SPM target grades (even if a trial result was saved as actual), and the programme card says it is a target merit.
+- [ ] After SPM (and after pre-university or a diploma), Merit Lab shows the merit from actual results or the CGPA.
+- [ ] **Profil saya** shows the merit worked out automatically from the saved results (or "Merit sasaran anda" in Form 4–5), with **Cuba dalam Merit Lab**. Saving new results changes it without opening Merit Lab. A student with no results is told the merit appears once they add them.
+
+### D. Against the programme average
 
 - [ ] On a programme that takes SPM leavers and has an average merit (for example Diploma Sains Komputer, UTeM), the card **Merit anda berbanding purata program** shows both numbers, the gap in words and the year, tinted green (3 or more above), yellow (near) or red (more than 2 below), with the note that the average is not a guarantee.
 - [ ] On a degree programme for STPM / matriculation students, an SPM student is told the average is for another group and no comparison is made.

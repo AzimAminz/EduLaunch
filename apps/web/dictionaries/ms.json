@@ -1435,7 +1435,17 @@
     "sideTitle": "Sambung pada mana-mana peranti.",
     "sideBody": "Data dan kemajuan dipautkan kepada akaun yang sama.",
     "openProfile": "Buka profil saya",
-    "levelSaved": "Tahap pendidikan dikemas kini."
+    "levelSaved": "Tahap pendidikan dikemas kini.",
+    "merit": {
+      "title": "MERIT ANDA",
+      "titleTarget": "MERIT SASARAN ANDA",
+      "fromSpm": "Dikira automatik daripada keputusan SPM anda, dengan formula rasmi.",
+      "fromCgpa": "Dikira automatik daripada PNGK anda, dengan formula rasmi.",
+      "fromTarget": "Dikira automatik daripada gred sasaran SPM anda. Ini anggaran, bukan keputusan sebenar.",
+      "empty": "Isi keputusan anda, dan merit akan dikira secara automatik.",
+      "tryIt": "Cuba dalam Merit Lab",
+      "open": "Buka Merit Lab"
+    }
   },
   "higher": {
     "titles": {
@@ -1645,7 +1655,21 @@
     "addResultsLink": "Isi keputusan dalam profil",
     "nextTitle": "Dari merit kepada pilihan program",
     "nextBody": "Bandingkan merit anda dengan purata merit program yang anda minati.",
-    "nextAction": "Teroka program"
+    "nextAction": "Teroka program",
+    "titleTarget": "Merit sasaran anda.",
+    "introTarget": "Merit dikira daripada gred sasaran SPM dalam profil anda dengan formula rasmi. Cuba naikkan satu gred dan lihat kesannya; profil anda tidak berubah.",
+    "resultTitleTarget": "Merit sasaran anda",
+    "early": {
+      "title": "Merit bermula di Tingkatan 4.",
+      "intro": "Markah merit dikira daripada keputusan SPM, iaitu subjek teras, subjek aliran dan kokurikulum. Di Tingkatan 1–3, anda belum memilih aliran, jadi belum ada merit untuk dikira.",
+      "nowTitle": "Yang berguna sekarang",
+      "now": [
+        "Kenali minat anda supaya pilihan aliran di Tingkatan 4 lebih yakin.",
+        "Teroka program universiti dan lihat subjek SPM yang biasanya diperlukan.",
+        "Bila anda masuk Tingkatan 4, isi gred sasaran SPM dalam profil; Merit Lab akan muncul di menu."
+      ],
+      "interest": "Mula penilaian minat"
+    }
   },
   "meritStanding": {
     "title": "Merit anda berbanding purata program",
@@ -1662,6 +1686,7 @@
     "otherGroupPreu": "Merit anda {merit}. Purata program ini untuk lepasan STPM, Matrikulasi atau Asasi, jadi ia tidak dibandingkan dengan merit anda.",
     "noMerit": "Isi keputusan anda untuk melihat merit anda berbanding purata program ini.",
     "openLab": "Cuba dalam Merit Lab",
-    "openLabEmpty": "Buka Merit Lab"
+    "openLabEmpty": "Buka Merit Lab",
+    "targetNote": "Ini merit sasaran, dikira daripada gred sasaran SPM anda."
   }
 }

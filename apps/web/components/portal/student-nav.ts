@@ -45,11 +45,15 @@ const FOOTER: Item[] = [
   { key: 'help', slug: 'bantuan', icon: 'help' },
 ];
 
-/** The student portal menu with its labels in the page language. */
-export function studentNav(locale: Locale, nav: Nav): { groups: NavGroup[]; footer: NavLink[] } {
+/** Menu items that do not apply yet at a level: merit starts at Form 4, when SPM subjects and a stream exist. */
+const HIDDEN_AT: Partial<Record<string, Array<keyof Nav>>> = { form1_3: ['meritLab'] };
+
+/** The student portal menu with its labels in the page language, without the items that do not apply at `level`. */
+export function studentNav(locale: Locale, nav: Nav, level?: string | null): { groups: NavGroup[]; footer: NavLink[] } {
   const link = (i: Item): NavLink => ({ href: `/${locale}/${i.slug}`, label: nav[i.key], icon: i.icon, badge: i.badge && nav[i.badge] });
+  const hidden = new Set(level ? (HIDDEN_AT[level] ?? []) : []);
   return {
-    groups: GROUPS.map((g) => ({ title: g.title && nav[g.title], items: g.items.map(link) })),
+    groups: GROUPS.map((g) => ({ title: g.title && nav[g.title], items: g.items.filter((i) => !hidden.has(i.key)).map(link) })),
     footer: FOOTER.map(link),
   };
 }

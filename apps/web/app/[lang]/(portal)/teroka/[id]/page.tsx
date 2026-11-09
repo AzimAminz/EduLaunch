@@ -136,7 +136,8 @@ async function MeritStanding({ lang, dict, entryRoutes, averageMerit }: { lang: 
   const token = await getAccessToken();
   if (!token) return null;
   const inputs = await loadMeritInputs(token, lang).catch(() => null);
-  if (!inputs) return null;
+  // Before Form 4 there is no merit to compare, so the card is left out.
+  if (!inputs || inputs.level === 'form1_3') return null;
   const merit = studentMerit(inputs);
   const comparison = merit === null ? null : compareMerit({ mode: inputs.mode, merit }, { entryRoutes, averageMerit });
   const tone = comparison?.status === 'comparable' ? { above: 'bg-mint', near: 'bg-cream', below: 'bg-[#ffedea]' }[comparison.band] : 'bg-white';
@@ -155,6 +156,7 @@ async function MeritStanding({ lang, dict, entryRoutes, averageMerit }: { lang: 
           {t.title}
         </h2>
         <p className="text-sm">{sentence}</p>
+        {merit !== null && inputs.basis === 'target' && <p className="text-[13px] font-medium">{t.targetNote}</p>}
         {comparison?.status === 'comparable' && <p className="text-[13px] text-muted">{t.note}</p>}
       </div>
       {comparison?.status === 'comparable' && merit !== null && (

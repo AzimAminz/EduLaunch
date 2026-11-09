@@ -1435,7 +1435,17 @@
     "sideTitle": "Continue on any device.",
     "sideBody": "Your data and progress are linked to the same account.",
     "openProfile": "Open my profile",
-    "levelSaved": "Education level updated."
+    "levelSaved": "Education level updated.",
+    "merit": {
+      "title": "YOUR MERIT",
+      "titleTarget": "YOUR TARGET MERIT",
+      "fromSpm": "Worked out automatically from your SPM results, with the official formula.",
+      "fromCgpa": "Worked out automatically from your CGPA, with the official formula.",
+      "fromTarget": "Worked out automatically from your SPM target grades. This is an estimate, not a real result.",
+      "empty": "Add your results and your merit is worked out automatically.",
+      "tryIt": "Try it in Merit Lab",
+      "open": "Open Merit Lab"
+    }
   },
   "higher": {
     "titles": {
@@ -1645,7 +1655,21 @@
     "addResultsLink": "Add your results to your profile",
     "nextTitle": "From merit to programme choices",
     "nextBody": "Compare your merit with the average merit of the programmes you like.",
-    "nextAction": "Explore programmes"
+    "nextAction": "Explore programmes",
+    "titleTarget": "Your target merit.",
+    "introTarget": "Worked out from the SPM target grades in your profile with the official formula. Try raising one grade to see what it does; your profile stays as it is.",
+    "resultTitleTarget": "Your target merit",
+    "early": {
+      "title": "Merit starts in Form 4.",
+      "intro": "Merit is worked out from SPM results: core subjects, stream subjects and co-curricular marks. In Form 1–3 you have not chosen a stream yet, so there is no merit to work out.",
+      "nowTitle": "What helps now",
+      "now": [
+        "Get to know your interests, so choosing a Form 4 stream feels surer.",
+        "Explore university programmes and see which SPM subjects they usually ask for.",
+        "When you reach Form 4, add your SPM target grades to your profile; Merit Lab will appear in the menu."
+      ],
+      "interest": "Start the interest test"
+    }
   },
   "meritStanding": {
     "title": "Your merit against the programme average",
@@ -1662,6 +1686,7 @@
     "otherGroupPreu": "Your merit is {merit}. This programme's average is for STPM, matriculation or foundation students, so it is not compared with yours.",
     "noMerit": "Add your results to see your merit against this programme's average.",
     "openLab": "Try it in Merit Lab",
-    "openLabEmpty": "Open Merit Lab"
+    "openLabEmpty": "Open Merit Lab",
+    "targetNote": "This is a target merit, worked out from your SPM target grades."
   }
 }

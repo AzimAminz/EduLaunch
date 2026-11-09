@@ -8,6 +8,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getMe, listRecords } from '@/lib/profile/api';
 import { higherChoicesFor, recordFormFor } from '@/lib/profile/records';
+import { loadMeritInputs, studentMerit } from '@/lib/merit/student';
 import { getAccessToken, getAccount } from '@/lib/supabase/server';
 
 /** "Profil saya" (Figma: Profil & perjalanan saya): account, education level and a summary of saved results. */
@@ -94,6 +95,8 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
         </Link>
       </section>
 
+      {me.educationLevel !== 'form1_3' && <MeritSummary lang={lang} dict={dict} token={token} />}
+
       <details data-reveal className="group rounded-[18px] bg-white p-5 sm:p-6">
         <summary className="cursor-pointer list-none text-lg font-semibold marker:hidden">
           {t.changeLevel} <span className="text-muted group-open:hidden">+</span>
@@ -110,5 +113,35 @@ async function Profile({ lang, dict }: { lang: Locale; dict: Dictionary }) {
         />
       </details>
     </div>
+  );
+}
+
+/**
+ * The student's merit, worked out from the results they saved (target grades in Form 4–5), with a link to try
+ * changes in Merit Lab. Nothing to show before there are results.
+ */
+async function MeritSummary({ lang, dict, token }: { lang: Locale; dict: Dictionary; token: string }) {
+  const t = dict.profile.merit;
+  const inputs = await loadMeritInputs(token, lang).catch(() => null);
+  if (!inputs) return null;
+  const merit = studentMerit(inputs);
+  const target = inputs.basis === 'target';
+  return (
+    <section data-reveal className="flex flex-col gap-3 rounded-[18px] bg-yellow p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="flex flex-col gap-1">
+        <p className="text-xs font-semibold text-navy/70">{target ? t.titleTarget : t.title}</p>
+        {merit === null ? (
+          <p className="text-sm">{t.empty}</p>
+        ) : (
+          <>
+            <p className="text-[40px] font-bold leading-none tabular-nums">{merit.toFixed(2)}</p>
+            <p className="text-[13px] text-navy/75">{target ? t.fromTarget : inputs.mode === 'spm' ? t.fromSpm : t.fromCgpa}</p>
+          </>
+        )}
+      </div>
+      <Link href={`/${lang}/merit-lab`} className="inline-flex h-11 items-center justify-center self-start rounded-[12px] bg-navy px-5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 sm:self-center">
+        {merit === null ? t.open : t.tryIt} →
+      </Link>
+    </section>
   );
 }

@@ -21,13 +21,15 @@ export interface MeritInputs {
   catalogue: Array<{ name: string; label: string }>;
   cgpa: number | null;
   higherQualification: string | null;
+  /** The student's education level (null before onboarding). */
+  level: string | null;
   /** The co-curricular mark to start from. */
   cocurricular: number;
 }
 
 /**
  * What a student's merit is worked out from: after pre-university or a diploma, that qualification's CGPA;
- * otherwise SPM, actual results first, else Form 4–5 targets.
+ * otherwise SPM: Form 4–5 students' target grades first, everyone else's actual results first.
  */
 export async function loadMeritInputs(token: string, locale: Locale): Promise<MeritInputs> {
   const [me, records, reference, jar] = await Promise.all([getMe(token), listRecords(token), getReferenceData(), cookies()]);
@@ -43,6 +45,7 @@ export async function loadMeritInputs(token: string, locale: Locale): Promise<Me
       catalogue: [],
       cgpa: higherRecord?.cgpa ?? null,
       higherQualification: higher,
+      level: me.educationLevel,
       cocurricular,
     };
   }
@@ -50,10 +53,12 @@ export async function loadMeritInputs(token: string, locale: Locale): Promise<Me
   const byId = new Map(spmSubjects.map((s) => [s.id, s]));
   const actual = records.find((r) => r.qualification === 'spm' && r.kind === 'actual');
   const target = records.find((r) => r.qualification === 'spm' && r.kind === 'target');
-  const record = actual ?? target;
+  // Form 4–5 plan with their targets (a trial result saved as actual does not replace them); others use real results.
+  const useTarget = me.educationLevel === 'form4_5' ? !!target : !actual && !!target;
+  const record = useTarget ? target : actual;
   return {
     mode: 'spm',
-    basis: actual ? 'actual' : target ? 'target' : 'none',
+    basis: record ? (useTarget ? 'target' : 'actual') : 'none',
     subjects: (record?.subjects ?? []).flatMap((s) => {
       const subject = byId.get(s.subjectId);
       return subject ? [{ name: subject.name, label: localName(subject, locale), grade: s.grade }] : [];
@@ -61,6 +66,7 @@ export async function loadMeritInputs(token: string, locale: Locale): Promise<Me
     catalogue: spmSubjects.map((s) => ({ name: s.name, label: localName(s, locale) })).sort((a, b) => a.label.localeCompare(b.label, locale)),
     cgpa: null,
     higherQualification: higher,
+    level: me.educationLevel,
     cocurricular,
   };
 }

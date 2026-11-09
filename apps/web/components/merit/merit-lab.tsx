@@ -207,7 +207,7 @@ export function MeritLab({
 
       <section aria-live="polite" className="flex flex-col gap-4 rounded-[18px] bg-yellow p-5 sm:p-6">
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">{t.resultTitle}</h2>
+          <h2 className="text-lg font-semibold">{basis === 'target' ? t.resultTitleTarget : t.resultTitle}</h2>
           <p className="text-[13px] text-navy/70">{label}</p>
         </div>
         <div className="flex items-end justify-between gap-4">
