@@ -15,7 +15,7 @@ import { bestOf, requirementsFor } from '../domain/entry-route.js';
 export type EligibilityAnswer =
   | { state: 'no_requirement' }
   | { state: 'no_route'; routes: string[] }
-  | { state: 'no_results'; entryRoute: string }
+  | { state: 'no_results'; entryRoute: string; missing: 'grades' | 'cgpa' }
   | { state: 'checked'; entryRoute: string; status: Eligibility; isTargetBased: boolean; groups: GroupResult[]; toConfirm: string[] };
 
 @Injectable()
@@ -39,9 +39,9 @@ export class CheckEligibility implements UseCase<{ caller: Caller; programId: st
     const rules = forRoute.flatMap((r) => r.rules);
     const needsGrades = rules.some((r) => r.conditionType === 'min_grade' || r.conditionType === 'key_subject' || r.conditionType === 'min_credits' || r.conditionType === 'subjects_from_list');
     const needsNumbers = rules.some((r) => r.conditionType === 'min_cgpa');
-    if ((needsGrades && snapshot.grades.length === 0) || (needsNumbers && snapshot.cgpa === null)) {
-      return { state: 'no_results', entryRoute: forRoute[0]!.entryRoute };
-    }
+    // Say what is missing: subject grades (SPM after SPM; targets or school results before) or the CGPA.
+    if (needsGrades && snapshot.grades.length === 0) return { state: 'no_results', entryRoute: forRoute[0]!.entryRoute, missing: 'grades' };
+    if (needsNumbers && snapshot.cgpa === null) return { state: 'no_results', entryRoute: forRoute[0]!.entryRoute, missing: 'cgpa' };
 
     // One requirement per candidate category of the route: the student is shown the one they come closest to.
     const { requirement, result } = bestOf(forRoute, (r) => this.engine.check(r, { snapshot, subjectNames }))!;

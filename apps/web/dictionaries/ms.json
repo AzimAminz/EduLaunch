@@ -1362,6 +1362,22 @@
     },
     "noYear": "Pilih tahun",
     "scale": "Skala gred: {scale}.",
+    "streamPresets": {
+      "title": "Isi pantas ikut aliran",
+      "hint": "Pilih aliran anda untuk menambah mata pelajaran elektifnya sekali gus. Anda masih boleh buang atau tambah mata pelajaran selepas itu.",
+      "names": {
+        "stem_a": "STEM A",
+        "stem_b": "STEM B",
+        "stem_c": "STEM C",
+        "humanities": "Kemanusiaan"
+      },
+      "notes": {
+        "stem_a": "Ditambah: Matematik Tambahan, Fizik, Kimia dan Biologi. Tambah Pendidikan Islam atau Pendidikan Moral jika anda mengambilnya.",
+        "stem_b": "Ditambah: Matematik Tambahan, Fizik, Kimia dan Sains Komputer. Tukar Sains Komputer kepada mata pelajaran teknikal anda jika berbeza.",
+        "stem_c": "Ditambah: Sains. Tambah mata pelajaran vokasional anda dengan menaip namanya di Tambah mata pelajaran.",
+        "humanities": "Ditambah: Sains, Ekonomi, Prinsip Perakaunan dan Geografi. Buang yang tidak anda ambil dan tambah yang lain."
+      }
+    },
     "subjectsTitle": "Subjek yang diambil",
     "subjectsHint": "Subjek wajib disenaraikan dahulu. Buang yang tidak berkenaan, tambah yang belum ada.",
     "colSubject": "Subjek",
@@ -1466,7 +1482,11 @@
     },
     "view": {
       "back": "Kembali ke dokumen akademik",
-      "readOnly": "Rekod ini dipaparkan untuk rujukan. Untuk menyuntingnya, buka tahap pendidikan yang berkaitan di Profil."
+      "readOnly": "Rekod yang anda simpan sebelum ini. Jika ada yang salah, tekan Sunting untuk membetulkannya.",
+      "edit": "Sunting",
+      "editTitle": "Sunting {record}",
+      "editIntro": "Betulkan gred atau tahun, kemudian simpan. Tahap pendidikan anda tidak berubah.",
+      "doneEditing": "Selesai, kembali ke rekod"
     },
     "schoolTab": "Tingkatan {form} · {year}",
     "limitReached": "Had {max} subjek dicapai. Buang subjek yang tidak berkenaan untuk menambah subjek lain.",
@@ -1540,6 +1560,11 @@
     "intros": {
       "after_preu": "Untuk ijazah sarjana muda, universiti menilai kelayakan anda, PNGK, MUET, bidang atau jurusan, dan keputusan SPM asas. Gred subjek STPM, A-Level dan Matrikulasi juga disemak oleh sesetengah program (contohnya B dalam Biologi).",
       "after_certificate": "Untuk Diploma, politeknik dan universiti menilai sijil anda dalam bidang berkaitan, PNGK (atau tahap SKM) dan keputusan SPM asas."
+    },
+    "spmMissing": {
+      "title": "Keputusan SPM belum diisi.",
+      "body": "Kebanyakan program turut menyemak gred SPM asas, jadi semakan kelayakan tidak lengkap tanpanya.",
+      "action": "Isi keputusan SPM"
     },
     "sectionsLabel": "Bahagian keputusan",
     "sections": {
@@ -1672,6 +1697,8 @@
     "noRequirement": "Syarat program ini belum disahkan, jadi kelayakan anda belum boleh disemak.",
     "noRoute": "Program ini belum menyenaraikan syarat untuk laluan anda. Syarat yang ada: {routes}.",
     "noResults": "Isi dan sahkan keputusan anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
+    "noGrades": "Syarat ini menyemak gred mata pelajaran SPM. Isi keputusan SPM anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
+    "noCgpa": "Syarat ini menyemak PNGK. Isi PNGK anda dahulu untuk menyemak kelayakan bagi laluan {route}.",
     "fillResults": "Isi keputusan saya",
     "disclaimer": "Semakan ini panduan sahaja. Keputusan kemasukan ditentukan oleh institusi.",
     "loadError": "Kelayakan tidak dapat disemak buat sementara. Cuba lagi sebentar lagi.",

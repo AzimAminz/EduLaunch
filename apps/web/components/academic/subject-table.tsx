@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { saveAcademicRecord } from '@/lib/profile/actions';
-import type { RecordVariant, SubjectOption, SubjectRow } from '@/lib/profile/records';
+import { rowsForSpmStream, SpmStreams, type RecordVariant, type SpmStream, type SubjectOption, type SubjectRow } from '@/lib/profile/records';
 import { format, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { FormAlert, SubmitButton } from '@/components/auth/fields';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -47,6 +47,7 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
   };
 
   const isTarget = variant === 'target';
+  const [stream, setStream] = useState<SpmStream | null>(null);
   // An old error is not shown again while the next save is on its way.
   const error = state.error && !edited && !pending ? state.error : undefined;
   const showErrors = error === 'missingGrade';
@@ -83,6 +84,30 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
       </div>
 
       <FormAlert>{error && t.errors[error]}</FormAlert>
+
+      {variant !== 'school' && (
+        // One tap fills the usual electives of a stream; the student then removes or adds what differs.
+        <fieldset className="flex flex-col gap-2 rounded-[14px] bg-bg p-4">
+          <legend className="float-left mb-1 text-sm font-semibold">{t.streamPresets.title}</legend>
+          <div className="clear-left flex flex-wrap gap-2">
+            {SpmStreams.map((s) => (
+              <button
+                key={s}
+                type="button"
+                aria-pressed={stream === s}
+                onClick={() => {
+                  setStream(s);
+                  setRows((all) => rowsForSpmStream(s, subjects, all, locale));
+                }}
+                className={`min-h-11 rounded-full px-4 text-sm font-semibold transition-colors ${stream === s ? 'bg-navy text-white' : 'border border-line bg-white hover:bg-blue'}`}
+              >
+                {t.streamPresets.names[s]}
+              </button>
+            ))}
+          </div>
+          <p className="text-[13px] text-muted">{stream ? t.streamPresets.notes[stream] : t.streamPresets.hint}</p>
+        </fieldset>
+      )}
 
       <SubjectRowsEditor
         locale={locale}

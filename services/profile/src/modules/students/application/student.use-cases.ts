@@ -91,6 +91,30 @@ export class UpdateEducationLevel implements UseCase<LevelChange, MeView> {
 }
 
 /** Read model for the recommendation service. */
+type RecordSnapshot = ReturnType<AcademicRecordSnapshotSource['toSnapshot']>;
+interface AcademicRecordSnapshotSource {
+  toSnapshot(): { qualification: string; kind: string; subjects: Array<{ subjectId: string; grade: string; customName: string | null }> };
+}
+
+/**
+ * The record whose subject grades the eligibility check reads, by the student's level:
+ * - Form 1–3: school results;
+ * - Form 4–5: SPM targets first (a trial result saved as actual comes second);
+ * - after SPM, a certificate, pre-university or a diploma: actual SPM results only. School grades and old targets
+ *   never stand in for SPM there: a diploma holder without SPM results gets "fill in your SPM", not a wrong check.
+ */
+export function gradedRecordFor<R extends RecordSnapshot>(level: string | null, confirmed: R[]): R | undefined {
+  const find = (qualification: string, kind?: string) => confirmed.find((r) => r.qualification === qualification && (!kind || r.kind === kind));
+  switch (level) {
+    case 'form1_3':
+      return find('school');
+    case 'form4_5':
+      return find('spm', 'target') ?? find('spm', 'actual');
+    default:
+      return find('spm', 'actual');
+  }
+}
+
 @Injectable()
 export class GetStudentSnapshot implements UseCase<{ studentId: string }, StudentSnapshot> {
   constructor(
@@ -103,11 +127,7 @@ export class GetStudentSnapshot implements UseCase<{ studentId: string }, Studen
     if (!student) throw new NotFoundError('Student', studentId);
     const [records, riasec] = await Promise.all([this.records.listByStudent(studentId), this.students.latestRiasec(studentId)]);
     const confirmed = records.filter((r) => r.isConfirmed).map((r) => r.toSnapshot());
-    // Subject grades come from SPM (actual before targets), or school results before SPM.
-    const graded =
-      confirmed.find((r) => r.qualification === 'spm' && r.kind === 'actual') ??
-      confirmed.find((r) => r.qualification === 'spm') ??
-      confirmed.find((r) => r.qualification === 'school');
+    const graded = gradedRecordFor(student.educationLevel, confirmed);
     // CGPA and MUET come from the newest result after SPM (STPM, matriculation, foundation, A-Level, diploma).
     const higher = confirmed.find((r) => (HigherQualifications as readonly string[]).includes(r.qualification));
     return {

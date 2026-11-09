@@ -23,8 +23,8 @@ const STATUS_STYLE = {
  */
 export function EligibilityResult({ locale, answer, subjectNames, t, routeNames }: EligibilityResultProps) {
   const routeName = (route: string) => routeNames[route] ?? route;
-  const resultsLink = (label: string) => (
-    <Link href={`/${locale}/dokumen`} className="self-start rounded-[10px] bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90">
+  const resultsLink = (label: string, query = '') => (
+    <Link href={`/${locale}/dokumen${query}`} className="self-start rounded-[10px] bg-navy px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy/90">
       {label}
     </Link>
   );
@@ -39,8 +39,8 @@ export function EligibilityResult({ locale, answer, subjectNames, t, routeNames 
       {answer.state === 'no_route' && <p className="text-sm text-muted">{format(t.noRoute, { routes: answer.routes.map(routeName).join(', ') })}</p>}
       {answer.state === 'no_results' && (
         <>
-          <p className="text-sm text-muted">{format(t.noResults, { route: routeName(answer.entryRoute) })}</p>
-          {resultsLink(t.fillResults)}
+          <p className="text-sm text-muted">{format(answer.missing === 'cgpa' ? t.noCgpa : t.noGrades, { route: routeName(answer.entryRoute) })}</p>
+          {resultsLink(t.fillResults, answer.missing === 'grades' ? '?bahagian=spm' : '')}
         </>
       )}
 

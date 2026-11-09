@@ -1362,6 +1362,22 @@
     },
     "noYear": "Choose a year",
     "scale": "Grade scale: {scale}.",
+    "streamPresets": {
+      "title": "Quick fill by stream",
+      "hint": "Choose your stream to add its elective subjects in one go. You can still remove or add subjects afterwards.",
+      "names": {
+        "stem_a": "STEM A",
+        "stem_b": "STEM B",
+        "stem_c": "STEM C",
+        "humanities": "Humanities"
+      },
+      "notes": {
+        "stem_a": "Added: Additional Mathematics, Physics, Chemistry and Biology. Add Islamic Education or Moral Education if you took it.",
+        "stem_b": "Added: Additional Mathematics, Physics, Chemistry and Computer Science. Swap Computer Science for your technical subject if it differs.",
+        "stem_c": "Added: Science. Add your vocational subject by typing its name under Add subject.",
+        "humanities": "Added: Science, Economics, Principles of Accounting and Geography. Remove the ones you did not take and add any others."
+      }
+    },
     "subjectsTitle": "Subjects taken",
     "subjectsHint": "Compulsory subjects are listed first. Remove those that do not apply, add any that are missing.",
     "colSubject": "Subject",
@@ -1466,7 +1482,11 @@
     },
     "view": {
       "back": "Back to academic documents",
-      "readOnly": "This record is shown for reference. To edit it, choose the matching education level in your Profile."
+      "readOnly": "A record you saved earlier. If something is wrong, choose Edit to correct it.",
+      "edit": "Edit",
+      "editTitle": "Edit {record}",
+      "editIntro": "Correct the grades or the year, then save. Your education level stays the same.",
+      "doneEditing": "Done, back to the record"
     },
     "schoolTab": "Form {form} · {year}",
     "limitReached": "You have reached the limit of {max} subjects. Remove one that does not apply to add another.",
@@ -1540,6 +1560,11 @@
     "intros": {
       "after_preu": "For a bachelor's degree, universities look at your qualification, CGPA, MUET, field or stream, and basic SPM results. Some programmes also check STPM, A-Level and matriculation subject grades (e.g. B in Biology).",
       "after_certificate": "For a diploma, polytechnics and universities look at your certificate in a related field, its CGPA (or SKM level) and your basic SPM results."
+    },
+    "spmMissing": {
+      "title": "Your SPM results are not filled in yet.",
+      "body": "Most programmes also check basic SPM grades, so the eligibility check is incomplete without them.",
+      "action": "Enter SPM results"
     },
     "sectionsLabel": "Results sections",
     "sections": {
@@ -1672,6 +1697,8 @@
     "noRequirement": "This programme's requirements are not verified yet, so your eligibility cannot be checked.",
     "noRoute": "This programme does not list requirements for your route yet. Routes listed: {routes}.",
     "noResults": "Enter and confirm your results first to check eligibility for the {route} route.",
+    "noGrades": "These requirements check SPM subject grades. Enter your SPM results first to check eligibility for the {route} route.",
+    "noCgpa": "These requirements check your CGPA. Enter your CGPA first to check eligibility for the {route} route.",
     "fillResults": "Enter my results",
     "disclaimer": "This check is a guide only. Admission decisions are made by the institution.",
     "loadError": "Eligibility cannot be checked right now. Please try again shortly.",

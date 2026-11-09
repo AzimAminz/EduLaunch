@@ -45,7 +45,7 @@ describe('EligibilityResult', () => {
   });
 
   it('asks for results when none are confirmed', () => {
-    show({ state: 'no_results', entryRoute: 'spm' });
+    show({ state: 'no_results', entryRoute: 'spm', missing: 'grades' });
     expect(screen.getByText(/laluan Lepasan SPM/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Isi keputusan saya' })).toBeInTheDocument();
   });
