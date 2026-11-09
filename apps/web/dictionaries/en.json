@@ -119,7 +119,18 @@
     "careers": "Careers",
     "fees": "Fees",
     "note": "Note",
-    "openSource": "Open the official source"
+    "openSource": "Open the official source",
+    "forYou": {
+      "title": "REQUIREMENTS FOR YOU",
+      "target": "You have not taken SPM yet. These are the requirements for SPM leavers; the check above uses your target grades.",
+      "early": "You have not taken SPM yet. These are the requirements for SPM leavers, as a guide for later.",
+      "closest": "This programme has no requirements of its own for {yours}, so the {route} requirements apply to you.",
+      "notOffered": "This programme does not take {route} directly.",
+      "noLevel": "Choose your education level in your profile to see the requirements for your route.",
+      "offered": "Routes it takes: {routes}.",
+      "wayIn": "After SPM, you can get here through foundation, matriculation, STPM or a diploma first.",
+      "otherRoutes": "Other routes' requirements ({count})"
+    }
   },
   "requirements": {
     "atLeastGrade": "At least grade {grade}",

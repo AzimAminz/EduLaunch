@@ -119,7 +119,18 @@
     "careers": "Kerjaya",
     "fees": "Yuran",
     "note": "Catatan",
-    "openSource": "Buka sumber rasmi"
+    "openSource": "Buka sumber rasmi",
+    "forYou": {
+      "title": "SYARAT UNTUK ANDA",
+      "target": "Anda belum mengambil SPM. Ini syarat untuk lepasan SPM; semakan di atas guna gred sasaran anda.",
+      "early": "Anda belum mengambil SPM. Ini syarat untuk lepasan SPM, sebagai panduan untuk masa depan.",
+      "closest": "Program ini tiada syarat khusus untuk {yours}, jadi syarat {route} digunakan untuk anda.",
+      "notOffered": "Program ini tidak menerima {route} secara terus.",
+      "noLevel": "Pilih peringkat pendidikan di profil untuk melihat syarat bagi laluan anda.",
+      "offered": "Laluan yang diterima: {routes}.",
+      "wayIn": "Selepas SPM, anda boleh masuk ke program ini melalui Asasi, Matrikulasi, STPM atau Diploma dahulu.",
+      "otherRoutes": "Syarat laluan lain ({count})"
+    }
   },
   "requirements": {
     "atLeastGrade": "Sekurang-kurangnya gred {grade}",

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import { lang as rootLang } from 'next/root-params';
-import type { ProgramDetail, PublishedRequirement } from '@edulaunch/contracts';
+import { routesFor, type ProgramDetail, type PublishedRequirement } from '@edulaunch/contracts';
 import { RequirementLinesView } from '@/components/admin/requirement-lines-view';
 import { EligibilityResult } from '@/components/catalogue/eligibility-result';
 import { NotFoundError, fieldName, getProgramme, getPublishedRequirements, getReferenceData, localName } from '@/lib/catalogue/api';
@@ -11,6 +11,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { compareMerit } from '@/lib/merit/compare';
 import { loadMeritInputs, studentMerit } from '@/lib/merit/student';
+import { getMe } from '@/lib/profile/api';
 import { getEligibility } from '@/lib/recommendation/api';
 import { getAccessToken } from '@/lib/supabase/server';
 
@@ -137,7 +138,9 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
           <Suspense fallback={null}>
             <MeritStanding lang={lang} dict={dict} entryRoutes={programme.entryRoutes} averageMerit={programme.averageMerit} />
           </Suspense>
-          <Requirements requirements={requirements} dict={dict} subjectNames={subjectNames} isSample={isSample} />
+          <Suspense fallback={<Requirements requirements={requirements} dict={dict} lang={lang} subjectNames={subjectNames} isSample={isSample} studyLevel={programme.studyLevel} student={null} />}>
+            <RequirementsForStudent requirements={requirements} dict={dict} lang={lang} subjectNames={subjectNames} isSample={isSample} studyLevel={programme.studyLevel} />
+          </Suspense>
         </div>
 
         <aside className="flex flex-col gap-6">
@@ -188,31 +191,115 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
   );
 }
 
+type Student = { educationLevel: string | null; higherQualification: string | null };
+
+/** The signed-in student's level, to show their own route's requirements first. */
+async function RequirementsForStudent(props: Omit<Parameters<typeof Requirements>[0], 'student'>) {
+  const token = await getAccessToken();
+  const me = token ? await getMe(token).catch(() => null) : null;
+  return <Requirements {...props} student={me ? { educationLevel: me.educationLevel, higherQualification: me.higherQualification } : null} />;
+}
+
 /**
- * Requirements per entry route, in route order: each published requirement (one per candidate category when they
- * differ) with its Syarat Am and Syarat Khas as the official source writes them.
+ * Requirements by entry route, the student's own route first ("Syarat untuk anda"), the others folded under "Laluan
+ * lain". Each published requirement (one per candidate category when they differ) is shown with its Syarat Am and
+ * Syarat Khas as the official source writes them. The route is the one the eligibility check uses (routesFor):
+ * Form 4–5 students see the SPM route as their target; Form 1–3 students see it as a guide (no SPM yet); a student
+ * whose route the programme does not take is told so, with the way in.
  */
-function Requirements({ requirements, dict, subjectNames, isSample }: { requirements: PublishedRequirement[]; dict: Dictionary; subjectNames: ReadonlyMap<string, string>; isSample: boolean }) {
+function Requirements({
+  requirements,
+  dict,
+  lang,
+  subjectNames,
+  isSample,
+  studyLevel,
+  student,
+}: {
+  requirements: PublishedRequirement[];
+  dict: Dictionary;
+  lang: Locale;
+  subjectNames: ReadonlyMap<string, string>;
+  isSample: boolean;
+  studyLevel: string;
+  student: Student | null;
+}) {
   const t = dict.detail;
+  const f = t.forYou;
   const routes: Record<string, string> = dict.requirements.routes;
   const categories = dict.admin.institutions.import.categories as Record<string, string>;
+  const level = student?.educationLevel ?? null;
+  // Form 1–3 apply to Form 4 streams through Form 3; for anything else, SPM is the route ahead of them.
+  const candidates = !student ? [] : level === 'form1_3' && studyLevel !== 'form4_stream' ? ['spm'] : routesFor(student);
+  const route = candidates.find((c) => requirements.some((r) => r.entryRoute === c)) ?? null;
+  const mine = route ? requirements.filter((r) => r.entryRoute === route) : [];
+  const others = requirements.filter((r) => !mine.includes(r));
+  const offered = [...new Set(requirements.map((r) => routes[r.entryRoute] ?? r.entryRoute))].join(', ');
+  const yours = candidates[0] ? (routes[candidates[0]] ?? candidates[0]) : null;
+  const note =
+    !route || !student
+      ? null
+      : level === 'form1_3' && route === 'spm'
+        ? f.early
+        : level === 'form4_5'
+          ? f.target
+          : candidates[0] !== route
+            ? format(f.closest, { route: routes[route] ?? route, yours: yours ?? '' })
+            : null;
+
+  const block = (r: PublishedRequirement) => (
+    <div key={r.requirementId} className="flex flex-col gap-2">
+      <h3 className="flex flex-wrap items-baseline gap-x-2 text-[15px] font-semibold">
+        {routes[r.entryRoute] ?? r.entryRoute}
+        {r.sourceCategory && categories[r.sourceCategory] && <span className="text-[13px] font-normal text-muted">{categories[r.sourceCategory]}</span>}
+      </h3>
+      <RequirementLinesView rules={r.rules} subjectNames={subjectNames} t={dict.admin.requirement} />
+    </div>
+  );
+
   return (
     <Card title={t.requirementsTitle} id="requirements-title">
       {isSample && <p className="rounded-[12px] bg-cream px-4 py-2.5 text-[13px] font-medium text-[#8a6100]">{t.sourceSample}</p>}
       {requirements.length === 0 ? (
         <p className="text-sm text-muted">{t.noRequirement}</p>
+      ) : !student ? (
+        <div className="flex flex-col gap-5">{requirements.map(block)}</div>
       ) : (
-        <div className="flex flex-col gap-5">
-          {requirements.map((r) => (
-            <div key={r.requirementId} className="flex flex-col gap-2">
-              <h3 className="flex flex-wrap items-baseline gap-x-2 text-[15px] font-semibold">
-                {routes[r.entryRoute] ?? r.entryRoute}
-                {r.sourceCategory && categories[r.sourceCategory] && <span className="text-[13px] font-normal text-muted">{categories[r.sourceCategory]}</span>}
-              </h3>
-              <RequirementLinesView rules={r.rules} subjectNames={subjectNames} t={dict.admin.requirement} />
+        <>
+          {route ? (
+            <div className="flex flex-col gap-3 rounded-[16px] bg-blue/50 p-4">
+              <p className="text-[13px] font-semibold text-navy/70">{f.title}</p>
+              {note && <p className="text-sm">{note}</p>}
+              <div className="flex flex-col gap-5">{mine.map(block)}</div>
             </div>
-          ))}
-        </div>
+          ) : (
+            <div className="flex flex-col gap-2 rounded-[16px] bg-cream p-4 text-sm">
+              <p className="font-semibold">{yours ? format(f.notOffered, { route: yours }) : f.noLevel}</p>
+              <p>{format(f.offered, { routes: offered })}</p>
+              {(level === 'after_spm' || level === 'form4_5') && (
+                <>
+                  <p>{f.wayIn}</p>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {(['foundation', 'matriculation', 'diploma'] as const).map((l) => (
+                      <Link key={l} href={`/${lang}/teroka?studyLevel=${l}`} className="rounded-full border border-line bg-white px-3 py-1.5 text-[13px] font-semibold hover:bg-bg">
+                        {dict.levels[l]} →
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          {others.length > 0 && (
+            <details className="group rounded-[16px] border border-line" open={!route}>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold marker:hidden">
+                {format(f.otherRoutes, { count: new Set(others.map((r) => r.entryRoute)).size })}
+                <span aria-hidden className="text-muted transition-transform group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="flex flex-col gap-5 border-t border-line p-4">{others.map(block)}</div>
+            </details>
+          )}
+        </>
       )}
     </Card>
   );
