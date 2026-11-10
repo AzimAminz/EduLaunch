@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Suspense, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { LevelPicker } from '@/components/onboarding/level-picker';
@@ -12,6 +12,7 @@ import { loadMeritInputs, studentMerit } from '@/lib/merit/student';
 import { getMe, listRecords, type AcademicRecord } from '@/lib/profile/api';
 import { higherChoicesFor, recordFormFor, recordLabel } from '@/lib/profile/records';
 import { getAccessToken, getAccount } from '@/lib/supabase/server';
+import { Pending } from '@/components/ui/pending';
 
 /**
  * "Profil saya", laid out like a settings page: one section per thing the profile holds (account, education level,
@@ -31,9 +32,9 @@ export default async function ProfilePage() {
         <p className="text-[15px] text-muted">{t.intro}</p>
       </header>
       {/* The account and saved results are request-time data. */}
-      <Suspense fallback={<p className="text-sm text-muted">{dict.academic.loading}</p>}>
+      <Pending label={dict.academic.loading} variant="panels">
         <Profile lang={lang} dict={dict} />
-      </Suspense>
+      </Pending>
     </>
   );
 }

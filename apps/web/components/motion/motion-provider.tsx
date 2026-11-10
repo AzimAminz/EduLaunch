@@ -1,7 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react';
+import { Suspense, useEffect, type ReactNode } from 'react';
 import gsap from 'gsap';
 import Lenis from 'lenis';
 import { NavProgress } from './nav-progress';
@@ -25,8 +24,8 @@ function scrollsOnItsOwn(node: HTMLElement): boolean {
 }
 
 /**
- * Smooth scrolling (Lenis, driven by GSAP's ticker) and a short fade between pages, both off when the visitor asks
- * for reduced motion. Revealing on scroll is pure CSS (scroll-driven animations, see globals.css), so nothing here
+ * Smooth scrolling (Lenis, driven by GSAP's ticker) (off when the visitor asks for reduced motion). Pages are not
+ * faded on navigation: a page that is ready shows at once, and its loading parts fade in on their own (Pending). Revealing on scroll is pure CSS (scroll-driven animations, see globals.css), so nothing here
  * touches server-rendered elements before React has hydrated them.
  */
 export function MotionProvider({ children }: { children: ReactNode }) {
@@ -48,31 +47,10 @@ export function MotionProvider({ children }: { children: ReactNode }) {
       {children}
       {/* The current address is request data: read it inside Suspense (Cache Components), apart from the page. */}
       <Suspense fallback={null}>
-        <PageFade />
         <NavProgress />
       </Suspense>
     </>
   );
-}
-
-let shownPath: string | null = null;
-
-/**
- * A short fade of the page content after a navigation, before it is painted. Never on the first load (server
- * rendered, still hydrating) and never twice for one path (React runs effects twice in development).
- */
-function PageFade() {
-  const pathname = usePathname();
-  useLayoutEffect(() => {
-    const first = shownPath === null;
-    const same = shownPath === pathname;
-    shownPath = pathname;
-    if (first || same || !motionOn()) return;
-    const content = document.querySelector<HTMLElement>('main > div') ?? document.querySelector<HTMLElement>('main');
-    if (content) gsap.fromTo(content, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out', clearProps: 'all' });
-    lenis?.resize();
-  }, [pathname]);
-  return null;
 }
 
 /**

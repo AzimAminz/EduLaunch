@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { GradeScales, hasSubjectGrades, type MatriculationStream } from '@edulaunch/contracts';
@@ -14,6 +13,7 @@ import { getCurrentRecord, getMe, listRecords } from '@/lib/profile/api';
 import { examYearsFor, gradesFor, higherChoicesFor, recordFormFor, formTabsFor, rowsForStream, type HigherQualification, type RecordVariant } from '@/lib/profile/records';
 import { subjectOptions, toRows } from '@/lib/profile/form-rows';
 import { getAccessToken } from '@/lib/supabase/server';
+import { Pending } from '@/components/ui/pending';
 
 const SIDE_IMAGE: Record<RecordVariant, string> = {
   school: '/illustrations/rimau-waving.png',
@@ -34,9 +34,9 @@ export default async function AcademicPage({ searchParams }: PageProps<'/[lang]/
   const dict = await getDictionary(lang);
   return (
     // The student's level and results are request-time data.
-    <Suspense fallback={<p className="text-sm text-muted">{dict.academic.loading}</p>}>
+    <Pending label={dict.academic.loading} variant="form">
       <Academic lang={lang} dict={dict} searchParams={searchParams} />
-    </Suspense>
+    </Pending>
   );
 }
 

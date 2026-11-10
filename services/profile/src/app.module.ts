@@ -8,6 +8,8 @@ import { AcademicRecordRepository } from './modules/academic-records/domain/acad
 import { GetOrCreateMe, GetStudentSnapshot, PreviewLevelChange, UpdateEducationLevel } from './modules/students/application/student.use-cases.js';
 import { AcademicRecordService } from './modules/academic-records/application/academic-record.use-cases.js';
 import { ProfileController } from './presentation/profile.controller.js';
+import { InterestController } from './presentation/interest.controller.js';
+import { InterestTestService } from './modules/interests/application/interest-test.service.js';
 
 @Module({
   imports: [
@@ -15,7 +17,7 @@ import { ProfileController } from './presentation/profile.controller.js';
     MessagingModule.forRoot({ serviceName: 'profile', url: env.RABBITMQ_URL }),
     HealthModule,
   ],
-  controllers: [ProfileController],
+  controllers: [ProfileController, InterestController],
   providers: [
     { provide: StudentRepository, useClass: DrizzleStudentRepository },
     { provide: AcademicRecordRepository, useClass: DrizzleAcademicRecordRepository },
@@ -24,6 +26,7 @@ import { ProfileController } from './presentation/profile.controller.js';
     PreviewLevelChange,
     GetStudentSnapshot,
     AcademicRecordService,
+    InterestTestService,
   ],
 })
 export class AppModule {}

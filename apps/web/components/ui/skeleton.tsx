@@ -35,3 +35,50 @@ export function PageSkeleton({ label, rows = 5 }: { label: string; rows?: number
     </div>
   );
 }
+
+/**
+ * The shape of a page section while it loads, for pages whose heading is already shown: white panels with
+ * lines ("panels"), a form with fields ("form") or a grid of cards ("cards").
+ */
+export function BlockSkeleton({ label, variant = 'panels' }: { label: string; variant?: 'panels' | 'form' | 'cards' }) {
+  return (
+    <div role="status" aria-busy className="flex animate-pulse flex-col gap-[22px] motion-reduce:animate-none">
+      <span className="sr-only">{label}</span>
+      {variant === 'cards' ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="flex h-[188px] flex-col gap-3 rounded-[22px] bg-white p-5">
+              <Bar className="h-5 w-4/5" />
+              <Bar className="h-3.5 w-1/2" />
+              <Bar className="h-3.5 w-2/3" />
+              <Bar className="mt-auto h-6 w-24 rounded-full" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        Array.from({ length: variant === 'form' ? 1 : 3 }, (_, i) => (
+          <div key={i} className="flex flex-col gap-4 rounded-[18px] bg-white p-5 sm:p-6">
+            <Bar className="h-5 w-1/3" />
+            {variant === 'form' ? (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Bar className="h-12" />
+                  <Bar className="h-12" />
+                </div>
+                {Array.from({ length: 4 }, (_, j) => (
+                  <Bar key={j} className="h-11" />
+                ))}
+                <Bar className="h-11 w-40" />
+              </>
+            ) : (
+              <>
+                <Bar className="h-3.5 w-3/4" />
+                <Bar className="h-3.5 w-2/3" />
+              </>
+            )}
+          </div>
+        ))
+      )}
+    </div>
+  );
+}

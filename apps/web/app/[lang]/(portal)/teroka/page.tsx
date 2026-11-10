@@ -8,6 +8,7 @@ import { programmeMeta } from '@/lib/catalogue/presentation';
 import { filtersToQuery, parseFilters } from '@/lib/catalogue/search-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
+import { Pending } from '@/components/ui/pending';
 
 type SearchParams = PageProps<'/[lang]/teroka'>['searchParams'];
 
@@ -27,9 +28,9 @@ export default async function DirectoryPage({ params, searchParams }: PageProps<
       <Suspense fallback={<div className="h-[164px] rounded-[18px] bg-navy" />}>
         <Search lang={lang} dict={dict} searchParams={searchParams} />
       </Suspense>
-      <Suspense fallback={<p className="text-sm text-muted">{t.loading}</p>}>
+      <Pending label={t.loading} variant="cards">
         <Results lang={lang} dict={dict} searchParams={searchParams} />
-      </Suspense>
+      </Pending>
     </>
   );
 }

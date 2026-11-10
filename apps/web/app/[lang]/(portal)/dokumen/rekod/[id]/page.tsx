@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
 import { z } from 'zod';
@@ -13,6 +12,7 @@ import { getRecord } from '@/lib/profile/api';
 import { subjectOptions, toRows } from '@/lib/profile/form-rows';
 import { gradesFor, historyKind, recordLabel, rowsForStream, type HigherQualification, type RecordVariant } from '@/lib/profile/records';
 import { getAccessToken } from '@/lib/supabase/server';
+import { Pending } from '@/components/ui/pending';
 
 /**
  * One saved record: older school years, SPM targets kept after the real results, an earlier qualification. Read
@@ -28,9 +28,9 @@ export default async function RecordPage({ params, searchParams }: PageProps<'/[
       <Link href={`/${lang}/dokumen`} className="text-sm font-semibold hover:underline">
         ← {dict.academic.view.back}
       </Link>
-      <Suspense fallback={<p className="text-sm text-muted">{dict.academic.loading}</p>}>
+      <Pending label={dict.academic.loading} variant="form">
         <SavedRecord lang={lang} dict={dict} params={params} searchParams={searchParams} />
-      </Suspense>
+      </Pending>
     </>
   );
 }

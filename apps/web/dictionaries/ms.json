@@ -1897,5 +1897,150 @@
       "confirmWordLabel": "Taip PADAM untuk mengesahkan",
       "deleteButton": "Padam akaun saya"
     }
+  },
+  "interest": {
+    "title": "Penilaian minat",
+    "unavailable": "Penilaian minat belum tersedia. Cuba lagi kemudian.",
+    "result": {
+      "codeLabel": "Kod minat anda",
+      "completedOn": "Diambil pada {date}",
+      "allTitle": "Keenam-enam jenis minat",
+      "note": "Minat menunjukkan apa yang anda suka, bukan apa yang anda mampu. Gunakannya untuk meneroka pilihan, bukan sebagai keputusan muktamad.",
+      "explore": "Teroka program",
+      "retake": "Jawab semula",
+      "freshLabel": "Keputusan anda sudah siap",
+      "headline": "Minat anda lebih ke arah {a}, {b} dan {c}.",
+      "chartLabel": "Skor minat bagi enam jenis",
+      "retakeTitle": "Jawab semula penilaian minat?",
+      "retakeBody": "Anda sudah menjawab pada {date}. Jawapan lama akan dikosongkan, tetapi keputusan anda sekarang kekal sehingga anda selesai menjawab semula.",
+      "retakeBodyNoDate": "Jawapan lama akan dikosongkan, tetapi keputusan anda sekarang kekal sehingga anda selesai menjawab semula.",
+      "retakeCancel": "Batal",
+      "retakeConfirm": "Ya, jawab semula",
+      "retakeStarting": "Memulakan…",
+      "retakingTitle": "Anda sedang menjawab semula.",
+      "retakingBody": "{count}/{total} soalan sudah dijawab. Keputusan di bawah ialah keputusan lama.",
+      "retakingAction": "Sambung menjawab",
+      "questDone": "Quest selesai!",
+      "more": "Lagi"
+    },
+    "types": {
+      "R": {
+        "name": "Realistik",
+        "body": "Suka kerja praktikal: membina, membaiki dan mengendalikan alat, mesin, tumbuhan atau haiwan. Lebih suka hasil yang nampak berbanding kerja di atas kertas.",
+        "fields": [
+          "kejuruteraan",
+          "teknologi",
+          "automotif",
+          "pertanian",
+          "pembinaan"
+        ],
+        "tagline": "Suka membina & membaiki"
+      },
+      "I": {
+        "name": "Penyiasat",
+        "body": "Suka memerhati, mengkaji dan menyelesaikan masalah dengan idea dan data. Suka bertanya kenapa dan bagaimana sesuatu berlaku.",
+        "fields": [
+          "sains",
+          "perubatan",
+          "farmasi",
+          "sains komputer",
+          "penyelidikan"
+        ],
+        "tagline": "Suka mengkaji & menyiasat"
+      },
+      "A": {
+        "name": "Artistik",
+        "body": "Suka mencipta dan meluahkan idea melalui reka bentuk, tulisan, muzik atau persembahan. Lebih selesa dengan kerja yang bebas berbanding peraturan yang ketat.",
+        "fields": [
+          "seni reka",
+          "media",
+          "muzik",
+          "seni bina",
+          "penulisan"
+        ],
+        "tagline": "Suka mencipta & berkarya"
+      },
+      "S": {
+        "name": "Sosial",
+        "body": "Suka membantu, mengajar, menjaga dan bekerjasama dengan orang lain. Rasa puas apabila dapat memberi kesan kepada hidup orang.",
+        "fields": [
+          "pendidikan",
+          "kejururawatan",
+          "kaunseling",
+          "kerja sosial",
+          "kesihatan"
+        ],
+        "tagline": "Suka membantu orang"
+      },
+      "E": {
+        "name": "Keusahawanan",
+        "body": "Suka memimpin, memujuk dan membuat keputusan. Berani mengambil risiko untuk mencapai sasaran, termasuk dalam perniagaan.",
+        "fields": [
+          "perniagaan",
+          "pengurusan",
+          "pemasaran",
+          "undang-undang",
+          "keusahawanan"
+        ],
+        "tagline": "Suka memimpin & berniaga"
+      },
+      "C": {
+        "name": "Konvensional",
+        "body": "Suka kerja yang tersusun dengan data, nombor, rekod dan prosedur yang jelas. Teliti dan suka memastikan semuanya tepat.",
+        "fields": [
+          "perakaunan",
+          "kewangan",
+          "pentadbiran",
+          "logistik",
+          "sistem maklumat"
+        ],
+        "tagline": "Suka menyusun & mengurus data"
+      }
+    },
+    "source": "Soalan daripada O*NET Mini Interest Profiler (O*NET Career Exploration Tools, U.S. Department of Labor, Employment and Training Administration). EduLaunch menterjemah dan mengubah suai sebahagian maklumat ini; USDOL/ETA tidak meluluskan, menyokong atau menguji pengubahsuaian ini. Digunakan di bawah",
+    "game": {
+      "title": "Quest Minat",
+      "startLine": "Pilih sejauh mana anda suka setiap aktiviti.",
+      "facts": [
+        "30 soalan",
+        "±5 minit",
+        "Tiada jawapan salah"
+      ],
+      "start": "Mula",
+      "level": "LV {n}/{of}",
+      "levelShort": "LV {n}",
+      "xp": "{xp} XP",
+      "levelUp": "Level {n} siap!",
+      "question": "Soalan {n}",
+      "flag": "Tanda",
+      "flagged": "Ditanda",
+      "map": "Peta",
+      "mapTitle": "Peta soalan",
+      "close": "Tutup",
+      "done": "Siap",
+      "open": "Kosong",
+      "back": "Sebelum",
+      "skip": "Langkau",
+      "review": "Hantar",
+      "answered": "{count}/{total} dijawab",
+      "reviewOpen": "Ada soalan kosong",
+      "reviewDone": "Semua siap!",
+      "reviewBack": "Kembali",
+      "finish": "Lihat keputusan",
+      "saving": "Menyimpan…",
+      "saved": "Disimpan ✓",
+      "saveError": "Gagal simpan",
+      "incomplete": "Ada soalan belum dijawab.",
+      "progress": "Kemajuan",
+      "scale": [
+        "Sangat tak suka",
+        "Tak suka",
+        "Tak pasti",
+        "Suka",
+        "Sangat suka"
+      ],
+      "prompt": "Sejauh mana anda suka melakukan aktiviti ini?"
+    },
+    "sourceShort": "Sumber soalan: O*NET Mini Interest Profiler (USDOL/ETA) · butiran lesen"
   }
 }
