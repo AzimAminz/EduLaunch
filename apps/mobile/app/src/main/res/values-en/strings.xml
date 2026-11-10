@@ -1,0 +1,13 @@
+<resources>
+    <!-- Welcome -->
+    <string name="welcome_eyebrow">FIRST STEP</string>
+    <string name="welcome_title">Your future\nstarts here.</string>
+    <string name="welcome_subtitle">Know your interests. Find your path. Reach your goals.</string>
+    <string name="welcome_mascot">Rimau, the EduLaunch mascot, waving</string>
+    <string name="welcome_chip">Made for Malaysian students</string>
+    <string name="welcome_start">Let\'s start</string>
+    <string name="welcome_login">Already have an account? Log in</string>
+
+    <!-- Language: the switch shows the language it switches to. -->
+    <string name="language_switch_to">Bahasa Melayu</string>
+</resources>

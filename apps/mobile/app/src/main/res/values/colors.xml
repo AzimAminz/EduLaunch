@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same tokens as the web app (apps/web/app/globals.css). -->
+    <color name="navy">#142747</color>
+    <color name="muted">#657186</color>
+    <color name="line">#E2E7EF</color>
+    <color name="bg">#F5F6FA</color>
+    <color name="yellow">#FFD84D</color>
+    <color name="red">#EE5D57</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

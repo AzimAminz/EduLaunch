@@ -1,0 +1,12 @@
+<resources>
+    <!-- Light only for now: the screens are designed on the light palette. -->
+    <style name="Base.Theme.Edulaunch" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/navy</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <!-- Default font; a view's own android:fontFamily picks the weight (an app:fontFamily here would override it). -->
+        <item name="android:fontFamily">@font/outfit_regular</item>
+    </style>
+
+    <style name="Theme.Edulaunch" parent="Base.Theme.Edulaunch" />
+</resources>

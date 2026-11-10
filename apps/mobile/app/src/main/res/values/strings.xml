@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name" translatable="false">EduLaunch</string>
+
+    <!-- Welcome -->
+    <string name="welcome_eyebrow">LANGKAH PERTAMA</string>
+    <string name="welcome_title">Masa depan anda,\nmula di sini.</string>
+    <string name="welcome_subtitle">Kenali minat. Temui laluan. Capai impian.</string>
+    <string name="welcome_mascot">Rimau, maskot EduLaunch, melambai</string>
+    <string name="welcome_chip">Direka untuk pelajar Malaysia</string>
+    <string name="welcome_start">Jom mula</string>
+    <string name="welcome_login">Sudah ada akaun? Log masuk</string>
+
+    <!-- Bahasa: pautan menunjukkan bahasa yang akan ditukar. -->
+    <string name="language_switch_to">English</string>
+</resources>
