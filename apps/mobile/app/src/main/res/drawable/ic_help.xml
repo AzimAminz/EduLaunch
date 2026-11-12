@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From apps/web/public/icons/help.svg; tinted by the button. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M18.3333,10A8.3333,8.3333 0,1 1,1.6667 10A8.3333,8.3333 0,1 1,18.3333 10ZM7.575,7.5C7.7709,6.9431 8.1576,6.4734 8.6666,6.1743C9.1756,5.8751 9.7741,5.7658 10.356,5.8656C10.9379,5.9654 11.4657,6.2679 11.8459,6.7196C12.2261,7.1713 12.4342,7.7429 12.4333,8.3333C12.4333,10 9.9333,10.8333 9.9333,10.8333M10,14.1667H10.0083"
+        android:strokeWidth="1.8"
+        android:strokeColor="#142747"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
