@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- M / Cipta akaun EduLaunch: name, e-mail, password and consent. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true"
+    tools:context=".auth.SignUpActivity">
+
+    <LinearLayout style="@style/Edulaunch.Screen">
+
+        <include layout="@layout/view_header" />
+
+        <TextView
+            style="@style/Edulaunch.Eyebrow"
+            android:text="@string/sign_up_eyebrow" />
+
+        <TextView
+            style="@style/Edulaunch.Title"
+            android:text="@string/sign_up_title" />
+
+        <TextView
+            style="@style/Edulaunch.Body"
+            android:text="@string/sign_up_intro" />
+
+        <ImageView
+            style="@style/Edulaunch.Panel"
+            android:contentDescription="@string/sign_up_mascot"
+            android:src="@drawable/rimau_waving" />
+
+        <TextView
+            style="@style/Edulaunch.FieldLabel"
+            android:labelFor="@+id/input_name"
+            android:text="@string/sign_up_name" />
+
+        <EditText
+            android:id="@+id/input_name"
+            style="@style/Edulaunch.Field"
+            android:autofillHints="name"
+            android:hint="@string/sign_up_name_placeholder"
+            android:imeOptions="actionNext"
+            android:inputType="textPersonName|textCapWords" />
+
+        <TextView
+            android:id="@+id/error_name"
+            style="@style/Edulaunch.FieldError" />
+
+        <TextView
+            style="@style/Edulaunch.FieldLabel"
+            android:labelFor="@+id/input_email"
+            android:text="@string/auth_email" />
+
+        <EditText
+            android:id="@+id/input_email"
+            style="@style/Edulaunch.Field"
+            android:autofillHints="emailAddress"
+            android:hint="@string/auth_email_placeholder"
+            android:imeOptions="actionNext"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:id="@+id/error_email"
+            style="@style/Edulaunch.FieldError" />
+
+        <TextView
+            style="@style/Edulaunch.FieldLabel"
+            android:labelFor="@+id/input_password"
+            android:text="@string/auth_password" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp">
+
+            <EditText
+                android:id="@+id/input_password"
+                style="@style/Edulaunch.Field"
+                android:autofillHints="newPassword"
+                android:hint="@string/sign_up_password_placeholder"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:paddingStart="14dp"
+                android:paddingEnd="84dp" />
+
+            <TextView
+                android:id="@+id/toggle_password"
+                style="@style/Edulaunch.FieldToggle"
+                android:text="@string/auth_show" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/error_password"
+            style="@style/Edulaunch.FieldError" />
+
+        <LinearLayout
+            android:id="@+id/consent_box"
+            style="@style/Edulaunch.Card">
+
+            <TextView
+                style="@style/Edulaunch.CardTitle"
+                android:text="@string/sign_up_consent_title" />
+
+            <CheckBox
+                android:id="@+id/check_consent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="-6dp"
+                android:layout_marginTop="4dp"
+                android:minHeight="48dp"
+                android:text="@string/sign_up_consent"
+                android:textColor="@color/muted"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/error_consent"
+                style="@style/Edulaunch.FieldError"
+                android:layout_marginTop="0dp"
+                android:text="@string/error_consent" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/form_alert"
+            style="@style/Edulaunch.FormAlert" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_sign_up"
+            style="@style/Edulaunch.Button"
+            android:layout_marginTop="22dp"
+            android:text="@string/sign_up_submit"
+            app:icon="@drawable/ic_user_plus" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_have_account"
+            style="@style/Edulaunch.Button.Outlined"
+            android:text="@string/sign_up_have_account"
+            app:icon="@drawable/ic_arrow_right"
+            app:iconGravity="textEnd" />
+    </LinearLayout>
+</ScrollView>

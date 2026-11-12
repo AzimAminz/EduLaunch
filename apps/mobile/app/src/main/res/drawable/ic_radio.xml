@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Radio circle on an answer card; follows the card's selected state (duplicateParentState). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/white" />
+                    <stroke android:width="2dp" android:color="@color/navy" />
+                    <size android:width="20dp" android:height="20dp" />
+                </shape>
+            </item>
+            <item android:bottom="5dp" android:left="5dp" android:right="5dp" android:top="5dp">
+                <shape android:shape="oval">
+                    <solid android:color="@color/navy" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/white" />
+            <stroke android:width="2dp" android:color="@color/muted" />
+            <size android:width="20dp" android:height="20dp" />
+        </shape>
+    </item>
+</selector>

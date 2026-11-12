@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only: the backend on a developer's computer (Supabase, gateway) uses plain http,
+  reached from the emulator as 10.0.2.2 or from a phone by the computer's network address.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
