@@ -20,3 +20,6 @@ supabase/.temp/
 .DS_Store
 supabase/templates/preview/
 .taste-skill/
+
+# Downloaded AI models (recommendation service embeddings)
+.cache/

@@ -150,7 +150,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | **Bahasa Melayu / English** moved from "Could have" to **Done** | Team decision: the whole system is bilingual from the start, so every new screen ships in both languages |
 | Programme cards show information only, no pictures | Admins should not have to upload a picture for every programme |
 | Services keep running when RabbitMQ is down | Found during manual testing |
-| Recommendation reasons become data the web app translates | **Done for the eligibility check** (Step 7); the recommendations list still uses English reasons until its screen is built |
+| Recommendation reasons become data the web app translates | **Done**: the eligibility check (Step 7) and the recommendations list (`/cadangan`) both carry rule details the web app words in BM/EN |
 
 ### Changes in the previous update (v1 → v2)
 
@@ -190,7 +190,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | **In Progress** | Done: Syarat Am / Khas by section, ATAU sets, N from a list, declarations, fill from ePanduan, copy approved requirements, programme facts as ePanduan lists them. Left: diploma field by NEC code, A-Level / IB points |
 | JPT import (requirements) | Requirement text parsed by rules, Claude for the rest, validated, drafts for admin approval | Not Started | Step 11; needs Steps 9–10 and an Anthropic API key |
 | Interest test + activities | RIASEC result, activity ratings | **In Progress** | Interest test done (9 Nov 2026): the O*NET Mini Interest Profiler (30 activities, 0–4 scale, sum per Holland type 0–20, as its developers publish), in BM and EN, saved step by step, result with the three-letter code; used under the O*NET Tools Developer License with the required credit. Left: exploration activities |
-| Recommendation v1 | Score, rank, template reasons, top-match card | **In Progress** | Dashboard card; interest and preference data feeding the score |
+| Recommendation v1 | Score, rank, template reasons, top-match card | **In Progress** | `/cadangan` page done (eligibility first, then RIASEC interest fit, earlier study — diploma/certificate field, matriculation stream and programme-name similarity from a local text model — and subject strength; met/unmet rules; offer chance from merit; 8 cards a page); dashboard card waits for the home page |
 | Merit calculator | Formula per entry route, target vs actual labels | **Done** (8 Nov 2026) | Merit Lab: SPM, STPM, matriculation, foundation and diploma formulas copied from the ePanduan merit calculator's own code, with its official SPM subject list; live "what if". Next: show the student's merit beside each programme's average merit (prediction v1) |
 | Slip upload + OCR | Upload, local OCR, review screen with flagged rows | Not Started | |
 | Prediction v1 | Margin bands from `ADMISSION_STAT`, "No data" state | **Done** (8 Nov 2026) | The programme page shows the student's merit beside the programme's ePanduan average merit, only when both belong to the same group of candidates (SPM leavers or pre-university); bands are a house rule (+3 above, -2 near) and never shown as a chance or a promise |

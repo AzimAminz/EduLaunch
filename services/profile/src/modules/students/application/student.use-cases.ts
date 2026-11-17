@@ -147,6 +147,18 @@ export class GetStudentSnapshot implements UseCase<{ studentId: string }, Studen
       cgpa: higher?.cgpa ?? null,
       muetBand: higher?.muetBand ?? null,
       riasec,
+      priorStudy: priorStudyOf(higher),
     };
   }
+}
+
+/** The field, programme name and stream of the newest result after SPM; null when none of them is known. */
+function priorStudyOf(record: ReturnType<AcademicRecord['toSnapshot']> | undefined): StudentSnapshot['priorStudy'] {
+  if (!record) return null;
+  const fieldId = record.fieldId ?? null;
+  const fieldName = record.customFieldName ?? null;
+  const programmeName = record.programmeName ?? null;
+  const stream = record.stream ?? null;
+  if (!fieldId && !fieldName && !programmeName && !stream) return null;
+  return { qualification: record.qualification, fieldId, fieldName, programmeName, stream };
 }

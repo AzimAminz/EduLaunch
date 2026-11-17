@@ -35,11 +35,22 @@ export class HttpCatalogueGateway extends CatalogueGateway {
     this.client = new ServiceClient(baseUrl, internalToken);
   }
 
+  /** Every published programme at these levels: the catalogue pages 50 at a time, so all pages are read. */
   async programmesAt(levels: StudyLevel[]) {
-    const pages = await Promise.all(
-      levels.map((l) => this.client.get(`/programmes?studyLevel=${l}&pageSize=50`, z.object({ items: z.array(ProgramSummary) }))),
+    const PAGE_SIZE = 50;
+    const MAX_PAGES = 200; // 10 000 programmes per level; a guard against a catalogue that never stops paging
+    const perLevel = await Promise.all(
+      levels.map(async (level) => {
+        const out: ProgramSummary[] = [];
+        for (let page = 1; page <= MAX_PAGES; page++) {
+          const { items } = await this.client.get(`/programmes?studyLevel=${level}&pageSize=${PAGE_SIZE}&page=${page}`, z.object({ items: z.array(ProgramSummary) }));
+          out.push(...items);
+          if (items.length < PAGE_SIZE) break;
+        }
+        return out;
+      }),
     );
-    return pages.flatMap((p) => p.items);
+    return perLevel.flat();
   }
 
   async publishedRequirements(programIds: string[]) {
@@ -57,9 +68,9 @@ export class HttpCatalogueGateway extends CatalogueGateway {
     return new Map(rows.map((r) => [r.id, r.name]));
   }
 
-  async fieldWeights() {
-    const rows = await this.client.get('/fields', z.array(z.object({ id: z.string(), riasecWeights: z.record(z.string(), z.number()).nullable() })));
-    return new Map(rows.map((r) => [r.id, r.riasecWeights as Riasec | null]));
+  async fields() {
+    const rows = await this.client.get('/fields', z.array(z.object({ id: z.string(), nameEn: z.string().nullable().default(null), riasecWeights: z.record(z.string(), z.number()).nullable() })));
+    return rows.map((r) => ({ id: r.id, nameEn: r.nameEn, riasecWeights: r.riasecWeights as Riasec | null }));
   }
 }
 

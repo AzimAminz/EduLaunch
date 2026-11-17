@@ -1,0 +1,1 @@
+ALTER TABLE "recommendation"."recommendation" ADD COLUMN "scoring_version" integer DEFAULT 1 NOT NULL;

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, type Database } from '@edulaunch/nest-kit';
-import { desc, eq } from 'drizzle-orm';
+import { asc, desc, eq } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
 import { RecommendationStore } from '../application/ports.js';
-import type { RecommendationItem } from '../domain/recommendation-list.js';
+import { SCORING_VERSION, type RecommendationItem } from '../domain/recommendation-list.js';
 
 const { recommendations } = schema;
 
@@ -17,14 +17,19 @@ export class DrizzleRecommendationStore extends RecommendationStore {
     await this.db.transaction(async (tx) => {
       await tx.delete(recommendations).where(eq(recommendations.studentId, studentId));
       if (items.length) {
-        await tx.insert(recommendations).values(items.map((i) => ({ ...i, studentId, offerMargin: i.offerMargin === null ? null : String(i.offerMargin) })));
+        await tx.insert(recommendations).values(items.map((i) => ({ ...i, studentId, scoringVersion: SCORING_VERSION, offerMargin: i.offerMargin === null ? null : String(i.offerMargin) })));
       }
     });
   }
 
   async listFor(studentId: string): Promise<RecommendationItem[]> {
-    const rows = await this.db.select().from(recommendations).where(eq(recommendations.studentId, studentId)).orderBy(desc(recommendations.isTopMatch), desc(recommendations.score));
-    return rows.map(({ studentId: _s, generatedAt: _g, offerMargin, ...r }) => ({ ...r, offerMargin: offerMargin === null ? null : Number(offerMargin) }));
+    const rows = await this.db.select().from(recommendations).where(eq(recommendations.studentId, studentId)).orderBy(desc(recommendations.isTopMatch), asc(recommendations.eligibility), desc(recommendations.score));
+    return rows.map(({ studentId: _s, generatedAt: _g, scoringVersion: _v, offerMargin, ...r }) => ({ ...r, offerMargin: offerMargin === null ? null : Number(offerMargin) }));
+  }
+
+  async status(studentId: string): Promise<{ generatedAt: Date; scoringVersion: number } | null> {
+    const [row] = await this.db.select({ generatedAt: recommendations.generatedAt, scoringVersion: recommendations.scoringVersion }).from(recommendations).where(eq(recommendations.studentId, studentId)).limit(1);
+    return row ?? null;
   }
 
   async studentsWithProgramme(programId: string): Promise<string[]> {

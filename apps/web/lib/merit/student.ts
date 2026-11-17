@@ -25,6 +25,8 @@ export interface MeritInputs {
   level: string | null;
   /** The co-curricular mark to start from. */
   cocurricular: number;
+  /** The programme (or field) the student named for their qualification after SPM, e.g. "Diploma Sains Komputer". */
+  priorName?: string | null;
 }
 
 /**
@@ -47,6 +49,7 @@ export async function loadMeritInputs(token: string, locale: Locale): Promise<Me
       higherQualification: higher,
       level: me.educationLevel,
       cocurricular,
+      priorName: higherRecord?.programmeName ?? higherRecord?.customFieldName ?? null,
     };
   }
   const spmSubjects = reference.subjects.filter((s) => s.qualification === 'spm');
@@ -68,6 +71,7 @@ export async function loadMeritInputs(token: string, locale: Locale): Promise<Me
     higherQualification: higher,
     level: me.educationLevel,
     cocurricular,
+    priorName: higherRecord?.programmeName ?? higherRecord?.customFieldName ?? null,
   };
 }
 

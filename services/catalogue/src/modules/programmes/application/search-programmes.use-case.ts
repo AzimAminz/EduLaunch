@@ -28,6 +28,7 @@ export function toSummary(program: Program, facts?: AdmissionFacts): ProgramSumm
     studyLevel: s.studyLevel,
     durationSemesters: s.durationSemesters,
     fieldIds: s.fieldIds,
+    necCode: s.necCode ?? null,
     entryRoutes: facts?.entryRoutes ?? [],
     averageMerit: facts?.averageMerit ?? null,
   };

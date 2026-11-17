@@ -15,6 +15,7 @@ The main idea: **use AI only where it is clearly needed.** Most of the "smart" b
 | Eligibility check | Rules in code | No | Free |
 | Recommendation ranking | Scoring formula | No | Free |
 | Recommendation reasons | Text templates filled with real data | No | Free |
+| Earlier-study match (programme names) | Local embedding model (`Xenova/multilingual-e5-small`, transformers.js, CPU) downloaded once; field matching alone when it is off | No (runs on our server) | Free |
 | Alternative pathways and what-if | Same rules, re-run with one grade raised | No | Free |
 | Offer-chance prediction | Margin vs past cut-offs, later logistic regression | No | Free |
 | Form 4 stream suggestion | Score: 50% interest, 40% school-subject strength, 10% activity ratings (system-design §3.7) | No | Free |

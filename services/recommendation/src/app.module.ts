@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { DatabaseModule, HealthModule, MessagingModule } from '@edulaunch/nest-kit';
 import * as schema from './infrastructure/db/schema.js';
 import { env } from './config.js';
-import { CatalogueGateway, ProfileGateway, RecommendationStore } from './modules/recommendations/application/ports.js';
+import { CatalogueGateway, ProfileGateway, RecommendationStore, TextEmbedder } from './modules/recommendations/application/ports.js';
+import { TransformersEmbedder } from './modules/recommendations/infrastructure/transformers-embedder.js';
 import { HttpCatalogueGateway, HttpProfileGateway } from './modules/recommendations/infrastructure/http-gateways.js';
 import { CheckEligibility } from './modules/eligibility/application/check-eligibility.use-case.js';
 import { EligibilityController } from './modules/eligibility/presentation/eligibility.controller.js';
@@ -23,6 +24,7 @@ import { RecommendationsController } from './modules/recommendations/presentatio
     { provide: CatalogueGateway, useFactory: () => new HttpCatalogueGateway(env.CATALOGUE_URL, env.INTERNAL_TOKEN) },
     { provide: ProfileGateway, useFactory: () => new HttpProfileGateway(env.PROFILE_URL, env.INTERNAL_TOKEN) },
     { provide: RecommendationStore, useClass: DrizzleRecommendationStore },
+    { provide: TextEmbedder, useFactory: () => new TransformersEmbedder({ enabled: env.EMBEDDINGS === 'on', modelsDir: env.MODELS_DIR, model: env.EMBEDDING_MODEL }) },
     GenerateRecommendations,
     RecomputeOnChange,
   ],
