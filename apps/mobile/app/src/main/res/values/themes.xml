@@ -6,7 +6,17 @@
         <item name="android:windowBackground">@color/bg</item>
         <!-- Default font; a view's own android:fontFamily picks the weight (an app:fontFamily here would override it). -->
         <item name="android:fontFamily">@font/outfit_regular</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Edulaunch.BottomSheet</item>
     </style>
 
     <style name="Theme.Edulaunch" parent="Base.Theme.Edulaunch" />
+
+    <!-- Bottom sheets (choose a qualification) are white like the cards, not Material's tinted surface. -->
+    <style name="ThemeOverlay.Edulaunch.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Edulaunch.BottomSheet</item>
+    </style>
+
+    <style name="Widget.Edulaunch.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/white</item>
+    </style>
 </resources>

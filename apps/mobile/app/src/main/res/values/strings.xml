@@ -12,4 +12,107 @@
 
     <!-- Bahasa: pautan menunjukkan bahasa yang akan ditukar. -->
     <string name="language_switch_to">English</string>
+
+    <!-- Akaun: sama seperti apps/web/dictionaries/ms.json (auth). -->
+    <string name="auth_email">E-mel</string>
+    <string name="auth_email_placeholder">nama@contoh.com</string>
+    <string name="auth_password">Kata laluan</string>
+    <string name="auth_show">Tunjuk</string>
+    <string name="auth_hide">Sembunyi</string>
+
+    <string name="sign_in_title">Selamat kembali</string>
+    <string name="sign_in_intro">Log masuk untuk mengakses alat peribadi dan menyambung perjalanan anda.</string>
+    <string name="sign_in_password_placeholder">Masukkan kata laluan</string>
+    <string name="sign_in_submit">Log masuk</string>
+    <string name="sign_in_create_account">Cipta akaun</string>
+    <string name="sign_in_forgot">Lupa kata laluan?</string>
+
+    <string name="sign_up_eyebrow">AKAUN ANDA</string>
+    <string name="sign_up_title">Cipta akaun EduLaunch</string>
+    <string name="sign_up_intro">Untuk pelajar sekolah menengah serta lepasan SPM, pra-universiti dan Diploma.</string>
+    <string name="sign_up_name">Nama</string>
+    <string name="sign_up_name_placeholder">Nama penuh</string>
+    <string name="sign_up_password_placeholder">Cipta kata laluan</string>
+    <string name="sign_up_consent_title">Persetujuan</string>
+    <string name="sign_up_consent">Saya telah membaca notis privasi dan terma penggunaan.</string>
+    <string name="sign_up_submit">Cipta akaun</string>
+    <string name="sign_up_have_account">Sudah ada akaun</string>
+    <string name="sign_up_mascot">Rimau, maskot EduLaunch</string>
+
+    <string name="forgot_eyebrow">BANTUAN LOG MASUK</string>
+    <string name="forgot_title">Pulihkan akses akaun</string>
+    <string name="forgot_intro">Masukkan e-mel untuk meminta pautan pemulihan.</string>
+    <string name="forgot_after_title">Selepas dihantar</string>
+    <string name="forgot_after_body">Jika e-mel ini berdaftar, kami hantar pautan untuk menetapkan kata laluan baharu.</string>
+    <string name="forgot_submit">Hantar pautan pemulihan</string>
+    <string name="forgot_back">Kembali log masuk</string>
+    <string name="forgot_mascot">Rimau memegang perisai</string>
+
+    <string name="inbox_eyebrow">PERMINTAAN DITERIMA</string>
+    <string name="inbox_title">Semak peti masuk anda</string>
+    <string name="inbox_intro">Kami telah menghantar pautan ke e-mel anda. Semak juga folder spam.</string>
+    <string name="inbox_not_received_title">Belum menerima e-mel?</string>
+    <string name="inbox_not_received_body">Tunggu seminit sebelum meminta semula. Pautan yang luput boleh diganti dengan permintaan baharu.</string>
+    <string name="inbox_back">Kembali log masuk</string>
+    <string name="inbox_change_email">Ubah e-mel</string>
+
+    <!-- Ralat borang -->
+    <string name="error_required">Ruangan ini perlu diisi.</string>
+    <string name="error_email">Masukkan alamat e-mel yang sah.</string>
+    <string name="error_password_short">Kata laluan perlu sekurang-kurangnya %1$d aksara.</string>
+    <string name="error_consent">Tandakan persetujuan untuk meneruskan.</string>
+    <string name="error_too_long">Terlalu panjang.</string>
+    <string name="error_level_required">Pilih tahap pendidikan anda.</string>
+    <string name="error_form_required">Pilih tingkatan anda.</string>
+    <string name="error_invalid_credentials">E-mel atau kata laluan tidak betul.</string>
+    <string name="error_email_taken">E-mel ini sudah mempunyai akaun. Cuba log masuk.</string>
+    <string name="error_email_not_confirmed">Sahkan e-mel anda dahulu melalui pautan yang kami hantar.</string>
+    <string name="error_rate_limited">Terlalu banyak cubaan. Cuba lagi sebentar lagi.</string>
+    <string name="error_network">Tidak dapat menghubungi EduLaunch. Semak sambungan internet anda dan cuba lagi.</string>
+    <string name="error_generic">Sesuatu tidak kena. Cuba lagi sebentar lagi.</string>
+
+    <!-- Onboarding: sama seperti apps/web/dictionaries/ms.json (onboarding). -->
+    <string name="onboarding_skip">Langkau</string>
+    <string name="onboarding_step">Langkah 2 daripada 3 · Situasi anda</string>
+    <string name="onboarding_eyebrow">SELAMAT DATANG KE EDULAUNCH</string>
+    <string name="onboarding_title">Mulakan dari situasi anda</string>
+    <string name="onboarding_intro">Akaun anda sudah sedia. Pilih situasi yang paling hampir — ini membantu kami mencadangkan langkah pertama.</string>
+    <string name="onboarding_question">Apakah tahap pendidikan anda sekarang?</string>
+    <string name="onboarding_form_label">Tingkatan:</string>
+    <string name="onboarding_continue">Teruskan</string>
+    <string name="onboarding_mascot">Rimau memegang kompas</string>
+
+    <string name="level_form1_3_title">Tingkatan 1–3</string>
+    <string name="level_form1_3_body">Kenali minat, isi gred peperiksaan sekolah dan pilih aliran Tingkatan 4.</string>
+    <string name="level_form4_5_title">Tingkatan 4–5</string>
+    <string name="level_form4_5_body">Subjek SPM, gred semasa dan sasaran, simulasi Merit Lab.</string>
+    <string name="level_after_spm_title">Lepasan SPM</string>
+    <string name="level_after_spm_body">Masukkan keputusan SPM sebenar dan semak kelayakan.</string>
+    <string name="level_after_certificate_title">Lepasan Sijil / SVM / SKM</string>
+    <string name="level_after_certificate_body">Sijil Politeknik, Kolej Komuniti, Sijil Vokasional Malaysia atau SKM. Untuk sambung ke Diploma.</string>
+    <string name="level_after_preu_title">Lepasan STPM / Matrikulasi / Asasi / A-Level / Diploma</string>
+    <string name="level_after_preu_body">Termasuk DVM dan DKM/DLKM. PNGK, MUET dan bidang untuk program ijazah.</string>
+
+    <string name="level_sheet_title">Sahkan perubahan tahap</string>
+    <string name="level_sheet_question">Kelayakan apa yang anda ada sekarang?</string>
+    <string name="level_sheet_hint">Dokumen akademik akan memaparkan borang untuk kelayakan ini sahaja.</string>
+    <string name="level_sheet_cancel">Batal</string>
+    <string name="level_sheet_confirm">Sahkan &amp; simpan</string>
+
+    <string name="qualification_certificate">Sijil Politeknik / Kolej Komuniti</string>
+    <string name="qualification_svm">Sijil Vokasional Malaysia (SVM)</string>
+    <string name="qualification_skm">Sijil Kemahiran Malaysia (SKM)</string>
+    <string name="qualification_stpm">STPM</string>
+    <string name="qualification_matriculation">Matrikulasi</string>
+    <string name="qualification_foundation">Asasi</string>
+    <string name="qualification_a_level">A-Level</string>
+    <string name="qualification_diploma">Diploma (universiti, politeknik, swasta)</string>
+    <string name="qualification_dvm">Diploma Vokasional Malaysia (DVM)</string>
+    <string name="qualification_dkm">Diploma Kemahiran Malaysia (DKM / DLKM)</string>
+
+    <!-- Utama (sementara, sehingga tab bawah dibina) -->
+    <string name="home_title">Utama</string>
+    <string name="home_body">Anda sudah log masuk. Dashboard dan tab bawah akan dibina selepas ini.</string>
+    <string name="home_sign_out">Log keluar</string>
+    <string name="home_signed_in_as">Log masuk sebagai %1$s</string>
 </resources>

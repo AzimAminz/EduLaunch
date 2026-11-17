@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- M / Semak peti masuk: the recovery e-mail is on its way. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true"
+    tools:context=".auth.CheckInboxActivity">
+
+    <LinearLayout style="@style/Edulaunch.Screen">
+
+        <include layout="@layout/view_header" />
+
+        <TextView
+            style="@style/Edulaunch.Eyebrow"
+            android:text="@string/inbox_eyebrow" />
+
+        <TextView
+            style="@style/Edulaunch.Title"
+            android:text="@string/inbox_title" />
+
+        <TextView
+            style="@style/Edulaunch.Body"
+            android:text="@string/inbox_intro" />
+
+        <ImageView
+            style="@style/Edulaunch.Panel"
+            android:importantForAccessibility="no"
+            android:src="@drawable/documents_check" />
+
+        <LinearLayout style="@style/Edulaunch.Card">
+
+            <TextView
+                style="@style/Edulaunch.CardTitle"
+                android:text="@string/inbox_not_received_title" />
+
+            <TextView
+                style="@style/Edulaunch.Body"
+                android:layout_marginTop="6dp"
+                android:text="@string/inbox_not_received_body" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_back"
+            style="@style/Edulaunch.Button"
+            android:layout_marginTop="22dp"
+            android:text="@string/inbox_back"
+            app:icon="@drawable/ic_log_in" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_change_email"
+            style="@style/Edulaunch.Button.Outlined"
+            android:text="@string/inbox_change_email"
+            app:icon="@drawable/ic_pencil" />
+    </LinearLayout>
+</ScrollView>

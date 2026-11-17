@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- M / Onboarding · Mulakan dari situasi anda: step 2 of 3, pick the education level. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true"
+    tools:context=".onboarding.OnboardingActivity">
+
+    <LinearLayout style="@style/Edulaunch.Screen">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <include layout="@layout/view_header" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/button_skip"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:fontFamily="@font/outfit_semibold"
+                android:gravity="center"
+                android:paddingHorizontal="8dp"
+                android:text="@string/onboarding_skip"
+                android:textColor="@color/navy"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/onboarding_step"
+            android:textColor="@color/muted"
+            android:textSize="12sp" />
+
+        <!-- Three steps: account (done), your situation (now), dashboard. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="8dp"
+            android:importantForAccessibility="no"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_progress_done" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_progress_done" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_progress_todo" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/Edulaunch.Eyebrow"
+            android:text="@string/onboarding_eyebrow" />
+
+        <TextView
+            style="@style/Edulaunch.Title"
+            android:text="@string/onboarding_title" />
+
+        <TextView
+            style="@style/Edulaunch.Body"
+            android:text="@string/onboarding_intro" />
+
+        <ImageView
+            style="@style/Edulaunch.Panel"
+            android:contentDescription="@string/onboarding_mascot"
+            android:src="@drawable/rimau_compass" />
+
+        <TextView
+            style="@style/Edulaunch.CardTitle"
+            android:layout_marginTop="22dp"
+            android:accessibilityHeading="true"
+            android:text="@string/onboarding_question"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/error_level"
+            style="@style/Edulaunch.FieldError" />
+
+        <!-- One card per education level, added by OnboardingActivity. -->
+        <LinearLayout
+            android:id="@+id/level_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/form_alert"
+            style="@style/Edulaunch.FormAlert" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_continue"
+            style="@style/Edulaunch.Button"
+            android:layout_marginTop="22dp"
+            android:text="@string/onboarding_continue"
+            app:icon="@drawable/ic_arrow_right"
+            app:iconGravity="textEnd" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- M15 / Sign in: e-mail and password, then log in, create an account or recover the account. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true"
+    tools:context=".auth.LoginActivity">
+
+    <LinearLayout style="@style/Edulaunch.Screen">
+
+        <include layout="@layout/view_header" />
+
+        <TextView
+            style="@style/Edulaunch.Title"
+            android:layout_marginTop="24dp"
+            android:text="@string/sign_in_title" />
+
+        <TextView
+            style="@style/Edulaunch.Body"
+            android:text="@string/sign_in_intro" />
+
+        <ImageView
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:layout_marginStart="-8dp"
+            android:layout_marginTop="12dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/rimau_waving" />
+
+        <TextView
+            style="@style/Edulaunch.FieldLabel"
+            android:labelFor="@+id/input_email"
+            android:text="@string/auth_email" />
+
+        <EditText
+            android:id="@+id/input_email"
+            style="@style/Edulaunch.Field"
+            android:autofillHints="emailAddress"
+            android:hint="@string/auth_email_placeholder"
+            android:imeOptions="actionNext"
+            android:inputType="textEmailAddress" />
+
+        <TextView
+            android:id="@+id/error_email"
+            style="@style/Edulaunch.FieldError" />
+
+        <TextView
+            style="@style/Edulaunch.FieldLabel"
+            android:labelFor="@+id/input_password"
+            android:text="@string/auth_password" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp">
+
+            <EditText
+                android:id="@+id/input_password"
+                style="@style/Edulaunch.Field"
+                android:autofillHints="password"
+                android:hint="@string/sign_in_password_placeholder"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:paddingStart="14dp"
+                android:paddingEnd="84dp" />
+
+            <TextView
+                android:id="@+id/toggle_password"
+                style="@style/Edulaunch.FieldToggle"
+                android:text="@string/auth_show" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/error_password"
+            style="@style/Edulaunch.FieldError" />
+
+        <TextView
+            android:id="@+id/form_alert"
+            style="@style/Edulaunch.FormAlert" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_sign_in"
+            style="@style/Edulaunch.Button"
+            android:layout_marginTop="22dp"
+            android:text="@string/sign_in_submit"
+            app:icon="@drawable/ic_log_in" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_create_account"
+            style="@style/Edulaunch.Button.Outlined"
+            android:text="@string/sign_in_create_account"
+            app:icon="@drawable/ic_user_plus" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_forgot"
+            style="@style/Edulaunch.Button.Tonal"
+            android:text="@string/sign_in_forgot"
+            app:icon="@drawable/ic_help" />
+    </LinearLayout>
+</ScrollView>

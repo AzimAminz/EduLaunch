@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared looks for the account and onboarding screens, so each layout only places things. -->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Empty parent of the "Edulaunch.*" styles below (a dot in a style name means "inherits from"). -->
+    <style name="Edulaunch" />
+
+    <!-- A screen's content column inside its ScrollView. -->
+    <style name="Edulaunch.Screen">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">24dp</item>
+    </style>
+
+    <!-- Small capitals above a title, such as "AKAUN ANDA". -->
+    <style name="Edulaunch.Eyebrow">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">28dp</item>
+        <item name="android:fontFamily">@font/outfit_semibold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Edulaunch.Title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:accessibilityHeading" tools:targetApi="p">true</item>
+        <item name="android:fontFamily">@font/outfit_bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="Edulaunch.Body">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:lineSpacingMultiplier">1.15</item>
+        <item name="android:textColor">@color/muted</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- The light blue box that holds Rimau or an illustration. -->
+    <style name="Edulaunch.Panel">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">170dp</item>
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:background">@drawable/bg_panel</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!-- A white box with a short heading and text ("Persetujuan", "Selepas dihantar"). -->
+    <style name="Edulaunch.Card">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="Edulaunch.CardTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/outfit_semibold</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Edulaunch.FieldLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:fontFamily">@font/outfit_semibold</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Edulaunch.Field">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textColorHint">@color/muted</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- Error under a field; hidden until the form is checked. -->
+    <style name="Edulaunch.FieldError">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:textColor">@color/red</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <!-- A message for the whole form (from the server), above its button; hidden until there is one. -->
+    <style name="Edulaunch.FormAlert">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:accessibilityLiveRegion">polite</item>
+        <item name="android:background">@drawable/bg_alert</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textColor">#B3261E</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <!-- "Tunjuk" / "Sembunyi" inside a password field. -->
+    <style name="Edulaunch.FieldToggle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">end|center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:fontFamily">@font/outfit_semibold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:textColor">#2F5BD3</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!-- Buttons: navy (main action), white with a border, light blue. -->
+    <style name="Edulaunch.Button" parent="Widget.Material3.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:fontFamily">@font/outfit_semibold</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/navy</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="iconSize">18dp</item>
+        <item name="iconTint">@color/white</item>
+    </style>
+
+    <style name="Edulaunch.Button.Outlined">
+        <item name="android:textColor">@color/navy</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="iconTint">@color/navy</item>
+        <item name="strokeColor">@color/line</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Edulaunch.Button.Tonal">
+        <item name="android:textColor">@color/navy</item>
+        <item name="backgroundTint">@color/blue</item>
+        <item name="iconTint">@color/navy</item>
+    </style>
+</resources>

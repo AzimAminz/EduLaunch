@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Temporary home, so sign-in and onboarding have somewhere to land until the tab layout is built. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true"
+    tools:context=".home.HomeActivity">
+
+    <LinearLayout style="@style/Edulaunch.Screen">
+
+        <include layout="@layout/view_header" />
+
+        <TextView
+            style="@style/Edulaunch.Title"
+            android:layout_marginTop="24dp"
+            android:text="@string/home_title" />
+
+        <TextView
+            style="@style/Edulaunch.Body"
+            android:text="@string/home_body" />
+
+        <TextView
+            android:id="@+id/signed_in_as"
+            style="@style/Edulaunch.Body"
+            android:layout_marginTop="14dp"
+            android:fontFamily="@font/outfit_semibold"
+            android:textColor="@color/navy" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_sign_out"
+            style="@style/Edulaunch.Button.Outlined"
+            android:layout_marginTop="24dp"
+            android:text="@string/home_sign_out"
+            app:icon="@drawable/ic_log_in" />
+    </LinearLayout>
+</ScrollView>
