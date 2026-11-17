@@ -11,6 +11,8 @@ export const ProgramSummary = z.object({
   studyLevel: StudyLevel,
   durationSemesters: z.number().int().nullable(),
   fieldIds: z.array(z.uuid()),
+  /** National Education Code (4 digits, e.g. 0613 Computer Science): a finer field than `fieldIds`. */
+  necCode: z.string().nullable().default(null),
   /** Entry routes the programme takes candidates from (as the official source lists them). */
   entryRoutes: z.array(z.string()).default([]),
   /** The newest published average merit (ePanduan), for offer chances. */
@@ -107,6 +109,21 @@ export const StudentSnapshot = z.object({
   cgpa: z.number().nullable(),
   muetBand: z.number().nullable(),
   riasec: z.record(z.enum(['R', 'I', 'A', 'S', 'E', 'C']), z.number()).nullable(),
+  /**
+   * What the student studied after SPM, from the newest confirmed result: the catalogue field of a diploma or
+   * certificate (or the field they typed), the programme's name, and a matriculation stream. Programmes in the
+   * same or a related field continue it.
+   */
+  priorStudy: z
+    .object({
+      qualification: z.string(),
+      fieldId: z.uuid().nullable(),
+      fieldName: z.string().nullable(),
+      programmeName: z.string().nullable(),
+      stream: z.string().nullable(),
+    })
+    .nullable()
+    .optional(),
 });
 export type StudentSnapshot = z.infer<typeof StudentSnapshot>;
 

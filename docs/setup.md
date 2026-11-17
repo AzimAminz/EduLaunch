@@ -68,6 +68,8 @@ pnpm db:stop
 
 Next time, you only need: open Docker Desktop → `pnpm db:start` → `pnpm infra:up` → `pnpm dev`.
 
+**A one-time download.** The first time it starts, the recommendation service downloads a small language model (about 120 MB, free, from Hugging Face) into `.cache/models` and keeps it there. It compares programme names with what a student studied before (for example "Diploma Sains Komputer"), on your own computer: nothing is sent out. Recommendations work without it too (field matching only); to skip the download, put `EMBEDDINGS=off` in `services/recommendation/.env`.
+
 ---
 
 ## Useful commands

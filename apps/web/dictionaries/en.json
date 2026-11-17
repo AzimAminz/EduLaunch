@@ -2042,5 +2042,237 @@
       "prompt": "How much would you like doing this activity?"
     },
     "sourceShort": "Questions: O*NET Mini Interest Profiler (USDOL/ETA) · licence details"
+  },
+  "recommendations": {
+    "eyebrow": "PROGRAMME RECOMMENDATIONS · BASED ON YOUR PROFILE",
+    "title": "Programmes that match you",
+    "intro": "Ordered by official eligibility first, then how well they fit your interests, your earlier study and your subject strengths. Every recommendation shows why, and where its requirements come from.",
+    "basedOn": "Worked out from:",
+    "basis": {
+      "target": "{n} subjects · target grades",
+      "actual": "{n} subjects · actual results",
+      "cgpa": "CGPA {cgpa}",
+      "none": "No results yet"
+    },
+    "interestChip": "Interests: {types}",
+    "noInterestChip": "Interests: not assessed",
+    "updated": "Updated {date}",
+    "checkData": "Check my data",
+    "refresh": "Recalculate",
+    "refreshing": "Calculating…",
+    "tabsLabel": "Filter by eligibility",
+    "tabs": {
+      "eligible": "Eligible · {n}",
+      "almost": "Almost eligible · {n}",
+      "not_yet": "Not yet eligible · {n}"
+    },
+    "status": {
+      "eligible": "Eligible",
+      "almost": "Almost eligible",
+      "not_yet": "Not yet eligible"
+    },
+    "targetSuffix": " · based on targets",
+    "topMatch": "Top match",
+    "years": "{n} years",
+    "streamProvider": "Your school",
+    "interestMatch": "Your {types} interests suit the {field} field",
+    "interestMatchNoField": "Your {types} interests suit this programme's field",
+    "interestWeak": "The {field} field is not a close match for your main interests. Read about its careers before choosing",
+    "interestWeakNoField": "This programme's field is not a close match for your main interests. Read about its careers before choosing",
+    "oneOf": "You need to meet one of these: {rules}",
+    "toConfirm": "There are {n} other conditions to check yourself, such as an interview or a health check",
+    "chance": {
+      "label": "Offer chance",
+      "high": "High",
+      "medium": "Moderate",
+      "low": "Low",
+      "none": "No data",
+      "noData": "We cannot estimate your chance yet because past admission data is not enough or does not match your qualification.",
+      "noMerit": "Complete your results to see your offer chance for this programme.",
+      "vs": "Merit {merit} · average {average}"
+    },
+    "source": "Requirements come from the institution's official record and were checked by an EduLaunch admin",
+    "viewRequirements": "View full requirements",
+    "how": {
+      "title": "How matching works",
+      "filter": {
+        "title": "Filter by required conditions",
+        "caption": "Checked by official rules, not AI"
+      },
+      "weigh": {
+        "title": "Weigh the fit",
+        "caption": "A score out of 100 from three things",
+        "interest": "Interests (RIASEC)",
+        "subjects": "Subject strength",
+        "continuity": "Earlier study",
+        "noPrior": "No earlier study on record? Its 25% goes to interests and subjects."
+      },
+      "levels": {
+        "title": "Match level",
+        "caption": "From the score",
+        "range": {
+          "strong": "80+",
+          "fair": "65–79",
+          "weak": "< 65"
+        }
+      },
+      "chance": {
+        "title": "Offer chance",
+        "caption": "Your merit against the ePanduan average",
+        "range": {
+          "high": "≥ +3",
+          "medium": "−2 – +3",
+          "low": "< −2"
+        }
+      },
+      "badges": {
+        "verified": "Requirements checked by admins",
+        "local": "Data stays on our server",
+        "guide": "A guide, not a guarantee"
+      }
+    },
+    "noInterest": {
+      "title": "Take the interest test for better recommendations",
+      "body": "Without your interests, recommendations are ordered by eligibility and subject strength only.",
+      "action": "Start the interest test"
+    },
+    "noResults": {
+      "title": "Add your results first",
+      "body": "Eligibility is worked out from your grades or CGPA. Without them, no programme can be checked yet.",
+      "action": "Add results"
+    },
+    "empty": {
+      "title": "No recommendations yet",
+      "body": "No programme at your next level has requirements verified by an admin yet. Explore programmes or come back later."
+    },
+    "emptyTab": "No programmes in this group.",
+    "explore": "Explore programmes",
+    "unavailable": "Recommendations cannot be loaded right now. Try again shortly.",
+    "pagination": {
+      "label": "List pages",
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {n} / {total}"
+    },
+    "priorChip": "Earlier study: {name}",
+    "continuitySame": "This programme follows straight on from your {name}",
+    "continuityRelated": "Its field is closely related to your {name}, so what you have learnt still helps",
+    "continuityText": "Its content is close to the {name} you took",
+    "continuityNone": "This field is different from your {name}. A good fit only if you really want to switch fields",
+    "interestMatchSpecialisation": "Your {types} interests suit work in {name}",
+    "specialisations": {
+      "cyber_security": "cyber security, which involves a lot of investigating, reading and following procedure",
+      "data_ai": "data science and AI, which involves a lot of analysis and problem solving",
+      "software": "software development, which involves building systems and solving problems",
+      "networks": "networks and systems, which involves setting up, testing and maintaining them",
+      "creative_media": "creative media, which involves designing and making things",
+      "information_systems": "information systems, which involves managing data and processes",
+      "accounting_finance": "accounting and finance, which needs care and well-organised work",
+      "management": "management and business, which involves leading and dealing with people",
+      "hospitality": "hospitality and culinary arts, which involves hands-on work, creativity and serving people",
+      "health_care": "health, which involves investigating and helping people",
+      "education": "education, which involves teaching and guiding",
+      "law_social": "law and social science, which involves reading, arguing a case and understanding people",
+      "engineering_hands_on": "engineering, which involves hands-on technical problem solving"
+    },
+    "match": {
+      "strong": "Strong match",
+      "fair": "Fair match",
+      "weak": "Weak match"
+    },
+    "matchRange": {
+      "strong": "(80–100)",
+      "fair": "(65–79)",
+      "weak": "(below 65)"
+    },
+    "sort": {
+      "label": "Sort",
+      "match": "Best match",
+      "continuity": "Continues my study",
+      "interest": "Interests",
+      "chance": "Offer chance",
+      "name": "Name A–Z"
+    },
+    "oneOfJoin": " or ",
+    "rules": {
+      "met": {
+        "grade": "You got {actual} in {subject}, above the minimum of {required}",
+        "gradeMissing": "This programme needs at least {required} in {subject}",
+        "credits": "You have {actual} credits, enough for the {required} needed",
+        "cgpa": "Your CGPA of {actual} is above the minimum of {required}",
+        "cgpaMissing": "This programme needs a CGPA of at least {required}",
+        "muet": "Your MUET Band {actual} is above the minimum of Band {required}",
+        "muetMissing": "This programme needs at least MUET Band {required}",
+        "fromList": "You have {actual} subjects at grade {grade} or better from the accepted list ({subjects})",
+        "otherSubject": "this subject"
+      },
+      "unmet": {
+        "grade": "This programme needs at least {required} in {subject}, but you got {actual}",
+        "gradeMissing": "This programme needs at least {required} in {subject}, but it is not in the results you entered",
+        "credits": "This programme needs {required} credits, and you have {actual} so far",
+        "cgpa": "This programme needs a CGPA of at least {required}, and yours is {actual}",
+        "cgpaMissing": "This programme needs a CGPA of at least {required}. Enter your CGPA so we can check it",
+        "muet": "This programme needs at least MUET Band {required}, and you have Band {actual}",
+        "muetMissing": "This programme needs at least MUET Band {required}. Enter your MUET result so we can check it",
+        "fromList": "This programme needs grade {grade} in {required} subjects from {subjects}, and you have {actual}",
+        "otherSubject": "this subject"
+      },
+      "chipMet": {
+        "grade": "{subject} {actual}",
+        "gradeMissing": "{subject}",
+        "credits": "{actual} credits",
+        "cgpa": "CGPA {actual}",
+        "cgpaMissing": "CGPA",
+        "muet": "MUET Band {actual}",
+        "muetMissing": "MUET",
+        "fromList": "{actual} subjects at {grade}+",
+        "otherSubject": "Subject"
+      },
+      "chipUnmet": {
+        "grade": "{subject}: {required} needed, you have {actual}",
+        "gradeMissing": "{subject}: {required} needed",
+        "credits": "Credits: {required} needed, you have {actual}",
+        "cgpa": "CGPA: {required} needed, you have {actual}",
+        "cgpaMissing": "CGPA: {required} needed",
+        "muet": "MUET: Band {required} needed, you have {actual}",
+        "muetMissing": "MUET: Band {required} needed",
+        "fromList": "{required} subjects at {grade}: you have {actual}",
+        "otherSubject": "Subject"
+      }
+    },
+    "tiles": {
+      "interest": "Interests",
+      "continuity": "Earlier study",
+      "noInterest": "Not assessed"
+    },
+    "levels": {
+      "high": "High",
+      "medium": "Moderate",
+      "low": "Low"
+    },
+    "continuityShort": {
+      "same": "Same field",
+      "related": "Related field",
+      "none": "Other field"
+    },
+    "specialisationShort": {
+      "cyber_security": "Cyber security",
+      "data_ai": "Data science & AI",
+      "software": "Software development",
+      "networks": "Networks & systems",
+      "creative_media": "Creative media",
+      "information_systems": "Information systems",
+      "accounting_finance": "Accounting & finance",
+      "management": "Management & business",
+      "hospitality": "Hospitality & culinary",
+      "health_care": "Health",
+      "education": "Education",
+      "law_social": "Law & social science",
+      "engineering_hands_on": "Hands-on engineering"
+    },
+    "requirements": "Entry requirements",
+    "moreMet": "+{n} more met",
+    "toConfirmChip": "{n} to check yourself",
+    "sourceShort": "Official institution requirements · checked by an admin"
   }
 }

@@ -8,7 +8,8 @@ describe('compareMerit', () => {
     expect(averageGroup(['spm'])).toBe('spm');
     expect(averageGroup(['stpm', 'matrikulasi', 'diploma'])).toBe('preu');
     expect(averageGroup(['spm', 'stpm'])).toBe('spm');
-    expect(averageGroup(['diploma', 'dkm'])).toBeNull();
+    expect(averageGroup(['diploma', 'dkm'])).toBe('preu');
+    expect(averageGroup([])).toBeNull();
   });
 
   it('compares an SPM merit with an SPM leavers average', () => {
@@ -26,11 +27,12 @@ describe('compareMerit', () => {
   it('never compares merits from different groups of candidates', () => {
     expect(compareMerit({ mode: 'cgpa', merit: 95 }, { entryRoutes: ['spm'], averageMerit: avg(85) })).toEqual({ status: 'other_group', group: 'spm' });
     expect(compareMerit({ mode: 'spm', merit: 95 }, { entryRoutes: ['stpm'], averageMerit: avg(85) })).toEqual({ status: 'other_group', group: 'preu' });
-    expect(compareMerit({ mode: 'diploma', merit: 95 }, { entryRoutes: ['stpm'], averageMerit: avg(85) })).toEqual({ status: 'other_group', group: 'preu' });
+    expect(compareMerit({ mode: 'diploma', merit: 95 }, { entryRoutes: ['stpm'], averageMerit: avg(85) })).toMatchObject({ status: 'comparable', band: 'above', gap: 10 });
+    expect(compareMerit({ mode: 'diploma', merit: 95 }, { entryRoutes: ['spm'], averageMerit: avg(85) })).toEqual({ status: 'other_group', group: 'spm' });
   });
 
   it('says so when there is no average', () => {
     expect(compareMerit({ mode: 'spm', merit: 90 }, { entryRoutes: ['spm'], averageMerit: null })).toEqual({ status: 'no_average' });
-    expect(compareMerit({ mode: 'diploma', merit: 90 }, { entryRoutes: ['diploma'], averageMerit: avg(80) })).toEqual({ status: 'no_average' });
+    expect(compareMerit({ mode: 'diploma', merit: 90 }, { entryRoutes: ['diploma'], averageMerit: null })).toEqual({ status: 'no_average' });
   });
 });

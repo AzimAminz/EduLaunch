@@ -1,4 +1,5 @@
-import { boolean, jsonb, numeric, pgSchema, primaryKey, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, integer, jsonb, numeric, pgSchema, primaryKey, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import type { RecommendationDetails } from '../../modules/recommendations/domain/recommendation-list.js';
 
 /** Cached results, recomputed when results, interests or requirements change. */
 export const recommendation = pgSchema('recommendation');
@@ -20,7 +21,11 @@ export const recommendations = recommendation.table(
     isTargetBased: boolean('is_target_based').notNull().default(false),
     reasons: jsonb('reasons').$type<string[]>().notNull(),
     missing: jsonb('missing').$type<string[]>().notNull(),
+    /** What the card shows (institution, entry route, interest match, requirements met and not met), as data. */
+    details: jsonb('details').$type<RecommendationDetails>().notNull(),
     generatedAt: timestamp('generated_at', { withTimezone: true }).notNull().defaultNow(),
+    /** The scoring the list was worked out with; an older list is worked out again on the next visit. */
+    scoringVersion: integer('scoring_version').notNull().default(1),
   },
   (t) => [primaryKey({ columns: [t.studentId, t.programId] })],
 );

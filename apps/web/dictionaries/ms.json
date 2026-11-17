@@ -2042,5 +2042,237 @@
       "prompt": "Sejauh mana anda suka melakukan aktiviti ini?"
     },
     "sourceShort": "Sumber soalan: O*NET Mini Interest Profiler (USDOL/ETA) · butiran lesen"
+  },
+  "recommendations": {
+    "eyebrow": "CADANGAN PROGRAM · BERDASARKAN PROFIL ANDA",
+    "title": "Program yang sepadan dengan anda",
+    "intro": "Disusun ikut kelayakan rasmi dahulu, kemudian kesesuaian minat, pengajian lepas dan kekuatan subjek. Setiap cadangan menunjukkan sebab dan sumbernya.",
+    "basedOn": "Dikira daripada:",
+    "basis": {
+      "target": "{n} subjek · gred sasaran",
+      "actual": "{n} subjek · keputusan sebenar",
+      "cgpa": "PNGK {cgpa}",
+      "none": "Belum ada keputusan"
+    },
+    "interestChip": "Minat: {types}",
+    "noInterestChip": "Minat: belum dinilai",
+    "updated": "Dikemas kini {date}",
+    "checkData": "Semak data saya",
+    "refresh": "Kira semula",
+    "refreshing": "Mengira…",
+    "tabsLabel": "Tapis ikut kelayakan",
+    "tabs": {
+      "eligible": "Layak · {n}",
+      "almost": "Hampir layak · {n}",
+      "not_yet": "Belum layak · {n}"
+    },
+    "status": {
+      "eligible": "Layak",
+      "almost": "Hampir layak",
+      "not_yet": "Belum layak"
+    },
+    "targetSuffix": " · berdasarkan sasaran",
+    "topMatch": "Padanan teratas",
+    "years": "{n} tahun",
+    "streamProvider": "Sekolah anda",
+    "interestMatch": "Minat {types} anda sesuai dengan bidang {field}",
+    "interestMatchNoField": "Minat {types} anda sesuai dengan bidang program ini",
+    "interestWeak": "Bidang {field} kurang sepadan dengan minat utama anda. Baca tentang kerjayanya dahulu sebelum memilih",
+    "interestWeakNoField": "Bidang program ini kurang sepadan dengan minat utama anda. Baca tentang kerjayanya dahulu sebelum memilih",
+    "oneOf": "Anda perlu memenuhi salah satu syarat ini: {rules}",
+    "toConfirm": "Ada {n} syarat lain yang perlu anda semak sendiri, contohnya temu duga atau pemeriksaan kesihatan",
+    "chance": {
+      "label": "Peluang tawaran",
+      "high": "Tinggi",
+      "medium": "Sederhana",
+      "low": "Rendah",
+      "none": "Tiada data",
+      "noData": "Kami belum dapat menganggarkan peluang anda kerana data kemasukan lepas belum mencukupi atau tidak sepadan dengan kelayakan anda.",
+      "noMerit": "Lengkapkan keputusan anda untuk melihat peluang tawaran program ini.",
+      "vs": "Merit {merit} · purata {average}"
+    },
+    "source": "Syarat diambil daripada rekod rasmi institusi dan telah disemak oleh admin EduLaunch",
+    "viewRequirements": "Lihat syarat penuh",
+    "how": {
+      "title": "Bagaimana padanan dibuat",
+      "filter": {
+        "title": "Tapis ikut syarat wajib",
+        "caption": "Disemak oleh peraturan rasmi, bukan AI"
+      },
+      "weigh": {
+        "title": "Timbang kesesuaian",
+        "caption": "Skor /100 daripada tiga perkara",
+        "interest": "Minat (RIASEC)",
+        "subjects": "Kekuatan subjek",
+        "continuity": "Sambungan pengajian",
+        "noPrior": "Tiada rekod pengajian lepas? 25% itu dibahagi kepada minat dan subjek."
+      },
+      "levels": {
+        "title": "Tahap padanan",
+        "caption": "Ikut skor",
+        "range": {
+          "strong": "80+",
+          "fair": "65–79",
+          "weak": "< 65"
+        }
+      },
+      "chance": {
+        "title": "Peluang tawaran",
+        "caption": "Merit anda berbanding purata ePanduan",
+        "range": {
+          "high": "≥ +3",
+          "medium": "−2 – +3",
+          "low": "< −2"
+        }
+      },
+      "badges": {
+        "verified": "Syarat disemak admin",
+        "local": "Data kekal di pelayan",
+        "guide": "Panduan, bukan jaminan"
+      }
+    },
+    "noInterest": {
+      "title": "Ambil penilaian minat untuk cadangan yang lebih tepat",
+      "body": "Tanpa minat anda, cadangan hanya disusun ikut kelayakan dan kekuatan subjek.",
+      "action": "Mula penilaian minat"
+    },
+    "noResults": {
+      "title": "Isi keputusan anda dahulu",
+      "body": "Kelayakan dikira daripada gred atau PNGK anda. Tanpanya, belum ada program yang boleh disemak.",
+      "action": "Isi keputusan"
+    },
+    "empty": {
+      "title": "Belum ada cadangan",
+      "body": "Belum ada program pada tahap seterusnya anda yang syaratnya sudah disahkan admin. Cuba teroka program atau kembali kemudian."
+    },
+    "emptyTab": "Tiada program dalam kumpulan ini.",
+    "explore": "Teroka program",
+    "unavailable": "Cadangan tidak dapat dimuatkan sekarang. Cuba lagi sebentar lagi.",
+    "pagination": {
+      "label": "Halaman senarai",
+      "prev": "Sebelum",
+      "next": "Seterusnya",
+      "page": "Halaman {n} / {total}"
+    },
+    "priorChip": "Pengajian lepas: {name}",
+    "continuitySame": "Program ini sambungan terus kepada {name} anda",
+    "continuityRelated": "Bidangnya berkait rapat dengan {name} anda, jadi asas yang anda ada masih berguna",
+    "continuityText": "Kandungannya hampir sama dengan {name} yang anda ambil",
+    "continuityNone": "Bidang ini berbeza daripada {name} anda. Sesuai jika anda memang mahu menukar bidang",
+    "interestMatchSpecialisation": "Minat {types} anda sesuai dengan kerja {name}",
+    "specialisations": {
+      "cyber_security": "keselamatan siber, yang banyak melibatkan siasatan, pembacaan dan prosedur",
+      "data_ai": "sains data dan AI, yang banyak melibatkan analisis dan penyelesaian masalah",
+      "software": "pembangunan perisian, yang banyak melibatkan membina sistem dan menyelesaikan masalah",
+      "networks": "rangkaian dan sistem, yang banyak melibatkan pemasangan, pengujian dan penyelenggaraan",
+      "creative_media": "media kreatif, yang banyak melibatkan reka bentuk dan penghasilan karya",
+      "information_systems": "sistem maklumat, yang banyak melibatkan pengurusan data dan proses",
+      "accounting_finance": "perakaunan dan kewangan, yang memerlukan ketelitian dan kerja yang tersusun",
+      "management": "pengurusan dan perniagaan, yang banyak melibatkan kepimpinan dan berurusan dengan orang",
+      "hospitality": "hospitaliti dan kulinari, yang banyak melibatkan kerja amali, kreativiti dan melayan orang",
+      "health_care": "kesihatan, yang banyak melibatkan siasatan dan membantu orang",
+      "education": "pendidikan, yang banyak melibatkan mengajar dan membimbing",
+      "law_social": "undang-undang dan sains sosial, yang banyak melibatkan pembacaan, berhujah dan memahami orang",
+      "engineering_hands_on": "kejuruteraan, yang banyak melibatkan kerja amali dan penyelesaian masalah teknikal"
+    },
+    "match": {
+      "strong": "Sangat sesuai",
+      "fair": "Sederhana",
+      "weak": "Kurang sesuai"
+    },
+    "matchRange": {
+      "strong": "(80–100)",
+      "fair": "(65–79)",
+      "weak": "(bawah 65)"
+    },
+    "sort": {
+      "label": "Susun",
+      "match": "Paling sesuai",
+      "continuity": "Sambungan pengajian",
+      "interest": "Minat",
+      "chance": "Peluang tawaran",
+      "name": "Nama A–Z"
+    },
+    "oneOfJoin": " atau ",
+    "rules": {
+      "met": {
+        "grade": "Anda mendapat {actual} dalam {subject}, melepasi syarat minimum {required}",
+        "gradeMissing": "Program ini memerlukan sekurang-kurangnya {required} dalam {subject}",
+        "credits": "Anda ada {actual} kepujian, cukup untuk syarat {required} kepujian",
+        "cgpa": "PNGK anda {actual}, melepasi syarat minimum {required}",
+        "cgpaMissing": "Program ini memerlukan PNGK sekurang-kurangnya {required}",
+        "muet": "MUET anda Band {actual}, melepasi syarat minimum Band {required}",
+        "muetMissing": "Program ini memerlukan MUET sekurang-kurangnya Band {required}",
+        "fromList": "Anda ada {actual} subjek dengan gred {grade} atau lebih baik daripada senarai yang diterima ({subjects})",
+        "otherSubject": "subjek ini"
+      },
+      "unmet": {
+        "grade": "Program ini memerlukan sekurang-kurangnya {required} dalam {subject}, tetapi anda mendapat {actual}",
+        "gradeMissing": "Program ini memerlukan sekurang-kurangnya {required} dalam {subject}, tetapi subjek ini tiada dalam keputusan yang anda isi",
+        "credits": "Program ini memerlukan {required} kepujian, dan anda ada {actual} setakat ini",
+        "cgpa": "Program ini memerlukan PNGK sekurang-kurangnya {required}, manakala PNGK anda {actual}",
+        "cgpaMissing": "Program ini memerlukan PNGK sekurang-kurangnya {required}. Isi PNGK anda supaya kami dapat menyemaknya",
+        "muet": "Program ini memerlukan MUET sekurang-kurangnya Band {required}, manakala anda Band {actual}",
+        "muetMissing": "Program ini memerlukan MUET sekurang-kurangnya Band {required}. Isi keputusan MUET anda supaya kami dapat menyemaknya",
+        "fromList": "Program ini memerlukan gred {grade} dalam {required} subjek daripada {subjects}, dan anda ada {actual}",
+        "otherSubject": "subjek ini"
+      },
+      "chipMet": {
+        "grade": "{subject} {actual}",
+        "gradeMissing": "{subject}",
+        "credits": "{actual} kepujian",
+        "cgpa": "PNGK {actual}",
+        "cgpaMissing": "PNGK",
+        "muet": "MUET Band {actual}",
+        "muetMissing": "MUET",
+        "fromList": "{actual} subjek gred {grade}+",
+        "otherSubject": "Subjek"
+      },
+      "chipUnmet": {
+        "grade": "{subject}: perlu {required}, anda {actual}",
+        "gradeMissing": "{subject}: perlu {required}",
+        "credits": "Kepujian: perlu {required}, anda {actual}",
+        "cgpa": "PNGK: perlu {required}, anda {actual}",
+        "cgpaMissing": "PNGK: perlu {required}",
+        "muet": "MUET: perlu Band {required}, anda {actual}",
+        "muetMissing": "MUET: perlu Band {required}",
+        "fromList": "{required} subjek gred {grade}: anda {actual}",
+        "otherSubject": "Subjek"
+      }
+    },
+    "tiles": {
+      "interest": "Minat",
+      "continuity": "Sambungan pengajian",
+      "noInterest": "Belum dinilai"
+    },
+    "levels": {
+      "high": "Tinggi",
+      "medium": "Sederhana",
+      "low": "Rendah"
+    },
+    "continuityShort": {
+      "same": "Bidang sama",
+      "related": "Bidang berkaitan",
+      "none": "Bidang lain"
+    },
+    "specialisationShort": {
+      "cyber_security": "Keselamatan siber",
+      "data_ai": "Sains data & AI",
+      "software": "Pembangunan perisian",
+      "networks": "Rangkaian & sistem",
+      "creative_media": "Media kreatif",
+      "information_systems": "Sistem maklumat",
+      "accounting_finance": "Perakaunan & kewangan",
+      "management": "Pengurusan & perniagaan",
+      "hospitality": "Hospitaliti & kulinari",
+      "health_care": "Kesihatan",
+      "education": "Pendidikan",
+      "law_social": "Undang-undang & sosial",
+      "engineering_hands_on": "Kejuruteraan amali"
+    },
+    "requirements": "Syarat kemasukan",
+    "moreMet": "+{n} lagi dipenuhi",
+    "toConfirmChip": "{n} perlu disemak sendiri",
+    "sourceShort": "Syarat rasmi institusi · disemak admin"
   }
 }

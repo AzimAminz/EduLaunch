@@ -3,6 +3,7 @@ import { connectTestDatabase } from '@edulaunch/nest-kit/testing';
 import { inArray } from 'drizzle-orm';
 import * as schema from '../../../infrastructure/db/schema.js';
 import type { RecommendationItem } from '../domain/recommendation-list.js';
+import { SCORING_VERSION } from '../domain/recommendation-list.js';
 import { DrizzleRecommendationStore } from './drizzle-recommendation.store.js';
 
 const { db, close } = connectTestDatabase(schema);
@@ -20,6 +21,19 @@ const item = (over: Partial<RecommendationItem> = {}): RecommendationItem => ({
   isTargetBased: false,
   reasons: ['Mathematics A — minimum B'],
   missing: [],
+  details: {
+    institutionId: null,
+    studyLevel: 'diploma',
+    durationSemesters: 6,
+    entryRoute: 'spm',
+    entryRoutes: ['spm'],
+    averageMerit: { intakeYear: 2026, value: 84.5 },
+    interest: { fit: 0.81, level: 'high', sharedTypes: ['I', 'C'], fieldId: null },
+    continuity: { score: 0.85, level: 'high', fieldMatch: 'same', textSimilarity: 0.6, qualification: 'diploma', name: 'Diploma Sains Komputer' },
+    met: [{ type: 'min_grade', subjectId: null, required: 'B', actual: 'A', passed: true }],
+    unmet: [],
+    toConfirm: [],
+  },
   ...over,
 });
 
@@ -46,6 +60,21 @@ describe('DrizzleRecommendationStore (integration)', () => {
     expect(list.map((i) => i.programId)).toEqual([top.programId, second.programId, third.programId]);
     expect(list[0]).toEqual(top);
     expect(list[2]?.missing).toEqual(['Physics needs C (you have D)']);
+  });
+
+  it('keeps eligibility before score, and the card details as stored', async () => {
+    const studentId = newStudent();
+    const notYet = item({ score: 99, eligibility: 'not_yet', details: { ...item().details, unmet: [[{ type: 'min_cgpa', subjectId: null, required: 3, actual: 2.5, passed: false }]] } });
+    const eligible = item({ score: 20 });
+    await store.replaceFor(studentId, [notYet, eligible]);
+
+    const list = await store.listFor(studentId);
+    expect(list.map((i) => i.programId)).toEqual([eligible.programId, notYet.programId]);
+    expect(list[1]?.details).toEqual(notYet.details);
+    const status = await store.status(studentId);
+    expect(status?.generatedAt).toBeInstanceOf(Date);
+    expect(status?.scoringVersion).toBe(SCORING_VERSION);
+    expect(await store.status(newStudent())).toBeNull();
   });
 
   it('replaces the whole list for a student, and leaves other students alone', async () => {

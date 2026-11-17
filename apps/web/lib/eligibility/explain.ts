@@ -1,6 +1,7 @@
 import { format, type Dictionary } from '../i18n/locale';
 
-type Texts = Dictionary['eligibility'];
+/** The sentences a rule is told with: the eligibility check's short ones, or the recommendation cards' fuller ones. */
+type Texts = Pick<Dictionary['eligibility'], 'grade' | 'gradeMissing' | 'credits' | 'cgpa' | 'cgpaMissing' | 'muet' | 'muetMissing' | 'fromList' | 'otherSubject'>;
 
 export interface CheckedRule {
   type: 'min_grade' | 'key_subject' | 'min_credits' | 'min_cgpa' | 'min_muet' | 'subjects_from_list';

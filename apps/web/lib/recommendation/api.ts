@@ -42,3 +42,54 @@ export async function getEligibility(token: string, programId: string): Promise<
   if (!res.ok) throw new Error(`Eligibility request failed (${res.status})`);
   return EligibilityAnswer.parse(await res.json());
 }
+
+const RiasecType = z.enum(['R', 'I', 'A', 'S', 'E', 'C']);
+
+export const Recommendation = z.object({
+  programId: z.uuid(),
+  programName: z.string(),
+  eligibility: z.enum(['eligible', 'almost', 'not_yet']),
+  score: z.number(),
+  isTopMatch: z.boolean(),
+  isTargetBased: z.boolean(),
+  details: z.object({
+    institutionId: z.uuid().nullable(),
+    studyLevel: z.string(),
+    durationSemesters: z.number().int().nullable(),
+    entryRoute: z.string(),
+    entryRoutes: z.array(z.string()),
+    averageMerit: z.object({ intakeYear: z.number().int(), value: z.number() }).nullable(),
+    interest: z.object({ fit: z.number(), level: z.enum(['high', 'medium', 'low']), sharedTypes: z.array(RiasecType), fieldId: z.uuid().nullable(), specialisation: z.string().nullable().default(null) }).nullable(),
+    continuity: z
+      .object({ score: z.number(), level: z.enum(['high', 'medium', 'low']), fieldMatch: z.enum(['same', 'related', 'none']).nullable(), textSimilarity: z.number().nullable(), qualification: z.string(), name: z.string().nullable() })
+      .nullable()
+      .default(null),
+    met: z.array(RuleDetail),
+    unmet: z.array(z.array(RuleDetail)),
+    toConfirm: z.array(z.string()),
+  }),
+});
+export type Recommendation = z.infer<typeof Recommendation>;
+
+const Recommendations = z.object({ items: z.array(Recommendation), generatedAt: z.coerce.date().nullable() });
+export type Recommendations = z.infer<typeof Recommendations>;
+
+async function recommendations(token: string, path: '' | '/refresh', method: 'GET' | 'POST'): Promise<Recommendations> {
+  const res = await fetch(`${GATEWAY_URL}/api/recommendation/me/recommendations${path}`, {
+    method,
+    headers: { accept: 'application/json', authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error(`Recommendations request failed (${res.status})`);
+  return Recommendations.parse(await res.json());
+}
+
+/** The student's ranked programmes (worked out the first time they are asked for). */
+export async function getRecommendations(token: string): Promise<Recommendations> {
+  return recommendations(token, '', 'GET');
+}
+
+/** Works the list out again now. */
+export async function refreshRecommendations(token: string): Promise<Recommendations> {
+  return recommendations(token, '/refresh', 'POST');
+}
