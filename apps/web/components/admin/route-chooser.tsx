@@ -71,7 +71,7 @@ export function RouteChooser({ locale, programId, groups, initial, copies, t, er
       {groups
         .filter((g) => g.choices.length)
         .map((group) => (
-          <fieldset key={group.title} className="flex flex-col gap-2">
+          <fieldset key={group.title} className="flex min-w-0 flex-col gap-2">
             <legend className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">{group.title}</legend>
             <div className="grid gap-2 md:grid-cols-2">
               {group.choices.map((c) => {
@@ -101,7 +101,7 @@ export function RouteChooser({ locale, programId, groups, initial, copies, t, er
           </fieldset>
         ))}
       {chosen && (chosen.fill || canCopy) && (
-        <fieldset className="flex flex-col gap-2 rounded-[8px] bg-bg/60 p-4">
+        <fieldset className="flex min-w-0 flex-col gap-2 rounded-[8px] bg-bg/60 p-4">
           <legend className="mb-2 text-[12px] font-bold uppercase tracking-wide text-muted">{t.startTitle}</legend>
           {(
             [

@@ -115,7 +115,7 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
 
       {variant !== 'school' && (
         // One tap fills the usual electives of a stream; the student then removes or adds what differs.
-        <fieldset className="flex flex-col gap-2 rounded-[14px] bg-bg p-4">
+        <fieldset className="flex min-w-0 flex-col gap-2 rounded-[14px] bg-bg p-4">
           <legend className="float-left mb-1 text-sm font-semibold">{t.streamPresets.title}</legend>
           <div className="clear-left flex flex-wrap gap-2">
             {SpmStreams.map((s) => (

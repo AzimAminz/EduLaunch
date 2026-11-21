@@ -2447,5 +2447,28 @@
         "body": "Semak syarat terkini dan status kelayakan anda di halaman program."
       }
     }
+  },
+  "compare": {
+    "title": "Banding program",
+    "intro": "Lihat perbezaan program yang anda simpan secara bersebelahan.",
+    "loading": "Memuatkan perbandingan…",
+    "unavailable": "Perbandingan tidak dapat dimuatkan sekarang. Cuba lagi sebentar lagi.",
+    "needTwoTitle": "Simpan sekurang-kurangnya dua program",
+    "needTwoBody": "Anda ada {count} program disimpan. Simpan satu lagi dari Cadangan atau Teroka untuk membandingkannya.",
+    "tooMany": "Hanya {max} program boleh dibandingkan sekali gus. Yang lain tidak dipaparkan.",
+    "pickTwo": "Pilih sekurang-kurangnya dua program di bawah untuk dibandingkan.",
+    "item": "Perkara",
+    "remove": "Buang dari perbandingan",
+    "semesters": "{n} semester (± {years} tahun)",
+    "averageMerit": "Purata merit (tahun)",
+    "yourStatus": "Status kelayakan anda",
+    "interestFit": "Padanan minat",
+    "category": "Kategori",
+    "yes": "Ya",
+    "no": "Tidak",
+    "differs": "berbeza",
+    "legend": "Kuning menandakan perbezaan antara program.",
+    "pick": "Pilih program untuk dibandingkan (maksimum {max})",
+    "update": "Bandingkan"
   }
 }

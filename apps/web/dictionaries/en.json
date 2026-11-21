@@ -2447,5 +2447,28 @@
         "body": "Check the latest requirements and where you stand on the programme page."
       }
     }
+  },
+  "compare": {
+    "title": "Compare programmes",
+    "intro": "See how the programmes you saved differ, side by side.",
+    "loading": "Loading the comparison…",
+    "unavailable": "The comparison could not be loaded right now. Please try again shortly.",
+    "needTwoTitle": "Save at least two programmes",
+    "needTwoBody": "You have {count} saved programmes. Save one more from Suggestions or Explore to compare them.",
+    "tooMany": "Only {max} programmes can be compared at once. The others are not shown.",
+    "pickTwo": "Choose at least two programmes below to compare.",
+    "item": "Item",
+    "remove": "Remove from comparison",
+    "semesters": "{n} semesters (~{years} years)",
+    "averageMerit": "Average merit (year)",
+    "yourStatus": "Your eligibility",
+    "interestFit": "Interest fit",
+    "category": "Category",
+    "yes": "Yes",
+    "no": "No",
+    "differs": "differs",
+    "legend": "Yellow marks where the programmes differ.",
+    "pick": "Choose programmes to compare (up to {max})",
+    "update": "Compare"
   }
 }
