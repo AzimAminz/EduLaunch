@@ -50,8 +50,10 @@ const FOOTER: Item[] = [
 const HIDDEN_AT: Partial<Record<string, Array<keyof Nav>>> = { form1_3: ['meritLab'] };
 
 /** The student portal menu with its labels in the page language, without the items that do not apply at `level`. */
-export function studentNav(locale: Locale, nav: Nav, level?: string | null): { groups: NavGroup[]; footer: NavLink[] } {
-  const link = (i: Item): NavLink => ({ href: `/${locale}/${i.slug}`, label: nav[i.key], icon: i.icon, badge: i.badge && nav[i.badge] });
+export function studentNav(locale: Locale, nav: Nav, level?: string | null, counts: { updates?: number } = {}): { groups: NavGroup[]; footer: NavLink[] } {
+  // Unread notices show as a count beside "Kemas kini" (9+ past nine).
+  const count = (i: Item) => (i.key === 'updates' && counts.updates ? (counts.updates > 9 ? '9+' : String(counts.updates)) : undefined);
+  const link = (i: Item): NavLink => ({ href: `/${locale}/${i.slug}`, label: nav[i.key], icon: i.icon, badge: count(i) ?? (i.badge && nav[i.badge]) });
   const hidden = new Set(level ? (HIDDEN_AT[level] ?? []) : []);
   return {
     groups: GROUPS.map((g) => ({ title: g.title && nav[g.title], items: g.items.filter((i) => !hidden.has(i.key)).map(link) })),

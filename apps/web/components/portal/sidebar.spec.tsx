@@ -76,3 +76,12 @@ describe('studentNav', () => {
     expect(hrefs()).toContain('/ms/merit-lab');
   });
 });
+
+describe('studentNav update count', () => {
+  const updates = (count?: number) => studentNav('ms', ms.nav, 'after_spm', { updates: count }).footer.find((l) => l.href.endsWith('/kemas-kini'))?.badge;
+  it('shows unread notices beside Kemas kini, 9+ past nine, nothing at zero', () => {
+    expect(updates(3)).toBe('3');
+    expect(updates(12)).toBe('9+');
+    expect(updates(0)).toBeUndefined();
+  });
+});

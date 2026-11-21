@@ -2424,5 +2424,28 @@
       "no_results": "Isi keputusan untuk menyemak",
       "no_requirement": "Syarat belum diterbitkan"
     }
+  },
+  "updates": {
+    "title": "Kemas kini",
+    "intro": "Notis tentang program yang anda simpan.",
+    "loading": "Memuatkan kemas kini…",
+    "unavailable": "Kemas kini tidak dapat dimuatkan sekarang. Cuba lagi sebentar lagi.",
+    "unreadCount": "{count} belum dibaca",
+    "allRead": "Semua sudah dibaca.",
+    "markAll": "Tanda semua sudah dibaca",
+    "markFailed": "Tidak dapat dikemas kini. Cuba lagi.",
+    "markRead": "Tanda dibaca",
+    "unread": "Belum dibaca:",
+    "view": "Lihat program",
+    "aProgramme": "program yang anda simpan",
+    "emptyTitle": "Tiada kemas kini",
+    "emptyBody": "Simpan program yang anda minati. Kami akan memberitahu anda di sini apabila syarat kemasukannya berubah.",
+    "note": "Notis perubahan syarat boleh dimatikan di Tetapan › Notifikasi.",
+    "types": {
+      "requirementChanged": {
+        "title": "Syarat kemasukan {programme} telah dikemas kini",
+        "body": "Semak syarat terkini dan status kelayakan anda di halaman program."
+      }
+    }
   }
 }

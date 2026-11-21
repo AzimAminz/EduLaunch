@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Injectable, Logger, Module, OnApplicationBootstrap, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { CurrentCaller, DRIZZLE, EventBus, InternalHeaders, Roles, type Caller, type Database } from '@edulaunch/nest-kit';
 import { Events, type EventPayloads } from '@edulaunch/contracts';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, count, desc, eq, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import * as schema from '../../infrastructure/db/schema.js';
 import { env } from '../../config.js';
@@ -64,6 +64,20 @@ class NotificationsController {
   @Get()
   list(@CurrentCaller() caller: Caller) {
     return this.db.select().from(notifications).where(eq(notifications.userId, caller.userId)).orderBy(desc(notifications.createdAt)).limit(50);
+  }
+
+  /** How many notices are unread, for the badge beside "Kemas kini" in the menu. */
+  @Get('unread-count')
+  async unreadCount(@CurrentCaller() caller: Caller) {
+    const [row] = await this.db.select({ n: count() }).from(notifications).where(and(eq(notifications.userId, caller.userId), isNull(notifications.readAt)));
+    return { count: Number(row?.n ?? 0) };
+  }
+
+  /** Marks every unread notice of the caller as read. Declared before ":id/read" so "read-all" is not read as an id. */
+  @Post('read-all')
+  async markAllRead(@CurrentCaller() caller: Caller) {
+    await this.db.update(notifications).set({ readAt: new Date() }).where(and(eq(notifications.userId, caller.userId), isNull(notifications.readAt)));
+    return { ok: true };
   }
 
   @Post(':id/read')

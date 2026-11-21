@@ -2424,5 +2424,28 @@
       "no_results": "Enter results to check",
       "no_requirement": "Requirements not published yet"
     }
+  },
+  "updates": {
+    "title": "Updates",
+    "intro": "Notices about the programmes you saved.",
+    "loading": "Loading updates…",
+    "unavailable": "Updates could not be loaded right now. Please try again shortly.",
+    "unreadCount": "{count} unread",
+    "allRead": "All read.",
+    "markAll": "Mark all as read",
+    "markFailed": "Could not update. Please try again.",
+    "markRead": "Mark as read",
+    "unread": "Unread:",
+    "view": "View programme",
+    "aProgramme": "a programme you saved",
+    "emptyTitle": "No updates",
+    "emptyBody": "Save programmes you like. We will tell you here when their entry requirements change.",
+    "note": "Requirement change notices can be turned off in Settings › Notifications.",
+    "types": {
+      "requirementChanged": {
+        "title": "Entry requirements for {programme} have been updated",
+        "body": "Check the latest requirements and where you stand on the programme page."
+      }
+    }
   }
 }

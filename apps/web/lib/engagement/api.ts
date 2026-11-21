@@ -26,4 +26,6 @@ async function call<T extends z.ZodType>(token: string, path: string, schema: T,
 
 /** The student's latest notices (up to 50), newest first. */
 export const listNotifications = (token: string) => call(token, '/me/notifications', z.array(Notification));
+export const unreadNotificationCount = (token: string) => call(token, '/me/notifications/unread-count', z.object({ count: z.number() }));
+export const markAllNotificationsRead = (token: string) => call(token, '/me/notifications/read-all', z.object({ ok: z.boolean() }), { method: 'POST' });
 export const markNotificationRead = (token: string, id: string) => call(token, `/me/notifications/${encodeURIComponent(id)}/read`, z.object({ ok: z.boolean() }), { method: 'POST' });
