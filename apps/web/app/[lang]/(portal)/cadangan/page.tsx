@@ -15,21 +15,13 @@ import { loadMeritInputs, studentMerit, type MeritInputs } from '@/lib/merit/stu
 import { recalculateRecommendations } from '@/lib/recommendation/actions';
 import { getRecommendations, type Recommendation, type Recommendations } from '@/lib/recommendation/api';
 import { getAccessToken } from '@/lib/supabase/server';
+import { CHANCE_LEVEL, MATCH_STYLE, matchOf, type Level } from '@/lib/recommendation/present';
 
 type Status = Recommendation['eligibility'];
 const PAGE_SIZE = 8;
 const STATUSES: Status[] = ['eligible', 'almost', 'not_yet'];
 
 const STATUS_STYLE: Record<Status, string> = { eligible: 'bg-mint', almost: 'bg-cream', not_yet: 'bg-red/10' };
-
-/** Overall match from the score (interests, earlier study, subject strength): a house rule, tuned after testing. */
-type Match = 'strong' | 'fair' | 'weak';
-const matchOf = (score: number): Match => (score >= 80 ? 'strong' : score >= 65 ? 'fair' : 'weak');
-const MATCH_STYLE: Record<Match, { badge: string; dot: string }> = {
-  strong: { badge: 'bg-[#dcf3e6] text-[#145c3b]', dot: 'bg-[#1f8a5b]' },
-  fair: { badge: 'bg-[#fdf0d5] text-[#7a4f06]', dot: 'bg-[#d49a1f]' },
-  weak: { badge: 'bg-[#eceef2] text-[#4a5568]', dot: 'bg-[#8a94a6]' },
-};
 
 const SORTS = ['match', 'continuity', 'interest', 'chance', 'name'] as const;
 type Sort = (typeof SORTS)[number];
@@ -445,14 +437,12 @@ function Card({
 
 /** Met requirements shown as chips; the rest are summed up in a "+n" chip. */
 const MET_CHIPS = 4;
-type Level = 'high' | 'medium' | 'low';
 const LEVEL_STYLE: Record<Level, { bars: number; fill: string; text: string }> = {
   high: { bars: 3, fill: 'bg-[#1f8a5b]', text: 'text-[#145c3b]' },
   medium: { bars: 2, fill: 'bg-[#d49a1f]', text: 'text-[#7a4f06]' },
   low: { bars: 1, fill: 'bg-[#8a94a6]', text: 'text-[#4a5568]' },
 };
 const FIELD_LEVEL: Record<'same' | 'related' | 'none', Level> = { same: 'high', related: 'medium', none: 'low' };
-const CHANCE_LEVEL: Record<'above' | 'near' | 'below', Level> = { above: 'high', near: 'medium', below: 'low' };
 
 /** One signal at a glance: an icon, a three-step meter and a word or two; the full sentence is its tooltip. */
 function Tile({ icon, label, level, value, hint, title }: { icon: string; label: string; level: Level | null; value: string; hint: string | null; title?: string }) {

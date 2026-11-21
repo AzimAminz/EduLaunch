@@ -2274,5 +2274,127 @@
     "moreMet": "+{n} more met",
     "toConfirmChip": "{n} to check yourself",
     "sourceShort": "Official institution requirements · checked by an admin"
+  },
+  "home": {
+    "loading": "Loading your home…",
+    "greeting": {
+      "morning": "Good morning",
+      "noon": "Good afternoon",
+      "evening": "Good evening",
+      "night": "Good evening"
+    },
+    "greetingName": "{greeting}, {name}",
+    "lead": "Your suggestions are based on your {basis}.",
+    "leadEmpty": "Complete your profile to get programmes that match you.",
+    "leadSchool": "This year's focus: get to know your interests and choose your Form 4 stream with confidence.",
+    "basis": {
+      "target": "target grades",
+      "actual": "actual results"
+    },
+    "top": {
+      "title": "Your top suggestions",
+      "updated": "Updated {date}",
+      "others": "Other strong options",
+      "all": "See all {count} suggestions",
+      "view": "View programme",
+      "reasonEligible": "You meet its entry requirements",
+      "reasonAlmost": "Almost eligible: {count} more requirements to meet",
+      "reasonInterest": "Matches your {types} interests",
+      "reasonContinuity": "Follows on from {name}",
+      "empty": "No programmes match your profile yet. Explore the programme directory to see other options.",
+      "noResults": "Enter your results first so we can check eligibility and suggest programmes.",
+      "explore": "Explore programmes",
+      "fillResults": "Enter my results",
+      "titleNotYet": "You are not eligible for the programmes in your list yet",
+      "notYetSpm": "Most programmes also check basic SPM grades, and your SPM results are not entered yet. Enter them so your eligibility can be checked properly.",
+      "notYetBody": "See which requirements are not met yet for each programme in Suggestions.",
+      "fillSpm": "Enter SPM results",
+      "seeWhy": "See why",
+      "closest": "Closest to your interests"
+    },
+    "steps": {
+      "label": "Next step",
+      "level": {
+        "title": "Choose your education level",
+        "body": "Your level decides which results form and suggestions fit you.",
+        "action": "Choose level"
+      },
+      "results": {
+        "title": "Enter your academic results",
+        "body": "Eligibility, merit and programme suggestions are worked out from your results.",
+        "action": "Enter results"
+      },
+      "interest": {
+        "title": "Take the Interest Quest",
+        "body": "30 questions, about 5 minutes. It helps us match fields to your interests.",
+        "bodyStarted": "{left} questions to go. Your answers are saved.",
+        "action": "Start the quest",
+        "continue": "Carry on"
+      },
+      "save": {
+        "title": "Save programmes you like",
+        "body": "We will tell you when the entry requirements of a saved programme change.",
+        "action": "See suggestions"
+      },
+      "spm": {
+        "title": "Enter your SPM results",
+        "body": "Most programmes after a diploma or pre-university also check basic SPM grades.",
+        "action": "Enter SPM results"
+      }
+    },
+    "merit": {
+      "title": "Merit",
+      "action": "Merit Lab",
+      "target": "Target merit (from your target grades)",
+      "actual": "Estimate from your results",
+      "none": "Enter your results to see your merit."
+    },
+    "interest": {
+      "title": "Interests",
+      "view": "View",
+      "take": "Take the quest",
+      "none": "Not taken yet. Take the Interest Quest to find your interest code."
+    },
+    "results": {
+      "title": "Academic results",
+      "update": "Update",
+      "fill": "Enter",
+      "missing": "Not entered yet",
+      "count": "{count} records saved",
+      "target": "Target grades saved",
+      "actual": "Actual results saved",
+      "spmMissing": "SPM results not entered yet"
+    },
+    "saved": {
+      "title": "Saved · {count}",
+      "all": "All",
+      "empty": "No saved programmes yet. Save programmes from Suggestions or Explore to follow them here."
+    },
+    "updates": {
+      "title": "Updates",
+      "titleNew": "Updates · {count} new",
+      "all": "All",
+      "empty": "No updates for now.",
+      "unavailable": "Updates could not be loaded right now.",
+      "requirementChanged": "Entry requirements for {programme} have been updated",
+      "aProgramme": "a programme you saved"
+    },
+    "school": {
+      "title": "Next step: choose your Form 4 stream",
+      "lead": "Matched on your interest test. The final decision follows your school's offer.",
+      "leadNoInterest": "Take the Interest Quest first so we can match streams to your interests.",
+      "all": "See all streams",
+      "interest": "Your interests: {code}",
+      "note": "Streams are usually chosen at the end of Form 3. Check the dates and requirements with your school.",
+      "progress": "Your progress",
+      "interestDone": "Interest Quest done",
+      "interestTodo": "Interest Quest not taken yet",
+      "resultsDone": "School results entered",
+      "resultsTodo": "School results not entered yet",
+      "fillResults": "Enter school results",
+      "best": "Best fit",
+      "fit": "Interest: {level}"
+    },
+    "after": "After {name}"
   }
 }
