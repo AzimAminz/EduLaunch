@@ -1,5 +1,5 @@
 import type { PublishedRequirement, StudentSnapshot } from '@edulaunch/contracts';
-import { CheckEligibility } from './check-eligibility.use-case.js';
+import { CheckEligibility, withTryOut } from './check-eligibility.use-case.js';
 import type { CatalogueGateway, ProfileGateway } from '../../recommendations/application/ports.js';
 
 const programId = '00000000-0000-4000-8000-0000000000bb';
@@ -71,5 +71,25 @@ describe('CheckEligibility', () => {
   it('asks for results when none are confirmed', async () => {
     const answer = await useCase([spmRequirement], snapshot({ grades: [] })).execute({ caller, programId });
     expect(answer).toEqual({ state: 'no_results', entryRoute: 'spm', missing: 'grades' });
+  });
+});
+
+describe('trying other grades', () => {
+  it('checks with the tried grades instead of the saved ones, without saving', async () => {
+    const saved = snapshot({ grades: [{ subjectId: bm, grade: 'D', scale: 'spm' }] });
+    const answer = await useCase([spmRequirement], saved).execute({ caller, programId, tryOut: { grades: [{ subjectId: bm, grade: 'b+' }] } });
+    expect(answer).toMatchObject({ state: 'checked', status: 'eligible' });
+    expect(saved.grades[0]!.grade).toBe('D');
+  });
+
+  it('keeps grades on other scales and replaces the main scale', () => {
+    const stpm = '00000000-0000-4000-8000-000000000009';
+    const s = withTryOut(snapshot({ grades: [{ subjectId: bm, grade: 'A', scale: 'spm' }, { subjectId: stpm, grade: 'B', scale: 'stpm' }] }), { grades: [] });
+    expect(s.grades).toEqual([{ subjectId: stpm, grade: 'B', scale: 'stpm' }]);
+  });
+
+  it('refuses a grade that is not on the scale, and a CGPA above 4', () => {
+    expect(() => withTryOut(snapshot(), { grades: [{ subjectId: bm, grade: 'Z' }] })).toThrow();
+    expect(() => withTryOut(snapshot(), { cgpa: 4.5 })).toThrow();
   });
 });

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type { UseCase } from '@edulaunch/ddd';
 import type { Caller } from '@edulaunch/nest-kit';
+import { DomainError } from '@edulaunch/ddd';
+import { GradeScales, type StudentSnapshot } from '@edulaunch/contracts';
 import { CatalogueGateway, ProfileGateway } from '../../recommendations/application/ports.js';
 import { EligibilityEngine, type Eligibility, type GroupResult } from '../domain/eligibility-engine.js';
 import { bestOf, requirementsFor } from '../domain/entry-route.js';
@@ -18,8 +20,36 @@ export type EligibilityAnswer =
   | { state: 'no_results'; entryRoute: string; missing: 'grades' | 'cgpa' }
   | { state: 'checked'; entryRoute: string; status: Eligibility; isTargetBased: boolean; groups: GroupResult[]; toConfirm: string[] };
 
+/**
+ * "What if": grades (on the student's main scale) and a CGPA to try instead of the saved ones. Nothing is saved; the
+ * same rules run on the student's profile with these in place.
+ */
+export interface TryOut {
+  grades?: Array<{ subjectId: string; grade: string }>;
+  cgpa?: number | null;
+}
+
+/** The student's snapshot with the tried grades and CGPA in place of the saved ones (other scales untouched). */
+export function withTryOut(snapshot: StudentSnapshot, tryOut: TryOut): StudentSnapshot {
+  const scale = snapshot.gradeScale;
+  const allowed = GradeScales[scale] as readonly string[];
+  let grades = snapshot.grades;
+  if (tryOut.grades) {
+    const tried = tryOut.grades.map((g) => {
+      const letter = g.grade.trim().toUpperCase();
+      if (!allowed.includes(letter)) throw new DomainError('invalid_grade', `"${g.grade}" is not a ${scale.toUpperCase()} grade`);
+      return { subjectId: g.subjectId, grade: letter, scale };
+    });
+    if (new Set(tried.map((g) => g.subjectId)).size !== tried.length) throw new DomainError('duplicate_subject', 'Each subject can only be tried once');
+    // Grades on other scales (STPM, A-Level…) stay as saved; the main scale is replaced by what is tried.
+    grades = [...snapshot.grades.filter((g) => (g.scale ?? scale) !== scale), ...tried];
+  }
+  if (tryOut.cgpa !== undefined && tryOut.cgpa !== null && (tryOut.cgpa < 0 || tryOut.cgpa > 4)) throw new DomainError('invalid_cgpa', 'CGPA is a number from 0.00 to 4.00');
+  return { ...snapshot, grades, cgpa: tryOut.cgpa !== undefined ? tryOut.cgpa : snapshot.cgpa };
+}
+
 @Injectable()
-export class CheckEligibility implements UseCase<{ caller: Caller; programId: string }, EligibilityAnswer> {
+export class CheckEligibility implements UseCase<{ caller: Caller; programId: string; tryOut?: TryOut }, EligibilityAnswer> {
   private readonly engine = new EligibilityEngine();
 
   constructor(
@@ -27,9 +57,10 @@ export class CheckEligibility implements UseCase<{ caller: Caller; programId: st
     private readonly catalogue: CatalogueGateway,
   ) {}
 
-  async execute({ caller, programId }: { caller: Caller; programId: string }): Promise<EligibilityAnswer> {
+  async execute({ caller, programId, tryOut }: { caller: Caller; programId: string; tryOut?: TryOut }): Promise<EligibilityAnswer> {
     const studentId = await this.profile.studentIdFor(caller);
-    const [snapshot, requirements, subjectNames] = await Promise.all([this.profile.snapshot(studentId), this.catalogue.publishedRequirements([programId]), this.catalogue.subjectNames()]);
+    const [saved, requirements, subjectNames] = await Promise.all([this.profile.snapshot(studentId), this.catalogue.publishedRequirements([programId]), this.catalogue.subjectNames()]);
+    const snapshot = tryOut ? withTryOut(saved, tryOut) : saved;
     if (requirements.length === 0) return { state: 'no_requirement' };
 
     const forRoute = requirementsFor(requirements, snapshot);

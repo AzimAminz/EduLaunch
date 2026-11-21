@@ -338,7 +338,16 @@ async function Eligibility({ lang, dict, programId, subjectNames }: { lang: Loca
       </p>
     );
   }
-  return <EligibilityResult locale={lang} answer={answer} subjectNames={subjectNames} t={dict.eligibility} routeNames={dict.requirements.routes} />;
+  return (
+    <div className="flex flex-col gap-2">
+      <EligibilityResult locale={lang} answer={answer} subjectNames={subjectNames} t={dict.eligibility} routeNames={dict.requirements.routes} />
+      {answer.state === 'checked' && (
+        <Link href={`/${lang}/kelayakan?program=${programId}`} className="self-start px-1 text-sm font-semibold text-[#2f5bd3] hover:underline">
+          {dict.eligibility.tryOther} →
+        </Link>
+      )}
+    </div>
+  );
 }
 
 /**
