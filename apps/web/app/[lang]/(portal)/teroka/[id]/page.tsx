@@ -14,6 +14,8 @@ import { loadMeritInputs, studentMerit } from '@/lib/merit/student';
 import { getMe } from '@/lib/profile/api';
 import { getEligibility } from '@/lib/recommendation/api';
 import { getAccessToken } from '@/lib/supabase/server';
+import { listSavedProgrammes } from '@/lib/profile/api';
+import { SaveButton } from '@/components/saved/save-button';
 import { Pending } from '@/components/ui/pending';
 
 /**
@@ -108,7 +110,10 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
     <>
       <header className="flex flex-col gap-3">
         <p className="text-sm font-semibold text-muted">{institution?.name ?? dict.card.streamProvider}</p>
-        <h1 className="text-[28px] font-bold leading-tight lg:text-[36px]">{programme.name}</h1>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <h1 className="text-[28px] font-bold leading-tight lg:text-[36px]">{programme.name}</h1>
+          <SaveForStudent lang={lang} dict={dict} programId={programme.id} />
+        </div>
         {flags.length > 0 && (
           <ul className="flex flex-wrap gap-2" aria-label={t.flagsLabel}>
             {flags.map((f) => (
@@ -195,6 +200,15 @@ async function Programme({ lang, dict, params }: { lang: Locale; dict: Dictionar
 type Student = { educationLevel: string | null; higherQualification: string | null };
 
 /** The signed-in student's level, to show their own route's requirements first. */
+/** Save / Saved for the signed-in student; nothing if the saved list cannot be read. */
+async function SaveForStudent({ lang, dict, programId }: { lang: Locale; dict: Dictionary; programId: string }) {
+  const token = await getAccessToken();
+  if (!token) return null;
+  const saved = await listSavedProgrammes(token).catch(() => null);
+  if (!saved) return null;
+  return <SaveButton locale={lang} programId={programId} initialSaved={saved.some((s) => s.programId === programId)} t={dict.saved.button} tone="outline" className="shrink-0" />;
+}
+
 async function RequirementsForStudent(props: Omit<Parameters<typeof Requirements>[0], 'student'>) {
   const token = await getAccessToken();
   const me = token ? await getMe(token).catch(() => null) : null;

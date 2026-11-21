@@ -15,6 +15,8 @@ import { loadMeritInputs, studentMerit, type MeritInputs } from '@/lib/merit/stu
 import { recalculateRecommendations } from '@/lib/recommendation/actions';
 import { getRecommendations, type Recommendation, type Recommendations } from '@/lib/recommendation/api';
 import { getAccessToken } from '@/lib/supabase/server';
+import { listSavedProgrammes } from '@/lib/profile/api';
+import { SaveButton } from '@/components/saved/save-button';
 import { CHANCE_LEVEL, MATCH_STYLE, matchOf, type Level } from '@/lib/recommendation/present';
 
 type Status = Recommendation['eligibility'];
@@ -61,6 +63,7 @@ async function RecommendationsView({ lang, dict, searchParams }: { lang: Locale;
   let interest: InterestTest | null;
   let merit: MeritInputs;
   let reference: Awaited<ReturnType<typeof getReferenceData>>;
+  let savedIds: Set<string> | null = null;
   try {
     [list, interest, merit, reference] = await Promise.all([
       getRecommendations(token),
@@ -69,6 +72,9 @@ async function RecommendationsView({ lang, dict, searchParams }: { lang: Locale;
       loadMeritInputs(token, lang),
       getReferenceData(),
     ]);
+    savedIds = await listSavedProgrammes(token)
+      .then((list) => new Set(list.map((s) => s.programId)))
+      .catch(() => null);
   } catch {
     return (
       <p role="alert" className="rounded-[18px] border border-line bg-white p-6 text-sm">
@@ -134,7 +140,7 @@ async function RecommendationsView({ lang, dict, searchParams }: { lang: Locale;
                 <ol className="flex flex-col gap-4">
                   {shown.map((item) => (
                     <li key={item.programId}>
-                      <Card lang={lang} dict={dict} item={item} reference={reference} merit={meritFor} typeNames={typeNames} />
+                      <Card lang={lang} dict={dict} item={item} reference={reference} merit={meritFor} typeNames={typeNames} saved={savedIds ? savedIds.has(item.programId) : null} />
                     </li>
                   ))}
                 </ol>
@@ -281,6 +287,7 @@ function Card({
   reference,
   merit,
   typeNames,
+  saved,
 }: {
   lang: Locale;
   dict: Dictionary;
@@ -288,6 +295,8 @@ function Card({
   reference: Awaited<ReturnType<typeof getReferenceData>>;
   merit: { mode: MeritInputs['mode']; merit: number } | null;
   typeNames: (types: RiasecType[]) => string;
+  /** Whether the student saved it; null when the saved list could not be read (no button then). */
+  saved: boolean | null;
 }) {
   const t = dict.recommendations;
   const d = item.details;
@@ -424,12 +433,15 @@ function Card({
           <Icon src="/icons/check.svg" size={14} />
           {t.sourceShort}
         </p>
-        <Link
-          href={`/${lang}/teroka/${item.programId}`}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 self-start rounded-[10px] bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90 sm:self-auto"
-        >
-          {t.viewRequirements} →
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {saved !== null && <SaveButton locale={lang} programId={item.programId} initialSaved={saved} t={dict.saved.button} tone="outline" />}
+          <Link
+            href={`/${lang}/teroka/${item.programId}`}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[10px] bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90"
+          >
+            {t.viewRequirements} →
+          </Link>
+        </div>
       </footer>
     </article>
   );

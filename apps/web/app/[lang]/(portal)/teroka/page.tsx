@@ -9,6 +9,9 @@ import { filtersToQuery, parseFilters } from '@/lib/catalogue/search-params';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { format, isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { Pending } from '@/components/ui/pending';
+import { SaveButton } from '@/components/saved/save-button';
+import { listSavedProgrammes } from '@/lib/profile/api';
+import { getAccessToken } from '@/lib/supabase/server';
 
 type SearchParams = PageProps<'/[lang]/teroka'>['searchParams'];
 
@@ -56,8 +59,12 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
   let page: Awaited<ReturnType<typeof searchProgrammes>>;
   let reference: Awaited<ReturnType<typeof getReferenceData>>;
   let requirements: Awaited<ReturnType<typeof getPublishedRequirements>>;
+  let savedIds: Set<string> | null = null;
   try {
     [page, reference] = await Promise.all([searchProgrammes(filters), getReferenceData()]);
+    // Save buttons on the cards: only when the saved list can be read.
+    const token = await getAccessToken();
+    savedIds = token ? await listSavedProgrammes(token).then((l) => new Set(l.map((x) => x.programId))).catch(() => null) : null;
     requirements = await getPublishedRequirements(page.items.map((p) => p.id));
   } catch {
     return (
@@ -108,6 +115,7 @@ async function Results({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
               averageMerit={p.averageMerit}
               sample={isSample(p.id)}
               labels={dict.card}
+              action={savedIds ? <SaveButton locale={lang} programId={p.id} initialSaved={savedIds.has(p.id)} t={dict.saved.button} tone="icon" /> : undefined}
             />
           );
         })}

@@ -2396,5 +2396,33 @@
       "fit": "Interest: {level}"
     },
     "after": "After {name}"
+  },
+  "saved": {
+    "button": {
+      "save": "Save",
+      "saved": "Saved",
+      "error": "Could not save. Please try again.",
+      "limit": "You have saved 100 programmes. Remove some you no longer need first."
+    },
+    "title": "Saved programmes",
+    "intro": "The programmes you follow. We will tell you when their entry requirements change.",
+    "loading": "Loading saved programmes…",
+    "unavailable": "Saved programmes could not be loaded right now. Please try again shortly.",
+    "emptyTitle": "No saved programmes yet",
+    "emptyBody": "Press Save on any programme in Suggestions or Explore to follow it here.",
+    "count": "{count} saved programmes",
+    "savedOn": "Saved {date}",
+    "gone": "This programme is no longer in the catalogue",
+    "view": "View programme",
+    "pages": "Saved programmes pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}",
+    "followNote": "Requirement change notices can be turned off in Settings › Notifications.",
+    "cannotCheck": {
+      "no_route": "Not a route for your level",
+      "no_results": "Enter results to check",
+      "no_requirement": "Requirements not published yet"
+    }
   }
 }

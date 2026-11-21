@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { format, type Dictionary } from '@/lib/i18n/locale';
 
 interface ProgrammeCardProps {
@@ -13,17 +14,20 @@ interface ProgrammeCardProps {
   /** Requirements entered as sample data, not from an official source. */
   sample?: boolean;
   labels: Dictionary['card'];
+  /** A control over the card's top corner (Save), kept above the card-wide link. */
+  action?: ReactNode;
 }
 
 /**
  * Directory card: the programme, where and what level, its fields, and its average merit when ePanduan shows one.
  * The whole card opens the programme; information only, so admins never have to upload pictures.
  */
-export function ProgrammeCard({ href, programmeName, institutionName, meta, fields, averageMerit, sample, labels }: ProgrammeCardProps) {
+export function ProgrammeCard({ href, programmeName, institutionName, meta, fields, averageMerit, sample, labels, action }: ProgrammeCardProps) {
   const shown = fields.slice(0, 2);
   return (
     <article className="group relative flex min-w-0 flex-col gap-3 rounded-[22px] bg-white p-5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-12px_rgba(20,39,71,0.25)] has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-navy/40 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-      <div className="flex flex-col gap-1">
+      {action && <div className="absolute right-4 top-4 z-10">{action}</div>}
+      <div className={`flex flex-col gap-1 ${action ? 'pr-12' : ''}`}>
         <h3 className="text-[18px] font-semibold leading-snug text-navy">
           <Link href={href} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none">
             {programmeName}

@@ -142,8 +142,10 @@ export const setNotificationPrefs = (token: string, body: NotificationPrefs) => 
 /** Records that a parent or guardian agreed (students under 18). */
 export const giveParentConsent = (token: string) => call(token, '/me/parent-consent', Details, { method: 'POST' });
 
-/** The programmes the student saved, for "download my data". */
+/** The programmes the student saved (Pilihan disimpan, the home page, "download my data"). */
 export const listSavedProgrammes = (token: string) => call(token, '/me/saved-programmes', z.array(z.object({ programId: z.uuid(), savedAt: z.coerce.date().optional() }).loose()));
+export const saveProgramme = (token: string, programId: string) => call(token, `/me/saved-programmes/${encodeURIComponent(programId)}`, z.object({ saved: z.boolean() }), { method: 'PUT' });
+export const unsaveProgramme = (token: string, programId: string) => call(token, `/me/saved-programmes/${encodeURIComponent(programId)}`, z.object({ saved: z.boolean() }), { method: 'DELETE' });
 
 /** Deletes the student's account everywhere (the profile service also deletes the sign-in account). */
 export async function deleteMyAccount(token: string): Promise<void> {

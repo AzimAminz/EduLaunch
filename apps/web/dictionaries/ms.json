@@ -2396,5 +2396,33 @@
       "fit": "Minat: {level}"
     },
     "after": "Lepasan {name}"
+  },
+  "saved": {
+    "button": {
+      "save": "Simpan",
+      "saved": "Disimpan",
+      "error": "Tidak dapat disimpan. Cuba lagi.",
+      "limit": "Anda sudah menyimpan 100 program. Buang yang tidak diperlukan dahulu."
+    },
+    "title": "Pilihan disimpan",
+    "intro": "Program yang anda ikuti. Kami akan memberitahu anda apabila syarat kemasukannya berubah.",
+    "loading": "Memuatkan pilihan disimpan…",
+    "unavailable": "Pilihan disimpan tidak dapat dimuatkan sekarang. Cuba lagi sebentar lagi.",
+    "emptyTitle": "Belum ada program disimpan",
+    "emptyBody": "Tekan Simpan pada mana-mana program di Cadangan saya atau Teroka program untuk mengikutinya di sini.",
+    "count": "{count} program disimpan",
+    "savedOn": "Disimpan {date}",
+    "gone": "Program ini tiada lagi dalam katalog",
+    "view": "Lihat program",
+    "pages": "Halaman pilihan disimpan",
+    "previous": "Sebelum",
+    "next": "Seterusnya",
+    "pageOf": "Halaman {page} daripada {total}",
+    "followNote": "Notis perubahan syarat boleh dimatikan di Tetapan › Notifikasi.",
+    "cannotCheck": {
+      "no_route": "Bukan laluan peringkat anda",
+      "no_results": "Isi keputusan untuk menyemak",
+      "no_requirement": "Syarat belum diterbitkan"
+    }
   }
 }

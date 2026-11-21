@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { lang as rootLang } from 'next/root-params';
+import { SaveButton } from '@/components/saved/save-button';
 import { Pending } from '@/components/ui/pending';
 import { getProgramme, getReferenceData } from '@/lib/catalogue/api';
 import { listNotifications, type Notification } from '@/lib/engagement/api';
@@ -100,7 +101,7 @@ async function Home({ lang, dict }: { lang: Locale; dict: Dictionary }) {
         <SchoolHome lang={lang} dict={dict} items={items} interestDone={Boolean(interest?.result)} code={code} hasResults={hasResults} step={step} />
       ) : (
         <>
-          <TopMatches lang={lang} dict={dict} items={items} reference={reference} merit={merit && myMerit !== null ? { mode: merit.mode, merit: myMerit } : null} generatedAt={recs?.generatedAt ?? null} basis={basis} hasResults={hasResults} spmMissing={spmMissing} />
+          <TopMatches lang={lang} dict={dict} items={items} reference={reference} merit={merit && myMerit !== null ? { mode: merit.mode, merit: myMerit } : null} generatedAt={recs?.generatedAt ?? null} basis={basis} hasResults={hasResults} spmMissing={spmMissing} savedIds={new Set(saved.map((x) => x.programId))} />
           {/* The SPM step is already the headline when no programme can be reached without it. */}
           {step && !(step.kind === 'spm' && items.length > 0 && items.every((i) => i.eligibility === 'not_yet')) && <StepBanner lang={lang} t={t} step={step} />}
           <div className="grid gap-4 md:grid-cols-3">
@@ -152,8 +153,9 @@ function TopMatches(props: {
   basis: string | null;
   hasResults: boolean;
   spmMissing: boolean;
+  savedIds: Set<string>;
 }) {
-  const { lang, dict, items, reference, merit, generatedAt, basis, hasResults, spmMissing } = props;
+  const { lang, dict, items, reference, merit, generatedAt, basis, hasResults, spmMissing, savedIds } = props;
   const t = dict.home;
   // The best match the student can get into (eligible, else almost); never a programme they cannot get into yet.
   const top = items.find((i) => i.eligibility === 'eligible' && i.isTopMatch) ?? items.find((i) => i.eligibility === 'eligible') ?? items.find((i) => i.eligibility === 'almost');
@@ -248,9 +250,12 @@ function TopMatches(props: {
             ))}
           </ul>
         )}
-        <Link href={`/${lang}/teroka/${top.programId}`} className="mt-1 inline-flex h-11 items-center justify-center rounded-[12px] bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90">
-          {t.top.view} →
-        </Link>
+        <div className="mt-1 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+          <Link href={`/${lang}/teroka/${top.programId}`} className="inline-flex h-11 items-center justify-center rounded-[12px] bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90">
+            {t.top.view} →
+          </Link>
+          <SaveButton locale={lang} programId={top.programId} initialSaved={savedIds.has(top.programId)} t={dict.saved.button} tone="outline" />
+        </div>
       </article>
 
       <div className="flex min-w-0 flex-col gap-3">
