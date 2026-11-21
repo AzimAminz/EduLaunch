@@ -52,7 +52,8 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Eligibility check (`/kelayakan`) | "What if" grades against a programme's requirements, nothing saved (new `POST me/eligibility/:id/try`) |
 | Updates (`/kemas-kini`) | Notices with unread badge; read one or all |
 | Help and support (`/bantuan`, `/admin/sokongan`) | FAQ, questions and wrong-data reports to the team, admin queue with answers that notify the student |
-| Still "coming soon" in the menu | Roadmap, exploration activities, Ask AI (need data sources or an AI provider decision) |
+| Roadmap (`/roadmap`) | The road by level, target programme with ePanduan careers, saved plan (new `GET/PUT me/roadmap`), next actions |
+| Still "coming soon" in the menu | Exploration activities, Ask AI (need content or an AI provider decision) |
 
 ### Changes since v3 (requirement model v2 started, 27 Oct 2026)
 
@@ -206,7 +207,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Slip upload + OCR | Upload, local OCR, review screen with flagged rows | Not Started | |
 | Prediction v1 | Margin bands from `ADMISSION_STAT`, "No data" state | **Done** (8 Nov 2026) | The programme page shows the student's merit beside the programme's ePanduan average merit, only when both belong to the same group of candidates (SPM leavers or pre-university); bands are a house rule (+3 above, -2 near) and never shown as a chance or a promise |
 | Alternative pathways | Certificate/skills programmes, stepping-stone pathways, what-if "improve a result", supportive wording | Not Started | Pathway table exists |
-| Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma branches (work now, degree, professional qualification, work first) with careers | Not Started | Step 13: MASCO codes and sources in `CAREER`; data-gap tasks; AI gap filling from whitelisted Malaysian sources; screens (tables exist) |
+| Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma branches (work now, degree, professional qualification, work first) with careers | **In Progress** | Done (22 Nov 2026): `/roadmap` with the road by level (Form 4 streams by interest; after SPM: foundation, matriculation, STPM, diploma, TVET with the reachable count; degree after a diploma or pre-university), a target programme with its careers as ePanduan lists them (source linked), the saved plan and next actions. Left: careers with MASCO codes and sources in `CAREER`, after-Diploma "work now / professional qualification" branches, data-gap tasks |
 | Notifications | Requirement change alerts, result-release prompts | **In Progress** | Done: requirement change notices for saved programmes (checked end to end), answers to support questions, the Kemas kini page and the unread badge. Left: result-release prompts |
 | All education levels | Form 1–3, Form 4–5, after SPM, after certificate (Sijil/SVM/SKM), after pre-university or diploma (STPM, matriculation, foundation, A-Level, diploma, DVM, DKM) | **In Progress** | Results forms and the student home per level are done (Form 1–3 sees Form 4 streams by interest fit). Left: alternative pathways for students who do not qualify yet |
 | Staging deployment | The whole system online for supervisors and testers | Not Started | Choose free hosting; production compose file; deployment guide |

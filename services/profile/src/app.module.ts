@@ -9,6 +9,7 @@ import { GetOrCreateMe, GetStudentSnapshot, PreviewLevelChange, UpdateEducationL
 import { AcademicRecordService } from './modules/academic-records/application/academic-record.use-cases.js';
 import { ProfileController } from './presentation/profile.controller.js';
 import { InterestController } from './presentation/interest.controller.js';
+import { RoadmapController } from './presentation/roadmap.controller.js';
 import { InterestTestService } from './modules/interests/application/interest-test.service.js';
 
 @Module({
@@ -17,7 +18,7 @@ import { InterestTestService } from './modules/interests/application/interest-te
     MessagingModule.forRoot({ serviceName: 'profile', url: env.RABBITMQ_URL }),
     HealthModule,
   ],
-  controllers: [ProfileController, InterestController],
+  controllers: [ProfileController, InterestController, RoadmapController],
   providers: [
     { provide: StudentRepository, useClass: DrizzleStudentRepository },
     { provide: AcademicRecordRepository, useClass: DrizzleAcademicRecordRepository },

@@ -2604,5 +2604,109 @@
         "generic": "Your question could not be sent. Please try again shortly."
       }
     }
+  },
+  "roadmap": {
+    "eyebrow": "FUTURE MAP",
+    "title": "My roadmap",
+    "intro": "The road from where you are now to a career, based on your results and the programmes in the catalogue.",
+    "loading": "Loading your roadmap…",
+    "needLevel": "Choose your education level first so we can draw your road.",
+    "chooseLevel": "Choose level",
+    "road": {
+      "title": "Your road",
+      "stage": {
+        "now": "Now",
+        "form4_stream": "Form 4–5",
+        "spm": "SPM",
+        "afterSpm": "After SPM",
+        "foundation": "Foundation",
+        "matriculation": "Matriculation",
+        "stpm": "STPM",
+        "diploma": "Diploma",
+        "tvet": "TVET",
+        "degree": "Degree",
+        "career": "Careers"
+      },
+      "youNow": "You are here",
+      "reachable": "{count} programmes you are eligible or almost eligible for",
+      "interestFit": "Interest: {level}",
+      "takeInterest": "Take the Interest Quest to see matching streams",
+      "pickTargetFirst": "Choose a target programme to see its careers",
+      "careersPreparing": "This programme's careers are being prepared",
+      "note": "Programme counts come from your suggestions. Study lengths are usual estimates; check with the institution."
+    },
+    "routes": {
+      "form4_stream": {
+        "name": "Form 4 stream",
+        "detail": "Usually chosen at the end of Form 3"
+      },
+      "spm": {
+        "name": "SPM",
+        "detail": "Exam at the end of Form 5"
+      },
+      "foundation": {
+        "name": "Foundation",
+        "detail": "A university foundation programme, usually 1 year"
+      },
+      "matriculation": {
+        "name": "Matriculation",
+        "detail": "A Ministry of Education programme, 1 or 2 years"
+      },
+      "stpm": {
+        "name": "STPM (Form 6)",
+        "detail": "Usually a year and a half in Form 6"
+      },
+      "diploma": {
+        "name": "Diploma",
+        "detail": "Usually two and a half to three years"
+      },
+      "tvet": {
+        "name": "TVET (certificate, SKM, SVM)",
+        "detail": "Skills at technical and vocational institutions"
+      },
+      "degree": {
+        "name": "Bachelor's degree",
+        "detail": "Usually 3 to 5 years at university"
+      }
+    },
+    "plan": {
+      "title": "Target & careers",
+      "noOptions": "Save programmes or check Suggestions first to choose a target.",
+      "target": "Target programme",
+      "savedGroup": "Saved",
+      "suggestedGroup": "Suggestions you can reach",
+      "show": "Show",
+      "chooseCareer": "Careers you are interested in",
+      "noCareers": "This programme's careers are not available from an official source yet.",
+      "save": "Save plan",
+      "saving": "Saving…",
+      "saved": "Plan saved.",
+      "error": "The plan could not be saved. Please try again.",
+      "careerSource": "Careers as ePanduan lists them for this programme.",
+      "openSource": "View source"
+    },
+    "mine": {
+      "title": "My plan",
+      "empty": "No plan yet. Choose a target and a career, then save.",
+      "unavailable": "Your plan could not be loaded right now.",
+      "clear": "Clear",
+      "types": {
+        "route": "Route",
+        "programme": "Target programme",
+        "career": "Career",
+        "note": "Note"
+      },
+      "note": "This plan is your own guide and can be changed at any time."
+    },
+    "actions": {
+      "title": "Next actions",
+      "results": "Complete your academic results",
+      "interest": "Take the Interest Quest",
+      "check": "Check the requirements of {programme}",
+      "save": "Save {programme} to be told when its requirements change",
+      "pickTarget": "Choose a target programme from Suggestions",
+      "targets": "Set your SPM target grades",
+      "doneLabel": "Done:"
+    }
   }
 }

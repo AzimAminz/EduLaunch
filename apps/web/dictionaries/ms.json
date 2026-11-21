@@ -2604,5 +2604,109 @@
         "generic": "Pertanyaan tidak dapat dihantar. Cuba lagi sebentar lagi."
       }
     }
+  },
+  "roadmap": {
+    "eyebrow": "PETA MASA DEPAN",
+    "title": "Roadmap saya",
+    "intro": "Laluan dari tempat anda sekarang hingga kerjaya, berdasarkan keputusan anda dan program dalam katalog.",
+    "loading": "Memuatkan roadmap…",
+    "needLevel": "Pilih peringkat pendidikan anda dahulu supaya kami boleh melukis laluan anda.",
+    "chooseLevel": "Pilih peringkat",
+    "road": {
+      "title": "Laluan anda",
+      "stage": {
+        "now": "Sekarang",
+        "form4_stream": "Tingkatan 4–5",
+        "spm": "SPM",
+        "afterSpm": "Selepas SPM",
+        "foundation": "Asasi",
+        "matriculation": "Matrikulasi",
+        "stpm": "STPM",
+        "diploma": "Diploma",
+        "tvet": "TVET",
+        "degree": "Ijazah",
+        "career": "Kerjaya"
+      },
+      "youNow": "Anda sekarang",
+      "reachable": "{count} program yang anda layak atau hampir layak",
+      "interestFit": "Minat: {level}",
+      "takeInterest": "Ambil Quest Minat untuk melihat aliran yang sepadan",
+      "pickTargetFirst": "Pilih program sasaran untuk melihat kerjayanya",
+      "careersPreparing": "Senarai kerjaya program ini sedang disediakan",
+      "note": "Bilangan program dikira daripada senarai cadangan anda. Tempoh pengajian ialah anggaran lazim; semak dengan institusi."
+    },
+    "routes": {
+      "form4_stream": {
+        "name": "Aliran Tingkatan 4",
+        "detail": "Lazimnya dipilih pada hujung Tingkatan 3"
+      },
+      "spm": {
+        "name": "SPM",
+        "detail": "Peperiksaan pada hujung Tingkatan 5"
+      },
+      "foundation": {
+        "name": "Asasi",
+        "detail": "Program asas universiti, lazimnya 1 tahun"
+      },
+      "matriculation": {
+        "name": "Matrikulasi",
+        "detail": "Program Kementerian Pendidikan, 1 atau 2 tahun"
+      },
+      "stpm": {
+        "name": "STPM (Tingkatan 6)",
+        "detail": "Lazimnya 1 tahun setengah di Tingkatan 6"
+      },
+      "diploma": {
+        "name": "Diploma",
+        "detail": "Lazimnya 2 tahun setengah hingga 3 tahun"
+      },
+      "tvet": {
+        "name": "TVET (Sijil, SKM, SVM)",
+        "detail": "Kemahiran di institusi teknikal dan vokasional"
+      },
+      "degree": {
+        "name": "Ijazah sarjana muda",
+        "detail": "Lazimnya 3 hingga 5 tahun di universiti"
+      }
+    },
+    "plan": {
+      "title": "Sasaran & kerjaya",
+      "noOptions": "Simpan program atau semak Cadangan saya dahulu untuk memilih sasaran.",
+      "target": "Program sasaran",
+      "savedGroup": "Disimpan",
+      "suggestedGroup": "Cadangan yang anda boleh capai",
+      "show": "Tunjuk",
+      "chooseCareer": "Kerjaya yang anda minati",
+      "noCareers": "Senarai kerjaya untuk program ini belum tersedia daripada sumber rasmi.",
+      "save": "Simpan rancangan",
+      "saving": "Menyimpan…",
+      "saved": "Rancangan disimpan.",
+      "error": "Rancangan tidak dapat disimpan. Cuba lagi.",
+      "careerSource": "Senarai kerjaya seperti yang disenaraikan ePanduan untuk program ini.",
+      "openSource": "Lihat sumber"
+    },
+    "mine": {
+      "title": "Rancangan saya",
+      "empty": "Belum ada rancangan. Pilih sasaran dan kerjaya, kemudian simpan.",
+      "unavailable": "Rancangan anda tidak dapat dimuatkan sekarang.",
+      "clear": "Kosongkan",
+      "types": {
+        "route": "Laluan",
+        "programme": "Program sasaran",
+        "career": "Kerjaya",
+        "note": "Nota"
+      },
+      "note": "Rancangan ini untuk panduan anda sendiri dan boleh ditukar bila-bila masa."
+    },
+    "actions": {
+      "title": "Tindakan seterusnya",
+      "results": "Lengkapkan keputusan akademik anda",
+      "interest": "Ambil Quest Minat",
+      "check": "Semak syarat {programme}",
+      "save": "Simpan {programme} untuk menerima notis perubahan syarat",
+      "pickTarget": "Pilih program sasaran dari Cadangan saya",
+      "targets": "Tetapkan sasaran gred SPM anda",
+      "doneLabel": "Selesai:"
+    }
   }
 }
