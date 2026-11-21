@@ -49,8 +49,12 @@ async function Updates({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const names = new Map((await Promise.all(ids.map((id) => getProgramme(id).then((p) => [id, p.name] as const).catch(() => null)))).filter((x): x is readonly [string, string] => x !== null));
 
   const title = (n: Notification) =>
-    n.type === 'requirement_changed' ? format(t.types.requirementChanged.title, { programme: (n.programId && names.get(n.programId)) || t.aProgramme }) : n.message;
-  const body = (n: Notification) => (n.type === 'requirement_changed' ? t.types.requirementChanged.body : null);
+    n.type === 'requirement_changed'
+      ? format(t.types.requirementChanged.title, { programme: (n.programId && names.get(n.programId)) || t.aProgramme })
+      : n.type === 'ticket_replied'
+        ? t.types.ticketReplied.title
+        : n.message;
+  const body = (n: Notification) => (n.type === 'requirement_changed' ? t.types.requirementChanged.body : n.type === 'ticket_replied' ? t.types.ticketReplied.body : null);
   const when = (d: Date) => d.toLocaleString(lang === 'ms' ? 'ms-MY' : 'en-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kuala_Lumpur' });
 
   return (
@@ -82,7 +86,11 @@ async function Updates({ lang, dict }: { lang: Locale; dict: Dictionary }) {
                 </div>
               </div>
               <div className="flex shrink-0 flex-wrap gap-2 pl-5 sm:pl-0">
-                {n.programId && names.has(n.programId) && <OpenNotice id={n.id} href={`/${lang}/teroka/${n.programId}`} unread={!n.readAt} label={t.view} />}
+                {n.type === 'ticket_replied' ? (
+                  <OpenNotice id={n.id} href={`/${lang}/bantuan`} unread={!n.readAt} label={t.openHelp} />
+                ) : (
+                  n.programId && names.has(n.programId) && <OpenNotice id={n.id} href={`/${lang}/teroka/${n.programId}`} unread={!n.readAt} label={t.view} />
+                )}
                 {!n.readAt && <MarkRead id={n.id} label={t.markRead} />}
               </div>
             </li>

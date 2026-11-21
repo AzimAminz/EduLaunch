@@ -130,7 +130,8 @@
       "offered": "Routes it takes: {routes}.",
       "wayIn": "After SPM, you can get here through foundation, matriculation, STPM or a diploma first.",
       "otherRoutes": "Other routes' requirements ({count})"
-    }
+    },
+    "reportWrong": "Report wrong information"
   },
   "requirements": {
     "atLeastGrade": "At least grade {grade}",
@@ -323,7 +324,8 @@
       "groupWork": "Today's work",
       "groupProgramme": "Catalogue",
       "programmes": "Programmes",
-      "institutions": "Institutions"
+      "institutions": "Institutions",
+      "support": "Support"
     },
     "status": {
       "draft": "Draft",
@@ -1336,6 +1338,32 @@
     "superAdmin": {
       "tag": "Super admin",
       "selfApprove": "You are a super admin: you may approve this draft yourself."
+    },
+    "support": {
+      "title": "Support",
+      "intro": "Students' questions. Take one so other admins know it is being handled, then answer it; the student is notified.",
+      "tabs": {
+        "open": "Waiting",
+        "answered": "Answered (30 days)"
+      },
+      "empty": {
+        "open": "No questions waiting for an answer.",
+        "answered": "No questions answered in the last 30 days."
+      },
+      "handledBy": "handled by {who}",
+      "answeredBy": "Answered by {who}",
+      "programme": "Open programme",
+      "take": "Take it",
+      "reply": "Answer to the student",
+      "replyPlaceholder": "What was done, or the answer to this question.",
+      "answer": "Send answer & close",
+      "sending": "Sending…",
+      "otherAdmin": "Another admin is handling this question.",
+      "errors": {
+        "short": "Write an answer of at least 5 characters.",
+        "taken": "Another admin has taken this question.",
+        "generic": "Could not save. Please try again."
+      }
     }
   },
   "footer": {
@@ -2378,7 +2406,8 @@
       "empty": "No updates for now.",
       "unavailable": "Updates could not be loaded right now.",
       "requirementChanged": "Entry requirements for {programme} have been updated",
-      "aProgramme": "a programme you saved"
+      "aProgramme": "a programme you saved",
+      "ticketReplied": "Your question to EduLaunch has been answered"
     },
     "school": {
       "title": "Next step: choose your Form 4 stream",
@@ -2446,8 +2475,13 @@
       "requirementChanged": {
         "title": "Entry requirements for {programme} have been updated",
         "body": "Check the latest requirements and where you stand on the programme page."
+      },
+      "ticketReplied": {
+        "title": "Your question has been answered",
+        "body": "Read the EduLaunch team's answer on the Help page."
       }
-    }
+    },
+    "openHelp": "Read the answer"
   },
   "compare": {
     "title": "Compare programmes",
@@ -2500,5 +2534,75 @@
     "waitingTitle": "The result appears here",
     "waitingBody": "Empty fields count as unknown. Grades below the minimum show as gaps.",
     "saveHint": "To save grades to your profile, use"
+  },
+  "help": {
+    "title": "Help",
+    "intro": "Short answers about EduLaunch, and how to ask our team.",
+    "loading": "Loading…",
+    "faqTitle": "Common questions",
+    "faq": [
+      {
+        "q": "How is my eligibility checked?",
+        "a": "Each programme's official entry requirements, entered and reviewed by two different admins before they are published, are compared with the results in your profile. The check is a guide only; admission is decided by the institution."
+      },
+      {
+        "q": "Where does programme information come from?",
+        "a": "From official sources such as ePanduan (Ministry of Higher Education) and the institutions' own sites. Each programme page shows its source. If you find something wrong, report it with the form below."
+      },
+      {
+        "q": "How is my merit worked out?",
+        "a": "With the ePanduan merit calculator formula for your route. It is an estimate, not an official score. Form 4–5 students see a target merit from their target grades."
+      },
+      {
+        "q": "What does offer chance mean?",
+        "a": "It compares your merit with the published average merit of a past intake for that programme. It is not a promise of an offer and is not shown when the data does not match your qualification."
+      },
+      {
+        "q": "What is the Interest Quest?",
+        "a": "An interest test based on the O*NET Mini Interest Profiler: 30 work activities that give a three-letter interest code (RIASEC). Interests show what you like, not what you can do."
+      },
+      {
+        "q": "When do I get notices?",
+        "a": "When the entry requirements of a programme you saved are updated, and when your question to us is answered. Requirement change notices can be turned off in Settings › Notifications."
+      },
+      {
+        "q": "How do I download or delete my data?",
+        "a": "In Settings › Privacy & data you can download your data as a JSON file or delete your account completely."
+      }
+    ],
+    "askTitle": "Ask us",
+    "askIntro": "We reply on this page, and you get a notice in Updates.",
+    "mineTitle": "My questions",
+    "mineEmpty": "You have not sent any questions yet.",
+    "mineUnavailable": "Your questions could not be loaded right now.",
+    "reply": "Answer from the EduLaunch team",
+    "status": {
+      "open": "Received",
+      "in_progress": "Being looked at",
+      "closed": "Answered"
+    },
+    "form": {
+      "category": "Type of question",
+      "categories": {
+        "wrong_data": "Wrong programme information",
+        "account": "My account",
+        "other": "Something else"
+      },
+      "programme": "Programme",
+      "pickProgramme": "Choose a programme",
+      "programmeHint": "This list shows your saved programmes. For another programme, open its page and press Report wrong information.",
+      "message": "Your question",
+      "placeholder": "Describe your question in a sentence or two.",
+      "placeholderData": "What is wrong? For example: the Mathematics requirement should be B, not C, according to the university's site.",
+      "send": "Send",
+      "sending": "Sending…",
+      "sent": "Question sent.",
+      "errors": {
+        "short": "Describe your question in at least 10 characters.",
+        "programme": "Choose the programme whose information is wrong.",
+        "tooMany": "You already have 5 unanswered questions. Please wait for an answer first.",
+        "generic": "Your question could not be sent. Please try again shortly."
+      }
+    }
   }
 }

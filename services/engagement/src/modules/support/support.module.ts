@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Inject, Injectable, Module, Param, ParseUUIDPipe, Post } from '@nestjs/common';
-import { NotFoundError } from '@edulaunch/ddd';
+import { DomainError, NotFoundError } from '@edulaunch/ddd';
 import { CurrentCaller, DRIZZLE, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
-import { desc, eq, ne } from 'drizzle-orm';
+import { and, count, desc, eq, gte, ne } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import * as schema from '../../infrastructure/db/schema.js';
@@ -33,6 +33,9 @@ export class DrizzleTicketRepository extends TicketRepository {
   }
 }
 
+/** Open questions a student may have at once. */
+const MAX_OPEN_TICKETS = 5;
+
 const OpenBody = z.object({ category: z.enum(['wrong_data', 'account', 'other']), programId: z.uuid().nullable().default(null), message: z.string().max(2000) });
 const CloseBody = z.object({ reply: z.string().max(2000) });
 
@@ -46,6 +49,9 @@ class SupportController {
   @Roles('student')
   @Post()
   async open(@CurrentCaller() caller: Caller, @Body(new ZodPipe(OpenBody)) body: z.infer<typeof OpenBody>) {
+    // A few open questions at a time, so one student cannot flood the queue.
+    const [row] = await this.db.select({ n: count() }).from(supportTickets).where(and(eq(supportTickets.userId, caller.userId), ne(supportTickets.status, 'closed')));
+    if (Number(row?.n ?? 0) >= MAX_OPEN_TICKETS) throw new DomainError('too_many_open', `You can have up to ${MAX_OPEN_TICKETS} open questions; wait for an answer first`);
     const ticket = SupportTicket.open(randomUUID(), { userId: caller.userId, ...body });
     await this.tickets.save(ticket);
     return ticket.toSnapshot();
@@ -63,6 +69,14 @@ class SupportController {
     return this.db.select().from(supportTickets).where(ne(supportTickets.status, 'closed')).orderBy(supportTickets.createdAt);
   }
 
+  /** Answered in the last 30 days, newest first, so admins can see what was said. */
+  @Roles('admin')
+  @Get('closed')
+  closed() {
+    const since = new Date(Date.now() - 30 * 24 * 3600 * 1000);
+    return this.db.select().from(supportTickets).where(and(eq(supportTickets.status, 'closed'), gte(supportTickets.closedAt, since))).orderBy(desc(supportTickets.closedAt)).limit(100);
+  }
+
   @Roles('admin')
   @Post(':id/claim')
   async claim(@Param('id', ParseUUIDPipe) id: string, @CurrentCaller() caller: Caller) {
@@ -78,7 +92,10 @@ class SupportController {
     const t = await this.load(id);
     t.close(caller.userId, body.reply);
     await this.tickets.save(t);
-    return t.toSnapshot();
+    const s = t.toSnapshot();
+    // The student is told in Kemas kini that their question has an answer.
+    await this.db.insert(schema.notifications).values({ userId: s.userId, programId: s.programId, type: 'ticket_replied', message: 'Your question to EduLaunch has been answered.' });
+    return s;
   }
 
   private async load(id: string) {

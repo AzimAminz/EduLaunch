@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { Sidebar, type NavGroup } from '@/components/portal/sidebar';
 import { getTasks } from '@/lib/admin/api';
+import { ticketQueue } from '@/lib/engagement/api';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
@@ -34,10 +35,20 @@ async function reviewCount(): Promise<number> {
   }
 }
 
+/** Students' questions still waiting for an answer, for the Support badge; nothing if they cannot be read. */
+async function openQuestionCount(): Promise<number> {
+  try {
+    const token = await getAccessToken();
+    return token ? (await ticketQueue(token)).filter((x) => x.status === 'open').length : 0;
+  } catch {
+    return 0;
+  }
+}
+
 async function AdminSidebar({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const account = await requireRole(locale, 'admin');
   const t = dict.admin.nav;
-  const waiting = await reviewCount();
+  const [waiting, questions] = await Promise.all([reviewCount(), openQuestionCount()]);
   const base = `/${locale}/admin`;
   const groups: NavGroup[] = [
     {
@@ -45,6 +56,7 @@ async function AdminSidebar({ locale, dict }: { locale: Locale; dict: Dictionary
       items: [
         { href: base, label: t.home, icon: 'home' },
         { href: `${base}/tugasan`, label: t.tasks, icon: 'inbox', badge: waiting ? String(waiting) : undefined },
+        { href: `${base}/sokongan`, label: t.support, icon: 'message', badge: questions ? String(questions) : undefined },
       ],
     },
     {

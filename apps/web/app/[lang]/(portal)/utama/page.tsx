@@ -448,7 +448,12 @@ function Saved(props: {
 }
 
 function Updates({ lang, t, notices, unread, known }: { lang: Locale; t: T; notices: Notification[] | null; unread: number; known: Map<string, { name: string }> }) {
-  const text = (n: Notification) => (n.type === 'requirement_changed' ? format(t.updates.requirementChanged, { programme: (n.programId && known.get(n.programId)?.name) || t.updates.aProgramme }) : n.message);
+  const text = (n: Notification) =>
+    n.type === 'requirement_changed'
+      ? format(t.updates.requirementChanged, { programme: (n.programId && known.get(n.programId)?.name) || t.updates.aProgramme })
+      : n.type === 'ticket_replied'
+        ? t.updates.ticketReplied
+        : n.message;
   return (
     <section className="flex flex-col gap-3 rounded-[18px] bg-white p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
