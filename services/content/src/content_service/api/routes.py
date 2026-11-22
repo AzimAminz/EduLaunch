@@ -12,6 +12,20 @@ from ..config import Settings, get_settings
 router = APIRouter()
 
 
+def require_student(
+    settings: Annotated[Settings, Depends(get_settings)],
+    x_internal_token: Annotated[str, Header()] = "",
+    x_user_role: Annotated[str, Header()] = "",
+    x_user_id: Annotated[str, Header()] = "",
+) -> str:
+    """Through the gateway, as a signed-in student; returns their account id."""
+    if not hmac.compare_digest(x_internal_token, settings.internal_token):
+        raise HTTPException(401, detail={"code": "unauthorized", "message": "Requests must come through the gateway"})
+    if x_user_role != "student" or not x_user_id:
+        raise HTTPException(403, detail={"code": "forbidden", "message": "Students only"})
+    return x_user_id
+
+
 def require_admin(
     settings: Annotated[Settings, Depends(get_settings)],
     x_internal_token: Annotated[str, Header()] = "",
@@ -82,3 +96,42 @@ def found_programmes(request: Request, codes: Annotated[str, Query(max_length=24
         by_institution.setdefault(code[:2], []).append(code)
     runs = request.app.state.epanduan_runs
     return [found for prefix, group in by_institution.items() for found in runs.found(prefix, group)]
+
+
+# --- Result slips -------------------------------------------------------------------------------------------------
+
+MAX_SLIP_BYTES = 8 * 1024 * 1024
+SLIP_LIMIT = (10, 600)  # readings per student per 10 minutes
+_slip_calls: dict[str, list[float]] = {}
+
+
+class SlipRequest(BaseModel):
+    mime: str = Field(max_length=40)
+    data: str = Field(description="The file, base64-encoded", max_length=12 * 1024 * 1024)
+
+
+@router.post("/slips/read")
+def read_slip(body: SlipRequest, request: Request, student: Annotated[str, Depends(require_student)]) -> dict:
+    """Reads a result slip into rows (code, name, grade, confidence) for the student to check. The file stays in
+    memory for this request only: it is not stored or logged."""
+    import base64
+    import binascii
+    import time
+
+    now = time.monotonic()
+    recent = [t for t in _slip_calls.get(student, []) if now - t < SLIP_LIMIT[1]]
+    if len(recent) >= SLIP_LIMIT[0]:
+        raise HTTPException(429, detail={"code": "too_many_readings", "message": "Too many slips read; try again in a few minutes"})
+    _slip_calls[student] = [*recent, now]
+    try:
+        data = base64.b64decode(body.data, validate=True)
+    except (binascii.Error, ValueError) as err:
+        raise HTTPException(400, detail={"code": "invalid_file", "message": "The file could not be read"}) from err
+    if len(data) > MAX_SLIP_BYTES:
+        raise HTTPException(413, detail={"code": "file_too_large", "message": "The file is larger than 8 MB"})
+    reading = request.app.state.slip_reader.read(data, body.mime)
+    return {
+        "source": reading.source,
+        "examYear": reading.exam_year,
+        "rows": [{"code": r.code, "name": r.name, "grade": r.grade, "confidence": r.confidence} for r in reading.rows],
+    }

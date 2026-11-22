@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import ms from '../../dictionaries/ms.json';
 
 vi.mock('@/lib/profile/actions', () => ({ saveAcademicRecord: vi.fn(async () => ({})) }));
+vi.mock('@/lib/academic/slip-actions', () => ({ readSlip: vi.fn() }));
 const { SubjectTable } = await import('./subject-table');
 
 const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;

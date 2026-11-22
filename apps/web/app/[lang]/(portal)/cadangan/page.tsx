@@ -15,21 +15,15 @@ import { loadMeritInputs, studentMerit, type MeritInputs } from '@/lib/merit/stu
 import { recalculateRecommendations } from '@/lib/recommendation/actions';
 import { getRecommendations, type Recommendation, type Recommendations } from '@/lib/recommendation/api';
 import { getAccessToken } from '@/lib/supabase/server';
+import { listSavedProgrammes } from '@/lib/profile/api';
+import { SaveButton } from '@/components/saved/save-button';
+import { CHANCE_LEVEL, MATCH_STYLE, matchOf, type Level } from '@/lib/recommendation/present';
 
 type Status = Recommendation['eligibility'];
 const PAGE_SIZE = 8;
 const STATUSES: Status[] = ['eligible', 'almost', 'not_yet'];
 
 const STATUS_STYLE: Record<Status, string> = { eligible: 'bg-mint', almost: 'bg-cream', not_yet: 'bg-red/10' };
-
-/** Overall match from the score (interests, earlier study, subject strength): a house rule, tuned after testing. */
-type Match = 'strong' | 'fair' | 'weak';
-const matchOf = (score: number): Match => (score >= 80 ? 'strong' : score >= 65 ? 'fair' : 'weak');
-const MATCH_STYLE: Record<Match, { badge: string; dot: string }> = {
-  strong: { badge: 'bg-[#dcf3e6] text-[#145c3b]', dot: 'bg-[#1f8a5b]' },
-  fair: { badge: 'bg-[#fdf0d5] text-[#7a4f06]', dot: 'bg-[#d49a1f]' },
-  weak: { badge: 'bg-[#eceef2] text-[#4a5568]', dot: 'bg-[#8a94a6]' },
-};
 
 const SORTS = ['match', 'continuity', 'interest', 'chance', 'name'] as const;
 type Sort = (typeof SORTS)[number];
@@ -69,6 +63,7 @@ async function RecommendationsView({ lang, dict, searchParams }: { lang: Locale;
   let interest: InterestTest | null;
   let merit: MeritInputs;
   let reference: Awaited<ReturnType<typeof getReferenceData>>;
+  let savedIds: Set<string> | null = null;
   try {
     [list, interest, merit, reference] = await Promise.all([
       getRecommendations(token),
@@ -77,6 +72,9 @@ async function RecommendationsView({ lang, dict, searchParams }: { lang: Locale;
       loadMeritInputs(token, lang),
       getReferenceData(),
     ]);
+    savedIds = await listSavedProgrammes(token)
+      .then((list) => new Set(list.map((s) => s.programId)))
+      .catch(() => null);
   } catch {
     return (
       <p role="alert" className="rounded-[18px] border border-line bg-white p-6 text-sm">
@@ -142,7 +140,7 @@ async function RecommendationsView({ lang, dict, searchParams }: { lang: Locale;
                 <ol className="flex flex-col gap-4">
                   {shown.map((item) => (
                     <li key={item.programId}>
-                      <Card lang={lang} dict={dict} item={item} reference={reference} merit={meritFor} typeNames={typeNames} />
+                      <Card lang={lang} dict={dict} item={item} reference={reference} merit={meritFor} typeNames={typeNames} saved={savedIds ? savedIds.has(item.programId) : null} />
                     </li>
                   ))}
                 </ol>
@@ -289,6 +287,7 @@ function Card({
   reference,
   merit,
   typeNames,
+  saved,
 }: {
   lang: Locale;
   dict: Dictionary;
@@ -296,6 +295,8 @@ function Card({
   reference: Awaited<ReturnType<typeof getReferenceData>>;
   merit: { mode: MeritInputs['mode']; merit: number } | null;
   typeNames: (types: RiasecType[]) => string;
+  /** Whether the student saved it; null when the saved list could not be read (no button then). */
+  saved: boolean | null;
 }) {
   const t = dict.recommendations;
   const d = item.details;
@@ -432,12 +433,15 @@ function Card({
           <Icon src="/icons/check.svg" size={14} />
           {t.sourceShort}
         </p>
-        <Link
-          href={`/${lang}/teroka/${item.programId}`}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 self-start rounded-[10px] bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90 sm:self-auto"
-        >
-          {t.viewRequirements} →
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {saved !== null && <SaveButton locale={lang} programId={item.programId} initialSaved={saved} t={dict.saved.button} tone="outline" />}
+          <Link
+            href={`/${lang}/teroka/${item.programId}`}
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[10px] bg-navy px-5 text-sm font-semibold text-white hover:bg-navy/90"
+          >
+            {t.viewRequirements} →
+          </Link>
+        </div>
       </footer>
     </article>
   );
@@ -445,14 +449,12 @@ function Card({
 
 /** Met requirements shown as chips; the rest are summed up in a "+n" chip. */
 const MET_CHIPS = 4;
-type Level = 'high' | 'medium' | 'low';
 const LEVEL_STYLE: Record<Level, { bars: number; fill: string; text: string }> = {
   high: { bars: 3, fill: 'bg-[#1f8a5b]', text: 'text-[#145c3b]' },
   medium: { bars: 2, fill: 'bg-[#d49a1f]', text: 'text-[#7a4f06]' },
   low: { bars: 1, fill: 'bg-[#8a94a6]', text: 'text-[#4a5568]' },
 };
 const FIELD_LEVEL: Record<'same' | 'related' | 'none', Level> = { same: 'high', related: 'medium', none: 'low' };
-const CHANCE_LEVEL: Record<'above' | 'near' | 'below', Level> = { above: 'high', near: 'medium', below: 'low' };
 
 /** One signal at a glance: an icon, a three-step meter and a word or two; the full sentence is its tooltip. */
 function Tile({ icon, label, level, value, hint, title }: { icon: string; label: string; level: Level | null; value: string; hint: string | null; title?: string }) {

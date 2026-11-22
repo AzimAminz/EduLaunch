@@ -17,7 +17,7 @@ Version 3.2 · 27 Oct 2026 · current position: **Sprint 5** (Step 9 built, manu
 
 ## Status overview
 
-- **Done:** 8 of 31 items. Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 accepted on 27 Oct 2026 and refined as needs come up).
+- **Done:** 11 of 31 items (22 Nov 2026). Project setup, CI on GitHub, Bahasa Melayu / English, accounts, the academic profile, programme search, the eligibility engine, and the admin catalogue (Steps 1–7 checked by hand; Step 8 accepted on 27 Oct 2026 and refined as needs come up).
 - **In Progress:** 7 items. Back-end services exist with unit and integration tests; their screens and real programme data do not yet.
 - **Not Started:** 16 items.
 - **At risk:** real requirement data (Step 11). Programme lists and merit averages now come from ePanduan (Step 9); the site's terms forbid commercial reuse without written consent, so a commercial launch needs JPT's permission.
@@ -42,6 +42,18 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | 11 | **JPT import, part 2 (requirements):** read each programme's Syarat Am and Syarat Khas with a headless browser, parse with rules first and Claude for what rules cannot read, validate (exact quotes, known subjects, valid grades), create requirement drafts that an admin approves | Planned |
 | 12 | Public website from Figma: landing, how it works, about, contact, guide/FAQ, privacy and terms | Planned |
 | 13 | **Career data and study roadmap:** careers with MASCO code, qualification level and source; after-Diploma branches (work now, degree, professional qualification, work first); "being prepared" state and data-gap tasks; AI drafts for missing fields from whitelisted Malaysian sources, approved by admins | Planned |
+
+### Changes since v3 (student portal pages, 22 Nov 2026)
+| Change | Detail |
+|---|---|
+| Student home (`/utama`) | Where students land after logging in: best match they can reach, the one next step, merit, interests, results, saved programmes and notices; Form 1–3 sees Form 4 streams |
+| Saved programmes (`/simpanan`) | Save buttons on programme pages, Cadangan and directory cards; the saved list with where the student stands |
+| Compare (`/banding`) | Up to three saved programmes side by side, differences marked; no invented rows |
+| Eligibility check (`/kelayakan`) | Built, then removed (22 Nov 2026): the programme page already shows the check, so a separate page repeated it |
+| Updates (`/kemas-kini`) | Notices with unread badge; read one or all |
+| Help and support (`/bantuan`, `/admin/sokongan`) | FAQ, questions and wrong-data reports to the team, admin queue with answers that notify the student |
+| Roadmap (`/roadmap`) | The road by level, target programme with ePanduan careers, saved plan (new `GET/PUT me/roadmap`), next actions |
+| Still "coming soon" in the menu | Exploration activities, Ask AI (need content or an AI provider decision) |
 
 ### Changes since v3 (requirement model v2 started, 27 Oct 2026)
 
@@ -173,7 +185,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Project setup | Monorepo, five services + gateway, local Supabase in Docker, one-command bootstrap, unit tests | **Done** | — |
 | CI on GitHub | Build, type-check and tests on every pull request | **Done** | — |
 | Bahasa Melayu / English | Every screen and catalogue name in both languages, `/ms` and `/en` addresses, remembered choice | **Done** | Keep adding both languages for each new screen |
-| Data model | Tables from the ERD in each service's schema, migrations | **In Progress** | Storage bucket for slips |
+| Data model | Tables from the ERD in each service's schema, migrations | **Done** | Slips are read in memory and not stored, so no slip bucket is needed |
 | Seed catalogue | 5 universities, 30–50 programmes, Form 4 streams, a few certificate and skills programmes; requirements entered by hand and checked | **In Progress** | Real data from official sources through the JPT import (Steps 9 and 11); seed script and 14 sample programmes are done |
 | Accounts | Sign up, log in, reset password, choose education level | **Done** | — |
 | Academic profile (manual) | Subjects from the catalogue, add/remove, grade validation | **Done** | — |
@@ -190,14 +202,14 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Requirement model v2 | Syarat Am, alternative sets, credits from a list, NEC field rules, self-confirmed conditions, copy to other programmes | **In Progress** | Done: Syarat Am / Khas by section, ATAU sets, N from a list, declarations, fill from ePanduan, copy approved requirements, programme facts as ePanduan lists them. Left: diploma field by NEC code, A-Level / IB points |
 | JPT import (requirements) | Requirement text parsed by rules, Claude for the rest, validated, drafts for admin approval | Not Started | Step 11; needs Steps 9–10 and an Anthropic API key |
 | Interest test + activities | RIASEC result, activity ratings | **In Progress** | Interest test done (9 Nov 2026): the O*NET Mini Interest Profiler (30 activities, 0–4 scale, sum per Holland type 0–20, as its developers publish), in BM and EN, saved step by step, result with the three-letter code; used under the O*NET Tools Developer License with the required credit. Left: exploration activities |
-| Recommendation v1 | Score, rank, template reasons, top-match card | **In Progress** | `/cadangan` page done (eligibility first, then RIASEC interest fit, earlier study — diploma/certificate field, matriculation stream and programme-name similarity from a local text model — and subject strength; met/unmet rules; offer chance from merit; 8 cards a page); dashboard card waits for the home page |
+| Recommendation v1 | Score, rank, template reasons, top-match card | **Done** (22 Nov 2026) | `/cadangan` (eligibility first, then interests 40%, subject strength 35%, earlier study 25%) and the top-match card on the student home |
 | Merit calculator | Formula per entry route, target vs actual labels | **Done** (8 Nov 2026) | Merit Lab: SPM, STPM, matriculation, foundation and diploma formulas copied from the ePanduan merit calculator's own code, with its official SPM subject list; live "what if". Next: show the student's merit beside each programme's average merit (prediction v1) |
-| Slip upload + OCR | Upload, local OCR, review screen with flagged rows | Not Started | |
+| Slip upload + OCR | Upload, local OCR, review screen with flagged rows | **Done** (22 Nov 2026) | SPM slip: the portal PDF is read from its text, a photo or scan with local OCR (RapidOCR) in the content service; rows matched by the official 4-digit subject codes, unsure rows flagged, nothing saved until the student saves. The file is read in memory and never stored (no slip bucket needed). Later: STPM and diploma transcripts |
 | Prediction v1 | Margin bands from `ADMISSION_STAT`, "No data" state | **Done** (8 Nov 2026) | The programme page shows the student's merit beside the programme's ePanduan average merit, only when both belong to the same group of candidates (SPM leavers or pre-university); bands are a house rule (+3 above, -2 near) and never shown as a chance or a promise |
 | Alternative pathways | Certificate/skills programmes, stepping-stone pathways, what-if "improve a result", supportive wording | Not Started | Pathway table exists |
-| Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma branches (work now, degree, professional qualification, work first) with careers | Not Started | Step 13: MASCO codes and sources in `CAREER`; data-gap tasks; AI gap filling from whitelisted Malaysian sources; screens (tables exist) |
-| Notifications | Requirement change alerts, result-release prompts | **In Progress** | Result-release prompts; screens (change alerts are done) |
-| All education levels | Form 1–3, Form 4–5, after SPM, after certificate (Sijil/SVM/SKM), after pre-university or diploma (STPM, matriculation, foundation, A-Level, diploma, DVM, DKM) | **In Progress** | Results forms per level are done; dashboards and recommendations per level still to do |
+| Study roadmap | Roadmap per level: Form 1–3 stream suggestion, after-Diploma branches (work now, degree, professional qualification, work first) with careers | **In Progress** | Done (22 Nov 2026): `/roadmap` with the road by level (Form 4 streams by interest; after SPM: foundation, matriculation, STPM, diploma, TVET with the reachable count; degree after a diploma or pre-university), a target programme with its careers as ePanduan lists them (source linked), the saved plan and next actions. Left: careers with MASCO codes and sources in `CAREER`, after-Diploma "work now / professional qualification" branches, data-gap tasks |
+| Notifications | Requirement change alerts, result-release prompts | **In Progress** | Done: requirement change notices for saved programmes (checked end to end), answers to support questions, the Kemas kini page and the unread badge. Left: result-release prompts |
+| All education levels | Form 1–3, Form 4–5, after SPM, after certificate (Sijil/SVM/SKM), after pre-university or diploma (STPM, matriculation, foundation, A-Level, diploma, DVM, DKM) | **In Progress** | Results forms and the student home per level are done (Form 1–3 sees Form 4 streams by interest fit). Left: alternative pathways for students who do not qualify yet |
 | Staging deployment | The whole system online for supervisors and testers | Not Started | Choose free hosting; production compose file; deployment guide |
 
 **Milestone M2 (Week 18):** end-to-end demo for every education level: upload a slip, get explained recommendations with offer chances, save a roadmap.

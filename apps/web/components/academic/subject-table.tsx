@@ -9,6 +9,8 @@ import { Dropdown } from '@/components/ui/dropdown';
 import { Notice } from '@/components/ui/notice';
 import { useFormAction } from '@/components/ui/use-form-action';
 import { SubjectRowsEditor } from './subject-rows-editor';
+import { SlipUpload } from './slip-upload';
+import { matchSlipRows, type SlipFlag } from '@/lib/academic/slip';
 
 interface SubjectTableProps {
   locale: Locale;
@@ -43,6 +45,17 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
   // Any edit after loading or saving means what is on screen is not what is saved.
   const [edited, setEdited] = useState(false);
   const [state, onSubmit, pending] = useFormAction(saveAcademicRecord, {}, () => setEdited(false));
+  // Rows filled from a slip that need a look; cleared once the student saves (they confirm by saving).
+  const [flagged, setFlagged] = useState<Map<string, string>>(new Map());
+  const [slipNote, setSlipNote] = useState<string | null>(null);
+  const [savedFor, setSavedFor] = useState(state.savedAt);
+  if (state.savedAt !== savedFor) {
+    setSavedFor(state.savedAt);
+    if (state.savedAt) {
+      setFlagged(new Map());
+      setSlipNote(null);
+    }
+  }
   const setRows = (update: (all: SubjectRow[]) => SubjectRow[]) => {
     setRowsState(update);
     setEdited(true);
@@ -58,6 +71,9 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
   };
 
   const isTarget = variant === 'target';
+  // Actual SPM results (after SPM, or the basic SPM part after pre-university) can be read from the slip.
+  const canReadSlip = variant === 'actual' || variant === 'basic';
+  const reason = (flags: SlipFlag[]) => flags.map((f) => t.slip.flags[f]).join(' · ');
   const [stream, setStream] = useState<SpmStream | null>(null);
   // An old error is not shown again while the next save is on its way.
   const error = state.error && !edited && !pending ? state.error : undefined;
@@ -113,9 +129,29 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
 
       <FormAlert>{error && t.errors[error]}</FormAlert>
 
+      {canReadSlip && (
+        <SlipUpload
+          t={t.slip}
+          onRead={(result) => {
+            const matched = matchSlipRows(result.rows, subjects, grades);
+            setRowsState(matched.map((m) => ({ subjectId: m.subjectId, grade: m.grade, ...(m.customName ? { customName: m.customName } : {}) })));
+            setFlagged(new Map(matched.filter((m) => m.flags.length).map((m) => [m.subjectId, reason(m.flags)])));
+            if (result.examYear && fixedYear === undefined && years.includes(result.examYear)) setYearState(String(result.examYear));
+            setEdited(true);
+            const unsure = matched.filter((m) => m.flags.length).length;
+            setSlipNote(unsure ? format(t.slip.readUnsure, { count: matched.length, unsure }) : format(t.slip.readAll, { count: matched.length }));
+          }}
+        />
+      )}
+      {slipNote && (
+        <p role="status" className="rounded-[10px] bg-blue px-4 py-3 text-[13px]">
+          {slipNote}
+        </p>
+      )}
+
       {variant !== 'school' && (
         // One tap fills the usual electives of a stream; the student then removes or adds what differs.
-        <fieldset className="flex flex-col gap-2 rounded-[14px] bg-bg p-4">
+        <fieldset className="flex min-w-0 flex-col gap-2 rounded-[14px] bg-bg p-4">
           <legend className="float-left mb-1 text-sm font-semibold">{t.streamPresets.title}</legend>
           <div className="clear-left flex flex-wrap gap-2">
             {SpmStreams.map((s) => (
@@ -146,6 +182,7 @@ export function SubjectTable({ locale, variant, t, subjects, grades, years, fixe
         onChange={setRows}
         gradeColumn={t.colGrade[variant]}
         showMissing={showErrors}
+        flagged={flagged}
       />
 
       {(variant === 'target' || variant === 'school') && <p className={`rounded-[10px] px-4 py-3 text-[13px] ${isTarget ? 'bg-cream' : 'bg-blue'}`}>{t.notes[variant]}</p>}

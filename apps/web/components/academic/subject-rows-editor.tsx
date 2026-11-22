@@ -24,6 +24,8 @@ interface SubjectRowsEditorProps {
   highlight?: boolean;
   /** Mark rows without a grade (after a failed save). */
   showMissing?: boolean;
+  /** Rows read from a slip that need a look, with why (subject id → reason). */
+  flagged?: ReadonlyMap<string, string>;
 }
 
 /**
@@ -40,6 +42,7 @@ export function SubjectRowsEditor({
   gradeColumn,
   highlight,
   showMissing,
+  flagged,
 }: SubjectRowsEditorProps) {
   const byId = useMemo(
     () => new Map(subjects.map((s) => [s.id, s])),
@@ -116,9 +119,12 @@ export function SubjectRowsEditor({
             {rows.map((row) => {
               const name = nameOf(row);
               return (
-                <tr key={row.subjectId} className="border-t border-line">
+                <tr key={row.subjectId} className={`border-t border-line ${flagged?.has(row.subjectId) ? "bg-cream" : ""}`}>
                   <th scope="row" className="px-3 py-2 font-semibold sm:px-4">
                     {name}
+                    {flagged?.has(row.subjectId) && (
+                      <span className="block text-[12px] font-normal text-[#8a6100]">{flagged.get(row.subjectId)}</span>
+                    )}
                   </th>
                   <td className="hidden px-3 py-2 sm:table-cell">
                     <span

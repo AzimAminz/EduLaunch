@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, ParseUUIDPipe, Patch, Post, Put, Query, ServiceUnavailableException } from '@nestjs/common';
 import { CurrentCaller, DRIZZLE, EventBus, Public, Roles, ZodPipe, type Caller, type Database } from '@edulaunch/nest-kit';
-import { createEvent } from '@edulaunch/ddd';
+import { createEvent, DomainError } from '@edulaunch/ddd';
 import { Events } from '@edulaunch/contracts';
 import { env } from '../config.js';
 import { and, eq, sql } from 'drizzle-orm';
@@ -58,6 +58,9 @@ const SaveRecordBody = RecordKey.extend({
   stream: z.enum(MatriculationStreams).nullable().default(null),
   semesterGpas: z.array(z.number().min(0).max(4).nullable()).max(MAX_SEMESTERS).nullable().default(null),
 });
+
+/** How many programmes a student can save. */
+const MAX_SAVED_PROGRAMMES = 100;
 
 @Controller()
 export class ProfileController {
@@ -245,6 +248,10 @@ export class ProfileController {
   @Put('me/saved-programmes/:programId')
   async saveProgramme(@CurrentCaller() caller: Caller, @Param('programId', ParseUUIDPipe) programId: string) {
     const { studentId } = await this.me.execute(caller);
+    // A generous cap, so the list stays something a student can follow (and the table cannot be flooded).
+    const [row] = await this.db.select({ count: sql<number>`count(*)::int` }).from(schema.savedPrograms).where(eq(schema.savedPrograms.studentId, studentId));
+    const already = await this.db.select({ id: schema.savedPrograms.programId }).from(schema.savedPrograms).where(and(eq(schema.savedPrograms.studentId, studentId), eq(schema.savedPrograms.programId, programId)));
+    if (!already.length && (row?.count ?? 0) >= MAX_SAVED_PROGRAMMES) throw new DomainError('too_many_saved', `You can save up to ${MAX_SAVED_PROGRAMMES} programmes`);
     await this.db.insert(schema.savedPrograms).values({ studentId, programId }).onConflictDoNothing();
     return { saved: true };
   }

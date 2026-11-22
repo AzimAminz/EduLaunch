@@ -108,7 +108,7 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="higherQualification" value={higher ?? ''} />
       {savedLabel && <input type="hidden" name="stay" value="1" />}
-      <fieldset className="flex flex-col gap-4">
+      <fieldset className="flex min-w-0 flex-col gap-4">
         <legend className="mb-1 text-xl font-semibold">{t.question}</legend>
         <p className="text-sm text-muted">{t.questionHint}</p>
         <FormAlert>{alert}</FormAlert>
@@ -175,7 +175,7 @@ export function LevelPicker({ locale, t, errors, names, initial, savedLabel, sub
             </h2>
 
             {choices && (
-              <fieldset className="flex flex-col gap-2">
+              <fieldset className="flex min-w-0 flex-col gap-2">
                 <legend className="mb-1 font-semibold">{d.qualificationQuestion}</legend>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {choices.map((q) => (

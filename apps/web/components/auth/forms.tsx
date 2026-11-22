@@ -79,7 +79,7 @@ export function SignUpForm({ locale, t }: FormProps) {
         minLength={MIN_PASSWORD_LENGTH}
         required
       />
-      <fieldset className={`flex flex-col gap-2 rounded-[12px] bg-bg p-4 ${consentError ? 'ring-1 ring-red' : ''}`}>
+      <fieldset className={`flex min-w-0 flex-col gap-2 rounded-[12px] bg-bg p-4 ${consentError ? 'ring-1 ring-red' : ''}`}>
         <legend className="float-left mb-1 text-[17px] font-semibold">{p.consentTitle}</legend>
         <label className="clear-left flex items-start gap-3 text-sm text-muted">
           <input type="checkbox" name="consent" defaultChecked={state.values?.consent === 'on'} aria-invalid={consentError ? true : undefined} className="mt-0.5 size-4 shrink-0 accent-navy" required />

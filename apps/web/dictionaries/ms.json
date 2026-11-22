@@ -20,7 +20,6 @@
     "compare": "Banding",
     "saved": "Pilihan disimpan",
     "groupPlan": "Rancang",
-    "eligibility": "Semakan kelayakan",
     "meritLab": "Merit Lab",
     "roadmap": "Roadmap saya",
     "groupSelf": "Kenali diri",
@@ -130,7 +129,8 @@
       "offered": "Laluan yang diterima: {routes}.",
       "wayIn": "Selepas SPM, anda boleh masuk ke program ini melalui Asasi, Matrikulasi, STPM atau Diploma dahulu.",
       "otherRoutes": "Syarat laluan lain ({count})"
-    }
+    },
+    "reportWrong": "Laporkan maklumat salah"
   },
   "requirements": {
     "atLeastGrade": "Sekurang-kurangnya gred {grade}",
@@ -323,7 +323,8 @@
       "groupWork": "Kerja hari ini",
       "groupProgramme": "Katalog",
       "programmes": "Program",
-      "institutions": "Institusi"
+      "institutions": "Institusi",
+      "support": "Sokongan"
     },
     "status": {
       "draft": "Draf",
@@ -1336,6 +1337,32 @@
     "superAdmin": {
       "tag": "Super admin",
       "selfApprove": "Anda super admin: anda boleh meluluskan draf ini sendiri."
+    },
+    "support": {
+      "title": "Sokongan",
+      "intro": "Pertanyaan pelajar. Ambil satu supaya admin lain tahu ia sedang diuruskan, kemudian jawab; pelajar akan menerima notis.",
+      "tabs": {
+        "open": "Belum dijawab",
+        "answered": "Dijawab (30 hari)"
+      },
+      "empty": {
+        "open": "Tiada pertanyaan menunggu jawapan.",
+        "answered": "Tiada pertanyaan dijawab dalam 30 hari lepas."
+      },
+      "handledBy": "diuruskan oleh {who}",
+      "answeredBy": "Dijawab oleh {who}",
+      "programme": "Buka program",
+      "take": "Ambil",
+      "reply": "Jawapan kepada pelajar",
+      "replyPlaceholder": "Apa yang telah dibuat atau jawapan kepada pertanyaan ini.",
+      "answer": "Hantar jawapan & tutup",
+      "sending": "Menghantar…",
+      "otherAdmin": "Admin lain sedang menguruskan pertanyaan ini.",
+      "errors": {
+        "short": "Tulis jawapan sekurang-kurangnya 5 aksara.",
+        "taken": "Admin lain sudah mengambil pertanyaan ini.",
+        "generic": "Tidak dapat disimpan. Cuba lagi."
+      }
     }
   },
   "footer": {
@@ -1500,7 +1527,31 @@
     },
     "schoolTab": "Tingkatan {form} · {year}",
     "limitReached": "Had {max} subjek dicapai. Buang subjek yang tidak berkenaan untuk menambah subjek lain.",
-    "earlierFormHint": "Pilihan: isi gred Tingkatan {form} jika anda ada. Jika sudah disimpan, ia kekal sebagai sejarah."
+    "earlierFormHint": "Pilihan: isi gred Tingkatan {form} jika anda ada. Jika sudah disimpan, ia kekal sebagai sejarah.",
+    "slip": {
+      "title": "Isi daripada slip keputusan",
+      "hint": "Muat naik PDF slip dari portal keputusan SPM, atau gambar slip yang jelas. Kami isi jadual di bawah; anda semak dan simpan.",
+      "choose": "Pilih fail slip",
+      "reading": "Membaca slip…",
+      "privacy": "Dibaca di pelayan EduLaunch sahaja dan tidak disimpan.",
+      "readAll": "{count} subjek dibaca daripada slip. Semak jadual, kemudian tekan Simpan & sahkan.",
+      "readUnsure": "{count} subjek dibaca daripada slip; {unsure} baris bertanda kuning perlu anda semak sebelum menyimpan.",
+      "flags": {
+        "low_confidence": "Bacaan kurang jelas, semak gred",
+        "no_grade": "Gred tidak terbaca, pilih gred",
+        "unknown_code": "Kod subjek tidak dikenali",
+        "name_differs": "Nama tidak sepadan dengan kod, semak subjek",
+        "not_in_list": "Tiada dalam senarai subjek kami"
+      },
+      "errors": {
+        "type": "Muat naik fail PDF, JPG, PNG atau WEBP.",
+        "size": "Fail terlalu besar. Cuba gambar yang lebih kecil atau PDF dari portal.",
+        "busy": "Terlalu banyak slip dibaca. Cuba lagi dalam beberapa minit.",
+        "unreadable": "Fail tidak dapat dibuka. Cuba fail lain.",
+        "none": "Tiada subjek dapat dibaca. Cuba PDF dari portal keputusan jika ada, atau ambil gambar dekat dengan cahaya terang supaya jadual subjek memenuhi skrin. Anda juga boleh isi jadual secara manual.",
+        "generic": "Slip tidak dapat dibaca sekarang. Cuba lagi sebentar lagi atau isi secara manual."
+      }
+    }
   },
   "profile": {
     "eyebrow": "RUANG PERIBADI",
@@ -2274,5 +2325,381 @@
     "moreMet": "+{n} lagi dipenuhi",
     "toConfirmChip": "{n} perlu disemak sendiri",
     "sourceShort": "Syarat rasmi institusi · disemak admin"
+  },
+  "home": {
+    "loading": "Memuatkan halaman utama…",
+    "greeting": {
+      "morning": "Selamat pagi",
+      "noon": "Selamat tengah hari",
+      "evening": "Selamat petang",
+      "night": "Selamat malam"
+    },
+    "greetingName": "{greeting}, {name}",
+    "lead": "Cadangan anda berdasarkan {basis}.",
+    "leadEmpty": "Lengkapkan profil anda untuk mendapat cadangan program yang sepadan.",
+    "leadSchool": "Fokus tahun ini: kenali minat anda dan pilih aliran Tingkatan 4 dengan yakin.",
+    "basis": {
+      "target": "sasaran gred",
+      "actual": "keputusan sebenar"
+    },
+    "top": {
+      "title": "Cadangan teratas untuk anda",
+      "updated": "Dikemas kini {date}",
+      "others": "Pilihan kuat lain",
+      "all": "Lihat semua {count} cadangan",
+      "view": "Lihat program",
+      "reasonEligible": "Anda memenuhi syarat kemasukannya",
+      "reasonAlmost": "Hampir layak: {count} syarat lagi perlu dipenuhi",
+      "reasonInterest": "Sepadan dengan minat {types} anda",
+      "reasonContinuity": "Sambungan daripada {name}",
+      "empty": "Belum ada program yang sepadan dengan profil anda. Teroka direktori program untuk melihat pilihan lain.",
+      "noResults": "Isi keputusan anda dahulu supaya kami dapat menyemak kelayakan dan mencadangkan program.",
+      "explore": "Teroka program",
+      "fillResults": "Isi keputusan saya",
+      "titleNotYet": "Anda belum layak untuk program dalam senarai",
+      "notYetSpm": "Kebanyakan program turut menyemak gred SPM asas, dan keputusan SPM anda belum diisi. Isi keputusan SPM supaya kelayakan anda dapat disemak dengan betul.",
+      "notYetBody": "Lihat syarat yang belum dipenuhi bagi setiap program dalam Cadangan saya.",
+      "fillSpm": "Isi keputusan SPM",
+      "seeWhy": "Lihat sebabnya",
+      "closest": "Paling sepadan dengan minat anda"
+    },
+    "steps": {
+      "label": "Langkah seterusnya",
+      "level": {
+        "title": "Pilih peringkat pendidikan anda",
+        "body": "Peringkat anda menentukan borang keputusan dan cadangan yang sesuai.",
+        "action": "Pilih peringkat"
+      },
+      "results": {
+        "title": "Isi keputusan akademik anda",
+        "body": "Kelayakan, merit dan cadangan program dikira daripada keputusan anda.",
+        "action": "Isi keputusan"
+      },
+      "interest": {
+        "title": "Ambil Quest Minat",
+        "body": "30 soalan, kira-kira 5 minit. Hasilnya membantu kami memadankan bidang dengan minat anda.",
+        "bodyStarted": "{left} soalan lagi. Jawapan anda sudah disimpan.",
+        "action": "Mula quest",
+        "continue": "Sambung quest"
+      },
+      "save": {
+        "title": "Simpan program yang anda minati",
+        "body": "Kami akan memberitahu anda apabila syarat kemasukan program yang disimpan berubah.",
+        "action": "Lihat cadangan"
+      },
+      "spm": {
+        "title": "Isi keputusan SPM anda",
+        "body": "Kebanyakan program selepas diploma atau pra-universiti turut menyemak gred SPM asas.",
+        "action": "Isi keputusan SPM"
+      }
+    },
+    "merit": {
+      "title": "Merit",
+      "action": "Merit Lab",
+      "target": "Merit sasaran (daripada sasaran gred)",
+      "actual": "Anggaran daripada keputusan anda",
+      "none": "Isi keputusan anda untuk melihat merit."
+    },
+    "interest": {
+      "title": "Minat",
+      "view": "Lihat",
+      "take": "Ambil quest",
+      "none": "Belum diambil. Ambil Quest Minat untuk mengetahui kod minat anda."
+    },
+    "results": {
+      "title": "Keputusan akademik",
+      "update": "Kemas kini",
+      "fill": "Isi",
+      "missing": "Belum diisi",
+      "count": "{count} rekod disimpan",
+      "target": "Sasaran gred disimpan",
+      "actual": "Keputusan sebenar disimpan",
+      "spmMissing": "Keputusan SPM belum diisi"
+    },
+    "saved": {
+      "title": "Pilihan disimpan · {count}",
+      "all": "Semua",
+      "empty": "Belum ada program disimpan. Simpan program dari Cadangan atau Teroka untuk mengikutinya di sini."
+    },
+    "updates": {
+      "title": "Kemas kini",
+      "titleNew": "Kemas kini · {count} baharu",
+      "all": "Semua",
+      "empty": "Tiada kemas kini buat masa ini.",
+      "unavailable": "Kemas kini tidak dapat dimuatkan sekarang.",
+      "requirementChanged": "Syarat kemasukan {programme} telah dikemas kini",
+      "aProgramme": "program yang anda simpan",
+      "ticketReplied": "Pertanyaan anda kepada EduLaunch telah dijawab"
+    },
+    "school": {
+      "title": "Langkah seterusnya: pilih aliran Tingkatan 4",
+      "lead": "Padanan berdasarkan ujian minat anda. Keputusan akhir mengikut tawaran sekolah.",
+      "leadNoInterest": "Ambil Quest Minat dahulu supaya kami dapat memadankan aliran dengan minat anda.",
+      "all": "Lihat semua aliran",
+      "interest": "Minat anda: {code}",
+      "note": "Pemilihan aliran lazimnya dibuat pada hujung Tingkatan 3. Semak tarikh dan syarat dengan sekolah anda.",
+      "progress": "Kemajuan anda",
+      "interestDone": "Quest Minat selesai",
+      "interestTodo": "Quest Minat belum diambil",
+      "resultsDone": "Prestasi sekolah sudah diisi",
+      "resultsTodo": "Prestasi sekolah belum diisi",
+      "fillResults": "Isi prestasi sekolah",
+      "best": "Paling sepadan",
+      "fit": "Minat: {level}"
+    },
+    "after": "Lepasan {name}"
+  },
+  "saved": {
+    "button": {
+      "save": "Simpan",
+      "saved": "Disimpan",
+      "error": "Tidak dapat disimpan. Cuba lagi.",
+      "limit": "Anda sudah menyimpan 100 program. Buang yang tidak diperlukan dahulu."
+    },
+    "title": "Pilihan disimpan",
+    "intro": "Program yang anda ikuti. Kami akan memberitahu anda apabila syarat kemasukannya berubah.",
+    "loading": "Memuatkan pilihan disimpan…",
+    "unavailable": "Pilihan disimpan tidak dapat dimuatkan sekarang. Cuba lagi sebentar lagi.",
+    "emptyTitle": "Belum ada program disimpan",
+    "emptyBody": "Tekan Simpan pada mana-mana program di Cadangan saya atau Teroka program untuk mengikutinya di sini.",
+    "count": "{count} program disimpan",
+    "savedOn": "Disimpan {date}",
+    "gone": "Program ini tiada lagi dalam katalog",
+    "view": "Lihat program",
+    "pages": "Halaman pilihan disimpan",
+    "previous": "Sebelum",
+    "next": "Seterusnya",
+    "pageOf": "Halaman {page} daripada {total}",
+    "followNote": "Notis perubahan syarat boleh dimatikan di Tetapan › Notifikasi.",
+    "cannotCheck": {
+      "no_route": "Bukan laluan peringkat anda",
+      "no_results": "Isi keputusan untuk menyemak",
+      "no_requirement": "Syarat belum diterbitkan"
+    }
+  },
+  "updates": {
+    "title": "Kemas kini",
+    "intro": "Notis tentang program yang anda simpan.",
+    "loading": "Memuatkan kemas kini…",
+    "unavailable": "Kemas kini tidak dapat dimuatkan sekarang. Cuba lagi sebentar lagi.",
+    "unreadCount": "{count} belum dibaca",
+    "allRead": "Semua sudah dibaca.",
+    "markAll": "Tanda semua sudah dibaca",
+    "markFailed": "Tidak dapat dikemas kini. Cuba lagi.",
+    "markRead": "Tanda dibaca",
+    "unread": "Belum dibaca:",
+    "view": "Lihat program",
+    "aProgramme": "program yang anda simpan",
+    "emptyTitle": "Tiada kemas kini",
+    "emptyBody": "Simpan program yang anda minati. Kami akan memberitahu anda di sini apabila syarat kemasukannya berubah.",
+    "note": "Notis perubahan syarat boleh dimatikan di Tetapan › Notifikasi.",
+    "types": {
+      "requirementChanged": {
+        "title": "Syarat kemasukan {programme} telah dikemas kini",
+        "body": "Semak syarat terkini dan status kelayakan anda di halaman program."
+      },
+      "ticketReplied": {
+        "title": "Pertanyaan anda telah dijawab",
+        "body": "Baca jawapan pasukan EduLaunch di halaman Bantuan."
+      }
+    },
+    "openHelp": "Baca jawapan"
+  },
+  "compare": {
+    "title": "Banding program",
+    "intro": "Lihat perbezaan program yang anda simpan secara bersebelahan.",
+    "loading": "Memuatkan perbandingan…",
+    "unavailable": "Perbandingan tidak dapat dimuatkan sekarang. Cuba lagi sebentar lagi.",
+    "needTwoTitle": "Simpan sekurang-kurangnya dua program",
+    "needTwoBody": "Anda ada {count} program disimpan. Simpan satu lagi dari Cadangan atau Teroka untuk membandingkannya.",
+    "tooMany": "Hanya {max} program boleh dibandingkan sekali gus. Yang lain tidak dipaparkan.",
+    "pickTwo": "Pilih sekurang-kurangnya dua program di bawah untuk dibandingkan.",
+    "item": "Perkara",
+    "remove": "Buang dari perbandingan",
+    "semesters": "{n} semester (± {years} tahun)",
+    "averageMerit": "Purata merit (tahun)",
+    "yourStatus": "Status kelayakan anda",
+    "interestFit": "Padanan minat",
+    "category": "Kategori",
+    "yes": "Ya",
+    "no": "Tidak",
+    "differs": "berbeza",
+    "legend": "Kuning menandakan perbezaan antara program.",
+    "pick": "Pilih program untuk dibandingkan (maksimum {max})",
+    "update": "Bandingkan"
+  },
+  "help": {
+    "title": "Bantuan",
+    "intro": "Jawapan ringkas tentang EduLaunch, dan cara bertanya kepada pasukan kami.",
+    "loading": "Memuatkan…",
+    "faqTitle": "Soalan lazim",
+    "faq": [
+      {
+        "q": "Bagaimana kelayakan saya disemak?",
+        "a": "Syarat kemasukan rasmi setiap program, yang dimasukkan dan disemak oleh dua admin berbeza sebelum diterbitkan, dibandingkan dengan keputusan dalam profil anda. Semakan ini panduan sahaja; keputusan kemasukan ditentukan oleh institusi."
+      },
+      {
+        "q": "Dari mana datangnya maklumat program?",
+        "a": "Daripada sumber rasmi seperti ePanduan (Kementerian Pendidikan Tinggi) dan laman institusi. Halaman setiap program menunjukkan sumbernya. Jika anda menemui maklumat yang salah, laporkan melalui borang di bawah."
+      },
+      {
+        "q": "Bagaimana merit saya dikira?",
+        "a": "Menggunakan formula kalkulator merit ePanduan untuk laluan anda. Ia anggaran, bukan markah rasmi. Pelajar Tingkatan 4–5 melihat merit sasaran daripada sasaran gred mereka."
+      },
+      {
+        "q": "Apakah maksud peluang tawaran?",
+        "a": "Ia membandingkan merit anda dengan purata merit pengambilan lepas yang diterbitkan untuk program itu. Ia bukan jaminan tawaran dan tidak dipaparkan jika data tidak sepadan dengan kelayakan anda."
+      },
+      {
+        "q": "Apakah Quest Minat?",
+        "a": "Penilaian minat berdasarkan O*NET Mini Interest Profiler: 30 aktiviti kerja yang memberi kod minat tiga huruf (RIASEC). Minat menunjukkan apa yang anda suka, bukan apa yang anda mampu."
+      },
+      {
+        "q": "Bilakah saya menerima notis?",
+        "a": "Apabila syarat kemasukan program yang anda simpan dikemas kini, dan apabila pertanyaan anda kepada kami dijawab. Notis perubahan syarat boleh dimatikan di Tetapan › Notifikasi."
+      },
+      {
+        "q": "Bagaimana saya memuat turun atau memadam data saya?",
+        "a": "Di Tetapan › Privasi & data, anda boleh memuat turun data anda dalam fail JSON atau memadam akaun anda sepenuhnya."
+      }
+    ],
+    "askTitle": "Tanya kami",
+    "askIntro": "Kami membalas di halaman ini, dan anda akan menerima notis di Kemas kini.",
+    "mineTitle": "Pertanyaan saya",
+    "mineEmpty": "Anda belum menghantar sebarang pertanyaan.",
+    "mineUnavailable": "Pertanyaan anda tidak dapat dimuatkan sekarang.",
+    "reply": "Jawapan pasukan EduLaunch",
+    "status": {
+      "open": "Diterima",
+      "in_progress": "Sedang disemak",
+      "closed": "Dijawab"
+    },
+    "form": {
+      "category": "Jenis pertanyaan",
+      "categories": {
+        "wrong_data": "Maklumat program salah",
+        "account": "Akaun saya",
+        "other": "Lain-lain"
+      },
+      "programme": "Program",
+      "pickProgramme": "Pilih program",
+      "programmeHint": "Senarai ini menunjukkan program yang anda simpan. Untuk program lain, buka halamannya dan tekan Laporkan maklumat salah.",
+      "message": "Pertanyaan anda",
+      "placeholder": "Terangkan pertanyaan anda dalam satu atau dua ayat.",
+      "placeholderData": "Apa yang salah? Contoh: syarat Matematik sepatutnya B, bukan C, menurut laman universiti.",
+      "send": "Hantar",
+      "sending": "Menghantar…",
+      "sent": "Pertanyaan dihantar.",
+      "errors": {
+        "short": "Terangkan pertanyaan anda dalam sekurang-kurangnya 10 aksara.",
+        "programme": "Pilih program yang maklumatnya salah.",
+        "tooMany": "Anda sudah ada 5 pertanyaan yang belum dijawab. Sila tunggu jawapan dahulu.",
+        "generic": "Pertanyaan tidak dapat dihantar. Cuba lagi sebentar lagi."
+      }
+    }
+  },
+  "roadmap": {
+    "eyebrow": "PETA MASA DEPAN",
+    "title": "Roadmap saya",
+    "intro": "Laluan dari tempat anda sekarang hingga kerjaya, berdasarkan keputusan anda dan program dalam katalog.",
+    "loading": "Memuatkan roadmap…",
+    "needLevel": "Pilih peringkat pendidikan anda dahulu supaya kami boleh melukis laluan anda.",
+    "chooseLevel": "Pilih peringkat",
+    "road": {
+      "title": "Laluan anda",
+      "stage": {
+        "now": "Sekarang",
+        "form4_stream": "Tingkatan 4–5",
+        "spm": "SPM",
+        "afterSpm": "Selepas SPM",
+        "foundation": "Asasi",
+        "matriculation": "Matrikulasi",
+        "stpm": "STPM",
+        "diploma": "Diploma",
+        "tvet": "TVET",
+        "degree": "Ijazah",
+        "career": "Kerjaya"
+      },
+      "youNow": "Anda sekarang",
+      "reachable": "{count} program yang anda layak atau hampir layak",
+      "interestFit": "Minat: {level}",
+      "takeInterest": "Ambil Quest Minat untuk melihat aliran yang sepadan",
+      "pickTargetFirst": "Pilih program sasaran untuk melihat kerjayanya",
+      "careersPreparing": "Senarai kerjaya program ini sedang disediakan",
+      "note": "Bilangan program dikira daripada senarai cadangan anda. Tempoh pengajian ialah anggaran lazim; semak dengan institusi."
+    },
+    "routes": {
+      "form4_stream": {
+        "name": "Aliran Tingkatan 4",
+        "detail": "Lazimnya dipilih pada hujung Tingkatan 3"
+      },
+      "spm": {
+        "name": "SPM",
+        "detail": "Peperiksaan pada hujung Tingkatan 5"
+      },
+      "foundation": {
+        "name": "Asasi",
+        "detail": "Program asas universiti, lazimnya 1 tahun"
+      },
+      "matriculation": {
+        "name": "Matrikulasi",
+        "detail": "Program Kementerian Pendidikan, 1 atau 2 tahun"
+      },
+      "stpm": {
+        "name": "STPM (Tingkatan 6)",
+        "detail": "Lazimnya 1 tahun setengah di Tingkatan 6"
+      },
+      "diploma": {
+        "name": "Diploma",
+        "detail": "Lazimnya 2 tahun setengah hingga 3 tahun"
+      },
+      "tvet": {
+        "name": "TVET (Sijil, SKM, SVM)",
+        "detail": "Kemahiran di institusi teknikal dan vokasional"
+      },
+      "degree": {
+        "name": "Ijazah sarjana muda",
+        "detail": "Lazimnya 3 hingga 5 tahun di universiti"
+      }
+    },
+    "plan": {
+      "title": "Sasaran & kerjaya",
+      "noOptions": "Simpan program atau semak Cadangan saya dahulu untuk memilih sasaran.",
+      "target": "Program sasaran",
+      "savedGroup": "Disimpan",
+      "suggestedGroup": "Cadangan yang anda boleh capai",
+      "show": "Tunjuk",
+      "chooseCareer": "Kerjaya yang anda minati",
+      "noCareers": "Senarai kerjaya untuk program ini belum tersedia daripada sumber rasmi.",
+      "save": "Simpan rancangan",
+      "saving": "Menyimpan…",
+      "saved": "Rancangan disimpan.",
+      "error": "Rancangan tidak dapat disimpan. Cuba lagi.",
+      "careerSource": "Senarai kerjaya seperti yang disenaraikan ePanduan untuk program ini.",
+      "openSource": "Lihat sumber"
+    },
+    "mine": {
+      "title": "Rancangan saya",
+      "empty": "Belum ada rancangan. Pilih sasaran dan kerjaya, kemudian simpan.",
+      "unavailable": "Rancangan anda tidak dapat dimuatkan sekarang.",
+      "clear": "Kosongkan",
+      "types": {
+        "route": "Laluan",
+        "programme": "Program sasaran",
+        "career": "Kerjaya",
+        "note": "Nota"
+      },
+      "note": "Rancangan ini untuk panduan anda sendiri dan boleh ditukar bila-bila masa."
+    },
+    "actions": {
+      "title": "Tindakan seterusnya",
+      "results": "Lengkapkan keputusan akademik anda",
+      "interest": "Ambil Quest Minat",
+      "check": "Semak syarat {programme}",
+      "save": "Simpan {programme} untuk menerima notis perubahan syarat",
+      "pickTarget": "Pilih program sasaran dari Cadangan saya",
+      "targets": "Tetapkan sasaran gred SPM anda",
+      "doneLabel": "Selesai:"
+    }
   }
 }

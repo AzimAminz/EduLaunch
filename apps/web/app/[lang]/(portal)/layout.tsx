@@ -5,6 +5,7 @@ import { studentNav } from '@/components/portal/student-nav';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { isLocale, type Dictionary, type Locale } from '@/lib/i18n/locale';
 import { getMe } from '@/lib/profile/api';
+import { unreadNotificationCount } from '@/lib/engagement/api';
 import { getAccessToken, requireRole } from '@/lib/supabase/server';
 
 /** Student portal frame: sidebar on the left (a menu on phones), page content in a 1088px column. */
@@ -30,12 +31,14 @@ async function PortalSidebar({ locale, dict }: { locale: Locale; dict: Dictionar
   const account = await requireRole(locale, 'student');
   // The level decides which menu items apply (no Merit Lab before Form 4); the full menu if it cannot be read.
   const token = await getAccessToken();
-  const level = token ? await getMe(token).then((me) => me.educationLevel).catch(() => null) : null;
+  const [level, unread] = token
+    ? await Promise.all([getMe(token).then((me) => me.educationLevel).catch(() => null), unreadNotificationCount(token).then((r) => r.count).catch(() => 0)])
+    : [null, 0];
   return (
     <Sidebar
       locale={locale}
-      {...studentNav(locale, dict.nav, level)}
-      homeHref={`/${locale}/teroka`}
+      {...studentNav(locale, dict.nav, level, { updates: unread })}
+      homeHref={`/${locale}/utama`}
       labels={{ toggleSidebar: dict.nav.toggleSidebar, signOut: dict.auth.signOut, signedInAs: dict.auth.signedInAs }}
       language={dict.language}
       account={{ name: account.name, email: account.email, href: `/${locale}/profil` }}

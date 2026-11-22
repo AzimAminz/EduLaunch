@@ -20,7 +20,6 @@
     "compare": "Compare",
     "saved": "Saved choices",
     "groupPlan": "Plan",
-    "eligibility": "Eligibility check",
     "meritLab": "Merit Lab",
     "roadmap": "My roadmap",
     "groupSelf": "Know yourself",
@@ -130,7 +129,8 @@
       "offered": "Routes it takes: {routes}.",
       "wayIn": "After SPM, you can get here through foundation, matriculation, STPM or a diploma first.",
       "otherRoutes": "Other routes' requirements ({count})"
-    }
+    },
+    "reportWrong": "Report wrong information"
   },
   "requirements": {
     "atLeastGrade": "At least grade {grade}",
@@ -323,7 +323,8 @@
       "groupWork": "Today's work",
       "groupProgramme": "Catalogue",
       "programmes": "Programmes",
-      "institutions": "Institutions"
+      "institutions": "Institutions",
+      "support": "Support"
     },
     "status": {
       "draft": "Draft",
@@ -1336,6 +1337,32 @@
     "superAdmin": {
       "tag": "Super admin",
       "selfApprove": "You are a super admin: you may approve this draft yourself."
+    },
+    "support": {
+      "title": "Support",
+      "intro": "Students' questions. Take one so other admins know it is being handled, then answer it; the student is notified.",
+      "tabs": {
+        "open": "Waiting",
+        "answered": "Answered (30 days)"
+      },
+      "empty": {
+        "open": "No questions waiting for an answer.",
+        "answered": "No questions answered in the last 30 days."
+      },
+      "handledBy": "handled by {who}",
+      "answeredBy": "Answered by {who}",
+      "programme": "Open programme",
+      "take": "Take it",
+      "reply": "Answer to the student",
+      "replyPlaceholder": "What was done, or the answer to this question.",
+      "answer": "Send answer & close",
+      "sending": "Sending…",
+      "otherAdmin": "Another admin is handling this question.",
+      "errors": {
+        "short": "Write an answer of at least 5 characters.",
+        "taken": "Another admin has taken this question.",
+        "generic": "Could not save. Please try again."
+      }
     }
   },
   "footer": {
@@ -1500,7 +1527,31 @@
     },
     "schoolTab": "Form {form} · {year}",
     "limitReached": "You have reached the limit of {max} subjects. Remove one that does not apply to add another.",
-    "earlierFormHint": "Optional: fill in your Form {form} grades if you have them. Saved grades stay as history."
+    "earlierFormHint": "Optional: fill in your Form {form} grades if you have them. Saved grades stay as history.",
+    "slip": {
+      "title": "Fill from your result slip",
+      "hint": "Upload the slip PDF from the SPM results portal, or a clear photo of the slip. We fill in the table below; you check it and save.",
+      "choose": "Choose slip file",
+      "reading": "Reading the slip…",
+      "privacy": "Read on EduLaunch's own server only and not stored.",
+      "readAll": "{count} subjects read from the slip. Check the table, then press Save & confirm.",
+      "readUnsure": "{count} subjects read from the slip; {unsure} rows marked in yellow need your check before saving.",
+      "flags": {
+        "low_confidence": "Unclear reading, check the grade",
+        "no_grade": "Grade not read, choose it",
+        "unknown_code": "Subject code not recognised",
+        "name_differs": "Name does not match the code, check the subject",
+        "not_in_list": "Not in our subject list"
+      },
+      "errors": {
+        "type": "Upload a PDF, JPG, PNG or WEBP file.",
+        "size": "The file is too large. Try a smaller photo or the PDF from the portal.",
+        "busy": "Too many slips read. Try again in a few minutes.",
+        "unreadable": "The file could not be opened. Try another file.",
+        "none": "No subjects could be read. Try the PDF from the results portal if you have it, or take the photo close up in good light so the subject table fills the screen. You can also fill in the table by hand.",
+        "generic": "The slip could not be read right now. Try again shortly or fill it in by hand."
+      }
+    }
   },
   "profile": {
     "eyebrow": "PERSONAL SPACE",
@@ -2274,5 +2325,381 @@
     "moreMet": "+{n} more met",
     "toConfirmChip": "{n} to check yourself",
     "sourceShort": "Official institution requirements · checked by an admin"
+  },
+  "home": {
+    "loading": "Loading your home…",
+    "greeting": {
+      "morning": "Good morning",
+      "noon": "Good afternoon",
+      "evening": "Good evening",
+      "night": "Good evening"
+    },
+    "greetingName": "{greeting}, {name}",
+    "lead": "Your suggestions are based on your {basis}.",
+    "leadEmpty": "Complete your profile to get programmes that match you.",
+    "leadSchool": "This year's focus: get to know your interests and choose your Form 4 stream with confidence.",
+    "basis": {
+      "target": "target grades",
+      "actual": "actual results"
+    },
+    "top": {
+      "title": "Your top suggestions",
+      "updated": "Updated {date}",
+      "others": "Other strong options",
+      "all": "See all {count} suggestions",
+      "view": "View programme",
+      "reasonEligible": "You meet its entry requirements",
+      "reasonAlmost": "Almost eligible: {count} more requirements to meet",
+      "reasonInterest": "Matches your {types} interests",
+      "reasonContinuity": "Follows on from {name}",
+      "empty": "No programmes match your profile yet. Explore the programme directory to see other options.",
+      "noResults": "Enter your results first so we can check eligibility and suggest programmes.",
+      "explore": "Explore programmes",
+      "fillResults": "Enter my results",
+      "titleNotYet": "You are not eligible for the programmes in your list yet",
+      "notYetSpm": "Most programmes also check basic SPM grades, and your SPM results are not entered yet. Enter them so your eligibility can be checked properly.",
+      "notYetBody": "See which requirements are not met yet for each programme in Suggestions.",
+      "fillSpm": "Enter SPM results",
+      "seeWhy": "See why",
+      "closest": "Closest to your interests"
+    },
+    "steps": {
+      "label": "Next step",
+      "level": {
+        "title": "Choose your education level",
+        "body": "Your level decides which results form and suggestions fit you.",
+        "action": "Choose level"
+      },
+      "results": {
+        "title": "Enter your academic results",
+        "body": "Eligibility, merit and programme suggestions are worked out from your results.",
+        "action": "Enter results"
+      },
+      "interest": {
+        "title": "Take the Interest Quest",
+        "body": "30 questions, about 5 minutes. It helps us match fields to your interests.",
+        "bodyStarted": "{left} questions to go. Your answers are saved.",
+        "action": "Start the quest",
+        "continue": "Carry on"
+      },
+      "save": {
+        "title": "Save programmes you like",
+        "body": "We will tell you when the entry requirements of a saved programme change.",
+        "action": "See suggestions"
+      },
+      "spm": {
+        "title": "Enter your SPM results",
+        "body": "Most programmes after a diploma or pre-university also check basic SPM grades.",
+        "action": "Enter SPM results"
+      }
+    },
+    "merit": {
+      "title": "Merit",
+      "action": "Merit Lab",
+      "target": "Target merit (from your target grades)",
+      "actual": "Estimate from your results",
+      "none": "Enter your results to see your merit."
+    },
+    "interest": {
+      "title": "Interests",
+      "view": "View",
+      "take": "Take the quest",
+      "none": "Not taken yet. Take the Interest Quest to find your interest code."
+    },
+    "results": {
+      "title": "Academic results",
+      "update": "Update",
+      "fill": "Enter",
+      "missing": "Not entered yet",
+      "count": "{count} records saved",
+      "target": "Target grades saved",
+      "actual": "Actual results saved",
+      "spmMissing": "SPM results not entered yet"
+    },
+    "saved": {
+      "title": "Saved · {count}",
+      "all": "All",
+      "empty": "No saved programmes yet. Save programmes from Suggestions or Explore to follow them here."
+    },
+    "updates": {
+      "title": "Updates",
+      "titleNew": "Updates · {count} new",
+      "all": "All",
+      "empty": "No updates for now.",
+      "unavailable": "Updates could not be loaded right now.",
+      "requirementChanged": "Entry requirements for {programme} have been updated",
+      "aProgramme": "a programme you saved",
+      "ticketReplied": "Your question to EduLaunch has been answered"
+    },
+    "school": {
+      "title": "Next step: choose your Form 4 stream",
+      "lead": "Matched on your interest test. The final decision follows your school's offer.",
+      "leadNoInterest": "Take the Interest Quest first so we can match streams to your interests.",
+      "all": "See all streams",
+      "interest": "Your interests: {code}",
+      "note": "Streams are usually chosen at the end of Form 3. Check the dates and requirements with your school.",
+      "progress": "Your progress",
+      "interestDone": "Interest Quest done",
+      "interestTodo": "Interest Quest not taken yet",
+      "resultsDone": "School results entered",
+      "resultsTodo": "School results not entered yet",
+      "fillResults": "Enter school results",
+      "best": "Best fit",
+      "fit": "Interest: {level}"
+    },
+    "after": "After {name}"
+  },
+  "saved": {
+    "button": {
+      "save": "Save",
+      "saved": "Saved",
+      "error": "Could not save. Please try again.",
+      "limit": "You have saved 100 programmes. Remove some you no longer need first."
+    },
+    "title": "Saved programmes",
+    "intro": "The programmes you follow. We will tell you when their entry requirements change.",
+    "loading": "Loading saved programmes…",
+    "unavailable": "Saved programmes could not be loaded right now. Please try again shortly.",
+    "emptyTitle": "No saved programmes yet",
+    "emptyBody": "Press Save on any programme in Suggestions or Explore to follow it here.",
+    "count": "{count} saved programmes",
+    "savedOn": "Saved {date}",
+    "gone": "This programme is no longer in the catalogue",
+    "view": "View programme",
+    "pages": "Saved programmes pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}",
+    "followNote": "Requirement change notices can be turned off in Settings › Notifications.",
+    "cannotCheck": {
+      "no_route": "Not a route for your level",
+      "no_results": "Enter results to check",
+      "no_requirement": "Requirements not published yet"
+    }
+  },
+  "updates": {
+    "title": "Updates",
+    "intro": "Notices about the programmes you saved.",
+    "loading": "Loading updates…",
+    "unavailable": "Updates could not be loaded right now. Please try again shortly.",
+    "unreadCount": "{count} unread",
+    "allRead": "All read.",
+    "markAll": "Mark all as read",
+    "markFailed": "Could not update. Please try again.",
+    "markRead": "Mark as read",
+    "unread": "Unread:",
+    "view": "View programme",
+    "aProgramme": "a programme you saved",
+    "emptyTitle": "No updates",
+    "emptyBody": "Save programmes you like. We will tell you here when their entry requirements change.",
+    "note": "Requirement change notices can be turned off in Settings › Notifications.",
+    "types": {
+      "requirementChanged": {
+        "title": "Entry requirements for {programme} have been updated",
+        "body": "Check the latest requirements and where you stand on the programme page."
+      },
+      "ticketReplied": {
+        "title": "Your question has been answered",
+        "body": "Read the EduLaunch team's answer on the Help page."
+      }
+    },
+    "openHelp": "Read the answer"
+  },
+  "compare": {
+    "title": "Compare programmes",
+    "intro": "See how the programmes you saved differ, side by side.",
+    "loading": "Loading the comparison…",
+    "unavailable": "The comparison could not be loaded right now. Please try again shortly.",
+    "needTwoTitle": "Save at least two programmes",
+    "needTwoBody": "You have {count} saved programmes. Save one more from Suggestions or Explore to compare them.",
+    "tooMany": "Only {max} programmes can be compared at once. The others are not shown.",
+    "pickTwo": "Choose at least two programmes below to compare.",
+    "item": "Item",
+    "remove": "Remove from comparison",
+    "semesters": "{n} semesters (~{years} years)",
+    "averageMerit": "Average merit (year)",
+    "yourStatus": "Your eligibility",
+    "interestFit": "Interest fit",
+    "category": "Category",
+    "yes": "Yes",
+    "no": "No",
+    "differs": "differs",
+    "legend": "Yellow marks where the programmes differ.",
+    "pick": "Choose programmes to compare (up to {max})",
+    "update": "Compare"
+  },
+  "help": {
+    "title": "Help",
+    "intro": "Short answers about EduLaunch, and how to ask our team.",
+    "loading": "Loading…",
+    "faqTitle": "Common questions",
+    "faq": [
+      {
+        "q": "How is my eligibility checked?",
+        "a": "Each programme's official entry requirements, entered and reviewed by two different admins before they are published, are compared with the results in your profile. The check is a guide only; admission is decided by the institution."
+      },
+      {
+        "q": "Where does programme information come from?",
+        "a": "From official sources such as ePanduan (Ministry of Higher Education) and the institutions' own sites. Each programme page shows its source. If you find something wrong, report it with the form below."
+      },
+      {
+        "q": "How is my merit worked out?",
+        "a": "With the ePanduan merit calculator formula for your route. It is an estimate, not an official score. Form 4–5 students see a target merit from their target grades."
+      },
+      {
+        "q": "What does offer chance mean?",
+        "a": "It compares your merit with the published average merit of a past intake for that programme. It is not a promise of an offer and is not shown when the data does not match your qualification."
+      },
+      {
+        "q": "What is the Interest Quest?",
+        "a": "An interest test based on the O*NET Mini Interest Profiler: 30 work activities that give a three-letter interest code (RIASEC). Interests show what you like, not what you can do."
+      },
+      {
+        "q": "When do I get notices?",
+        "a": "When the entry requirements of a programme you saved are updated, and when your question to us is answered. Requirement change notices can be turned off in Settings › Notifications."
+      },
+      {
+        "q": "How do I download or delete my data?",
+        "a": "In Settings › Privacy & data you can download your data as a JSON file or delete your account completely."
+      }
+    ],
+    "askTitle": "Ask us",
+    "askIntro": "We reply on this page, and you get a notice in Updates.",
+    "mineTitle": "My questions",
+    "mineEmpty": "You have not sent any questions yet.",
+    "mineUnavailable": "Your questions could not be loaded right now.",
+    "reply": "Answer from the EduLaunch team",
+    "status": {
+      "open": "Received",
+      "in_progress": "Being looked at",
+      "closed": "Answered"
+    },
+    "form": {
+      "category": "Type of question",
+      "categories": {
+        "wrong_data": "Wrong programme information",
+        "account": "My account",
+        "other": "Something else"
+      },
+      "programme": "Programme",
+      "pickProgramme": "Choose a programme",
+      "programmeHint": "This list shows your saved programmes. For another programme, open its page and press Report wrong information.",
+      "message": "Your question",
+      "placeholder": "Describe your question in a sentence or two.",
+      "placeholderData": "What is wrong? For example: the Mathematics requirement should be B, not C, according to the university's site.",
+      "send": "Send",
+      "sending": "Sending…",
+      "sent": "Question sent.",
+      "errors": {
+        "short": "Describe your question in at least 10 characters.",
+        "programme": "Choose the programme whose information is wrong.",
+        "tooMany": "You already have 5 unanswered questions. Please wait for an answer first.",
+        "generic": "Your question could not be sent. Please try again shortly."
+      }
+    }
+  },
+  "roadmap": {
+    "eyebrow": "FUTURE MAP",
+    "title": "My roadmap",
+    "intro": "The road from where you are now to a career, based on your results and the programmes in the catalogue.",
+    "loading": "Loading your roadmap…",
+    "needLevel": "Choose your education level first so we can draw your road.",
+    "chooseLevel": "Choose level",
+    "road": {
+      "title": "Your road",
+      "stage": {
+        "now": "Now",
+        "form4_stream": "Form 4–5",
+        "spm": "SPM",
+        "afterSpm": "After SPM",
+        "foundation": "Foundation",
+        "matriculation": "Matriculation",
+        "stpm": "STPM",
+        "diploma": "Diploma",
+        "tvet": "TVET",
+        "degree": "Degree",
+        "career": "Careers"
+      },
+      "youNow": "You are here",
+      "reachable": "{count} programmes you are eligible or almost eligible for",
+      "interestFit": "Interest: {level}",
+      "takeInterest": "Take the Interest Quest to see matching streams",
+      "pickTargetFirst": "Choose a target programme to see its careers",
+      "careersPreparing": "This programme's careers are being prepared",
+      "note": "Programme counts come from your suggestions. Study lengths are usual estimates; check with the institution."
+    },
+    "routes": {
+      "form4_stream": {
+        "name": "Form 4 stream",
+        "detail": "Usually chosen at the end of Form 3"
+      },
+      "spm": {
+        "name": "SPM",
+        "detail": "Exam at the end of Form 5"
+      },
+      "foundation": {
+        "name": "Foundation",
+        "detail": "A university foundation programme, usually 1 year"
+      },
+      "matriculation": {
+        "name": "Matriculation",
+        "detail": "A Ministry of Education programme, 1 or 2 years"
+      },
+      "stpm": {
+        "name": "STPM (Form 6)",
+        "detail": "Usually a year and a half in Form 6"
+      },
+      "diploma": {
+        "name": "Diploma",
+        "detail": "Usually two and a half to three years"
+      },
+      "tvet": {
+        "name": "TVET (certificate, SKM, SVM)",
+        "detail": "Skills at technical and vocational institutions"
+      },
+      "degree": {
+        "name": "Bachelor's degree",
+        "detail": "Usually 3 to 5 years at university"
+      }
+    },
+    "plan": {
+      "title": "Target & careers",
+      "noOptions": "Save programmes or check Suggestions first to choose a target.",
+      "target": "Target programme",
+      "savedGroup": "Saved",
+      "suggestedGroup": "Suggestions you can reach",
+      "show": "Show",
+      "chooseCareer": "Careers you are interested in",
+      "noCareers": "This programme's careers are not available from an official source yet.",
+      "save": "Save plan",
+      "saving": "Saving…",
+      "saved": "Plan saved.",
+      "error": "The plan could not be saved. Please try again.",
+      "careerSource": "Careers as ePanduan lists them for this programme.",
+      "openSource": "View source"
+    },
+    "mine": {
+      "title": "My plan",
+      "empty": "No plan yet. Choose a target and a career, then save.",
+      "unavailable": "Your plan could not be loaded right now.",
+      "clear": "Clear",
+      "types": {
+        "route": "Route",
+        "programme": "Target programme",
+        "career": "Career",
+        "note": "Note"
+      },
+      "note": "This plan is your own guide and can be changed at any time."
+    },
+    "actions": {
+      "title": "Next actions",
+      "results": "Complete your academic results",
+      "interest": "Take the Interest Quest",
+      "check": "Check the requirements of {programme}",
+      "save": "Save {programme} to be told when its requirements change",
+      "pickTarget": "Choose a target programme from Suggestions",
+      "targets": "Set your SPM target grades",
+      "doneLabel": "Done:"
+    }
   }
 }

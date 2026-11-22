@@ -142,11 +142,20 @@ export const setNotificationPrefs = (token: string, body: NotificationPrefs) => 
 /** Records that a parent or guardian agreed (students under 18). */
 export const giveParentConsent = (token: string) => call(token, '/me/parent-consent', Details, { method: 'POST' });
 
-/** The programmes the student saved, for "download my data". */
+/** The programmes the student saved (Pilihan disimpan, the home page, "download my data"). */
 export const listSavedProgrammes = (token: string) => call(token, '/me/saved-programmes', z.array(z.object({ programId: z.uuid(), savedAt: z.coerce.date().optional() }).loose()));
+export const saveProgramme = (token: string, programId: string) => call(token, `/me/saved-programmes/${encodeURIComponent(programId)}`, z.object({ saved: z.boolean() }), { method: 'PUT' });
+export const unsaveProgramme = (token: string, programId: string) => call(token, `/me/saved-programmes/${encodeURIComponent(programId)}`, z.object({ saved: z.boolean() }), { method: 'DELETE' });
 
 /** Deletes the student's account everywhere (the profile service also deletes the sign-in account). */
 export async function deleteMyAccount(token: string): Promise<void> {
   const res = await fetch(`${GATEWAY_URL}/api/profile/me`, { method: 'DELETE', headers: { authorization: `Bearer ${token}` }, cache: 'no-store' });
   if (!res.ok) throw new Error(`Account deletion failed (${res.status})`);
 }
+
+/** The student's study and career plan ("Roadmap saya"): route, programme, career, in order. */
+const RoadmapStep = z.object({ type: z.enum(['route', 'programme', 'career', 'note']), programId: z.uuid().nullable().default(null), label: z.string() });
+export type RoadmapStep = z.infer<typeof RoadmapStep>;
+export const getRoadmap = (token: string) => call(token, '/me/roadmap', z.object({ steps: z.array(RoadmapStep) }));
+export const saveRoadmap = (token: string, steps: Array<{ type: 'route' | 'career' | 'note'; label: string } | { type: 'programme'; programId: string; label: string }>) =>
+  call(token, '/me/roadmap', z.object({ steps: z.array(z.unknown()) }), { method: 'PUT', body: JSON.stringify({ steps }) });
