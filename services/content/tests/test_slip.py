@@ -98,6 +98,8 @@ def test_the_least_sure_box_sets_the_row_confidence():
 
 
 def _font():
+    # Arial on macOS, DejaVu Sans on Linux (CI). OCR reads them differently: in DejaVu a small "B+" first comes back
+    # as "8", which the enlarged second reading must recover.
     for path in ["/System/Library/Fonts/Supplemental/Arial.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]:
         if Path(path).exists():
             return path

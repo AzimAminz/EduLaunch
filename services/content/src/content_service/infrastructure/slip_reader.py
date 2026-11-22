@@ -55,15 +55,19 @@ class SlipReader:
         The fallbacks run only when needed, so a clear photo is read once (about a second).
         """
         best = self._attempt(image)
-        if _good(best[0]):
-            return best
-        for variant in _variants(image):
-            attempt = self._attempt(variant)
-            if _score(attempt[0]) > _score(best[0]):
-                best = attempt
-            if _good(best[0]):
-                break
-        return best
+        if not _good(best[0]):
+            for variant in _variants(image):
+                attempt = self._attempt(variant)
+                if _score(attempt[0]) > _score(best[0]):
+                    best = attempt
+                if _good(best[0]):
+                    break
+        rows, texts = best
+        # A small grade such as "B+" is easily misread ("8"), leaving that row without one: read the page again
+        # enlarged and take the missing grades from rows with the same code (or name).
+        if rows and any(r.grade is None for r in rows):
+            rows = _fill_grades(rows, self._attempt(_enlarged(image))[0])
+        return rows, texts
 
     def _attempt(self, image) -> tuple[list[SlipRow], list[str]]:
         boxes, texts = self._boxes(image)
@@ -128,12 +132,33 @@ def _score(rows: list[SlipRow]) -> float:
 def _variants(image):
     """Other ways to look at a weak photo: turned a quarter either way or upside down, then enlarged with its
     contrast stretched. Made one at a time, so a later one is only made when an earlier one did not do."""
-    from PIL import Image, ImageOps
+    from PIL import ImageOps
 
     for angle in (90, 270, 180):
         yield image.rotate(angle, expand=True)
-    grey = image.convert("L")
-    if max(grey.size) < 1600:
-        k = 1600 / max(grey.size)
-        grey = grey.resize((round(grey.width * k), round(grey.height * k)), Image.LANCZOS)
-    yield ImageOps.autocontrast(grey, cutoff=1)
+    yield ImageOps.autocontrast(_enlarged(image).convert("L"), cutoff=1)
+
+
+def _enlarged(image):
+    """The image at twice its size (at most 3200 px on the longer side), so small marks such as "+" are clearer."""
+    from PIL import Image
+
+    k = min(2.0, 3200 / max(image.size))
+    if k <= 1.05:
+        return image
+    return image.resize((round(image.width * k), round(image.height * k)), Image.LANCZOS)
+
+
+def _fill_grades(rows: list[SlipRow], again: list[SlipRow]) -> list[SlipRow]:
+    """Rows without a grade take it from the second reading's row with the same code (or, with no code, name)."""
+    from dataclasses import replace
+
+    def key(r: SlipRow) -> str:
+        return r.code or r.name
+
+    found = {key(r): r for r in again if r.grade}
+    out = []
+    for r in rows:
+        other = found.get(key(r)) if r.grade is None else None
+        out.append(replace(r, grade=other.grade, confidence=min(r.confidence, other.confidence)) if other else r)
+    return out
