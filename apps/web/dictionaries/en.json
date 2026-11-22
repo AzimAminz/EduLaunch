@@ -1548,7 +1548,7 @@
         "size": "The file is too large. Try a smaller photo or the PDF from the portal.",
         "busy": "Too many slips read. Try again in a few minutes.",
         "unreadable": "The file could not be opened. Try another file.",
-        "none": "No subjects could be read. Make sure the photo is clear, upright and shows the codes and grades, or fill in the table by hand.",
+        "none": "No subjects could be read. Try the PDF from the results portal if you have it, or take the photo close up in good light so the subject table fills the screen. You can also fill in the table by hand.",
         "generic": "The slip could not be read right now. Try again shortly or fill it in by hand."
       }
     }

@@ -130,6 +130,28 @@ def test_reads_a_photographed_slip():
     assert all(r.confidence >= 0.9 for r in reading.rows)
 
 
+@pytest.mark.skipif(_font() is None, reason="needs a TrueType font to draw the test slip")
+@pytest.mark.parametrize("turn", [90, 270])
+def test_reads_a_slip_photographed_sideways(turn: int):
+    from PIL import Image, ImageDraw, ImageFont
+
+    from content_service.infrastructure.slip_reader import SlipReader
+
+    font = ImageFont.truetype(_font(), 28)
+    img = Image.new("RGB", (1240, 700), "white")
+    d = ImageDraw.Draw(img)
+    for i, (code, name, grade) in enumerate(ROWS):
+        y = 200 + i * 60
+        d.text((80, y), code, font=font, fill="black")
+        d.text((200, y), name, font=font, fill="black")
+        d.text((1000, y), grade, font=font, fill="black")
+    buf = io.BytesIO()
+    img.rotate(turn, expand=True).save(buf, "JPEG", quality=80)
+
+    reading = SlipReader().read(buf.getvalue(), "image/jpeg")
+    assert [(r.code, r.name, r.grade) for r in reading.rows] == ROWS
+
+
 def test_refuses_other_files():
     from content_service.domain.errors import DomainError
     from content_service.infrastructure.slip_reader import SlipReader

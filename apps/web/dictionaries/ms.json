@@ -1548,7 +1548,7 @@
         "size": "Fail terlalu besar. Cuba gambar yang lebih kecil atau PDF dari portal.",
         "busy": "Terlalu banyak slip dibaca. Cuba lagi dalam beberapa minit.",
         "unreadable": "Fail tidak dapat dibuka. Cuba fail lain.",
-        "none": "Tiada subjek dapat dibaca. Pastikan gambar jelas, tegak dan menunjukkan kod serta gred, atau isi jadual secara manual.",
+        "none": "Tiada subjek dapat dibaca. Cuba PDF dari portal keputusan jika ada, atau ambil gambar dekat dengan cahaya terang supaya jadual subjek memenuhi skrin. Anda juga boleh isi jadual secara manual.",
         "generic": "Slip tidak dapat dibaca sekarang. Cuba lagi sebentar lagi atau isi secara manual."
       }
     }
