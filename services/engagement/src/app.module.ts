@@ -4,6 +4,7 @@ import * as schema from './infrastructure/db/schema.js';
 import { env } from './config.js';
 import { SupportModule } from './modules/support/support.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
+import { ContactModule } from './modules/contact/contact.module.js';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     HealthModule,
     SupportModule,
     NotificationsModule,
+    ContactModule,
   ],
 })
 export class AppModule {}

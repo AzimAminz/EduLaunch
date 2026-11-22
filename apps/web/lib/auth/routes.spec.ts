@@ -5,6 +5,14 @@ const student = { role: 'student' as const };
 const admin = { role: 'admin' as const };
 
 describe('guard', () => {
+  it('keeps the public website open to visitors and to anyone signed in', () => {
+    for (const page of ['tentang', 'panduan', 'privasi', 'terma', 'hubungi']) {
+      expect(guard(`/ms/${page}`, null)).toBeNull();
+      expect(guard(`/en/${page}`, { role: 'student' })).toBeNull();
+      expect(guard(`/ms/${page}`, { role: 'admin' })).toBeNull();
+    }
+  });
+
   it('keeps the account pages open to everyone', () => {
     for (const page of ['log-masuk', 'daftar', 'lupa-kata-laluan', 'semak-emel', 'auth/callback']) expect(guard(`/ms/${page}`, null)).toBeNull();
   });
@@ -18,8 +26,8 @@ describe('guard', () => {
     expect(guard('/ms/teroka', student)).toBeNull();
   });
 
-  it('sends "/ms" to logging in, or to the portal when signed in', () => {
-    expect(guard('/ms', null)).toEqual({ redirect: '/ms/log-masuk' });
+  it('shows the landing page at "/ms" to visitors, and the portal to anyone signed in', () => {
+    expect(guard('/ms', null)).toBeNull();
     expect(guard('/en', student)).toEqual({ redirect: '/en/utama' });
   });
 

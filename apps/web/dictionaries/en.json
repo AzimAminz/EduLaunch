@@ -1343,11 +1343,13 @@
       "intro": "Students' questions. Take one so other admins know it is being handled, then answer it; the student is notified.",
       "tabs": {
         "open": "Waiting",
-        "answered": "Answered (30 days)"
+        "answered": "Answered (30 days)",
+        "contact": "Contact messages"
       },
       "empty": {
         "open": "No questions waiting for an answer.",
-        "answered": "No questions answered in the last 30 days."
+        "answered": "No questions answered in the last 30 days.",
+        "contact": "No new contact messages."
       },
       "handledBy": "handled by {who}",
       "answeredBy": "Answered by {who}",
@@ -1362,6 +1364,16 @@
         "short": "Write an answer of at least 5 characters.",
         "taken": "Another admin has taken this question.",
         "generic": "Could not save. Please try again."
+      },
+      "contact": {
+        "intro": "Messages from the public Contact us form (no account). Reply by e-mail, then mark it answered. Messages are deleted 90 days after they are answered.",
+        "replyByEmail": "Reply by e-mail",
+        "markHandled": "Mark as answered",
+        "marking": "Saving…",
+        "handledBy": "Answered by {who}",
+        "handled": "Answered (30 days)",
+        "subject": "EduLaunch reply: your question",
+        "taken": "Another admin has already marked this message."
       }
     }
   },
@@ -2700,6 +2712,572 @@
       "pickTarget": "Choose a target programme from Suggestions",
       "targets": "Set your SPM target grades",
       "doneLabel": "Done:"
+    }
+  },
+  "site": {
+    "nav": {
+      "label": "Main navigation",
+      "home": "Home",
+      "about": "About us",
+      "contact": "Contact",
+      "signIn": "Log in",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "skip": "Skip to content"
+    },
+    "hero": {
+      "badge": "New",
+      "badgeText": "Fill in your SPM results straight from your slip",
+      "title": "From SPM to a career, one confident step.",
+      "body": "Explore programmes, check requirements against official evidence and build your education roadmap — for secondary school students and SPM, pre-university and Diploma leavers in Malaysia.",
+      "primary": "Log in to get started",
+      "secondary": "See how it works",
+      "trust": [
+        "Requirements linked to official sources",
+        "Checked by people before publishing",
+        "Your personal data is yours"
+      ],
+      "sampleLabel": "An example of the portal: an eligible programme, a simulated merit score and a roadmap.",
+      "sample": {
+        "programme": "Diploma in Computer Science",
+        "eligible": "Eligible",
+        "groups": "3 of 3 groups",
+        "merit": "Simulated merit",
+        "estimate": "Estimate",
+        "roadmap": "My roadmap",
+        "spm": "SPM",
+        "foundation": "Foundation",
+        "degree": "Degree"
+      }
+    },
+    "coverage": {
+      "title": "Programmes from these institutions are now in the EduLaunch catalogue",
+      "count": "{count} programmes checked and published",
+      "note": "Institution names are shown to describe the catalogue's coverage. EduLaunch is not affiliated with, or endorsed by, the institutions listed."
+    },
+    "audiences": {
+      "title": "One platform, three starting points",
+      "intro": "Choose your situation. Each path is tailored once you log in.",
+      "tabsLabel": "Your situation",
+      "cta": "Log in to get started",
+      "before": {
+        "tab": "Before SPM",
+        "title": "Not sat SPM yet? Start with targets.",
+        "body": "Set a target grade for each subject and see which programmes are within reach — without waiting for results.",
+        "points": [
+          "A target grade for every subject",
+          "Merit simulation in Merit Lab (not an official score)",
+          "An interest assessment to find your fields"
+        ],
+        "cardLabel": "Simulated merit",
+        "cardValue": "86.40",
+        "cardTag": "Mathematics: target A",
+        "cardNote": "Estimate only · not an official score"
+      },
+      "results": {
+        "tab": "I have results",
+        "title": "Got your results? See where you're eligible.",
+        "body": "Upload your slip or enter your results, then see the programmes you're eligible and almost eligible for — with a reason for every requirement.",
+        "points": [
+          "Filled from your slip, checked by you before saving",
+          "Every programme's requirements checked, with reasons",
+          "Offer chances estimated from official average merit"
+        ],
+        "cardLabel": "Top recommendation",
+        "cardValue": "Foundation in Science",
+        "cardTag": "Eligible",
+        "cardNote": "Example · chances are estimates"
+      },
+      "higher": {
+        "tab": "Pre-U & Diploma",
+        "title": "Pre-U or Diploma leaver? Plan your degree.",
+        "body": "Enter your CGPA, MUET and results, then see the degree programmes open to your entry route.",
+        "points": [
+          "STPM, Matriculation, Foundation, Diploma and equivalent",
+          "General and specific requirements by entry route",
+          "A roadmap from pre-U or Diploma to a career"
+        ],
+        "cardLabel": "My roadmap",
+        "cardValue": "Diploma → Degree",
+        "cardTag": "CGPA 3.42",
+        "cardNote": "Example"
+      }
+    },
+    "steps": {
+      "title": "Four steps to a clear plan",
+      "intro": "Start from any step. Everything you do is saved in your account.",
+      "label": "Step {n}",
+      "items": [
+        {
+          "title": "Know your interests",
+          "body": "Take the interest assessment and see the fields that suit you."
+        },
+        {
+          "title": "Explore & compare",
+          "body": "Find programmes, read sourced requirements and compare up to three."
+        },
+        {
+          "title": "Check eligibility",
+          "body": "See which requirements are met, not met or not yet certain — and why."
+        },
+        {
+          "title": "Build your roadmap",
+          "body": "Choose a route and a target programme; your plan is saved."
+        }
+      ]
+    },
+    "calendar": {
+      "title": "What to do, and when",
+      "intro": "A planning guide from Form 4 to registration. Actual dates follow each year's official announcements.",
+      "items": [
+        {
+          "kicker": "Before SPM",
+          "title": "Form 4 – 5",
+          "points": [
+            "Find your interests with the assessment",
+            "Set a target grade for each subject",
+            "Try Merit Lab with your targets"
+          ]
+        },
+        {
+          "kicker": "After SPM",
+          "title": "Results announced",
+          "points": [
+            "Upload your slip or enter your results",
+            "Check eligibility against official evidence",
+            "See almost-eligible programmes and why"
+          ]
+        },
+        {
+          "kicker": "Choose",
+          "title": "Application period",
+          "points": [
+            "Shortlist and compare programmes",
+            "Check each requirement's source and review date",
+            "Apply through the official channel"
+          ]
+        },
+        {
+          "kicker": "Next steps",
+          "title": "Offers & registration",
+          "points": [
+            "Update your roadmap with the offer you accept",
+            "Get notified when a saved programme's requirements change",
+            "Plan your steps to a career"
+          ]
+        }
+      ]
+    },
+    "highlights": {
+      "label": "Highlights",
+      "previous": "Previous highlight",
+      "next": "Next highlight",
+      "goTo": "Go to highlight {n}",
+      "pause": "Pause rotation",
+      "play": "Play rotation",
+      "sample": "Example",
+      "items": [
+        {
+          "title": "Every requirement has evidence",
+          "body": "We don't guess. Every programme requirement links to its official source and the date it was checked — you can open it yourself.",
+          "card": {
+            "head": "Diploma in Computer Science",
+            "line": "Mathematics at least B",
+            "status": "Met",
+            "quote": "“…at least grade B in Mathematics.”",
+            "source": "Official source · checked 14 Oct 2026"
+          }
+        },
+        {
+          "title": "Checked by two people before publishing",
+          "body": "One admin prepares a programme and its requirements; another reviews and publishes it. Students only see approved information.",
+          "card": {
+            "head": "Review flow",
+            "steps": [
+              "Draft prepared",
+              "Reviewed by another admin",
+              "Published to students"
+            ]
+          }
+        },
+        {
+          "title": "Honest about chances",
+          "body": "Offer chances are estimates from last year's official average merit, not a guarantee. We show the numbers used.",
+          "card": {
+            "head": "Bachelor of Computer Science",
+            "rows": [
+              [
+                "Your merit",
+                "86.40"
+              ],
+              [
+                "Last year's average merit",
+                "84.10"
+              ]
+            ],
+            "status": "Chance: moderate"
+          }
+        }
+      ]
+    },
+    "fields": {
+      "title": "Explore the world of fields",
+      "intro": "Not sure what interests you? See the fields on offer before choosing a programme.",
+      "link": "See programmes in this field",
+      "items": [
+        {
+          "title": "Technology",
+          "body": "Programming, data and networks."
+        },
+        {
+          "title": "Design",
+          "body": "Graphics, products and user experience."
+        },
+        {
+          "title": "Science",
+          "body": "Biotechnology, chemistry and health."
+        }
+      ],
+      "more": {
+        "title": "More fields in the portal",
+        "body": "Engineering, business, education and more — with real programmes.",
+        "cta": "Log in to explore"
+      }
+    },
+    "account": {
+      "title": "One account for your whole plan.",
+      "intro": "Your roadmap, saved choices and progress stay in your account — open them again any time. A mobile app is being built.",
+      "points": [
+        {
+          "title": "Clear navigation",
+          "body": "Home · Explore · Roadmap · Merit Lab · Profile"
+        },
+        {
+          "title": "Results aren't regenerated",
+          "body": "Saved roadmaps and recommendations open any time"
+        },
+        {
+          "title": "Your data, your control",
+          "body": "Download your data or delete your account in Settings"
+        }
+      ],
+      "laptop": {
+        "title": "My roadmap",
+        "rows": [
+          "SPM 2026 · done",
+          "Foundation in Science · target Jun 2027",
+          "Degree in Computer Science"
+        ]
+      },
+      "phone": {
+        "title": "My roadmap",
+        "rows": [
+          "SPM 2026",
+          "Foundation",
+          "Degree"
+        ],
+        "soon": "Coming soon"
+      }
+    },
+    "promise": {
+      "title": "Honest about what we know — and what we don't yet.",
+      "items": [
+        {
+          "title": "Evidence first",
+          "body": "No eligibility verdict without a source you can open."
+        },
+        {
+          "title": "Not certain? We say so",
+          "body": "Incomplete data is shown as “cannot be confirmed yet”, not as a pass."
+        },
+        {
+          "title": "Not an application channel",
+          "body": "We help you prepare. Applications and offers are handled through institutions' official channels."
+        }
+      ]
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "intro": "Can't find an answer?",
+      "contact": "Contact us",
+      "more": "See all questions",
+      "items": [
+        {
+          "q": "Does EduLaunch process admission applications?",
+          "a": "No. EduLaunch helps you prepare and shows each programme's official source. Applications and offers are handled by the relevant bodies through official channels."
+        },
+        {
+          "q": "Where do programme requirements come from?",
+          "a": "From official government and institution sources. Every requirement shows its source and review date, and is approved by two admins before publishing."
+        },
+        {
+          "q": "Can I use it before my SPM results?",
+          "a": "Yes. Form 1 to 5 students can take the interest assessment, set target grades and try Merit Lab. Every figure is labelled as an estimate."
+        },
+        {
+          "q": "Is my result slip stored?",
+          "a": "No. The slip is read on EduLaunch's server to fill in the form, then discarded. Only the results you check and confirm are saved to your account."
+        },
+        {
+          "q": "Who can see my results?",
+          "a": "Your results are kept in your account and are not shared with institutions or anyone else. You can download your data or delete your account at any time in Settings."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready for your next step?",
+      "body": "Create an account in a minute. Rimau will take you to your first step.",
+      "signUp": "Create account",
+      "signIn": "Log in"
+    },
+    "footer": {
+      "tagline": "An education and career planning platform guided by official information.",
+      "resources": "Resources",
+      "howItWorks": "How it works",
+      "guide": "Guide & FAQ",
+      "company": "EduLaunch",
+      "about": "About us",
+      "contact": "Contact us",
+      "legal": "Legal",
+      "privacy": "Privacy policy",
+      "terms": "Terms of use",
+      "nav": "Site links"
+    },
+    "pages": {
+      "kicker": "EduLaunch",
+      "updated": "Last updated: {date}",
+      "about": {
+        "title": "About us",
+        "intro": "Helping Malaysian students make clearer education choices.",
+        "items": [
+          {
+            "title": "Our mission",
+            "body": "To connect interests, academic ability and career choices, so every student knows their next step and why."
+          },
+          {
+            "title": "Our approach",
+            "body": "Interest assessment, programme requirement checks, Merit Lab and a roadmap — in one account."
+          },
+          {
+            "title": "Data principles",
+            "body": "Every requirement shows its official source and review date. Programmes are approved by two admins before students see them, and uncertain data is labelled as such."
+          },
+          {
+            "title": "Who we are",
+            "body": "EduLaunch is being built as a university final-year project and is non-commercial. We do not represent any government agency or institution."
+          }
+        ],
+        "tiles": [
+          {
+            "title": "Sourced information",
+            "body": "Programmes and requirements from official sources"
+          },
+          {
+            "title": "Know your options",
+            "body": "Explore fields before choosing"
+          },
+          {
+            "title": "Plan your steps",
+            "body": "From school to a career"
+          }
+        ]
+      },
+      "guide": {
+        "title": "Guide & FAQ",
+        "intro": "Answers to start your journey.",
+        "items": [
+          {
+            "q": "Not sat SPM yet?",
+            "a": "Choose your level when you sign up. Take the interest assessment, set target grades and try Merit Lab; your roadmap starts from Form 4 streams or the SPM exam."
+          },
+          {
+            "q": "How do I fill in results from my slip?",
+            "a": "In Academic documents, choose “Fill from the result slip” and upload the PDF from the results portal or a photo of the slip. Check every row, especially those marked in yellow, then save."
+          },
+          {
+            "q": "What do eligible, almost eligible and not yet eligible mean?",
+            "a": "Eligible means every requirement that can be checked is met. Almost eligible means one or two are missing. Requirements that cannot be checked automatically, such as interviews, are listed for you to confirm."
+          },
+          {
+            "q": "Does merit guarantee an offer?",
+            "a": "No. Merit and chances are estimates based on last year's official average merit. Offers depend on the official admission process."
+          },
+          {
+            "q": "What if programme information is wrong?",
+            "a": "After logging in, report it through Help with a link to the programme. An admin will check the official source and correct it."
+          },
+          {
+            "q": "How do I delete my data?",
+            "a": "In Settings you can download all your data or delete your account. Deleting your account removes your profile, results and choices."
+          }
+        ],
+        "tiles": [
+          {
+            "title": "Have a result slip?",
+            "body": "Check the reading before saving"
+          },
+          {
+            "title": "Not sure of your interests?",
+            "body": "Start with the interest assessment"
+          },
+          {
+            "title": "Want to plan a route?",
+            "body": "See the branches and targets"
+          }
+        ]
+      },
+      "privacy": {
+        "title": "Privacy policy",
+        "intro": "What we collect, why, and how you control it.",
+        "date": "22 November 2026",
+        "sections": [
+          {
+            "title": "What we collect",
+            "body": [
+              "Account: your name and e-mail address.",
+              "Education profile: your level, exam results, CGPA, MUET and other details you enter.",
+              "Portal use: interest assessment answers, saved programmes, your roadmap and questions to the support team.",
+              "Contact form: the name, e-mail and message you send."
+            ]
+          },
+          {
+            "title": "Slips and documents",
+            "body": [
+              "An uploaded result slip is read in the memory of EduLaunch's server to fill in the form, then discarded. The file is not stored and is not sent to any outside service.",
+              "Only the results you check and confirm are saved to your profile."
+            ]
+          },
+          {
+            "title": "Why we use it",
+            "body": [
+              "To check eligibility, recommend programmes, estimate merit, keep your roadmap and tell you when a saved programme's requirements change.",
+              "To answer the questions and messages you send."
+            ]
+          },
+          {
+            "title": "Sharing",
+            "body": [
+              "We do not sell your data and do not share it with institutions, advertisers or anyone else.",
+              "Data is kept in a database managed by the EduLaunch team."
+            ]
+          },
+          {
+            "title": "Cookies",
+            "body": [
+              "We only use necessary cookies: your login session and language choice. No advertising or tracking cookies."
+            ]
+          },
+          {
+            "title": "Your rights",
+            "body": [
+              "View and correct your details in Profile and Academic documents.",
+              "Download all your data or delete your account in Settings.",
+              "For other questions about your data, use the Contact us form."
+            ]
+          },
+          {
+            "title": "How long we keep it",
+            "body": [
+              "Account data is kept until you delete your account.",
+              "Contact form messages are deleted 90 days after they are answered."
+            ]
+          },
+          {
+            "title": "Students under 18",
+            "body": [
+              "Form 1 to 5 students are encouraged to use EduLaunch with a parent's or guardian's knowledge."
+            ]
+          },
+          {
+            "title": "Changes to this policy",
+            "body": [
+              "If this policy changes, the update date above will change."
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "Terms of use",
+        "intro": "The conditions for using EduLaunch.",
+        "date": "22 November 2026",
+        "sections": [
+          {
+            "title": "What EduLaunch is",
+            "body": [
+              "EduLaunch is an education and career planning tool. It is not an admission application channel and does not represent any agency or institution."
+            ]
+          },
+          {
+            "title": "Accuracy",
+            "body": [
+              "Programme information is referenced to official sources and checked before publishing, but sources can change. Confirm with the relevant body before applying.",
+              "Eligibility checks, merit and offer chances are estimates and do not guarantee an offer."
+            ]
+          },
+          {
+            "title": "Your account",
+            "body": [
+              "Give true information and keep your password safe. You are responsible for activity in your account.",
+              "We may suspend accounts that misuse the service."
+            ]
+          },
+          {
+            "title": "Acceptable use",
+            "body": [
+              "Do not copy data automatically, disrupt the service, or upload content that is not yours.",
+              "Do not submit other people's personal information."
+            ]
+          },
+          {
+            "title": "Official source content",
+            "body": [
+              "Quoted requirements and programme information remain the property of their original owners. EduLaunch shows them with their source for reference only."
+            ]
+          },
+          {
+            "title": "Changes",
+            "body": [
+              "These terms may be updated. Continuing to use EduLaunch after a change means you accept the new terms."
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "kicker": "Support",
+        "title": "Contact us",
+        "intro": "Send a question about using the system or about programme information.",
+        "name": "Name",
+        "namePlaceholder": "Full name",
+        "email": "E-mail",
+        "emailPlaceholder": "name@example.com",
+        "category": "Category",
+        "categoryPlaceholder": "Choose a category",
+        "categories": {
+          "usage": "Using the system",
+          "data": "Programme information",
+          "privacy": "Privacy & data",
+          "other": "Other"
+        },
+        "message": "Message",
+        "messagePlaceholder": "Describe your question",
+        "messageHint": "At least 10 characters, at most 2000.",
+        "trap": "Leave this field empty",
+        "send": "Send question",
+        "sending": "Sending…",
+        "sent": "Thank you. Your message has been received, and we will reply to your e-mail.",
+        "sendAnother": "Send another message",
+        "errors": {
+          "invalid": "Check your name, e-mail, category and message.",
+          "tooMany": "You have sent several messages today. We will reply to those first.",
+          "busy": "The contact form is busy today. Please try again tomorrow.",
+          "generic": "The message could not be sent. Please try again shortly."
+        },
+        "help": {
+          "title": "Already have an account?",
+          "body": "Log in and send your question through Help — the answer appears in your account. Do not include identity card numbers or slips in your message.",
+          "cta": "Log in"
+        }
+      }
     }
   }
 }
