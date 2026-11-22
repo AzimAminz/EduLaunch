@@ -49,7 +49,7 @@ We build in small steps. Each step has unit tests first, then a manual check in 
 | Student home (`/utama`) | Where students land after logging in: best match they can reach, the one next step, merit, interests, results, saved programmes and notices; Form 1–3 sees Form 4 streams |
 | Saved programmes (`/simpanan`) | Save buttons on programme pages, Cadangan and directory cards; the saved list with where the student stands |
 | Compare (`/banding`) | Up to three saved programmes side by side, differences marked; no invented rows |
-| Eligibility check (`/kelayakan`) | "What if" grades against a programme's requirements, nothing saved (new `POST me/eligibility/:id/try`) |
+| Eligibility check (`/kelayakan`) | Built, then removed (22 Nov 2026): the programme page already shows the check, so a separate page repeated it |
 | Updates (`/kemas-kini`) | Notices with unread badge; read one or all |
 | Help and support (`/bantuan`, `/admin/sokongan`) | FAQ, questions and wrong-data reports to the team, admin queue with answers that notify the student |
 | Roadmap (`/roadmap`) | The road by level, target programme with ePanduan careers, saved plan (new `GET/PUT me/roadmap`), next actions |

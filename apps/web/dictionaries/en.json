@@ -20,7 +20,6 @@
     "compare": "Compare",
     "saved": "Saved choices",
     "groupPlan": "Plan",
-    "eligibility": "Eligibility check",
     "meritLab": "Merit Lab",
     "roadmap": "My roadmap",
     "groupSelf": "Know yourself",
@@ -1743,8 +1742,7 @@
     "checking": "Checking your eligibility…",
     "fromList": "Grade {grade} in {required} subjects from: {subjects} (you have {actual})",
     "toConfirm": "To confirm yourself",
-    "toConfirmNote": "The system cannot check these from your results. Make sure you meet them before applying.",
-    "tryOther": "Try other grades for this programme"
+    "toConfirmNote": "The system cannot check these from your results. Make sure you meet them before applying."
   },
   "meritLab": {
     "eyebrow": "MERIT LAB",
@@ -2505,35 +2503,6 @@
     "legend": "Yellow marks where the programmes differ.",
     "pick": "Choose programmes to compare (up to {max})",
     "update": "Compare"
-  },
-  "tryEligibility": {
-    "title": "Eligibility check",
-    "intro": "Try different grades to see which requirements you meet, where the gaps are and what is still unknown. Your profile does not change.",
-    "loading": "Loading the check…",
-    "needLevel": "Choose your education level first so we know your entry route.",
-    "chooseLevel": "Choose level",
-    "noProgrammes": "No programmes to check yet. Save programmes from Explore or see Suggestions first.",
-    "programme": "Programme",
-    "savedGroup": "Saved",
-    "suggestedGroup": "Suggestions",
-    "choose": "Choose",
-    "noRequirements": "This programme's requirements are not published yet, so eligibility cannot be checked.",
-    "gradesTitle": "Grades to try",
-    "gradesHint": "Filled in from your profile. Change any grade, then check.",
-    "required": "Required by this programme",
-    "none": "Not entered",
-    "addSubject": "Add a subject",
-    "addPlaceholder": "Search subjects",
-    "cgpa": "CGPA",
-    "cgpaInvalid": "CGPA is a number from 0.00 to 4.00.",
-    "check": "Check",
-    "checking": "Checking…",
-    "failed": "Could not check right now. Please try again shortly.",
-    "notSaved": "This is a simulation only. Grades here are not saved to your profile.",
-    "stale": "You changed some grades. Press Check to see the latest result.",
-    "waitingTitle": "The result appears here",
-    "waitingBody": "Empty fields count as unknown. Grades below the minimum show as gaps.",
-    "saveHint": "To save grades to your profile, use"
   },
   "help": {
     "title": "Help",

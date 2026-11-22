@@ -102,7 +102,7 @@ async function Roadmap({ lang, dict, searchParams }: { lang: Locale; dict: Dicti
     { text: t.actions.interest, href: `/${lang}/penilaian-minat`, done: Boolean(interest?.result) },
     ...(target
       ? [
-          { text: format(t.actions.check, { programme: target.name }), href: `/${lang}/kelayakan?program=${target.id}`, done: recById.get(target.id)?.eligibility === 'eligible' },
+          { text: format(t.actions.check, { programme: target.name }), href: `/${lang}/teroka/${target.id}`, done: recById.get(target.id)?.eligibility === 'eligible' },
           { text: format(t.actions.save, { programme: target.name }), href: `/${lang}/teroka/${target.id}`, done: saved.some((s) => s.programId === target.id) },
         ]
       : [{ text: t.actions.pickTarget, href: `/${lang}/cadangan`, done: false }]),

@@ -342,11 +342,6 @@ async function Eligibility({ lang, dict, programId, subjectNames }: { lang: Loca
     <div className="flex flex-col gap-2">
       <EligibilityResult locale={lang} answer={answer} subjectNames={subjectNames} t={dict.eligibility} routeNames={dict.requirements.routes} />
       <div className="flex flex-wrap gap-x-5 gap-y-1 px-1">
-        {answer.state === 'checked' && (
-          <Link href={`/${lang}/kelayakan?program=${programId}`} className="text-sm font-semibold text-[#2f5bd3] hover:underline">
-            {dict.eligibility.tryOther} →
-          </Link>
-        )}
         <Link href={`/${lang}/bantuan?program=${programId}#tanya`} className="text-sm font-semibold text-muted hover:text-navy hover:underline">
           {dict.detail.reportWrong}
         </Link>

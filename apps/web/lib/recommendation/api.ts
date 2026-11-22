@@ -33,18 +33,6 @@ export const EligibilityAnswer = z.discriminatedUnion('state', [
 ]);
 export type EligibilityAnswer = z.infer<typeof EligibilityAnswer>;
 
-/** The same check with grades (on the student's main scale) and a CGPA to try instead of the saved ones; nothing is saved. */
-export async function tryEligibility(token: string, programId: string, body: { grades: Array<{ subjectId: string; grade: string }>; cgpa?: number | null }): Promise<EligibilityAnswer> {
-  const res = await fetch(`${GATEWAY_URL}/api/recommendation/me/eligibility/${encodeURIComponent(programId)}/try`, {
-    method: 'POST',
-    headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
-    body: JSON.stringify(body),
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error(`Eligibility try failed (${res.status})`);
-  return EligibilityAnswer.parse(await res.json());
-}
-
 /** "Can I enter this programme?" for the signed-in student (recommendation service, through the gateway). */
 export async function getEligibility(token: string, programId: string): Promise<EligibilityAnswer> {
   const res = await fetch(`${GATEWAY_URL}/api/recommendation/me/eligibility/${encodeURIComponent(programId)}`, {

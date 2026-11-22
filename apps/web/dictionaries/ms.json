@@ -20,7 +20,6 @@
     "compare": "Banding",
     "saved": "Pilihan disimpan",
     "groupPlan": "Rancang",
-    "eligibility": "Semakan kelayakan",
     "meritLab": "Merit Lab",
     "roadmap": "Roadmap saya",
     "groupSelf": "Kenali diri",
@@ -1743,8 +1742,7 @@
     "checking": "Menyemak kelayakan anda…",
     "fromList": "Gred {grade} dalam {required} subjek daripada: {subjects} (anda ada {actual})",
     "toConfirm": "Perlu disahkan sendiri",
-    "toConfirmNote": "Sistem tidak dapat menyemak perkara ini daripada keputusan anda. Pastikan anda memenuhinya sebelum memohon.",
-    "tryOther": "Cuba gred lain untuk program ini"
+    "toConfirmNote": "Sistem tidak dapat menyemak perkara ini daripada keputusan anda. Pastikan anda memenuhinya sebelum memohon."
   },
   "meritLab": {
     "eyebrow": "MERIT LAB",
@@ -2505,35 +2503,6 @@
     "legend": "Kuning menandakan perbezaan antara program.",
     "pick": "Pilih program untuk dibandingkan (maksimum {max})",
     "update": "Bandingkan"
-  },
-  "tryEligibility": {
-    "title": "Semakan kelayakan",
-    "intro": "Cuba gred yang berbeza untuk melihat syarat yang dipenuhi, jurang dan maklumat yang belum lengkap. Profil anda tidak berubah.",
-    "loading": "Memuatkan semakan…",
-    "needLevel": "Pilih peringkat pendidikan anda dahulu supaya kami tahu laluan kemasukan anda.",
-    "chooseLevel": "Pilih peringkat",
-    "noProgrammes": "Belum ada program untuk disemak. Simpan program dari Teroka atau lihat Cadangan saya dahulu.",
-    "programme": "Program",
-    "savedGroup": "Disimpan",
-    "suggestedGroup": "Cadangan",
-    "choose": "Pilih",
-    "noRequirements": "Syarat program ini belum diterbitkan, jadi kelayakan belum dapat disemak.",
-    "gradesTitle": "Gred untuk dicuba",
-    "gradesHint": "Diisi daripada profil anda. Tukar mana-mana gred, kemudian semak.",
-    "required": "Disyaratkan program ini",
-    "none": "Belum diisi",
-    "addSubject": "Tambah subjek",
-    "addPlaceholder": "Cari subjek",
-    "cgpa": "PNGK",
-    "cgpaInvalid": "PNGK ialah nombor antara 0.00 hingga 4.00.",
-    "check": "Semak",
-    "checking": "Menyemak…",
-    "failed": "Tidak dapat disemak sekarang. Cuba lagi sebentar lagi.",
-    "notSaved": "Ini simulasi sahaja. Gred di sini tidak disimpan ke profil anda.",
-    "stale": "Anda telah menukar gred. Tekan Semak untuk melihat hasil terkini.",
-    "waitingTitle": "Hasil semakan dipaparkan di sini",
-    "waitingBody": "Medan kosong dikira sebagai belum pasti. Gred di bawah minimum ditunjukkan sebagai jurang.",
-    "saveHint": "Untuk menyimpan gred ke profil anda, gunakan"
   },
   "help": {
     "title": "Bantuan",

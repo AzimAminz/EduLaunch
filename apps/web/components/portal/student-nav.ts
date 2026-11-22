@@ -19,7 +19,6 @@ const GROUPS: Array<{ title?: keyof Nav; items: Item[] }> = [
   {
     title: 'groupPlan',
     items: [
-      { key: 'eligibility', slug: 'kelayakan', icon: 'check' },
       { key: 'meritLab', slug: 'merit-lab', icon: 'calc' },
       { key: 'roadmap', slug: 'roadmap', icon: 'route' },
     ],
