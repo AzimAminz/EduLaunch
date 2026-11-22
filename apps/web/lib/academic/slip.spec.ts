@@ -41,6 +41,16 @@ describe('matchSlipRows', () => {
   });
 });
 
+describe('matchSlipRows on a slip without codes', () => {
+  it('finds subjects by name and drops lines that are not subjects', () => {
+    const rows = matchSlipRows([row('', 'BAHASA MELAYU', 'A-'), row('', 'BIOLOG1', 'B'), row('', 'GURU KELAS', 'A')], subjects, GRADES);
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toEqual({ subjectId: 'bm', grade: 'A-', flags: [] });
+    expect(rows[1]).toMatchObject({ subjectId: 'bio', grade: 'B' });
+    expect(rows[1]!.flags).toContain('name_differs');
+  });
+});
+
 describe('similarity', () => {
   it('scores alike names high and different names low', () => {
     expect(similarity('BAHASA MELAYU', 'Bahasa Melayu')).toBe(1);

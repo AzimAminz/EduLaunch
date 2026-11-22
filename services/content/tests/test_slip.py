@@ -29,7 +29,49 @@ def test_year_split_from_the_title():
 def test_a_grade_that_is_not_on_the_scale_is_left_empty():
     rows = rows_from_text("3472 MATEMATIK TAMBAHAN 8")
     assert rows[0].grade is None
-    assert rows[0].name == "MATEMATIK TAMBAHAN 8"
+    assert rows[0].name == "MATEMATIK TAMBAHAN"
+
+
+@pytest.mark.parametrize(
+    ("line", "expected"),
+    [
+        # The official layout: code, name, grade and the grade's words.
+        ("1103 BAHASA MELAYU A+ CEMERLANG TERTINGGI", ("1103", "BAHASA MELAYU", "A+")),
+        # Code stuck to the name, spaces lost in the words.
+        ("1449MATEMATIK B KEPUJIANTINGGI", ("1449", "MATEMATIK", "B")),
+        # The letter misread: the words still give the grade.
+        ("4551 BIOLOGI 8 KEPUJIAN ATAS", ("4551", "BIOLOGI", "C+")),
+        # "A +" read as two tokens.
+        ("1249 SEJARAH A +", ("1249", "SEJARAH", "A+")),
+        # A school's slip: row number and marks, no code.
+        ("1 BAHASA INGGERIS 75 A-", ("", "BAHASA INGGERIS", "A-")),
+        ("3. PENDIDIKAN ISLAM 40 LULUS", ("", "PENDIDIKAN ISLAM", "E")),
+        ("2280 GEOGRAFI TH TIDAK HADIR", ("2280", "GEOGRAFI", "TH")),
+    ],
+)
+def test_lines_in_the_layouts_slips_use(line, expected):
+    from content_service.domain.slip import parse_line
+
+    row = parse_line(line, 1.0)
+    assert row is not None
+    assert (row.code, row.name, row.grade) == expected
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "SIJIL PELAJARAN MALAYSIA TAHUN 2025",
+        "NAMA : AHMAD BIN ALI",
+        "NO. KAD PENGENALAN : 080101-10-1234",
+        "ANGKA GILIRAN : AB123C456",
+        "KOD MATA PELAJARAN GRED",
+        "BILANGAN MATA PELAJARAN 9",
+    ],
+)
+def test_lines_that_are_not_subjects(line):
+    from content_service.domain.slip import parse_line
+
+    assert parse_line(line, 1.0) is None
 
 
 def _box(text: str, x: float, y: float, w: float, angle: float, score: float = 0.99) -> Box:
