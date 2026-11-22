@@ -102,3 +102,19 @@ export const SpmMeritSubjects: ReadonlyArray<{ code: string; name: string; type:
   { code: '5304', name: 'TURATH DIRASAT ISLAMIAH', type: 'KP' },
   { code: '5401', name: 'USUL AL-DIN', type: 'KP' },
 ];
+
+/**
+ * The four core SPM subjects, which the calculator lists apart ("universal") without codes. Codes from the official
+ * list of SPM subjects (Senarai Mata Pelajaran SPM, data.gov.my), checked 22 Nov 2026.
+ */
+export const SpmCoreSubjects: ReadonlyArray<{ code: string; name: string }> = [
+  { code: '1103', name: 'BAHASA MELAYU' },
+  { code: '1119', name: 'BAHASA INGGERIS' },
+  { code: '1249', name: 'SEJARAH' },
+  { code: '1449', name: 'MATEMATIK' },
+];
+
+/** An SPM subject's official name from its 4-digit code (as printed on the result slip), or null when unknown. */
+export function spmSubjectByCode(code: string): string | null {
+  return SpmCoreSubjects.find((s) => s.code === code)?.name ?? SpmMeritSubjects.find((s) => s.code === code)?.name ?? null;
+}

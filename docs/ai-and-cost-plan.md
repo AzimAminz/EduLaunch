@@ -21,7 +21,7 @@ The main idea: **use AI only where it is clearly needed.** Most of the "smart" b
 | Form 4 stream suggestion | Score: 50% interest, 40% school-subject strength, 10% activity ratings (system-design §3.7) | No | Free |
 | Careers after Diploma | `CAREER` lookup by field, sorted by interest fit; degrees checked by the eligibility engine | No (the student sees verified data only) | Free |
 | Career and pathway data for fields with none yet | LLM drafts careers and pathways from official Malaysian sources; an admin approves (§5.9) | Yes, on public sources only, as a background job | Paid API, small; once per field |
-| Slip / transcript reading | Local OCR (Tesseract or PaddleOCR) | Only for unsure rows, and only a local model | Free |
+| Slip / transcript reading | Text of a digital PDF first; otherwise local OCR with **RapidOCR** (PaddleOCR models run on `onnxruntime`, code and models Apache 2.0, bundled with the package, no system install) in the content service | None: unsure rows are flagged for the student to check | Free |
 | Subject name matching | Alias table + fuzzy match | No | Free |
 | Requirement extraction from official pages | LLM turns page text into a structured draft | Yes, on public pages only | Claude (§5.8) |
 | Search and Q&A embeddings | Local multilingual embedding model | No (embedding model) | Free |

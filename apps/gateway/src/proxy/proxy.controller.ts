@@ -47,7 +47,9 @@ export class ProxyController {
 
     let upstream: globalThis.Response;
     try {
-      upstream = await fetch(url, { method: req.method, headers, body: hasBody ? JSON.stringify(req.body) : undefined, signal: AbortSignal.timeout(15_000) });
+      // Reading a slip runs OCR, which can take several seconds per page.
+      const timeout = match.route.prefix === '/api/content' && match.upstreamPath.startsWith('/slips') ? 45_000 : 15_000;
+      upstream = await fetch(url, { method: req.method, headers, body: hasBody ? JSON.stringify(req.body) : undefined, signal: AbortSignal.timeout(timeout) });
     } catch (err) {
       this.logger.error(`${req.method} ${url} failed: ${err instanceof Error ? err.message : String(err)}`);
       res.status(503).json({ code: 'service_unavailable', message: 'This part of EduLaunch is temporarily unavailable. Please try again shortly.' });

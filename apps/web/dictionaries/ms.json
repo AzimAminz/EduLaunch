@@ -1527,7 +1527,31 @@
     },
     "schoolTab": "Tingkatan {form} · {year}",
     "limitReached": "Had {max} subjek dicapai. Buang subjek yang tidak berkenaan untuk menambah subjek lain.",
-    "earlierFormHint": "Pilihan: isi gred Tingkatan {form} jika anda ada. Jika sudah disimpan, ia kekal sebagai sejarah."
+    "earlierFormHint": "Pilihan: isi gred Tingkatan {form} jika anda ada. Jika sudah disimpan, ia kekal sebagai sejarah.",
+    "slip": {
+      "title": "Isi daripada slip keputusan",
+      "hint": "Muat naik PDF slip dari portal keputusan SPM, atau gambar slip yang jelas. Kami isi jadual di bawah; anda semak dan simpan.",
+      "choose": "Pilih fail slip",
+      "reading": "Membaca slip…",
+      "privacy": "Dibaca di pelayan EduLaunch sahaja dan tidak disimpan.",
+      "readAll": "{count} subjek dibaca daripada slip. Semak jadual, kemudian tekan Simpan & sahkan.",
+      "readUnsure": "{count} subjek dibaca daripada slip; {unsure} baris bertanda kuning perlu anda semak sebelum menyimpan.",
+      "flags": {
+        "low_confidence": "Bacaan kurang jelas, semak gred",
+        "no_grade": "Gred tidak terbaca, pilih gred",
+        "unknown_code": "Kod subjek tidak dikenali",
+        "name_differs": "Nama tidak sepadan dengan kod, semak subjek",
+        "not_in_list": "Tiada dalam senarai subjek kami"
+      },
+      "errors": {
+        "type": "Muat naik fail PDF, JPG, PNG atau WEBP.",
+        "size": "Fail terlalu besar. Cuba gambar yang lebih kecil atau PDF dari portal.",
+        "busy": "Terlalu banyak slip dibaca. Cuba lagi dalam beberapa minit.",
+        "unreadable": "Fail tidak dapat dibuka. Cuba fail lain.",
+        "none": "Tiada subjek dapat dibaca. Pastikan gambar jelas, tegak dan menunjukkan kod serta gred, atau isi jadual secara manual.",
+        "generic": "Slip tidak dapat dibaca sekarang. Cuba lagi sebentar lagi atau isi secara manual."
+      }
+    }
   },
   "profile": {
     "eyebrow": "RUANG PERIBADI",

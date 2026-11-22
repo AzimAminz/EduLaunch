@@ -13,6 +13,7 @@ from .config import get_settings
 from .domain.errors import DomainError
 from .infrastructure.epanduan_client import HttpEpanduanSource
 from .infrastructure.epanduan_repository import PostgresEpanduanRuns
+from .infrastructure.slip_reader import SlipReader
 
 
 @asynccontextmanager
@@ -23,6 +24,7 @@ async def lifespan(app: FastAPI):
     epanduan = HttpEpanduanSource(settings.epanduan_base_url, settings.crawler_user_agent, settings.epanduan_delay_seconds)
     app.state.find_programmes = FindInstitutionProgrammes(app.state.epanduan_runs, epanduan)
     app.state.read_requirements = ReadSpecialRequirements(app.state.epanduan_runs, epanduan)
+    app.state.slip_reader = SlipReader()
     yield
     pool.close()
 

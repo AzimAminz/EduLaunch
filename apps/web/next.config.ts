@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     agentFeedback: true,
     // Remind us (in next dev / next build) when the installed version has a security fix to take.
     agentUpgrade: "security",
+    // Result slips are uploaded through a Server Action: photos are shrunk in the browser first, PDFs are small.
+    serverActions: { bodySizeLimit: "4mb" },
   },
   cacheComponents: true,
   partialPrefetching: true,
