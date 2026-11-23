@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { AudienceTabs } from '@/components/site/audience-tabs';
 import { FaqList } from '@/components/site/faq-list';
@@ -265,6 +266,9 @@ function Pill({ tone, children }: { tone: 'mint' | 'cream' | 'blue'; children: R
 }
 
 async function Coverage({ t }: { t: Dictionary['site']['coverage'] }) {
+  // Rendered when a visitor asks for the page, not at build time: the build has no catalogue to ask (CI runs
+  // without the gateway). The figures are still cached for an hour.
+  await connection();
   const data = await catalogueCoverage();
   if (!data || data.institutions.length === 0) return null;
   return (
