@@ -56,10 +56,11 @@ export class EngagementError extends Error {
   }
 }
 
-async function send<T extends z.ZodType>(token: string, path: string, schema: T, body?: unknown): Promise<z.infer<T>> {
+/** A POST to the engagement service; `token` is null only for the public contact form. */
+async function send<T extends z.ZodType>(token: string | null, path: string, schema: T, body?: unknown): Promise<z.infer<T>> {
   const res = await fetch(`${GATEWAY_URL}/api/engagement${path}`, {
     method: 'POST',
-    headers: { accept: 'application/json', 'content-type': 'application/json', authorization: `Bearer ${token}` },
+    headers: { accept: 'application/json', 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify(body ?? {}),
     cache: 'no-store',
   });
@@ -80,3 +81,23 @@ export const ticketQueue = (token: string) => call(token, '/tickets/queue', z.ar
 export const closedTickets = (token: string) => call(token, '/tickets/closed', z.array(Ticket));
 export const claimTicket = (token: string, id: string) => send(token, `/tickets/${encodeURIComponent(id)}/claim`, Ticket);
 export const closeTicket = (token: string, id: string, reply: string) => send(token, `/tickets/${encodeURIComponent(id)}/close`, Ticket, { reply });
+
+/** A message from the public contact form, which anyone can send without an account. */
+const ContactMessage = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  email: z.string(),
+  category: z.enum(['usage', 'data', 'privacy', 'other']),
+  message: z.string(),
+  handledBy: z.uuid().nullable(),
+  createdAt: z.coerce.date(),
+  handledAt: z.coerce.date().nullable(),
+});
+export type ContactMessage = z.infer<typeof ContactMessage>;
+export type ContactCategory = ContactMessage['category'];
+
+export const sendContactMessage = (body: { name: string; email: string; category: ContactCategory; message: string; website: string }) =>
+  send(null, '/contact', z.object({ received: z.boolean() }), body);
+/** New messages (oldest first) and those handled in the last 30 days. */
+export const listContactMessages = (token: string) => call(token, '/contact', z.object({ open: z.array(ContactMessage), handled: z.array(ContactMessage) }));
+export const markContactHandled = (token: string, id: string) => send(token, `/contact/${encodeURIComponent(id)}/handled`, ContactMessage);

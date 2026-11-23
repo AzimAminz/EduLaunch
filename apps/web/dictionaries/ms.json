@@ -1343,11 +1343,13 @@
       "intro": "Pertanyaan pelajar. Ambil satu supaya admin lain tahu ia sedang diuruskan, kemudian jawab; pelajar akan menerima notis.",
       "tabs": {
         "open": "Belum dijawab",
-        "answered": "Dijawab (30 hari)"
+        "answered": "Dijawab (30 hari)",
+        "contact": "Mesej hubungan"
       },
       "empty": {
         "open": "Tiada pertanyaan menunggu jawapan.",
-        "answered": "Tiada pertanyaan dijawab dalam 30 hari lepas."
+        "answered": "Tiada pertanyaan dijawab dalam 30 hari lepas.",
+        "contact": "Tiada mesej hubungan baharu."
       },
       "handledBy": "diuruskan oleh {who}",
       "answeredBy": "Dijawab oleh {who}",
@@ -1362,6 +1364,16 @@
         "short": "Tulis jawapan sekurang-kurangnya 5 aksara.",
         "taken": "Admin lain sudah mengambil pertanyaan ini.",
         "generic": "Tidak dapat disimpan. Cuba lagi."
+      },
+      "contact": {
+        "intro": "Mesej daripada borang Hubungi kami (tanpa akaun). Balas melalui e-mel, kemudian tandakan sudah dibalas. Mesej dipadam 90 hari selepas dibalas.",
+        "replyByEmail": "Balas melalui e-mel",
+        "markHandled": "Tanda sudah dibalas",
+        "marking": "Menyimpan…",
+        "handledBy": "Dibalas oleh {who}",
+        "handled": "Sudah dibalas (30 hari)",
+        "subject": "Balasan EduLaunch: pertanyaan anda",
+        "taken": "Admin lain sudah menandakan mesej ini."
       }
     }
   },
@@ -2700,6 +2712,572 @@
       "pickTarget": "Pilih program sasaran dari Cadangan saya",
       "targets": "Tetapkan sasaran gred SPM anda",
       "doneLabel": "Selesai:"
+    }
+  },
+  "site": {
+    "nav": {
+      "label": "Navigasi utama",
+      "home": "Utama",
+      "about": "Tentang kami",
+      "contact": "Hubungi",
+      "signIn": "Log masuk",
+      "openMenu": "Buka menu",
+      "closeMenu": "Tutup menu",
+      "skip": "Langkau ke kandungan"
+    },
+    "hero": {
+      "badge": "Baharu",
+      "badgeText": "Isi keputusan SPM terus daripada slip anda",
+      "title": "Dari SPM ke kerjaya, satu langkah yakin.",
+      "body": "Teroka program, semak syarat dengan bukti rasmi dan bina roadmap pendidikan anda — untuk pelajar sekolah menengah serta lepasan SPM, pra-universiti dan Diploma di Malaysia.",
+      "primary": "Log masuk untuk bermula",
+      "secondary": "Lihat cara berfungsi",
+      "trust": [
+        "Syarat dipautkan ke sumber rasmi",
+        "Disemak manusia sebelum diterbitkan",
+        "Data peribadi milik anda"
+      ],
+      "sampleLabel": "Contoh paparan dalam portal: program yang layak, merit simulasi dan roadmap.",
+      "sample": {
+        "programme": "Diploma Sains Komputer",
+        "eligible": "Layak",
+        "groups": "3 daripada 3 kumpulan",
+        "merit": "Merit simulasi",
+        "estimate": "Anggaran",
+        "roadmap": "Roadmap saya",
+        "spm": "SPM",
+        "foundation": "Asasi",
+        "degree": "Ijazah"
+      }
+    },
+    "coverage": {
+      "title": "Program daripada institusi ini kini dalam katalog EduLaunch",
+      "count": "{count} program telah disemak dan diterbitkan",
+      "note": "Nama institusi dipaparkan sebagai rujukan liputan katalog. EduLaunch tidak bergabung dengan, atau disahkan oleh, institusi yang disenaraikan."
+    },
+    "audiences": {
+      "title": "Satu platform, tiga titik mula",
+      "intro": "Pilih situasi anda. Setiap laluan disesuaikan selepas anda log masuk.",
+      "tabsLabel": "Situasi anda",
+      "cta": "Log masuk untuk bermula",
+      "before": {
+        "tab": "Belum SPM",
+        "title": "Belum ambil SPM? Mula dengan sasaran.",
+        "body": "Tetapkan sasaran gred setiap subjek dan lihat program yang boleh dicapai — tanpa menunggu keputusan keluar.",
+        "points": [
+          "Sasaran gred untuk setiap subjek",
+          "Simulasi merit di Merit Lab (bukan markah rasmi)",
+          "Penilaian minat untuk kenali bidang"
+        ],
+        "cardLabel": "Merit simulasi",
+        "cardValue": "86.40",
+        "cardTag": "Matematik: sasaran A",
+        "cardNote": "Anggaran sahaja · bukan markah rasmi"
+      },
+      "results": {
+        "tab": "Sudah ada keputusan",
+        "title": "Sudah dapat keputusan? Lihat program yang anda layak.",
+        "body": "Muat naik slip atau isi keputusan anda, kemudian lihat program yang layak dan hampir layak — dengan sebab bagi setiap syarat.",
+        "points": [
+          "Isi daripada slip, disemak anda sebelum disimpan",
+          "Semakan syarat setiap program dengan sebab",
+          "Peluang tawaran dianggar daripada purata merit rasmi"
+        ],
+        "cardLabel": "Cadangan teratas",
+        "cardValue": "Asasi Sains",
+        "cardTag": "Layak",
+        "cardNote": "Contoh · peluang ialah anggaran"
+      },
+      "higher": {
+        "tab": "Pra-U & Diploma",
+        "title": "Lepasan pra-U atau Diploma? Rancang ke ijazah.",
+        "body": "Masukkan PNGK, MUET dan keputusan anda, kemudian lihat program ijazah yang terbuka melalui laluan kemasukan anda.",
+        "points": [
+          "STPM, Matrikulasi, Asasi, Diploma dan setaraf",
+          "Syarat am dan khas mengikut laluan kemasukan",
+          "Roadmap dari pra-U atau Diploma ke kerjaya"
+        ],
+        "cardLabel": "Roadmap saya",
+        "cardValue": "Diploma → Ijazah",
+        "cardTag": "PNGK 3.42",
+        "cardNote": "Contoh paparan"
+      }
+    },
+    "steps": {
+      "title": "Empat langkah ke pelan yang jelas",
+      "intro": "Mulakan dari mana-mana langkah. Semua hasil disimpan dalam akaun anda.",
+      "label": "Langkah {n}",
+      "items": [
+        {
+          "title": "Kenali minat",
+          "body": "Jawab penilaian minat dan lihat bidang yang sesuai dengan anda."
+        },
+        {
+          "title": "Teroka & banding",
+          "body": "Cari program, lihat syarat bersumber dan banding sehingga tiga pilihan."
+        },
+        {
+          "title": "Semak kelayakan",
+          "body": "Lihat syarat dipenuhi, tidak dipenuhi atau belum pasti — dengan sebab."
+        },
+        {
+          "title": "Bina roadmap",
+          "body": "Pilih laluan dan program sasaran; pelan anda disimpan."
+        }
+      ]
+    },
+    "calendar": {
+      "title": "Apa perlu dibuat, bila",
+      "intro": "Panduan perancangan dari Tingkatan 4 hingga pendaftaran. Tarikh sebenar mengikut pengumuman rasmi setiap tahun.",
+      "items": [
+        {
+          "kicker": "Sebelum SPM",
+          "title": "Tingkatan 4 – 5",
+          "points": [
+            "Kenali minat melalui penilaian minat",
+            "Tetapkan sasaran gred setiap subjek",
+            "Cuba Merit Lab dengan sasaran anda"
+          ]
+        },
+        {
+          "kicker": "Selepas SPM",
+          "title": "Keputusan diumumkan",
+          "points": [
+            "Muat naik slip atau isi keputusan",
+            "Semak kelayakan dengan bukti rasmi",
+            "Lihat program yang hampir layak dan sebabnya"
+          ]
+        },
+        {
+          "kicker": "Buat pilihan",
+          "title": "Tempoh permohonan",
+          "points": [
+            "Senarai pendek dan banding program",
+            "Semak sumber dan tarikh semakan setiap syarat",
+            "Mohon melalui saluran rasmi"
+          ]
+        },
+        {
+          "kicker": "Langkah seterusnya",
+          "title": "Tawaran & pendaftaran",
+          "points": [
+            "Kemas kini roadmap ikut tawaran diterima",
+            "Dapat makluman bila syarat program disimpan berubah",
+            "Rancang langkah ke kerjaya"
+          ]
+        }
+      ]
+    },
+    "highlights": {
+      "label": "Sorotan",
+      "previous": "Sorotan sebelum",
+      "next": "Sorotan seterusnya",
+      "goTo": "Pergi ke sorotan {n}",
+      "pause": "Jeda putaran",
+      "play": "Main putaran",
+      "sample": "Contoh",
+      "items": [
+        {
+          "title": "Setiap syarat ada buktinya",
+          "body": "Kami tidak meneka. Setiap syarat program dipautkan kepada sumber rasmi dan tarikh semakannya — anda boleh membukanya sendiri.",
+          "card": {
+            "head": "Diploma Sains Komputer",
+            "line": "Matematik sekurang-kurangnya B",
+            "status": "Dipenuhi",
+            "quote": "“…sekurang-kurangnya gred B dalam Matematik.”",
+            "source": "Sumber rasmi · disemak 14 Okt 2026"
+          }
+        },
+        {
+          "title": "Disemak dua orang sebelum diterbitkan",
+          "body": "Seorang admin menyediakan program dan syaratnya; admin lain menyemak dan menerbitkan. Pelajar hanya melihat maklumat yang telah diluluskan.",
+          "card": {
+            "head": "Aliran semakan",
+            "steps": [
+              "Draf disediakan",
+              "Disemak admin lain",
+              "Diterbitkan kepada pelajar"
+            ]
+          }
+        },
+        {
+          "title": "Jujur tentang peluang",
+          "body": "Peluang tawaran ialah anggaran daripada purata merit rasmi tahun lepas, bukan jaminan. Kami tunjukkan angka yang digunakan.",
+          "card": {
+            "head": "Ijazah Sarjana Muda Sains Komputer",
+            "rows": [
+              [
+                "Merit anda",
+                "86.40"
+              ],
+              [
+                "Purata merit tahun lepas",
+                "84.10"
+              ]
+            ],
+            "status": "Peluang: sederhana"
+          }
+        }
+      ]
+    },
+    "fields": {
+      "title": "Teroka dunia bidang",
+      "intro": "Tidak pasti minat anda? Lihat bidang yang ada sebelum memilih program.",
+      "link": "Lihat program bidang ini",
+      "items": [
+        {
+          "title": "Teknologi",
+          "body": "Pengaturcaraan, data dan rangkaian."
+        },
+        {
+          "title": "Reka bentuk",
+          "body": "Grafik, produk dan pengalaman pengguna."
+        },
+        {
+          "title": "Sains",
+          "body": "Bioteknologi, kimia dan kesihatan."
+        }
+      ],
+      "more": {
+        "title": "Lebih banyak bidang dalam portal",
+        "body": "Kejuruteraan, perniagaan, pendidikan dan banyak lagi — dengan program sebenar.",
+        "cta": "Log masuk untuk teroka"
+      }
+    },
+    "account": {
+      "title": "Satu akaun untuk seluruh rancangan anda.",
+      "intro": "Roadmap, pilihan disimpan dan kemajuan anda kekal dalam akaun — buka semula bila-bila masa. Aplikasi mobile sedang dibangunkan.",
+      "points": [
+        {
+          "title": "Navigasi yang jelas",
+          "body": "Utama · Teroka · Roadmap · Merit Lab · Profil"
+        },
+        {
+          "title": "Hasil tidak dijana semula",
+          "body": "Roadmap dan cadangan yang disimpan boleh dibuka bila-bila masa"
+        },
+        {
+          "title": "Data anda dalam kawalan anda",
+          "body": "Muat turun data anda atau padam akaun dari Tetapan"
+        }
+      ],
+      "laptop": {
+        "title": "Roadmap saya",
+        "rows": [
+          "SPM 2026 · selesai",
+          "Asasi Sains · sasaran Jun 2027",
+          "Ijazah Sains Komputer"
+        ]
+      },
+      "phone": {
+        "title": "Roadmap saya",
+        "rows": [
+          "SPM 2026",
+          "Asasi Sains",
+          "Ijazah"
+        ],
+        "soon": "Akan datang"
+      }
+    },
+    "promise": {
+      "title": "Jujur tentang apa yang kami tahu — dan apa yang belum.",
+      "items": [
+        {
+          "title": "Bukti dahulu",
+          "body": "Tiada keputusan kelayakan tanpa sumber yang boleh dibuka."
+        },
+        {
+          "title": "Belum pasti, kami kata belum pasti",
+          "body": "Data tidak lengkap dipaparkan sebagai “belum dapat disahkan”, bukan lulus."
+        },
+        {
+          "title": "Bukan saluran permohonan",
+          "body": "Kami membantu anda membuat persediaan. Permohonan dan tawaran kemasukan diuruskan melalui saluran rasmi institusi."
+        }
+      ]
+    },
+    "faq": {
+      "title": "Soalan lazim",
+      "intro": "Tidak jumpa jawapan?",
+      "contact": "Hubungi kami",
+      "more": "Lihat semua soalan",
+      "items": [
+        {
+          "q": "Adakah EduLaunch memproses permohonan kemasukan?",
+          "a": "Tidak. EduLaunch membantu anda membuat persediaan dan menunjukkan sumber rasmi setiap program. Permohonan dan tawaran kemasukan diuruskan oleh pihak berkenaan melalui saluran rasmi."
+        },
+        {
+          "q": "Dari mana data syarat program datang?",
+          "a": "Daripada sumber rasmi kerajaan dan institusi. Setiap syarat menunjukkan sumber dan tarikh semakannya, dan diluluskan oleh dua admin sebelum diterbitkan."
+        },
+        {
+          "q": "Bolehkah saya guna sebelum keputusan SPM?",
+          "a": "Boleh. Pelajar Tingkatan 1 hingga 5 boleh mengambil penilaian minat, menetapkan sasaran gred dan mencuba Merit Lab. Semua angka berlabel anggaran."
+        },
+        {
+          "q": "Adakah slip keputusan saya disimpan?",
+          "a": "Tidak. Slip dibaca di pelayan EduLaunch untuk mengisi borang, kemudian dibuang. Hanya keputusan yang anda semak dan sahkan disimpan dalam akaun anda."
+        },
+        {
+          "q": "Siapa boleh melihat keputusan saya?",
+          "a": "Keputusan anda disimpan dalam akaun anda dan tidak dikongsi dengan institusi atau pihak lain. Anda boleh memuat turun data atau memadam akaun bila-bila masa dari Tetapan."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Sedia untuk langkah seterusnya?",
+      "body": "Cipta akaun dalam satu minit. Rimau akan bawa anda ke langkah pertama.",
+      "signUp": "Cipta akaun",
+      "signIn": "Log masuk"
+    },
+    "footer": {
+      "tagline": "Platform perancangan pendidikan dan kerjaya yang berpandukan maklumat rasmi.",
+      "resources": "Sumber",
+      "howItWorks": "Cara berfungsi",
+      "guide": "Panduan & FAQ",
+      "company": "EduLaunch",
+      "about": "Tentang kami",
+      "contact": "Hubungi kami",
+      "legal": "Undang-undang",
+      "privacy": "Dasar privasi",
+      "terms": "Terma penggunaan",
+      "nav": "Pautan laman"
+    },
+    "pages": {
+      "kicker": "EduLaunch",
+      "updated": "Kemas kini terakhir: {date}",
+      "about": {
+        "title": "Tentang kami",
+        "intro": "Membantu pelajar Malaysia membuat pilihan pendidikan dengan lebih jelas.",
+        "items": [
+          {
+            "title": "Misi kami",
+            "body": "Menghubungkan minat, kemampuan akademik dan pilihan kerjaya, supaya setiap pelajar tahu langkah seterusnya dan sebabnya."
+          },
+          {
+            "title": "Kaedah kami",
+            "body": "Penilaian minat, semakan syarat program, Merit Lab dan roadmap — dalam satu akaun."
+          },
+          {
+            "title": "Prinsip data",
+            "body": "Setiap syarat menunjukkan sumber rasmi dan tarikh semakan. Program diluluskan oleh dua admin sebelum pelajar melihatnya, dan data yang belum pasti dilabel begitu."
+          },
+          {
+            "title": "Siapa kami",
+            "body": "EduLaunch dibangunkan sebagai projek tahun akhir universiti dan tidak bersifat komersial. Kami tidak mewakili mana-mana agensi kerajaan atau institusi."
+          }
+        ],
+        "tiles": [
+          {
+            "title": "Maklumat bersumber",
+            "body": "Program dan syarat daripada sumber rasmi"
+          },
+          {
+            "title": "Kenali pilihan",
+            "body": "Teroka bidang sebelum memilih"
+          },
+          {
+            "title": "Rancang langkah",
+            "body": "Dari sekolah hingga kerjaya"
+          }
+        ]
+      },
+      "guide": {
+        "title": "Panduan & soalan lazim",
+        "intro": "Jawapan untuk memulakan perjalanan anda.",
+        "items": [
+          {
+            "q": "Belum mengambil SPM?",
+            "a": "Pilih tahap anda semasa mendaftar. Ambil penilaian minat, tetapkan sasaran gred dan cuba Merit Lab; roadmap anda bermula dari aliran Tingkatan 4 atau peperiksaan SPM."
+          },
+          {
+            "q": "Bagaimana mengisi keputusan daripada slip?",
+            "a": "Di Dokumen akademik, pilih “Isi daripada slip keputusan” dan muat naik PDF dari portal keputusan atau gambar slip. Semak setiap baris, terutama yang ditanda kuning, kemudian simpan."
+          },
+          {
+            "q": "Apakah maksud layak, hampir layak dan belum layak?",
+            "a": "Layak bermakna semua syarat yang boleh disemak dipenuhi. Hampir layak bermakna kurang satu atau dua syarat. Syarat yang tidak dapat disemak secara automatik, seperti temu duga, disenaraikan untuk anda sahkan."
+          },
+          {
+            "q": "Adakah merit menjamin tawaran?",
+            "a": "Tidak. Merit dan peluang ialah anggaran berdasarkan purata merit rasmi tahun lepas. Tawaran bergantung pada proses kemasukan rasmi."
+          },
+          {
+            "q": "Bagaimana jika maklumat program salah?",
+            "a": "Selepas log masuk, laporkan melalui Bantuan dengan pautan program. Admin akan menyemak sumber rasmi dan membetulkannya."
+          },
+          {
+            "q": "Bagaimana memadam data saya?",
+            "a": "Di Tetapan, anda boleh memuat turun semua data anda atau memadam akaun. Pemadaman akaun membuang profil, keputusan dan pilihan anda."
+          }
+        ],
+        "tiles": [
+          {
+            "title": "Ada slip keputusan?",
+            "body": "Semak bacaan sebelum simpan"
+          },
+          {
+            "title": "Belum tahu minat?",
+            "body": "Mulakan dengan penilaian minat"
+          },
+          {
+            "title": "Mahu rancang laluan?",
+            "body": "Lihat cabang dan sasaran"
+          }
+        ]
+      },
+      "privacy": {
+        "title": "Dasar privasi",
+        "intro": "Apa yang kami kumpul, mengapa, dan bagaimana anda mengawalnya.",
+        "date": "22 November 2026",
+        "sections": [
+          {
+            "title": "Data yang kami kumpul",
+            "body": [
+              "Akaun: nama dan alamat e-mel.",
+              "Profil pendidikan: tahap, keputusan peperiksaan, PNGK, MUET dan maklumat lain yang anda masukkan.",
+              "Penggunaan portal: jawapan penilaian minat, program yang disimpan, roadmap dan soalan kepada pasukan sokongan.",
+              "Borang hubungi: nama, e-mel dan mesej yang anda hantar."
+            ]
+          },
+          {
+            "title": "Slip dan dokumen",
+            "body": [
+              "Slip keputusan yang dimuat naik dibaca dalam memori pelayan EduLaunch untuk mengisi borang, kemudian dibuang. Fail tidak disimpan dan tidak dihantar kepada perkhidmatan luar.",
+              "Hanya keputusan yang anda semak dan sahkan disimpan dalam profil anda."
+            ]
+          },
+          {
+            "title": "Mengapa kami menggunakannya",
+            "body": [
+              "Untuk menyemak kelayakan, mencadangkan program, mengira anggaran merit, menyimpan roadmap anda dan memaklumkan perubahan syarat program yang anda simpan.",
+              "Untuk menjawab soalan dan mesej yang anda hantar."
+            ]
+          },
+          {
+            "title": "Perkongsian",
+            "body": [
+              "Kami tidak menjual data anda dan tidak berkongsinya dengan institusi, pengiklan atau pihak lain.",
+              "Data disimpan dalam pangkalan data yang diurus oleh pasukan EduLaunch."
+            ]
+          },
+          {
+            "title": "Kuki",
+            "body": [
+              "Kami hanya menggunakan kuki yang perlu: sesi log masuk dan pilihan bahasa. Tiada kuki pengiklanan atau penjejakan."
+            ]
+          },
+          {
+            "title": "Hak anda",
+            "body": [
+              "Lihat dan betulkan maklumat anda di Profil dan Dokumen akademik.",
+              "Muat turun semua data anda atau padam akaun anda di Tetapan.",
+              "Untuk soalan lain tentang data anda, gunakan borang Hubungi kami."
+            ]
+          },
+          {
+            "title": "Tempoh simpanan",
+            "body": [
+              "Data akaun disimpan sehingga anda memadam akaun.",
+              "Mesej borang hubungi dipadam 90 hari selepas dijawab."
+            ]
+          },
+          {
+            "title": "Pelajar bawah 18 tahun",
+            "body": [
+              "Pelajar Tingkatan 1 hingga 5 digalakkan menggunakan EduLaunch dengan pengetahuan ibu bapa atau penjaga."
+            ]
+          },
+          {
+            "title": "Perubahan dasar",
+            "body": [
+              "Jika dasar ini berubah, tarikh kemas kini di atas akan ditukar."
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "Terma penggunaan",
+        "intro": "Syarat menggunakan EduLaunch.",
+        "date": "22 November 2026",
+        "sections": [
+          {
+            "title": "Apa itu EduLaunch",
+            "body": [
+              "EduLaunch ialah alat perancangan pendidikan dan kerjaya. Ia bukan saluran permohonan kemasukan dan tidak mewakili mana-mana agensi atau institusi."
+            ]
+          },
+          {
+            "title": "Ketepatan maklumat",
+            "body": [
+              "Maklumat program dirujuk kepada sumber rasmi dan disemak sebelum diterbitkan, tetapi sumber boleh berubah. Sahkan dengan pihak berkenaan sebelum membuat permohonan.",
+              "Semakan kelayakan, merit dan peluang tawaran ialah anggaran dan tidak menjamin tawaran."
+            ]
+          },
+          {
+            "title": "Akaun anda",
+            "body": [
+              "Berikan maklumat yang benar dan jaga kata laluan anda. Anda bertanggungjawab atas aktiviti dalam akaun anda.",
+              "Kami boleh menggantung akaun yang menyalahgunakan perkhidmatan."
+            ]
+          },
+          {
+            "title": "Penggunaan yang dibenarkan",
+            "body": [
+              "Jangan menyalin data secara automatik, mengganggu perkhidmatan, atau memuat naik kandungan yang bukan milik anda.",
+              "Jangan menghantar maklumat peribadi orang lain."
+            ]
+          },
+          {
+            "title": "Kandungan sumber rasmi",
+            "body": [
+              "Petikan syarat dan maklumat program kekal milik pemilik sumber asal. EduLaunch memaparkannya bersama sumber untuk rujukan sahaja."
+            ]
+          },
+          {
+            "title": "Perubahan",
+            "body": [
+              "Terma ini boleh dikemas kini. Penggunaan berterusan selepas perubahan bermakna anda menerima terma yang baharu."
+            ]
+          }
+        ]
+      },
+      "contact": {
+        "kicker": "Sokongan",
+        "title": "Hubungi kami",
+        "intro": "Hantar pertanyaan tentang penggunaan sistem atau maklumat program.",
+        "name": "Nama",
+        "namePlaceholder": "Nama penuh",
+        "email": "E-mel",
+        "emailPlaceholder": "nama@contoh.com",
+        "category": "Kategori",
+        "categoryPlaceholder": "Pilih kategori",
+        "categories": {
+          "usage": "Penggunaan sistem",
+          "data": "Maklumat program",
+          "privacy": "Privasi & data",
+          "other": "Lain-lain"
+        },
+        "message": "Mesej",
+        "messagePlaceholder": "Terangkan pertanyaan anda",
+        "messageHint": "Sekurang-kurangnya 10 aksara, maksimum 2000.",
+        "trap": "Jangan isi medan ini",
+        "send": "Hantar pertanyaan",
+        "sending": "Menghantar…",
+        "sent": "Terima kasih. Mesej anda telah diterima, dan kami akan membalas ke e-mel anda.",
+        "sendAnother": "Hantar mesej lain",
+        "errors": {
+          "invalid": "Semak nama, e-mel, kategori dan mesej anda.",
+          "tooMany": "Anda telah menghantar beberapa mesej hari ini. Kami akan membalasnya dahulu.",
+          "busy": "Borang hubungi sibuk hari ini. Cuba lagi esok.",
+          "generic": "Mesej tidak dapat dihantar. Cuba lagi sebentar."
+        },
+        "help": {
+          "title": "Sudah ada akaun?",
+          "body": "Log masuk dan hantar soalan melalui Bantuan — jawapan akan muncul dalam akaun anda. Jangan sertakan nombor kad pengenalan atau slip dalam mesej.",
+          "cta": "Log masuk"
+        }
+      }
     }
   }
 }

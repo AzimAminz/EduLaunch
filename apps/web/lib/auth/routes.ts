@@ -16,11 +16,11 @@ export interface SignedInUser {
   role: Role;
 }
 
-/**
- * Pages anyone may open. Everything else is the private portal (every sidebar page) and needs a session.
- * The public website from Figma (landing, about, contact…) will be added to this list when it is built.
- */
-const PUBLIC = new Set(['log-masuk', 'daftar', 'lupa-kata-laluan', 'semak-emel', 'auth']);
+/** The public website: open to everyone, signed in or not. */
+export const SITE_PAGES = { about: 'tentang', guide: 'panduan', privacy: 'privasi', terms: 'terma', contact: 'hubungi' } as const;
+
+/** Pages anyone may open. Everything else is the private portal (every sidebar page) and needs a session. */
+const PUBLIC = new Set(['log-masuk', 'daftar', 'lupa-kata-laluan', 'semak-emel', 'auth', ...Object.values(SITE_PAGES)]);
 /** Pages that make no sense once signed in. */
 const GUEST_ONLY = new Set(['log-masuk', 'daftar']);
 /** The admin console. Students never enter it, and admins never enter the student portal. */
@@ -44,8 +44,8 @@ export function guard(pathname: string, user: SignedInUser | null, search = ''):
   const [, locale, section = ''] = pathname.split('/');
   if (!isLocale(locale)) return null;
 
-  // "/ms" on its own: no public landing page yet, so it leads to logging in or to the portal.
-  if (!section) return { redirect: user ? homeFor(locale, user.role) : `/${locale}/${AUTH_PAGES.signIn}` };
+  // "/ms" on its own is the public landing page; someone signed in goes straight to their home.
+  if (!section) return user ? { redirect: homeFor(locale, user.role) } : null;
   if (!user) {
     return PUBLIC.has(section) ? null : { redirect: `/${locale}/${AUTH_PAGES.signIn}?next=${encodeURIComponent(pathname + search)}` };
   }
