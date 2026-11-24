@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One page of the "Utama & profil" section (Figma: M / Profil & perjalanan saya, Pilihan yang anda simpan,
+    Kemas kini yang berkaitan, Privasi & tetapan, Bantuan & maklumat). They share this layout:
+    eyebrow, title, intro, an illustration on light blue, detail cards and actions.
+    FeaturePage.kt says what each page shows; the cards and buttons are added from code.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    tools:context=".home.FeaturePageActivity">
+
+    <include layout="@layout/include_top_bar" />
+
+    <!-- The tab bar sits over the bottom of the page, as on the home screen. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingTop="22dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    android:id="@+id/eyebrow"
+                    style="@style/Edulaunch.Eyebrow"
+                    android:layout_marginTop="0dp"
+                    tools:text="RUANG PERIBADI" />
+
+                <TextView
+                    android:id="@+id/title"
+                    style="@style/Edulaunch.Title"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="18dp"
+                    android:letterSpacing="0"
+                    android:textSize="30sp"
+                    tools:text="Profil &amp; perjalanan saya" />
+
+                <TextView
+                    android:id="@+id/intro"
+                    style="@style/Edulaunch.Body"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="18dp"
+                    android:lineSpacingMultiplier="1.05"
+                    android:textSize="16sp"
+                    tools:text="Keputusan sebenar dan sasaran gred diasingkan dalam akaun yang sama." />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_marginTop="18dp"
+                    android:background="@drawable/bg_card_illustration">
+
+                    <ImageView
+                        android:id="@+id/illustration"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:scaleType="fitCenter"
+                        tools:src="@drawable/rimau_navigator" />
+                </FrameLayout>
+
+                <!-- Detail cards (item_detail_card), then the actions (item_action_primary / item_action_outlined). -->
+                <LinearLayout
+                    android:id="@+id/details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:id="@+id/actions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </ScrollView>
+
+        <include layout="@layout/include_tab_bar" />
+    </FrameLayout>
+</LinearLayout>

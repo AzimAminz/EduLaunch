@@ -5,6 +5,28 @@
     permission for that. Android Studio grants it when it installs the app (see installOptions in build.gradle.kts).
     Release builds talk to the EduLaunch server on the internet and do not need it.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+
+    <application>
+        <!--
+            Lets a debug build open a screen straight from the computer, without signing in or running the backend:
+              adb shell am start -n my.utem.ftmk.edulaunch/.home.HomeActivity
+              adb shell am start -n my.utem.ftmk.edulaunch/.home.AcademicProfileActivity
+        -->
+        <activity
+            android:name=".home.HomeActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".home.AcademicProfileActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <!-- Opens any other screen by name (see DebugOpenActivity). -->
+        <activity
+            android:name=".DebugOpenActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay" />
+    </application>
 </manifest>

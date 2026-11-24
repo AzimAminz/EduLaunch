@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From Figma (EduLaunch, ic_tab_calculator); tinted where it is used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:viewportWidth="22"
+    android:viewportHeight="22">
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.65"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M5.5,1.83333H16.5C17.5125,1.83333 18.3333,2.65414 18.3333,3.66667V18.3333C18.3333,19.3459 17.5125,20.1667 16.5,20.1667H5.5C4.48748,20.1667 3.66667,19.3459 3.66667,18.3333V3.66667C3.66667,2.65414 4.48748,1.83333 5.5,1.83333Z" />
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.65"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M7.33333,5.5H14.6667" />
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.65"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M7.33333,10.0833H9.16667M12.8333,10.0833H14.6667M7.33333,13.75H9.16667M12.8333,13.75H14.6667M7.33333,17.4167H9.16667M12.8333,17.4167H14.6667" />
+</vector>

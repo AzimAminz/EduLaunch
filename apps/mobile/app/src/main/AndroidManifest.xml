@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- "Cuba lagi" on the offline screen checks whether the phone is back online. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -47,6 +49,139 @@
             android:exported="false" />
         <activity
             android:name=".home.HomeActivity"
+            android:exported="false" />
+
+        <!-- Profile pages (Figma section 3 · Utama & profil); all shown by FeaturePageActivity. -->
+        <activity
+            android:name=".home.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".home.SavedActivity"
+            android:exported="false" />
+        <activity
+            android:name=".home.UpdatesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".home.PrivacyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".home.HelpActivity"
+            android:exported="false" />
+
+        <!-- Academic profile by level (Figma section 3.1 · Profil akademik ikut tahap). -->
+        <activity
+            android:name=".home.AcademicProfileActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- 4 · Teroka program -->
+        <activity
+            android:name=".explore.ExploreActivity"
+            android:exported="false" />
+        <activity
+            android:name=".explore.ProgramSearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".explore.ProgramDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".explore.CompareActivity"
+            android:exported="false" />
+        <activity
+            android:name=".explore.RecommendationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".explore.UniversityActivity"
+            android:exported="false" />
+        <activity
+            android:name=".explore.EvidenceActivity"
+            android:exported="false" />
+
+        <!-- 5 · Kelayakan & Merit Lab -->
+        <activity
+            android:name=".merit.EligibilityActivity"
+            android:exported="false" />
+        <activity
+            android:name=".merit.MeritLabActivity"
+            android:exported="false" />
+
+        <!-- 6 · Kenali diri -->
+        <activity
+            android:name=".discover.QuizActivity"
+            android:exported="false" />
+        <activity
+            android:name=".discover.DiscoveringActivity"
+            android:exported="false" />
+        <activity
+            android:name=".discover.InterestResultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".discover.FieldDiscoveryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".discover.ExperienceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".discover.ReflectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".discover.NextOptionsActivity"
+            android:exported="false" />
+
+        <!-- 7 · Roadmap -->
+        <activity
+            android:name=".roadmap.RoadmapActivity"
+            android:exported="false" />
+        <activity
+            android:name=".roadmap.BuildRoadmapActivity"
+            android:exported="false" />
+        <activity
+            android:name=".roadmap.GeneratingRoadmapActivity"
+            android:exported="false" />
+        <activity
+            android:name=".roadmap.RoadmapVersionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".roadmap.RoadmapSavedActivity"
+            android:exported="false" />
+
+        <!-- 8 · Dokumen akademik -->
+        <activity
+            android:name=".documents.DocumentsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".documents.SelectedDocumentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".documents.ReviewReadingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".documents.ResultsSavedActivity"
+            android:exported="false" />
+        <activity
+            android:name=".documents.ResultEntryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".documents.UnreadableFileActivity"
+            android:exported="false" />
+
+        <!-- 9 · Tanya AI bersumber -->
+        <activity
+            android:name=".ai.AskAiActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ai.AiBusyActivity"
+            android:exported="false" />
+
+        <!-- 10 · Keadaan sistem -->
+        <activity
+            android:name=".system.RequestFailedActivity"
+            android:exported="false" />
+        <activity
+            android:name=".system.SessionExpiredActivity"
+            android:exported="false" />
+        <activity
+            android:name=".system.OfflineActivity"
             android:exported="false" />
 
         <!-- Keeps the chosen language across restarts on Android 12 and older (13+ keeps it itself). -->

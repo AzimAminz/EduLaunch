@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Academic profile by level (Figma section "3.1 · Profil akademik ikut tahap"): Form 1–3, Form 4–5,
+    pre-university, Diploma and Certificate share this page. The heading, the upload banner and the save
+    button are here; AcademicProfile.kt adds the level's fields, subject list, chips and note into `blocks`.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    tools:context=".home.AcademicProfileActivity">
+
+    <include layout="@layout/include_top_bar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingTop="22dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="40dp">
+
+                <!-- The eyebrow names the level; tapping it changes the level (the chevron says so). -->
+                <LinearLayout
+                    android:id="@+id/eyebrow_row"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="28dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/eyebrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_semibold"
+                        android:textColor="@color/muted"
+                        android:textSize="11sp"
+                        tools:text="PROFIL AKADEMIK · TINGKATAN 1–3" />
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="4dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_chevron_small"
+                        app:tint="@color/muted" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/title"
+                    style="@style/Edulaunch.Title"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="4dp"
+                    android:letterSpacing="0"
+                    android:textSize="28sp"
+                    tools:text="Prestasi sekolah anda" />
+
+                <TextView
+                    android:id="@+id/intro"
+                    style="@style/Edulaunch.Body"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingMultiplier="1.05"
+                    tools:text="Pilihan sahaja — gred sekolah membantu cadangan aliran Tingkatan 4." />
+
+                <include layout="@layout/include_upload_banner" />
+
+                <!-- The level's own blocks, 16dp apart (Figma "Kandungan" gap). -->
+                <LinearLayout
+                    android:id="@+id/blocks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_save"
+                    style="@style/Edulaunch.Button"
+                    android:layout_marginTop="16dp"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/ic_check_circle"
+                    tools:text="Simpan &amp; lihat cadangan aliran" />
+            </LinearLayout>
+        </ScrollView>
+
+        <include layout="@layout/include_tab_bar" />
+    </FrameLayout>
+</LinearLayout>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Academic form field (Figma: Input / Medan): white, 1.5dp grey border. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/white" />
+    <stroke android:width="1.5dp" android:color="#8792A6" />
+    <corners android:radius="12dp" />
+</shape>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From Figma (EduLaunch, ic_tab_route); tinted where it is used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:viewportWidth="22"
+    android:viewportHeight="22">
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M8.25,5.5C8.25,7.01878 7.01878,8.25 5.5,8.25C3.98122,8.25 2.75,7.01878 2.75,5.5C2.75,3.98122 3.98122,2.75 5.5,2.75C7.01878,2.75 8.25,3.98122 8.25,5.5Z" />
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M19.25,16.5C19.25,18.0188 18.0188,19.25 16.5,19.25C14.9812,19.25 13.75,18.0188 13.75,16.5C13.75,14.9812 14.9812,13.75 16.5,13.75C18.0188,13.75 19.25,14.9812 19.25,16.5Z" />
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M8.25,5.5H14.6667C15.6391,5.5 16.5718,5.88631 17.2594,6.57394C17.947,7.26158 18.3333,8.19421 18.3333,9.16667C18.3333,10.1391 17.947,11.0718 17.2594,11.7594C16.5718,12.447 15.6391,12.8333 14.6667,12.8333H7.33333C6.36087,12.8333 5.42824,13.2196 4.74061,13.9073C4.05298,14.5949 3.66667,15.5275 3.66667,16.5C3.66667,17.4725 4.05298,18.4051 4.74061,19.0927C5.42824,19.7804 6.36087,20.1667 7.33333,20.1667" />
+</vector>

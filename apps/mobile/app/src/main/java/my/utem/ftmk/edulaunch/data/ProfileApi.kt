@@ -23,7 +23,7 @@ import my.utem.ftmk.edulaunch.onboarding.LevelChoice
 class ApiException(val status: Int, path: String) : Exception("Gateway answered $status for $path")
 
 /** The student's profile, as `GET /api/profile/me` returns it (the parts the app uses so far). */
-data class Me(val educationLevel: String?)
+data class Me(val educationLevel: String?, val formYear: Int? = null, val higherQualification: String? = null)
 
 /** The profile service, through the gateway, as the signed-in student (like apps/web/lib/profile/api.ts). */
 object ProfileApi {
@@ -47,8 +47,15 @@ object ProfileApi {
     }
 }
 
-fun parseMe(json: String): Me =
-    Me(educationLevel = Json.parseToJsonElement(json).jsonObject["educationLevel"]?.jsonPrimitive?.contentOrNull)
+fun parseMe(json: String): Me {
+    val me = Json.parseToJsonElement(json).jsonObject
+    fun text(key: String) = me[key]?.jsonPrimitive?.contentOrNull
+    return Me(
+        educationLevel = text("educationLevel"),
+        formYear = text("formYear")?.toIntOrNull(),
+        higherQualification = text("higherQualification"),
+    )
+}
 
 /** The body of `PATCH /api/profile/me/education-level` (LevelBody in services/profile). */
 fun LevelChoice.toJson(): JsonObject = buildJsonObject {

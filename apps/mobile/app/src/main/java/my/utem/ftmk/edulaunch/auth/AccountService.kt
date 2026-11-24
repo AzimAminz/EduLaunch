@@ -11,6 +11,7 @@ import java.util.Locale
 import java.util.TimeZone
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import my.utem.ftmk.edulaunch.BuildConfig
@@ -35,6 +36,10 @@ object AccountService {
     }
 
     val signedInEmail: String? get() = auth.currentUserOrNull()?.email
+
+    /** The name given at sign-up (full_name in the account's metadata), if any. */
+    val signedInName: String?
+        get() = auth.currentUserOrNull()?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
 
     /** [locale] is "ms" or "en"; later e-mails (such as "forgot password") use it. */
     suspend fun signIn(email: String, password: String, locale: String): AuthError? = attempt {
