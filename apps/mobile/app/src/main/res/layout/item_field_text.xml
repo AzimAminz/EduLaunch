@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma "Field / …" without a chevron: a label over a box the student types in (PNGK, CGPA, programme). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/outfit_semibold"
+        android:labelFor="@+id/value"
+        android:textColor="@color/navy"
+        android:textSize="13sp"
+        tools:ignore="LabelFor"
+        tools:text="PNGK" />
+
+    <EditText
+        android:id="@+id/value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_input"
+        android:fontFamily="@font/outfit_medium"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="13dp"
+        android:textColor="@color/navy"
+        android:textSize="15sp"
+        tools:text="3.67" />
+</LinearLayout>

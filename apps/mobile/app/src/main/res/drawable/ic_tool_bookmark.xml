@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From Figma (EduLaunch, Ikon / bookmark). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:viewportWidth="22"
+    android:viewportHeight="22">
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M17.4167 19.25L11 15.5833L4.58333 19.25V4.58333C4.58333 4.0971 4.77649 3.63079 5.1203 3.28697C5.46412 2.94315 5.93044 2.75 6.41667 2.75H15.5833C16.0696 2.75 16.5359 2.94315 16.8797 3.28697C17.2235 3.63079 17.4167 4.0971 17.4167 4.58333V19.25Z" />
+</vector>

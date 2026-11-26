@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From Figma (EduLaunch, Ikon / kompas); tinted by the button. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M3.33333,10a6.66667,6.66667 0,1 0,13.33334 0a6.66667,6.66667 0,1 0,-13.33334 0Z"
+        android:strokeWidth="1.66667"
+        android:strokeColor="#142747"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M12.9167,7.08333L11.25,11.25L7.08333,12.9167L8.75,8.75L12.9167,7.08333Z"
+        android:strokeWidth="1.66667"
+        android:strokeColor="#142747"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

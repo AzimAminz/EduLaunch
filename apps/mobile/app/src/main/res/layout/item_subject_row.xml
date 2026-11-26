@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma "Subjek / …": name and group, the grade (and the yellow target on Form 4–5), then × to remove. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_subject_row"
+    android:gravity="center_vertical"
+    android:minHeight="56dp"
+    android:orientation="horizontal"
+    android:paddingVertical="9dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/outfit_medium"
+            android:textColor="@color/navy"
+            android:textSize="14sp"
+            tools:text="Bahasa Melayu" />
+
+        <TextView
+            android:id="@+id/category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:textColor="@color/muted"
+            android:textSize="11sp"
+            tools:text="Bahasa" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/grade"
+        style="@style/Edulaunch.GradePicker"
+        tools:text="A" />
+
+    <TextView
+        android:id="@+id/target"
+        style="@style/Edulaunch.GradePicker"
+        android:background="@drawable/bg_grade_target"
+        android:visibility="gone"
+        tools:text="A+"
+        tools:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/remove"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_remove"
+        app:tint="@color/muted"
+        tools:ignore="ContentDescription" />
+</LinearLayout>

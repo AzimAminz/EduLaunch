@@ -184,6 +184,7 @@ class OnboardingActivity : AppCompatActivity() {
                 // The first profile call after sign-up creates the profile, so it exists before the level is saved.
                 ProfileApi.me()
                 ProfileApi.setEducationLevel(choice)
+                LevelStore.save(this@OnboardingActivity, choice)
                 openFresh(HomeActivity::class.java)
             } catch (e: CancellationException) {
                 throw e

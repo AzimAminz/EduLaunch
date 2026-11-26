@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The page's main action (navy). Text, icon and its side are set from FeaturePage.kt. -->
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Edulaunch.Button.Page"
+    app:icon="@drawable/ic_action_document" />

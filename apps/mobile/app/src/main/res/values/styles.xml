@@ -167,4 +167,121 @@
         <item name="backgroundTint">@color/blue</item>
         <item name="iconTint">@color/navy</item>
     </style>
+
+    <!-- Yellow action on a navy card ("Lihat 12 cadangan & sebab", "Mula kenali diri"). -->
+    <style name="Edulaunch.Button.Yellow">
+        <item name="android:textColor">@color/navy</item>
+        <item name="backgroundTint">@color/yellow</item>
+        <item name="iconTint">@color/navy</item>
+    </style>
+
+    <!-- Actions on the profile pages (Figma: Button / … in "3 · Utama & profil"): a bit larger, 18dp apart. -->
+    <style name="Edulaunch.Button.Page">
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="cornerRadius">10dp</item>
+        <item name="iconSize">20dp</item>
+    </style>
+
+    <style name="Edulaunch.Button.Page.Outlined">
+        <item name="android:textColor">@color/navy</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="iconTint">@color/navy</item>
+        <item name="strokeColor">@color/line</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Grade box on a subject row (Figma "Gred / A"): opens the grade scale. -->
+    <style name="Edulaunch.GradePicker">
+        <item name="android:layout_width">62dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:background">@drawable/bg_grade</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:fontFamily">@font/outfit_semibold</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">32dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">6dp</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textSize">13sp</item>
+        <item name="drawableEndCompat">@drawable/ic_chevron_small</item>
+    </style>
+
+    <!-- A line on the "Kemajuan anda" card: a marker, then what was done. -->
+    <style name="Edulaunch.ProgressLine">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:fontFamily">@font/outfit_medium</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Home screen (Figma M03 / Student home). -->
+
+    <!-- Round 40dp buttons in the top bar. -->
+    <style name="Edulaunch.TopButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:background">@drawable/bg_icon_button</item>
+        <item name="android:foreground">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <!-- Small rounded label ("Layak", "+3 kini layak"). -->
+    <style name="Edulaunch.Pill">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_pill_mint</item>
+        <item name="android:fontFamily">@font/outfit_semibold</item>
+        <item name="android:paddingStart">9dp</item>
+        <item name="android:paddingEnd">9dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <!-- One bar of the chance meter. -->
+    <style name="Edulaunch.MeterBar">
+        <item name="android:layout_width">18dp</item>
+        <item name="android:layout_height">8dp</item>
+        <item name="android:layout_marginEnd">3dp</item>
+        <item name="android:background">@drawable/bg_meter_on</item>
+    </style>
+
+    <!-- A bottom tab: icon above its name. -->
+    <style name="Edulaunch.Tab">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">62dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">2dp</item>
+        <item name="android:layout_marginEnd">2dp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="Edulaunch.TabIcon">
+        <item name="android:layout_width">22dp</item>
+        <item name="android:layout_height">22dp</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Edulaunch.TabLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:fontFamily">@font/outfit_medium</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/navy</item>
+        <item name="android:textSize">12sp</item>
+    </style>
 </resources>

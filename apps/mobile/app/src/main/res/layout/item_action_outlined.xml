@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A secondary action (white with a border). Text, icon and its side are set from FeaturePage.kt. -->
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Edulaunch.Button.Page.Outlined"
+    app:icon="@drawable/ic_arrow_right" />

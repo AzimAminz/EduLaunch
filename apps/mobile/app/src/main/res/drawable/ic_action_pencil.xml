@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From Figma (EduLaunch, ic_action_pencil); tinted where it is used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M10.875,4.5L13.5,7.125M3,15L6.375,14.25L14.625,6C15.225,5.4 15.225,4.35 14.625,3.75L14.25,3.375C13.65,2.775 12.6,2.775 12,3.375L3.75,11.625L3,15Z" />
+</vector>

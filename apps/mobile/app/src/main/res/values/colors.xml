@@ -8,6 +8,19 @@
     <color name="yellow">#FFD84D</color>
     <color name="blue">#E3ECFF</color>
     <color name="red">#EE5D57</color>
+    <color name="mint">#DDF4E9</color>
+    <color name="green">#187A60</color>
+    <!-- Caution notes ("!"). -->
+    <color name="cream">#FFF5D1</color>
+    <!-- Roadmap: the best-fit card (light mint with a mint border), faded options, links. -->
+    <color name="mint_soft">#F0F7F4</color>
+    <color name="mint_line">#BFE3D4</color>
+    <color name="mint_chip">#E1F3EC</color>
+    <color name="faded">#F7F9FC</color>
+    <color name="link">#2F5BD3</color>
+    <color name="connector">#C9D1DE</color>
+    <!-- Dims the screen behind a sheet (navy at 50%). -->
+    <color name="scrim">#800B1830</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

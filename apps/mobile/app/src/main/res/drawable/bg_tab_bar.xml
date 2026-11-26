@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- White bottom tab bar with a line on top. The top 34dp stay clear for the round middle button. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="34dp"><shape><solid android:color="@color/line" /></shape></item>
+    <item android:top="35dp"><shape><solid android:color="@color/white" /></shape></item>
+</layer-list>

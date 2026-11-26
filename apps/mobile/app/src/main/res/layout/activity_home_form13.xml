@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Student home for Form 1–3 (Figma: M / Dashboard · Tingkatan 1–3): choosing a Form 4 stream comes first.
+    The streams and progress are sample content from the design until the services provide them.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    tools:context=".home.HomeActivity">
+
+    <include layout="@layout/include_top_bar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingTop="22dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="40dp">
+
+                <TextView
+                    android:id="@+id/eyebrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/outfit_semibold"
+                    android:textColor="@color/muted"
+                    android:textSize="11sp"
+                    tools:text="TINGKATAN 3 · 2026" />
+
+                <TextView
+                    android:id="@+id/greeting"
+                    style="@style/Edulaunch.Title"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:letterSpacing="0"
+                    tools:text="Selamat pagi, Aiman" />
+
+                <TextView
+                    style="@style/Edulaunch.Body"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/dash13_focus" />
+
+                <!-- Langkah seterusnya -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_navy"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        style="@style/Edulaunch.Pill"
+                        android:background="@drawable/bg_pill_yellow"
+                        android:paddingVertical="5dp"
+                        android:text="@string/dash13_next_chip"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/outfit_bold"
+                        android:text="@string/dash13_next_title"
+                        android:textColor="@color/white"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/dash13_next_body"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- One white row per stream, with how well it matches (added from code). -->
+                <LinearLayout
+                    android:id="@+id/streams"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_compare"
+                    style="@style/Edulaunch.Button"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/dash13_compare"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/ic_action_columns" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_note_cream"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_bold"
+                        android:importantForAccessibility="no"
+                        android:text="!"
+                        android:textColor="@color/navy"
+                        android:textSize="13sp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/dash13_note"
+                        android:textColor="@color/navy"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Kemajuan -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_card_form"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:fontFamily="@font/outfit_semibold"
+                        android:text="@string/dash13_progress"
+                        android:textColor="@color/navy"
+                        android:textSize="16sp"
+                        tools:targetApi="p" />
+
+                    <TextView
+                        style="@style/Edulaunch.ProgressLine"
+                        android:text="@string/dash13_progress_quiz"
+                        app:drawableStartCompat="@drawable/ic_tick" />
+
+                    <TextView
+                        style="@style/Edulaunch.ProgressLine"
+                        android:text="@string/dash13_progress_activities"
+                        app:drawableStartCompat="@drawable/ic_tick" />
+
+                    <TextView
+                        style="@style/Edulaunch.ProgressLine"
+                        android:fontFamily="@font/outfit_regular"
+                        android:text="@string/dash13_progress_grades"
+                        android:textColor="@color/muted"
+                        app:drawableStartCompat="@drawable/ic_dash" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_fill_grades"
+                        style="@style/Edulaunch.Button.Outlined"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/dash13_fill_grades"
+                        app:cornerRadius="10dp"
+                        app:icon="@drawable/ic_action_pencil" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <include layout="@layout/include_tab_bar" />
+    </FrameLayout>
+</LinearLayout>

@@ -1,40 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Temporary home, so sign-in and onboarding have somewhere to land until the tab layout is built. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    Student home (Figma: M03 / Student home): the top bar, the dashboard cards and the bottom tabs.
+    The recommendation shown is sample content from the design until the app reads the recommendations service.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
-    android:fillViewport="true"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical"
     tools:context=".home.HomeActivity">
 
-    <LinearLayout style="@style/Edulaunch.Screen">
+    <include layout="@layout/include_top_bar" />
 
-        <include layout="@layout/view_header" />
+    <!-- The tab bar sits over the bottom of the page, so the round middle button can rise above it and still be tapped. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <TextView
-            style="@style/Edulaunch.Title"
-            android:layout_marginTop="24dp"
-            android:text="@string/home_title" />
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
-        <TextView
-            style="@style/Edulaunch.Body"
-            android:text="@string/home_body" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="22dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="40dp">
 
-        <TextView
-            android:id="@+id/signed_in_as"
-            style="@style/Edulaunch.Body"
-            android:layout_marginTop="14dp"
-            android:fontFamily="@font/outfit_semibold"
-            android:textColor="@color/navy" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:fontFamily="@font/outfit_bold"
+                android:lineSpacingMultiplier="1.05"
+                android:text="@string/home_title"
+                android:textColor="@color/navy"
+                android:textSize="30sp"
+                tools:targetApi="p" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_sign_out"
-            style="@style/Edulaunch.Button.Outlined"
-            android:layout_marginTop="24dp"
-            android:text="@string/home_sign_out"
-            app:icon="@drawable/ic_log_in" />
-    </LinearLayout>
-</ScrollView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/home_body"
+                android:textColor="@color/muted"
+                android:textSize="15sp" />
+
+            <!-- Kad / Cadangan teratas: the strongest match and a link to every recommendation. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card_navy"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/outfit_semibold"
+                        android:text="@string/home_top_label"
+                        android:textColor="@color/yellow"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        style="@style/Edulaunch.Pill"
+                        android:text="@string/home_top_new" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/top_match"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:orientation="vertical"
+                    android:paddingStart="14dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_bold"
+                        android:text="@string/home_top_name"
+                        android:textColor="@color/navy"
+                        android:textSize="17sp" />
+
+                    <!-- On a phone the name gets its own line, so the pills sit under it instead of squeezing it. -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            style="@style/Edulaunch.Pill"
+                            android:text="@string/home_top_eligible" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_pill_blue"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="9dp"
+                            android:paddingTop="5dp"
+                            android:paddingEnd="9dp"
+                            android:paddingBottom="5dp">
+
+                            <View style="@style/Edulaunch.MeterBar" />
+
+                            <View style="@style/Edulaunch.MeterBar" />
+
+                            <View
+                                style="@style/Edulaunch.MeterBar"
+                                android:layout_marginEnd="6dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/outfit_semibold"
+                                android:text="@string/home_top_chance"
+                                android:textColor="@color/navy"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="@string/home_top_reason"
+                        android:textColor="@color/muted"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_see_all"
+                    style="@style/Edulaunch.Button.Yellow"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/home_top_see_all"
+                    android:textSize="14sp"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/ic_arrow_right"
+                    app:iconGravity="textEnd"
+                    app:iconSize="18dp" />
+            </LinearLayout>
+
+            <!-- Next step: start the self-discovery quiz, with Rimau on a laptop. -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="235dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card_navy_large">
+
+                <LinearLayout
+                    android:layout_width="205dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="22dp"
+                    android:elevation="1dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_semibold"
+                        android:text="@string/home_next_label"
+                        android:textColor="@color/yellow"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:fontFamily="@font/outfit_bold"
+                        android:lineSpacingMultiplier="1.05"
+                        android:text="@string/home_next_title"
+                        android:textColor="@color/white"
+                        android:textSize="25sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_start_quiz"
+                        style="@style/Edulaunch.Button.Yellow"
+                        android:layout_width="195dp"
+                        android:layout_marginTop="14dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:text="@string/home_next_start"
+                        android:textSize="16sp"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/ic_play"
+                        app:iconSize="20dp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginBottom="10dp"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/rimau_laptop" />
+            </FrameLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/include_tab_bar" />
+    </FrameLayout>
+</LinearLayout>

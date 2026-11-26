@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From Figma (EduLaunch, ic_tab_compass); tinted where it is used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp"
+    android:viewportWidth="22"
+    android:viewportHeight="22">
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M19.25,11C19.25,15.5563 15.5563,19.25 11,19.25C6.44365,19.25 2.75,15.5563 2.75,11C2.75,6.44365 6.44365,2.75 11,2.75C15.5563,2.75 19.25,6.44365 19.25,11Z" />
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M14.6667,7.33333L11.9167,11.9167L7.33333,14.6667L10.0833,10.0833L14.6667,7.33333Z" />
+</vector>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- From Figma (EduLaunch, ic_bell); tinted where it is used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M5,6.66667C5,5.34058 5.52678,4.06881 6.46447,3.13113C7.40215,2.19345 8.67392,1.66667 10,1.66667C11.3261,1.66667 12.5979,2.19345 13.5355,3.13113C14.4732,4.06881 15,5.34058 15,6.66667C15,12.5 17.5,14.1667 17.5,14.1667H2.5C2.5,14.1667 5,12.5 5,6.66667Z" />
+    <path
+        android:strokeColor="#142747"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M8.58333,17.5C8.72282,17.7537 8.92787,17.9653 9.17708,18.1127C9.42628,18.26 9.71048,18.3378 10,18.3378C10.2895,18.3378 10.5737,18.26 10.8229,18.1127C11.0721,17.9653 11.2772,17.7537 11.4167,17.5" />
+</vector>

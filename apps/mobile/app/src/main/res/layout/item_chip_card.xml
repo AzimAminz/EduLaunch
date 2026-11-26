@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A white card with a title and a row of chips ("Keputusan SPM asas", "Laluan Ijazah berkaitan"). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:background="@drawable/bg_card_form"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <TextView
+        android:id="@+id/card_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityHeading="true"
+        android:fontFamily="@font/outfit_semibold"
+        android:textColor="@color/navy"
+        android:textSize="17sp"
+        tools:targetApi="p"
+        tools:text="Laluan Ijazah berkaitan" />
+
+    <TextView
+        android:id="@+id/card_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:textColor="@color/muted"
+        android:textSize="13sp"
+        android:visibility="gone"
+        tools:text="Daripada profil SPM anda."
+        tools:visibility="visible" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        app:chipSpacingHorizontal="6dp"
+        app:chipSpacingVertical="6dp" />
+</LinearLayout>

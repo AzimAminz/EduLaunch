@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bottom tabs (Figma: Mobile / Tab bawah): Utama, Teroka, Semua alat (round middle button), Roadmap, Merit Lab.
+    Shared by every signed-in screen; AppChrome.kt highlights the active tab and wires them.
+    The top 34dp are transparent (see bg_tab_bar); the middle button fills them.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tab_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@drawable/bg_tab_bar"
+    android:clipToPadding="false"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="44dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="12dp">
+
+    <LinearLayout
+        android:id="@+id/tab_home"
+        style="@style/Edulaunch.Tab">
+
+        <ImageView
+            style="@style/Edulaunch.TabIcon"
+            android:src="@drawable/ic_tab_home" />
+
+        <TextView
+            style="@style/Edulaunch.TabLabel"
+            android:text="@string/tab_home" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tab_explore"
+        style="@style/Edulaunch.Tab">
+
+        <ImageView
+            style="@style/Edulaunch.TabIcon"
+            android:src="@drawable/ic_tab_compass" />
+
+        <TextView
+            style="@style/Edulaunch.TabLabel"
+            android:text="@string/tab_explore" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/tab_all_tools"
+        android:layout_width="0dp"
+        android:layout_height="96dp"
+        android:layout_marginTop="-34dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:contentDescription="@string/tab_all_tools"
+        android:focusable="true">
+
+        <FrameLayout
+            android:id="@+id/tab_all_tools_circle"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_gravity="top|center_horizontal"
+            android:background="@drawable/bg_tab_center"
+            android:elevation="6dp"
+            android:outlineSpotShadowColor="@color/navy"
+            tools:targetApi="p">
+
+            <ImageView
+                android:id="@+id/tab_all_tools_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_grid" />
+        </FrameLayout>
+
+        <TextView
+            style="@style/Edulaunch.TabLabel"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="11dp"
+            android:importantForAccessibility="no"
+            android:text="@string/tab_all_tools"
+            android:textSize="11sp" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/tab_roadmap"
+        style="@style/Edulaunch.Tab">
+
+        <ImageView
+            style="@style/Edulaunch.TabIcon"
+            android:src="@drawable/ic_tab_route" />
+
+        <TextView
+            style="@style/Edulaunch.TabLabel"
+            android:text="@string/tab_roadmap" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tab_merit_lab"
+        style="@style/Edulaunch.Tab">
+
+        <ImageView
+            style="@style/Edulaunch.TabIcon"
+            android:src="@drawable/ic_tab_calculator" />
+
+        <TextView
+            style="@style/Edulaunch.TabLabel"
+            android:text="@string/tab_merit_lab" />
+    </LinearLayout>
+</LinearLayout>
